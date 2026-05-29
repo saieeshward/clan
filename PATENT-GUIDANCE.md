@@ -1,10 +1,10 @@
-# XON Patent Strategy
+# LACE Patent Strategy
 
 ---
 
 ## The Short Answer
 
-**Do not patent the XON format.** Patent the app features.
+**Do not patent the LACE format.** Patent the app features.
 
 Patenting an open file format kills adoption. The history of technology is littered with formats that failed because of patent uncertainty (MP3, GIF, H.264 in its early years). When developers and organisations cannot tell if implementing a format exposes them to patent risk, they choose a different format.
 
@@ -16,8 +16,8 @@ Instead, establish defensive prior art for the format (free, immediate), and pur
 
 | Target | Approach | Cost | Timeline |
 |---|---|---|---|
-| XON format spec | Defensive publication (arXiv) | Free | Days |
-| XON format spec | Apache 2.0 patent grant | Free (in licence) | Immediate |
+| LACE format spec | Defensive publication (arXiv) | Free | Days |
+| LACE format spec | Apache 2.0 patent grant | Free (in licence) | Immediate |
 | App-specific features | USPTO provisional patent | ~$320 micro entity | 12 months protection |
 | App-specific features | Full utility patent | $800–$15,000 | 2–3 years |
 
@@ -41,7 +41,7 @@ arXiv is a free preprint server used by computer science researchers worldwide. 
 2. Create an account (free)
 3. Select category: **Computer Science > Digital Libraries (cs.DL)** or **cs.AI**
 4. Submit a paper titled something like:
-   > "XON: eXchange Object Notation — An Open Container Format for Multi-Agent AI Context Exchange"
+   > "LACE: eXchange Object Notation — An Open Container Format for Multi-Agent AI Context Exchange"
 5. Include: format spec summary, container structure, agent injection protocol, lineage model, output modes, security model
 6. The paper gets an arXiv ID (e.g., `2026.XXXXX`) and a submission timestamp
 7. This date is your prior art date
@@ -76,9 +76,9 @@ The more technical detail, the stronger the prior art.
 
 ## Step 2: Apache 2.0 Patent Grant
 
-By releasing the spec and SDK under Apache 2.0, every contributor automatically grants all users a royalty-free, perpetual licence to any patents they hold that are necessary to implement XON. This means:
+By releasing the spec and SDK under Apache 2.0, every contributor automatically grants all users a royalty-free, perpetual licence to any patents they hold that are necessary to implement LACE. This means:
 
-- If you later obtain patents on XON concepts, you've already granted free use to all implementors
+- If you later obtain patents on LACE concepts, you've already granted free use to all implementors
 - Contributors who add to the spec or SDK similarly grant their patents
 - This creates a patent-clean ecosystem around the format
 
@@ -88,7 +88,7 @@ This happens automatically when you apply the Apache 2.0 licence. No additional 
 
 ## Step 3: Provisional Patent for App Features (Optional, Low Cost)
 
-If you want patent protection for specific features of the XON App (not the format spec), a **provisional patent application** at the USPTO gives you 12 months of "patent pending" status at low cost.
+If you want patent protection for specific features of the LACE App (not the format spec), a **provisional patent application** at the USPTO gives you 12 months of "patent pending" status at low cost.
 
 A provisional is not a full patent. It:
 - Establishes your priority date (important if a competitor files later)
@@ -97,7 +97,7 @@ A provisional is not a full patent. It:
 
 ### What to patent (app features, not format)
 
-Do NOT try to patent the XON format itself — prior art (your arXiv publication) prevents this, and even if granted, it would harm adoption.
+Do NOT try to patent the LACE format itself — prior art (your arXiv publication) prevents this, and even if granted, it would harm adoption.
 
 DO consider patenting:
 - The multi-webview sandboxed rendering architecture for agent-generated HTML documents
@@ -143,9 +143,9 @@ If you proceed beyond a provisional:
 
 ## Step 4: Trademark Registration
 
-Register "XON" as a trademark for software and file format categories. This protects the brand even if you cannot patent the format.
+Register "LACE" as a trademark for software and file format categories. This protects the brand even if you cannot patent the format.
 
-Anyone can implement the XON format (open spec), but they cannot call their product "XON" without a trademark licence.
+Anyone can implement the LACE format (open spec), but they cannot call their product "LACE" without a trademark licence.
 
 | Jurisdiction | Filing | Cost |
 |---|---|---|
@@ -168,7 +168,7 @@ No attorney required for a straightforward trademark application. Allow 8–12 m
 |---|---|---|---|
 | Submit arXiv paper | Immediately | Free | Establish prior art for format |
 | Apply Apache 2.0 licence | Immediately | Free | Patent grant for all implementors |
-| File USPTO trademark (XON) | Within 1 month | ~$250 | Brand protection |
+| File USPTO trademark (LACE) | Within 1 month | ~$250 | Brand protection |
 | File provisional patent (app features) | When app features are stable | ~$320 | Priority date for app IP |
 | Apply for USPTO Pro Bono match | If pursuing full patent | Free | Legal help for full utility patent |
 | Full utility patent | 12 months after provisional | ~$1,600 | Full patent protection for app features |

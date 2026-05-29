@@ -1,7 +1,7 @@
-# XON Specification v1.0
+# LACE Specification v1.0
 
-**eXchange Object Notation**
-Pronounced "axon"
+**Living Agent Context Envelope**
+Pronounced "lace"
 
 ---
 
@@ -32,14 +32,14 @@ Pronounced "axon"
 
 ## 1. Overview
 
-XON (eXchange Object Notation) is an open container format for passing structured context between AI agents and rendering that context for humans. A `.xon` file is simultaneously:
+LACE (Living Agent Context Envelope) is an open container format for passing structured context between AI agents and rendering that context for humans. A `.lace` file is simultaneously:
 
 - A **machine-readable data container** for AI agents — structured YAML/JSON with explicit schemas
 - A **human-renderable document** — rich HTML with CSS, charts, and typography
 - A **provenance record** — full history of every agent decision that produced it
 - A **self-describing artifact** — carries its own specification so any agent can understand and produce it without prior training
 
-XON is inspired by the axon: the nerve fibre that carries signals between neurons. Agents are the neurons. XON files are the axons carrying context between them.
+LACE is an envelope: passed along the pipeline, carrying structured context, with a return address (lineage) and a clear recipient. Like lacing threads, it weaves agent data and human rendering into one artifact.
 
 ---
 
@@ -55,10 +55,10 @@ Every agent decision is recorded with rationale and timestamp. Full reasoning tr
 Agent content (`agent/`) and human content (`human/`) are strictly separated. Agents skip human sections entirely. The app collapses agent sections by default.
 
 ### Sufficiency
-Every XON file carries its own specification (`spec/`). An agent that has never encountered XON before can understand the format and produce valid output from a single file.
+Every LACE file carries its own specification (`spec/`). An agent that has never encountered LACE before can understand the format and produce valid output from a single file.
 
 ### Openness
-The format specification and reference SDK are open (Apache 2.0). No XON-compatible implementation requires a licence. The format does not depend on any proprietary system.
+The format specification and reference SDK are open (Apache 2.0). No LACE-compatible implementation requires a licence. The format does not depend on any proprietary system.
 
 ---
 
@@ -68,8 +68,8 @@ The format specification and reference SDK are open (Apache 2.0). No XON-compati
 |---|---|
 | Container | ZIP (ISO 21320-1) |
 | Compression | DEFLATE (level 6 default) |
-| File extension | `.xon` |
-| MIME type | `application/vnd.xon` |
+| File extension | `.lace` |
+| MIME type | `application/vnd.lace` |
 | Encoding | UTF-8 for all text files |
 | Binary assets | Stored as-is within ZIP |
 
@@ -89,11 +89,11 @@ All file paths within the archive use forward slashes (`/`) regardless of host O
 
 ### Required Files
 
-Every valid XON archive MUST contain these files:
+Every valid LACE archive MUST contain these files:
 
 ```
 manifest.yaml
-spec/xon.md
+spec/lace.md
 spec/agent-guide.md
 shared/data.yaml
 agent/context.md
@@ -125,14 +125,14 @@ spec/schemas/*            ← JSON Schema files for validation
 
 ## 5. manifest.yaml
 
-The manifest is the root index of every XON file. It MUST be valid YAML and MUST be the first entry in the ZIP.
+The manifest is the root index of every LACE file. It MUST be valid YAML and MUST be the first entry in the ZIP.
 
 ### Schema
 
 ```yaml
 # Required fields
-xon_version: 1                          # integer — major version
-xon_version_minor: 0                    # integer — minor version
+lace_version: 1                          # integer — major version
+lace_version_minor: 0                    # integer — minor version
 id: "550e8400-e29b-41d4-a716-446655440000"  # UUID v4
 title: "Invoice Review — Acme Corp Q2"  # string
 created_at: "2026-05-29T10:00:00Z"      # ISO 8601
@@ -141,10 +141,10 @@ updated_at: "2026-05-29T14:32:00Z"      # ISO 8601
 # Optional: document classification
 document_type: "invoice"                # string, freeform
 
-# Optional: lineage (absent on first XON in a chain)
+# Optional: lineage (absent on first LACE in a chain)
 lineage:
-  parent_id: "3f9a2b1c-..."            # UUID of parent XON
-  parent_uri: "file:///docs/inv-001.xon"  # URI to parent file
+  parent_id: "3f9a2b1c-..."            # UUID of parent LACE
+  parent_uri: "file:///docs/inv-001.lace"  # URI to parent file
   delta: "Corrected vendor name, re-extracted line items"  # semantic description
 
 # Optional: external persistent store references
@@ -196,7 +196,7 @@ files:
     role: "human-patch"
     type: "application/yaml"
   - id: "spec-full"
-    path: "spec/xon.md"
+    path: "spec/lace.md"
     role: "spec-full"
     type: "text/markdown"
   - id: "spec-guide"
@@ -228,7 +228,7 @@ files:
 
 The canonical data layer. Contains typed, structured facts that are simultaneously:
 - Read by agents as structured data
-- Injected into the human rendering as `window.__XON__.data` by the app
+- Injected into the human rendering as `window.__LACE__.data` by the app
 
 ### Schema Declaration
 
@@ -275,7 +275,7 @@ Plain Markdown. Describes what the current agent should do. Written by the SDK o
 ```markdown
 # Invoice Extraction — Stage 1 of 3
 
-This is a new XON document.
+This is a new LACE document.
 
 **Task**: Extract all fields from the attached invoice PDF and populate
 shared/data.yaml. Achieve >0.90 confidence on all numeric fields.
@@ -370,12 +370,12 @@ This caps `decision-chain.yaml` at approximately 15–20KB regardless of pipelin
 
 ### next-agent-brief.md (optional)
 
-Instructions for the agent that will process the next XON in the lineage chain. Written by the current agent or a human orchestrator.
+Instructions for the agent that will process the next LACE in the lineage chain. Written by the current agent or a human orchestrator.
 
 ```markdown
 # For the Validation Agent
 
-You will receive a XON document with extracted invoice fields.
+You will receive a LACE document with extracted invoice fields.
 
 **Your task**: Verify vendor details against the supplier database.
 Cross-reference invoice totals against the purchase order system.
@@ -398,7 +398,7 @@ An HTML **fragment** — not a full HTML document. The app wraps it in a shell w
 - MUST NOT contain `<html>`, `<head>`, or `<body>` tags
 - MUST NOT contain `<script>` tags
 - MUST NOT reference external URLs in CSS `url()` calls
-- SHOULD use the app's CSS design tokens (`var(--xon-accent)`, etc.)
+- SHOULD use the app's CSS design tokens (`var(--lace-accent)`, etc.)
 - SHOULD assign `data-adf-id` attributes to all human-editable text elements
 - MAY reference assets via relative paths (`./assets/chart.svg`)
 
@@ -432,7 +432,7 @@ An HTML **fragment** — not a full HTML document. The app wraps it in a shell w
 
 ### Data Binding
 
-The app resolves `{{token}}` expressions by reading `shared/data.yaml` and injecting `window.__XON__ = { data: { ... } }` before rendering. The HTML references tokens using the double-brace syntax. Complex expressions are not supported — only direct key references and dot-notation for nested keys (`{{line_items.0.amount}}`).
+The app resolves `{{token}}` expressions by reading `shared/data.yaml` and injecting `window.__LACE__ = { data: { ... } }` before rendering. The HTML references tokens using the double-brace syntax. Complex expressions are not supported — only direct key references and dot-notation for nested keys (`{{line_items.0.amount}}`).
 
 ### index.txt
 
@@ -463,7 +463,7 @@ patches:
 2. Resolve data bindings from `shared/data.yaml`
 3. Assign `data-adf-id` to editable elements (Rust, at serve time)
 4. Apply patches from `patches.yaml` (match by `data-adf-id`)
-5. Serve via `xon://` custom protocol to document WebView
+5. Serve via `lace://` custom protocol to document WebView
 
 ### assets/
 
@@ -475,11 +475,11 @@ Allowed asset types: SVG, PNG, JPEG, WebP, WOFF2, WOFF.
 
 ## 9. spec/ Directory
 
-### xon.md
+### lace.md
 
-The complete XON specification. This file is the canonical spec that travels inside every `.xon` file. Its contents are identical to the public specification. Version pinned at creation time.
+The complete LACE specification. This file is the canonical spec that travels inside every `.lace` file. Its contents are identical to the public specification. Version pinned at creation time.
 
-Purpose: enables any consumer — agent, human, tooling — to understand the XON format from a single file, without external documentation.
+Purpose: enables any consumer — agent, human, tooling — to understand the LACE format from a single file, without external documentation.
 
 ### agent-guide.md
 
@@ -541,7 +541,7 @@ Supported layouts: `card-grid`, `single-column`, `two-column`, `table-primary`, 
 
 Agent provides complete HTML fragment, CSS, and SVG assets. The SDK validates, sanitises, and packages them.
 
-Use for: document-generating agents, report writers, first-time XON creation. Any agent with full design responsibility.
+Use for: document-generating agents, report writers, first-time LACE creation. Any agent with full design responsibility.
 
 ```json
 {
@@ -573,13 +573,13 @@ Human text edits are stored out-of-band in `human/patches.yaml`. The agent-gener
 
 ### Edit Flow
 
-1. User opens XON in the app — human view rendered in sandboxed WebView
+1. User opens LACE in the app — human view rendered in sandboxed WebView
 2. User activates edit mode (toolbar button or keyboard shortcut)
-3. App injects edit bridge into document WebView via `xon://current/edit-bridge.js`
+3. App injects edit bridge into document WebView via `lace://current/edit-bridge.js`
 4. Edit bridge enables `contenteditable` on elements with `data-adf-id`
-5. On text blur, edit bridge sends `postMessage({ type: "xon-edit", id, content })`
+5. On text blur, edit bridge sends `postMessage({ type: "lace-edit", id, content })`
 6. Shell WebView receives postMessage, calls Tauri `invoke("save_patch", { id, content })`
-7. Rust backend appends to `human/patches.yaml` in the extracted XON
+7. Rust backend appends to `human/patches.yaml` in the extracted LACE
 8. App re-renders to confirm change
 
 ### Patch Format
@@ -603,34 +603,34 @@ Agents receive `human/patches.yaml` as part of their context (if the SDK is conf
 
 ## 12. Lineage Model
 
-Every XON is a node in a directed acyclic graph (DAG) of document versions. The `lineage` block in `manifest.yaml` records the parent.
+Every LACE is a node in a directed acyclic graph (DAG) of document versions. The `lineage` block in `manifest.yaml` records the parent.
 
 ### Lineage Block
 
 ```yaml
 lineage:
   parent_id: "3f9a2b1c-e29b-41d4-a716-446655440001"
-  parent_uri: "file:///invoices/inv-001.xon"
+  parent_uri: "file:///invoices/inv-001.lace"
   delta: "Validation complete. Vendor name corrected from 'ACME' to 'Acme Corporation'."
 ```
 
-- `parent_id` — UUID of the parent XON (from its `manifest.yaml`)
+- `parent_id` — UUID of the parent LACE (from its `manifest.yaml`)
 - `parent_uri` — URI pointing to the parent file (file://, https://, mcp://, etc.)
 - `delta` — human and agent-readable semantic description of what changed
 
 ### Rules
 
-- First XON in a chain has no `lineage` block (or `lineage: null`)
-- A XON MUST NOT reference itself as its own parent
+- First LACE in a chain has no `lineage` block (or `lineage: null`)
+- A LACE MUST NOT reference itself as its own parent
 - The lineage chain is reconstructed by following `parent_uri` references
-- Parent XON files are never embedded — only referenced
+- Parent LACE files are never embedded — only referenced
 - The app reconstructs and renders the lineage chain visually on demand
 
 ---
 
 ## 13. External Store References
 
-Large context data (full reasoning traces, embedding indexes, raw conversation logs) lives outside the XON file and is referenced by URI with a content hash for integrity.
+Large context data (full reasoning traces, embedding indexes, raw conversation logs) lives outside the LACE file and is referenced by URI with a content hash for integrity.
 
 ### manifest.yaml External Block
 
@@ -642,9 +642,9 @@ external:
     description: "Full reasoning traces for all agents in this pipeline"
     access: "read"
   - id: "vector-index"
-    uri: "pinecone://xon-contexts/invoice-cluster"
+    uri: "pinecone://lace-contexts/invoice-cluster"
     type: "vector-store"
-    description: "Semantic search index for related XON files"
+    description: "Semantic search index for related LACE files"
     access: "read"
 ```
 
@@ -663,13 +663,13 @@ Individual decision entries can reference their full context in the external sto
     content-hash: "sha256:b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2"
 ```
 
-The `content-hash` enables any consumer to verify the external content hasn't changed since the XON was written. Consumers MAY skip verification but SHOULD warn if verification fails.
+The `content-hash` enables any consumer to verify the external content hasn't changed since the LACE was written. Consumers MAY skip verification but SHOULD warn if verification fails.
 
 ---
 
 ## 14. Agent Injection Protocol
 
-When the SDK loads a XON file for an agent, it assembles a context object in this order:
+When the SDK loads a LACE file for an agent, it assembles a context object in this order:
 
 | Order | Source | Approx. Tokens | Purpose |
 |---|---|---|---|
@@ -707,10 +707,10 @@ Implementations MAY offer a configuration flag to disable TOON injection and use
 ### Canonical agent-guide.md Content
 
 ```markdown
-# XON Agent Guide — v1.0
+# LACE Agent Guide — v1.0
 
-XON (eXchange Object Notation) is a file format for passing context
-between AI agents and rendering it for humans. You received a .xon file.
+LACE (Living Agent Context Envelope) is a file format for passing context
+between AI agents and rendering it for humans. You received a .lace file.
 The SDK has extracted what you need. Read this guide, then your task.
 
 ## What you received
@@ -721,7 +721,7 @@ The SDK has extracted what you need. Read this guide, then your task.
 
 ## What you must return
 A single JSON object matching agent/output-schema.json exactly.
-The SDK packages your output into a valid .xon file automatically.
+The SDK packages your output into a valid .lace file automatically.
 Return only the JSON object — no markdown wrapper, no explanation.
 
 ## Three output modes (set in output-schema.json)
@@ -761,12 +761,12 @@ Read agent/context.md — it has task-specific rules that override these.
 For agents without SDK access (direct LLM API calls, third-party agents), the SDK produces a single JSON export:
 
 ```python
-xon_sdk.export_static("document.xon", output="document-static.json")
+xon_sdk.export_static("document.lace", output="document-static.json")
 ```
 
 ```json
 {
-  "xon_version": "1.0",
+  "lace_version": "1.0",
   "agent_guide": "...full contents of spec/agent-guide.md...",
   "task": "...contents of agent/context.md...",
   "output_schema": { "...": "JSON Schema object" },
@@ -776,7 +776,7 @@ xon_sdk.export_static("document.xon", output="document-static.json")
 }
 ```
 
-The agent reads this, follows the embedded `agent_guide`, produces JSON matching `output_schema`, and returns it. The SDK receives the response and packages it into a valid `.xon` file. **The agent never knew it was working with XON.**
+The agent reads this, follows the embedded `agent_guide`, produces JSON matching `output_schema`, and returns it. The SDK receives the response and packages it into a valid `.lace` file. **The agent never knew it was working with LACE.**
 
 ---
 
@@ -800,7 +800,7 @@ Implementation: use `ammonia` (Rust) with an explicit allowlist.
 The Tauri app uses a multi-webview architecture:
 
 - **Shell WebView** — trusted. Full Tauri IPC access. Renders app chrome (sidebar, toolbar, panels).
-- **Document WebView** — sandboxed. No Tauri IPC. Renders agent-generated HTML via `xon://` custom protocol.
+- **Document WebView** — sandboxed. No Tauri IPC. Renders agent-generated HTML via `lace://` custom protocol.
 
 The document WebView is subject to CSP:
 ```
@@ -812,12 +812,12 @@ Content-Security-Policy:
   script-src 'none'
 ```
 
-The `xon://` custom protocol is served by Rust from the in-memory extracted ZIP. No filesystem access from within the document WebView.
+The `lace://` custom protocol is served by Rust from the in-memory extracted ZIP. No filesystem access from within the document WebView.
 
 ### Edit Bridge Security
 
 The postMessage bridge between document WebView and shell WebView MUST:
-- Validate message `type` against an allowlist (`xon-edit` only)
+- Validate message `type` against an allowlist (`lace-edit` only)
 - Validate `id` against `data-adf-id` values from the rendered document
 - Reject messages with unexpected origins
 - Sanitise `content` (plain text only — no HTML in patch content)
@@ -828,14 +828,14 @@ The postMessage bridge between document WebView and shell WebView MUST:
 
 ### Structural Validation
 
-A XON file is **valid** if and only if:
+A LACE file is **valid** if and only if:
 
 - [ ] It is a readable ZIP archive
 - [ ] `manifest.yaml` exists and parses as valid YAML
-- [ ] `manifest.yaml` contains all required fields (`xon_version`, `xon_version_minor`, `id`, `title`, `created_at`, `updated_at`)
+- [ ] `manifest.yaml` contains all required fields (`lace_version`, `lace_version_minor`, `id`, `title`, `created_at`, `updated_at`)
 - [ ] `manifest.yaml` `id` is a valid UUID v4
 - [ ] All files listed in `manifest.yaml` `files[]` exist in the archive
-- [ ] `spec/xon.md` exists and is non-empty
+- [ ] `spec/lace.md` exists and is non-empty
 - [ ] `spec/agent-guide.md` exists and is non-empty
 - [ ] `shared/data.yaml` exists and parses as valid YAML
 - [ ] `agent/context.md` exists and is non-empty
@@ -845,7 +845,7 @@ A XON file is **valid** if and only if:
 
 ### Content Validation
 
-A XON file is **content-valid** if additionally:
+A LACE file is **content-valid** if additionally:
 
 - [ ] `shared/data.yaml` validates against its declared `$schema`
 - [ ] `human/index.html` (if present) contains no `<script>` tags
@@ -856,19 +856,19 @@ A XON file is **content-valid** if additionally:
 
 ### Version Validation
 
-- Readers MUST reject files where `xon_version` > their supported major version
-- Readers MUST accept files where `xon_version_minor` > their supported minor version (forward compatible)
+- Readers MUST reject files where `lace_version` > their supported major version
+- Readers MUST accept files where `lace_version_minor` > their supported minor version (forward compatible)
 - Readers SHOULD log a warning for minor version mismatches
 
 ---
 
 ## 18. Versioning
 
-XON uses a two-integer version scheme declared in `manifest.yaml`:
+LACE uses a two-integer version scheme declared in `manifest.yaml`:
 
 ```yaml
-xon_version: 1        # major — breaking changes increment this
-xon_version_minor: 0  # minor — backwards-compatible additions increment this
+lace_version: 1        # major — breaking changes increment this
+lace_version_minor: 0  # minor — backwards-compatible additions increment this
 ```
 
 ### Breaking Changes (major version increment)
@@ -891,20 +891,20 @@ xon_version_minor: 0  # minor — backwards-compatible additions increment this
 
 ## 19. MCP Compatibility
 
-XON is designed to be compatible with the Model Context Protocol (MCP). The agent context object assembled by the SDK (Section 14) follows MCP resource conventions.
+LACE is designed to be compatible with the Model Context Protocol (MCP). The agent context object assembled by the SDK (Section 14) follows MCP resource conventions.
 
-An XON SDK MAY expose XON files as MCP resources:
+An LACE SDK MAY expose LACE files as MCP resources:
 
 ```json
 {
-  "uri": "xon://document/shared/data",
+  "uri": "lace://document/shared/data",
   "name": "Canonical document data",
   "mimeType": "application/yaml",
   "text": "...contents of shared/data.yaml..."
 }
 ```
 
-An XON file may reference MCP resources in its `external` block (type `mcp-resource`). The SDK resolves these references via the MCP client when assembling agent context.
+An LACE file may reference MCP resources in its `external` block (type `mcp-resource`). The SDK resolves these references via the MCP client when assembling agent context.
 
 ---
 
@@ -933,11 +933,11 @@ For SDK implementors, in priority order:
 - [ ] `data-adf-id` assignment at render time
 - [ ] Content-hash verification for `trace-ref` entries
 
-**App (required for XON viewer implementation)**
-- [ ] File association registration (`.xon` → app)
+**App (required for LACE viewer implementation)**
+- [ ] File association registration (`.lace` → app)
 - [ ] Cold-open file path buffering (wait for WebView ready signal)
 - [ ] Multi-webview architecture (shell + sandboxed document)
-- [ ] `xon://` custom protocol handler serving from in-memory ZIP
+- [ ] `lace://` custom protocol handler serving from in-memory ZIP
 - [ ] Data binding resolution (`{{token}}` → `shared/data.yaml` values)
 - [ ] Edit bridge injection and postMessage handling
 - [ ] Lineage timeline rendering

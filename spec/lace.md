@@ -1,14 +1,14 @@
-# XON Specification — Embedded Reference
+# LACE Specification — Embedded Reference
 
-**eXchange Object Notation** | Version 1.0 | Pronounced "axon"
+**Living Agent Context Envelope** | Version 1.0 | Pronounced "lace"
 
-This file travels inside every `.xon` container. It is the authoritative reference for the format version declared in `manifest.yaml`. If the public specification and this file conflict, this file governs for this specific XON.
+This file travels inside every `.lace` container. It is the authoritative reference for the format version declared in `manifest.yaml`. If the public specification and this file conflict, this file governs for this specific LACE file.
 
 ---
 
-## What XON Is
+## What LACE Is
 
-XON is an open container format (ZIP) for passing structured context between AI agents and rendering that context for humans. Every `.xon` file contains:
+LACE is an open container format (ZIP) for passing structured context between AI agents and rendering that context for humans. Every `.lace` file contains:
 
 - **`shared/data.yaml`** — typed structured facts (read by both agents and humans)
 - **`agent/`** — machine-readable task, schema, state, and decision history
@@ -20,8 +20,8 @@ XON is an open container format (ZIP) for passing structured context between AI 
 ## Container
 
 - Format: ZIP (DEFLATE compression)
-- Extension: `.xon`
-- MIME: `application/vnd.xon`
+- Extension: `.lace`
+- MIME: `application/vnd.lace`
 - Encoding: UTF-8 for all text files
 
 ---
@@ -30,7 +30,7 @@ XON is an open container format (ZIP) for passing structured context between AI 
 
 ```
 manifest.yaml
-spec/xon.md                    ← this file
+spec/lace.md                    ← this file
 spec/agent-guide.md
 shared/data.yaml
 agent/context.md
@@ -46,8 +46,8 @@ agent/decision-chain.yaml
 Root index of the container. First entry in the ZIP. Required fields:
 
 ```yaml
-xon_version: 1
-xon_version_minor: 0
+lace_version: 1
+lace_version_minor: 0
 id: "uuid-v4"
 title: "Document Title"
 created_at: "2026-05-29T10:00:00Z"
@@ -57,7 +57,7 @@ updated_at: "2026-05-29T14:00:00Z"
 document_type: "invoice"
 lineage:
   parent_id: "uuid-v4"
-  parent_uri: "file:///path/to/parent.xon"
+  parent_uri: "file:///path/to/parent.lace"
   delta: "What changed from parent"
 external:
   - id: "store-id"
@@ -76,7 +76,7 @@ files:
 
 ## shared/data.yaml
 
-Canonical facts. Read by agents as structured data. Injected into human HTML rendering as `window.__XON__.data`. Never duplicated in agent/ or human/ files.
+Canonical facts. Read by agents as structured data. Injected into human HTML rendering as `window.__LACE__.data`. Never duplicated in agent/ or human/ files.
 
 Must begin with `$schema` declaration:
 ```yaml
@@ -206,11 +206,11 @@ Agent provides complete HTML. SDK sanitises (no scripts, no events) and packages
 
 ## Versioning
 
-- `xon_version` — major (breaking changes). Readers reject files with higher major version.
-- `xon_version_minor` — minor (backwards compatible). Readers accept higher minor version.
+- `lace_version` — major (breaking changes). Readers reject files with higher major version.
+- `lace_version_minor` — minor (backwards compatible). Readers accept higher minor version.
 
 ---
 
 ## Licence
 
-XON Specification — Apache License 2.0
+LACE Specification — Apache License 2.0

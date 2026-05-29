@@ -1,6 +1,6 @@
-# XON Agent Guide — v1.0
+# LACE Agent Guide — v1.0
 
-XON (eXchange Object Notation) is a file format for passing structured context between AI agents and rendering it for humans. You received a `.xon` file. The SDK has extracted what you need. Read this guide first, then your task.
+LACE (Living Agent Context Envelope) is a file format for passing structured context between AI agents and rendering it for humans. You received a `.lace` file. The SDK has extracted what you need. Read this guide first, then your task.
 
 ---
 
@@ -23,7 +23,7 @@ XON (eXchange Object Notation) is a file format for passing structured context b
 A **single JSON object** matching `agent/output-schema.json` exactly.
 
 - Return only the JSON object — no markdown wrapper, no explanation, no preamble
-- The SDK validates your output and packages it into a new `.xon` file
+- The SDK validates your output and packages it into a new `.lace` file
 - You do not write files, create ZIPs, or manage document structure
 
 ---
