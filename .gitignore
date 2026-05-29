@@ -1,0 +1,4 @@
+.DS_Store
+*.xon.bak
+*.tmp
+.env
