@@ -6,13 +6,15 @@ XON (eXchange Object Notation) is a file format for passing structured context b
 
 ## What you received
 
-| File | Purpose |
-|---|---|
-| `agent/context.md` | Your task — read this first |
-| `shared/data.yaml` | Canonical facts about this document |
-| `agent/decision-chain.yaml` | What previous agents did and decided |
-| `agent/output-schema.json` | Exactly what you must return |
-| `human/patches.yaml` | Text edits made by humans (if included) |
+| File | Format | Purpose |
+|---|---|---|
+| `agent/context.md` | Markdown | Your task — read this first |
+| `shared/data.yaml` | TOON | Canonical facts about this document |
+| `agent/decision-chain.yaml` | TOON | What previous agents did and decided |
+| `agent/output-schema.json` | JSON Schema | Exactly what you must return |
+| `human/patches.yaml` | YAML | Text edits made by humans (if included) |
+
+`shared/data.yaml` and `agent/decision-chain.yaml` are serialised as **TOON (Token-Oriented Object Notation)** — same data as the source YAML files, ~40% fewer tokens. Read them as structured key-value data.
 
 ---
 

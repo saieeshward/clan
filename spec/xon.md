@@ -86,6 +86,12 @@ $schema: "spec/schemas/document-type.schema.json"
 
 ---
 
+## Agent Injection Serialisation
+
+When the SDK assembles context for an agent, `shared/data.yaml` and `agent/decision-chain.yaml` are serialised as **TOON (Token-Oriented Object Notation)** — approximately 40% fewer tokens than equivalent JSON or YAML. Agent output is always returned as JSON and validated against `agent/output-schema.json` before packaging.
+
+---
+
 ## agent/ Directory
 
 ### context.md

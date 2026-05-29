@@ -682,6 +682,28 @@ When the SDK loads a XON file for an agent, it assembles a context object in thi
 
 The spec guide is injected once per agent session and cached. Subsequent calls in the same session do not re-inject it.
 
+### TOON Serialisation for Injected Context
+
+The SDK serialises `shared/data.yaml` and `agent/decision-chain.yaml` as **TOON (Token-Oriented Object Notation)** before injection. TOON encodes the same data model as JSON using indentation and explicit length declarations instead of brackets, achieving approximately 40% fewer tokens on structured data. This reduction applies on every agent call across the entire pipeline.
+
+```
+# shared/data.yaml injected as TOON — not raw YAML
+vendor: Acme Corporation
+total: 15375.00
+status: pending-approval
+line_items [2]
+  description: Software Development Services
+  amount: 12500.00
+  description: Consulting
+  amount: 2875.00
+```
+
+`spec/agent-guide.md`, `agent/context.md`, and `agent/output-schema.json` are injected as-is (Markdown and JSON respectively) — TOON conversion applies only to structured data files.
+
+Agent output remains **JSON**. The agent returns a JSON object matching `output-schema.json`. The SDK validates the JSON output against the schema before packaging. TOON is an input-side optimisation only — the output contract is JSON for reliability and schema compatibility.
+
+Implementations MAY offer a configuration flag to disable TOON injection and use raw YAML for debugging or compatibility.
+
 ### Canonical agent-guide.md Content
 
 ```markdown
@@ -895,7 +917,8 @@ For SDK implementors, in priority order:
 - [ ] ZIP write with DEFLATE compression
 - [ ] `manifest.yaml` parse, validate, write
 - [ ] `spec/agent-guide.md` injection into agent context
-- [ ] `agent/output-schema.json` validation of agent output
+- [ ] TOON serialisation of `shared/data.yaml` and `decision-chain.yaml` at injection time
+- [ ] `agent/output-schema.json` validation of agent output (JSON)
 - [ ] `data-update` output mode handling
 - [ ] `shared/data.yaml` schema validation
 - [ ] `human/patches.yaml` application at render time
