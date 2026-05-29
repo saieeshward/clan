@@ -1,14 +1,14 @@
-# LACE Specification — Embedded Reference
+# CLAN Specification — Embedded Reference
 
-**Living Agent Context Envelope** | Version 1.0 | Pronounced "lace"
+**Context Lineage Agent Notation** | Version 1.0 | Pronounced "clan"
 
-This file travels inside every `.lace` container. It is the authoritative reference for the format version declared in `manifest.yaml`. If the public specification and this file conflict, this file governs for this specific LACE file.
+This file travels inside every `.clan` container. It is the authoritative reference for the format version declared in `manifest.yaml`. If the public specification and this file conflict, this file governs for this specific CLAN file.
 
 ---
 
-## What LACE Is
+## What CLAN Is
 
-LACE is an open container format (ZIP) for passing structured context between AI agents and rendering that context for humans. Every `.lace` file contains:
+CLAN is an open container format (ZIP) for passing structured context between AI agents and rendering that context for humans. Every `.clan` file contains:
 
 - **`shared/data.yaml`** — typed structured facts (read by both agents and humans)
 - **`agent/`** — machine-readable task, schema, state, and decision history
@@ -20,8 +20,8 @@ LACE is an open container format (ZIP) for passing structured context between AI
 ## Container
 
 - Format: ZIP (DEFLATE compression)
-- Extension: `.lace`
-- MIME: `application/vnd.lace`
+- Extension: `.clan`
+- MIME: `application/vnd.clan`
 - Encoding: UTF-8 for all text files
 
 ---
@@ -30,7 +30,7 @@ LACE is an open container format (ZIP) for passing structured context between AI
 
 ```
 manifest.yaml
-spec/lace.md                    ← this file
+spec/clan.md                    ← this file
 spec/agent-guide.md
 shared/data.yaml
 agent/context.md
@@ -46,8 +46,8 @@ agent/decision-chain.yaml
 Root index of the container. First entry in the ZIP. Required fields:
 
 ```yaml
-lace_version: 1
-lace_version_minor: 0
+clan_version: 1
+clan_version_minor: 0
 id: "uuid-v4"
 title: "Document Title"
 created_at: "2026-05-29T10:00:00Z"
@@ -57,7 +57,7 @@ updated_at: "2026-05-29T14:00:00Z"
 document_type: "invoice"
 lineage:
   parent_id: "uuid-v4"
-  parent_uri: "file:///path/to/parent.lace"
+  parent_uri: "file:///path/to/parent.clan"
   delta: "What changed from parent"
 external:
   - id: "store-id"
@@ -76,7 +76,7 @@ files:
 
 ## shared/data.yaml
 
-Canonical facts. Read by agents as structured data. Injected into human HTML rendering as `window.__LACE__.data`. Never duplicated in agent/ or human/ files.
+Canonical facts. Read by agents as structured data. Injected into human HTML rendering as `window.__CLAN__.data`. Never duplicated in agent/ or human/ files.
 
 Must begin with `$schema` declaration:
 ```yaml
@@ -206,11 +206,11 @@ Agent provides complete HTML. SDK sanitises (no scripts, no events) and packages
 
 ## Versioning
 
-- `lace_version` — major (breaking changes). Readers reject files with higher major version.
-- `lace_version_minor` — minor (backwards compatible). Readers accept higher minor version.
+- `clan_version` — major (breaking changes). Readers reject files with higher major version.
+- `clan_version_minor` — minor (backwards compatible). Readers accept higher minor version.
 
 ---
 
 ## Licence
 
-LACE Specification — Apache License 2.0
+CLAN Specification — Apache License 2.0

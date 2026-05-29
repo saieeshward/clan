@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LACE — Living Agent Context Envelope — Architecture</title>
+  <title>CLAN — Context Lineage Agent Notation — Architecture</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: #0f1117; color: #e2e8f0; line-height: 1.6; }
@@ -89,8 +89,8 @@
 
 <!-- HERO -->
 <div class="hero">
-  <h1>LACE</h1>
-  <div class="subtitle">Living Agent Context Envelope</div>
+  <h1>CLAN</h1>
+  <div class="subtitle">Context Lineage Agent Notation</div>
   <div class="tagline">Pronounced "axon" — like the nerve fibre that carries signals between neurons</div>
   <div class="badges">
     <span class="badge badge-open">Open Format</span>
@@ -103,8 +103,8 @@
 
   <!-- BUSINESS CONTEXT -->
   <div class="section">
-    <h2>What LACE Solves</h2>
-    <p class="section-desc">Multi-agent AI systems have no standard for what passes between agents. LACE is that standard.</p>
+    <h2>What CLAN Solves</h2>
+    <p class="section-desc">Multi-agent AI systems have no standard for what passes between agents. CLAN is that standard.</p>
     <div class="context-grid">
       <div class="context-card">
         <h3>Problem</h3>
@@ -117,7 +117,7 @@
         </ul>
       </div>
       <div class="context-card">
-        <h3>LACE Answer</h3>
+        <h3>CLAN Answer</h3>
         <ul>
           <li>Structured context travels with the file</li>
           <li>Full decision chain preserved and compressed</li>
@@ -142,14 +142,14 @@
   <!-- FILE STRUCTURE -->
   <div class="section">
     <h2>Container Structure</h2>
-    <p class="section-desc">A `.lace` file is a ZIP archive. Every entry has a defined role and audience.</p>
+    <p class="section-desc">A `.clan` file is a ZIP archive. Every entry has a defined role and audience.</p>
     <div class="file-tree">
-      <div class="file-line"><span class="root">document.lace</span> <span class="comment">← ZIP container (DEFLATE)</span></div>
+      <div class="file-line"><span class="root">document.clan</span> <span class="comment">← ZIP container (DEFLATE)</span></div>
       <div class="file-line">│</div>
       <div class="file-line">├── <span class="required">manifest.yaml</span> <span class="tag tag-req">required</span> <span class="comment">← index, lineage, version, file registry</span></div>
       <div class="file-line">│</div>
       <div class="file-line">├── <span class="dir">spec/</span></div>
-      <div class="file-line">│   ├── <span class="required">lace.md</span> <span class="tag tag-req">required</span> <span class="comment">← full spec travels with file</span></div>
+      <div class="file-line">│   ├── <span class="required">clan.md</span> <span class="tag tag-req">required</span> <span class="comment">← full spec travels with file</span></div>
       <div class="file-line">│   ├── <span class="required">agent-guide.md</span> <span class="tag tag-req">required</span> <span class="comment">← ~800 token agent injection guide</span></div>
       <div class="file-line">│   └── <span class="file">schemas/</span> <span class="tag tag-opt">optional</span> <span class="comment">← JSON Schema validation files</span></div>
       <div class="file-line">│</div>
@@ -177,7 +177,7 @@
     <h2>Data Flow</h2>
     <p class="section-desc">How context travels between agents and reaches humans — one file, two audiences, zero duplication.</p>
     <div class="diagram-wrap">
-      <div class="diagram-title">Multi-Agent Pipeline — LACE as the Relay</div>
+      <div class="diagram-title">Multi-Agent Pipeline — CLAN as the Relay</div>
       <svg viewBox="0 0 1000 320" style="width:100%;min-width:700px;">
         <defs>
           <marker id="arrow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
@@ -197,12 +197,12 @@
         <text x="60" y="205" text-anchor="middle" fill="#475569" font-size="10">Brief +</text>
         <text x="60" y="218" text-anchor="middle" fill="#475569" font-size="10">Title</text>
 
-        <!-- Arrow to LACE 0 -->
+        <!-- Arrow to CLAN 0 -->
         <path d="M90,160 L140,160" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
 
-        <!-- LACE 0 (new) -->
+        <!-- CLAN 0 (new) -->
         <rect x="140" y="125" width="90" height="70" rx="8" fill="#141922" stroke="#6366f1" stroke-width="1.5"/>
-        <text x="185" y="149" text-anchor="middle" fill="#6366f1" font-size="10" font-weight="700">LACE v0</text>
+        <text x="185" y="149" text-anchor="middle" fill="#6366f1" font-size="10" font-weight="700">CLAN v0</text>
         <text x="185" y="163" text-anchor="middle" fill="#64748b" font-size="9">pending state</text>
         <text x="185" y="176" text-anchor="middle" fill="#64748b" font-size="9">spec + schema</text>
         <text x="185" y="189" text-anchor="middle" fill="#64748b" font-size="9">empty data</text>
@@ -220,14 +220,14 @@
         <text x="325" y="182" text-anchor="middle" fill="#374151" font-size="8">reads task</text>
         <text x="325" y="194" text-anchor="middle" fill="#374151" font-size="8">returns JSON</text>
 
-        <!-- Arrow to LACE 1 -->
+        <!-- Arrow to CLAN 1 -->
         <path d="M370,160 L420,160" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
         <text x="395" y="150" text-anchor="middle" fill="#374151" font-size="9">SDK</text>
         <text x="395" y="140" text-anchor="middle" fill="#374151" font-size="9">packages</text>
 
-        <!-- LACE 1 -->
+        <!-- CLAN 1 -->
         <rect x="420" y="115" width="90" height="90" rx="8" fill="#141922" stroke="#6366f1" stroke-width="1.5"/>
-        <text x="465" y="139" text-anchor="middle" fill="#6366f1" font-size="10" font-weight="700">LACE v1</text>
+        <text x="465" y="139" text-anchor="middle" fill="#6366f1" font-size="10" font-weight="700">CLAN v1</text>
         <text x="465" y="153" text-anchor="middle" fill="#64748b" font-size="9">data populated</text>
         <text x="465" y="166" text-anchor="middle" fill="#64748b" font-size="9">HTML generated</text>
         <text x="465" y="179" text-anchor="middle" fill="#64748b" font-size="9">chain: [A1]</text>
@@ -244,12 +244,12 @@
         <text x="605" y="182" text-anchor="middle" fill="#374151" font-size="8">validates data</text>
         <text x="605" y="194" text-anchor="middle" fill="#374151" font-size="8">returns JSON</text>
 
-        <!-- Arrow to LACE 2 -->
+        <!-- Arrow to CLAN 2 -->
         <path d="M650,160 L700,160" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
 
-        <!-- LACE 2 -->
+        <!-- CLAN 2 -->
         <rect x="700" y="115" width="90" height="90" rx="8" fill="#141922" stroke="#6366f1" stroke-width="1.5"/>
-        <text x="745" y="139" text-anchor="middle" fill="#6366f1" font-size="10" font-weight="700">LACE v2</text>
+        <text x="745" y="139" text-anchor="middle" fill="#6366f1" font-size="10" font-weight="700">CLAN v2</text>
         <text x="745" y="153" text-anchor="middle" fill="#64748b" font-size="9">status updated</text>
         <text x="745" y="166" text-anchor="middle" fill="#64748b" font-size="9">HTML updated</text>
         <text x="745" y="179" text-anchor="middle" fill="#64748b" font-size="9">chain: [A1, A2]</text>
@@ -270,7 +270,7 @@
 
         <!-- Legend -->
         <rect x="30" y="260" width="12" height="3" fill="#6366f1"/>
-        <text x="48" y="267" fill="#475569" font-size="9">LACE file</text>
+        <text x="48" y="267" fill="#475569" font-size="9">CLAN file</text>
         <rect x="100" y="260" width="12" height="3" fill="#8b5cf6"/>
         <text x="118" y="267" fill="#475569" font-size="9">Agent</text>
         <line x1="165" y1="262" x2="177" y2="262" stroke="#06b6d4" stroke-width="1.5" stroke-dasharray="3,2"/>
@@ -302,7 +302,7 @@
         <h3>Full HTML</h3>
         <span class="mode-label">full-html</span>
         <p>Agent returns data, a complete HTML fragment, CSS, and SVG assets. Full design independence. SDK sanitises and packages. No script tags permitted.</p>
-        <p class="use-for">Use for: report generators, first LACE creation, creative documents</p>
+        <p class="use-for">Use for: report generators, first CLAN creation, creative documents</p>
       </div>
     </div>
   </div>
@@ -322,7 +322,7 @@
         <text x="350" y="48" fill="#93c5fd" font-size="10">Shell WebView (Svelte UI)</text>
         <text x="350" y="63" fill="#64748b" font-size="9">sidebar · lineage timeline · agent panels · toolbar</text>
         <text x="610" y="48" fill="#93c5fd" font-size="10">Document WebView (sandboxed)</text>
-        <text x="610" y="63" fill="#64748b" font-size="9">HTML rendering · lace:// protocol · edit bridge</text>
+        <text x="610" y="63" fill="#64748b" font-size="9">HTML rendering · clan:// protocol · edit bridge</text>
 
         <!-- Layer 3: Bindings -->
         <rect x="30" y="110" width="840" height="60" rx="8" fill="#0f1f1f" stroke="#06b6d4" stroke-width="1.5"/>
@@ -446,7 +446,7 @@
           <li>Document WebView fully sandboxed (no Tauri IPC)</li>
           <li>CSP: script-src 'none' for document webview</li>
           <li>Agent CSS scoped — cannot style app chrome</li>
-          <li>lace:// protocol serves from in-memory ZIP only</li>
+          <li>clan:// protocol serves from in-memory ZIP only</li>
           <li>postMessage bridge validates type + origin</li>
           <li>Edit content sanitised (plain text only)</li>
           <li>File system inaccessible from document webview</li>
@@ -473,7 +473,7 @@
       <div class="stack-card stack-accent-teal">
         <div class="layer-label">Application</div>
         <h4>Tauri 2.0</h4>
-        <p>Rust backend · Svelte frontend · System WebView · lace:// custom protocol · ~8MB binary</p>
+        <p>Rust backend · Svelte frontend · System WebView · clan:// custom protocol · ~8MB binary</p>
       </div>
       <div class="stack-card stack-accent-orange">
         <div class="layer-label">Protocol</div>
@@ -486,7 +486,7 @@
 </div>
 
 <footer>
-  LACE — Living Agent Context Envelope · Specification v1.0 · Apache License 2.0<br>
+  CLAN — Context Lineage Agent Notation · Specification v1.0 · Apache License 2.0<br>
   Open format · Open SDK · The best viewer wins on quality, not exclusivity
 </footer>
 

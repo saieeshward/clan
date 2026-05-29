@@ -1,16 +1,16 @@
-# LACE Licensing Strategy
+# CLAN Licensing Strategy
 
 ---
 
 ## Recommendation
 
-Use a **three-tier licensing model** — different licences for different layers of the LACE ecosystem. This is the model used by successful open formats that maintain commercial products alongside them (PDF/Adobe, Kubernetes/Google, Terraform/HashiCorp pre-2023).
+Use a **three-tier licensing model** — different licences for different layers of the CLAN ecosystem. This is the model used by successful open formats that maintain commercial products alongside them (PDF/Adobe, Kubernetes/Google, Terraform/HashiCorp pre-2023).
 
 | Layer | Licence | Rationale |
 |---|---|---|
-| LACE Format Specification | Apache 2.0 | Open, patent-protected, commercial-friendly |
-| LACE SDK (Rust core + bindings) | Apache 2.0 | Same — consistent with spec |
-| LACE App (Tauri viewer) | Proprietary | Commercial moat — best viewer, not exclusive |
+| CLAN Format Specification | Apache 2.0 | Open, patent-protected, commercial-friendly |
+| CLAN SDK (Rust core + bindings) | Apache 2.0 | Same — consistent with spec |
+| CLAN App (Tauri viewer) | Proprietary | Commercial moat — best viewer, not exclusive |
 
 ---
 
@@ -18,24 +18,24 @@ Use a **three-tier licensing model** — different licences for different layers
 
 ### Maximum adoption without patent risk
 
-Apache 2.0 includes an explicit **patent grant**. Every contributor to the spec or SDK automatically grants all users a royalty-free licence to any patents they hold that are necessary to implement LACE. This means:
+Apache 2.0 includes an explicit **patent grant**. Every contributor to the spec or SDK automatically grants all users a royalty-free licence to any patents they hold that are necessary to implement CLAN. This means:
 
-- Teams adopting LACE have legal clarity — no surprise patent claims later
-- Researchers and academics can publish LACE-based work freely
-- Enterprises can build LACE-compatible products without legal review headaches
+- Teams adopting CLAN have legal clarity — no surprise patent claims later
+- Researchers and academics can publish CLAN-based work freely
+- Enterprises can build CLAN-compatible products without legal review headaches
 - This is the same reason Kubernetes, TensorFlow, Android, and Swift all use Apache 2.0
 
 ### Commercial use allowed
 
-Apache 2.0 allows commercial use. Companies can build LACE-compatible products and charge for them. This drives adoption — if organisations cannot commercialise around LACE, they will not invest in adopting it.
+Apache 2.0 allows commercial use. Companies can build CLAN-compatible products and charge for them. This drives adoption — if organisations cannot commercialise around CLAN, they will not invest in adopting it.
 
 ### Attribution preserved
 
-Apache 2.0 requires preserving copyright notices and attributing the original authors. LACE spec implementations must acknowledge the origin. This builds brand recognition as adoption grows.
+Apache 2.0 requires preserving copyright notices and attributing the original authors. CLAN spec implementations must acknowledge the origin. This builds brand recognition as adoption grows.
 
 ### Why not MIT?
 
-MIT has no patent grant. A competitor could implement LACE, patent aspects of their implementation, and assert those patents against the LACE community. Apache 2.0 closes this risk.
+MIT has no patent grant. A competitor could implement CLAN, patent aspects of their implementation, and assert those patents against the CLAN community. Apache 2.0 closes this risk.
 
 ### Why not GPL or LGPL?
 
@@ -49,7 +49,7 @@ CC licences (BY, BY-SA, etc.) are designed for creative works — documents, ima
 
 ## Why Proprietary for the App
 
-The LACE format being open does not require the best viewer to be open. This is the standard pattern for successful open formats:
+The CLAN format being open does not require the best viewer to be open. This is the standard pattern for successful open formats:
 
 - **PDF** is an ISO open standard. Adobe Acrobat Reader is proprietary. Adobe still has a business.
 - **HTML** is a W3C open standard. Chrome is built on open source but Google's commercial interests drive it.
@@ -57,7 +57,7 @@ The LACE format being open does not require the best viewer to be open. This is 
 
 Making the format open creates adoption. Making the viewer proprietary creates a commercial product. These are not in conflict.
 
-The proprietary app wins on quality, not exclusivity. Anyone can build a LACE viewer — and some will. The goal is to build the one people choose because it is the best, not because it is the only option.
+The proprietary app wins on quality, not exclusivity. Anyone can build a CLAN viewer — and some will. The goal is to build the one people choose because it is the best, not because it is the only option.
 
 ---
 
@@ -82,8 +82,8 @@ Add an `Apache-2.0` `LICENSE` file at the root of the spec repository.
 Add to `README.md`:
 ```markdown
 ## Licence
-LACE Specification and Reference SDK — Apache License 2.0
-LACE App — Proprietary (© [Your Organisation Name])
+CLAN Specification and Reference SDK — Apache License 2.0
+CLAN App — Proprietary (© [Your Organisation Name])
 ```
 
 ### SDK Repository
@@ -100,9 +100,9 @@ Add to `package.json` (TypeScript SDK):
 "license": "Apache-2.0"
 ```
 
-### The .lace Files Themselves
+### The .clan Files Themselves
 
-LACE files that ship as part of the spec (example files, templates) should be explicitly dedicated to the public domain or CC0 — so anyone can use them as a starting point without attribution obligations.
+CLAN files that ship as part of the spec (example files, templates) should be explicitly dedicated to the public domain or CC0 — so anyone can use them as a starting point without attribution obligations.
 
 ---
 
@@ -111,7 +111,7 @@ LACE files that ship as part of the spec (example files, templates) should be ex
 Three mechanisms reinforce the app's commercial position without restricting the format:
 
 **1. Trademark**
-Register "LACE" and the LACE logo as trademarks. Anyone can implement the format, but they cannot call their implementation "LACE" without a trademark licence. This is how Red Hat operates around Linux — they can't stop people from using Linux, but "Red Hat Enterprise Linux" is theirs.
+Register "CLAN" and the CLAN logo as trademarks. Anyone can implement the format, but they cannot call their implementation "CLAN" without a trademark licence. This is how Red Hat operates around Linux — they can't stop people from using Linux, but "Red Hat Enterprise Linux" is theirs.
 
 Cost: ~$250–350 per class at the USPTO (US); ~€850 at the EUIPO (EU).
 

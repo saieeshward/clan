@@ -1,6 +1,6 @@
-# LACE Agent Guide — v1.0
+# CLAN Agent Guide — v1.0
 
-LACE (Living Agent Context Envelope) is a file format for passing structured context between AI agents and rendering it for humans. You received a `.lace` file. The SDK has extracted what you need. Read this guide first, then your task.
+CLAN (Context Lineage Agent Notation) is a file format for passing structured context between AI agents and rendering it for humans. You received a `.clan` file. The SDK has extracted what you need. Read this guide first, then your task.
 
 ---
 
@@ -23,7 +23,7 @@ LACE (Living Agent Context Envelope) is a file format for passing structured con
 A **single JSON object** matching `agent/output-schema.json` exactly.
 
 - Return only the JSON object — no markdown wrapper, no explanation, no preamble
-- The SDK validates your output and packages it into a new `.lace` file
+- The SDK validates your output and packages it into a new `.clan` file
 - You do not write files, create ZIPs, or manage document structure
 
 ---
