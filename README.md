@@ -1,4 +1,4 @@
-# CLAN — Context Lineage Agent Notation
+# CLAN — Context and Live Agent Notation
 
 > Pronounced **"clan"** — like a clan, every file carries shared lineage connecting it to every document that came before it.
 
@@ -65,9 +65,9 @@ my-document.clan          ← ZIP container (DEFLATE)
 
 ## Name
 
-**CLAN** — **C**ontext **L**ineage **A**gent **N**otation
+**CLAN** — **C**ontext and **L**ive **A**gent **N**otation
 
-A clan is a group bound by shared ancestry. Every CLAN file references its parent — a chain of lineage connecting every version of a document back to its origin. Like a clan, it carries its history with it wherever it goes.
+A CLAN file is live: it carries its own specification, so any agent can understand and produce it without prior training. It carries context: structured data, task state, and the full decision history of every agent that touched it.
 
 ---
 

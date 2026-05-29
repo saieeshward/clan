@@ -1,6 +1,6 @@
 # CLAN Specification v1.0
 
-**Context Lineage Agent Notation**
+**Context and Live Agent Notation**
 Pronounced "clan"
 
 ---
@@ -32,7 +32,7 @@ Pronounced "clan"
 
 ## 1. Overview
 
-CLAN (Context Lineage Agent Notation) is an open container format for passing structured context between AI agents and rendering that context for humans. A `.clan` file is simultaneously:
+CLAN (Context and Live Agent Notation) is an open container format for passing structured context between AI agents and rendering that context for humans. A `.clan` file is simultaneously:
 
 - A **machine-readable data container** for AI agents — structured YAML/JSON with explicit schemas
 - A **human-renderable document** — rich HTML with CSS, charts, and typography
@@ -709,7 +709,7 @@ Implementations MAY offer a configuration flag to disable TOON injection and use
 ```markdown
 # CLAN Agent Guide — v1.0
 
-CLAN (Context Lineage Agent Notation) is a file format for passing context
+CLAN (Context and Live Agent Notation) is a file format for passing context
 between AI agents and rendering it for humans. You received a .clan file.
 The SDK has extracted what you need. Read this guide, then your task.
 

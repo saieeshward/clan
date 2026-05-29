@@ -1,6 +1,6 @@
 # CLAN Specification — Embedded Reference
 
-**Context Lineage Agent Notation** | Version 1.0 | Pronounced "clan"
+**Context and Live Agent Notation** | Version 1.0 | Pronounced "clan"
 
 This file travels inside every `.clan` container. It is the authoritative reference for the format version declared in `manifest.yaml`. If the public specification and this file conflict, this file governs for this specific CLAN file.
 

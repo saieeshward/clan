@@ -1,6 +1,6 @@
 # CLAN Agent Guide — v1.0
 
-CLAN (Context Lineage Agent Notation) is a file format for passing structured context between AI agents and rendering it for humans. You received a `.clan` file. The SDK has extracted what you need. Read this guide first, then your task.
+CLAN (Context and Live Agent Notation) is a file format for passing structured context between AI agents and rendering it for humans. You received a `.clan` file. The SDK has extracted what you need. Read this guide first, then your task.
 
 ---
 
