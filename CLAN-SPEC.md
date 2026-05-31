@@ -145,6 +145,7 @@ document_type: "invoice"                # string, freeform
 lineage:
   parent_id: "3f9a2b1c-..."            # UUID of parent CLAN
   parent_uri: "file:///docs/inv-001.clan"  # URI to parent file
+  parent_sha256: "sha256:a3f4b2c1..."  # SHA-256 of the parent .clan file (ZIP bytes)
   delta: "Corrected vendor name, re-extracted line items"  # semantic description
 
 # Optional: external persistent store references
@@ -161,48 +162,59 @@ files:
     path: "shared/data.yaml"
     role: "canonical-data"
     type: "application/yaml"
+    sha256: "sha256:..."              # SHA-256 of the uncompressed file bytes
   - id: "agent-state"
     path: "agent/state.yaml"
     role: "agent-state"
     type: "application/yaml"
+    sha256: "sha256:..."
   - id: "agent-context"
     path: "agent/context.md"
     role: "agent-context"
     type: "text/markdown"
+    sha256: "sha256:..."
   - id: "agent-schema"
     path: "agent/output-schema.json"
     role: "agent-schema"
     type: "application/json"
+    sha256: "sha256:..."
   - id: "agent-chain"
     path: "agent/decision-chain.yaml"
     role: "agent-chain"
     type: "application/yaml"
+    sha256: "sha256:..."
   - id: "human-view"
     path: "human/index.html"
     role: "human-view"
     type: "text/html"
     priority: 1                        # preferred representation
+    sha256: "sha256:..."
   - id: "human-text"
     path: "human/index.txt"
     role: "human-view"
     type: "text/plain"
     priority: 2                        # fallback representation
+    sha256: "sha256:..."
   - id: "human-style"
     path: "human/styles.css"
     role: "human-style"
     type: "text/css"
+    sha256: "sha256:..."
   - id: "human-patches"
     path: "human/patches.yaml"
     role: "human-patch"
     type: "application/yaml"
+    sha256: "sha256:..."
   - id: "spec-full"
     path: "spec/clan.md"
     role: "spec-full"
     type: "text/markdown"
+    sha256: "sha256:..."
   - id: "spec-guide"
     path: "spec/agent-guide.md"
     role: "spec-agent-guide"
     type: "text/markdown"
+    sha256: "sha256:..."
 ```
 
 ### Role Enumeration
@@ -611,11 +623,13 @@ Every CLAN is a node in a directed acyclic graph (DAG) of document versions. The
 lineage:
   parent_id: "3f9a2b1c-e29b-41d4-a716-446655440001"
   parent_uri: "file:///invoices/inv-001.clan"
+  parent_sha256: "sha256:a3f4b2c1d9e8f7a6b5c4d3e2f1a0b9c8d7e6f5a4"
   delta: "Validation complete. Vendor name corrected from 'ACME' to 'Acme Corporation'."
 ```
 
 - `parent_id` — UUID of the parent CLAN (from its `manifest.yaml`)
 - `parent_uri` — URI pointing to the parent file (file://, https://, mcp://, etc.)
+- `parent_sha256` — SHA-256 of the parent `.clan` file's raw ZIP bytes. Makes the lineage chain cryptographically verifiable — any modification to a parent file is detectable when walking the chain.
 - `delta` — human and agent-readable semantic description of what changed
 
 ### Rules
@@ -625,6 +639,7 @@ lineage:
 - The lineage chain is reconstructed by following `parent_uri` references
 - Parent CLAN files are never embedded — only referenced
 - The app reconstructs and renders the lineage chain visually on demand
+- Consumers verifying the chain SHOULD check `parent_sha256` against the resolved parent file and warn if the hash does not match
 
 ---
 
@@ -681,6 +696,17 @@ When the SDK loads a CLAN file for an agent, it assembles a context object in th
 | 6 | `human/patches.yaml` | ~200 | Human edits (if configured) |
 
 The spec guide is injected once per agent session and cached. Subsequent calls in the same session do not re-inject it.
+
+### Lazy Loading Contract
+
+The SDK MUST NOT read entries from the ZIP that are not required for the current operation. Specifically:
+
+- When assembling agent context: `human/` directory entries MUST NOT be read
+- When rendering for humans: `agent/` directory entries MUST NOT be read (except `state.yaml` for the agent panel)
+- `manifest.yaml` is always read first and is the only guaranteed upfront I/O
+- All other entries are loaded on demand by role, never by scanning the full archive
+
+This ensures the SDK's I/O footprint matches the operation being performed, not the total file size.
 
 ### TOON Serialisation for Injected Context
 
@@ -853,6 +879,8 @@ A CLAN file is **content-valid** if additionally:
 - [ ] `human/patches.yaml` (if present) — all `id` values are non-empty strings
 - [ ] `agent/decision-chain.yaml` — all entries have `agent`, `action`, `rationale`, `timestamp`
 - [ ] `manifest.yaml` `lineage.parent_id` (if present) is a valid UUID v4
+- [ ] All `sha256` values in `manifest.yaml` `files[]` match the SHA-256 of the corresponding entry's uncompressed bytes
+- [ ] `manifest.yaml` `lineage.parent_sha256` (if present) matches `sha256:<hex>` format
 
 ### Version Validation
 
@@ -916,12 +944,17 @@ For SDK implementors, in priority order:
 - [ ] ZIP read with selective entry access (`by_name`)
 - [ ] ZIP write with DEFLATE compression
 - [ ] `manifest.yaml` parse, validate, write
+- [ ] SHA-256 computation for all file entries written to manifest
+- [ ] SHA-256 verification of file entries on open (warn on mismatch, do not silently pass)
 - [ ] `spec/agent-guide.md` injection into agent context
 - [ ] TOON serialisation of `shared/data.yaml` and `decision-chain.yaml` at injection time
 - [ ] `agent/output-schema.json` validation of agent output (JSON)
 - [ ] `data-update` output mode handling
 - [ ] `shared/data.yaml` schema validation
 - [ ] `human/patches.yaml` application at render time
+- [ ] Lazy loading enforced: never read entries outside the required role set for the current operation
+
+> **Implementation note**: Ship single-threaded and correct before adding any concurrency. Premature parallelism in file I/O and compression has caused severe regressions in comparable systems (up to 96% throughput degradation). Measure a real bottleneck before introducing worker pools or async I/O.
 
 **Full (required for full compliance)**
 - [ ] `designed` output mode (theme/layout rendering)
