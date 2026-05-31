@@ -86,12 +86,31 @@ You have full design control. HTML must be a fragment (no `<html>`, `<head>`, `<
 
 ---
 
+## Decision chain — pinning
+
+Entries in `agent/decision-chain.yaml` beyond the verbatim window are compressed by the SDK. If your decision involves a status transition, error, retry, or complex conditional reasoning that must be preserved exactly, include `pinned: true` in your output's decision entry. The SDK will never compress pinned entries.
+
+```json
+{
+  "mode": "data-update",
+  "structured": { ... },
+  "decision": {
+    "action": "escalated to human review",
+    "rationale": "Invoice total 3.2% above PO. Automatic approval threshold is 2%.",
+    "pinned": true
+  }
+}
+```
+
+---
+
 ## What the SDK handles — do NOT attempt these
 
 - Creating or writing ZIP files
 - Writing manifest.yaml or any file paths
 - Applying patches from patches.yaml
 - Tracking lineage or decision history
+- Compressing the decision chain
 - Validating HTML or CSS
 - Generating the plain text fallback
 

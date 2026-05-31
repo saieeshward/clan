@@ -350,14 +350,9 @@ ready_for: "validation"
 
 ### decision-chain.yaml
 
-An ordered list of every agent decision. Newer entries are at the top. Older entries are semantically compressed by the SDK.
+An ordered list of every agent decision. Newer entries are at the top. Older entries are compressed by the SDK using a deterministic NLP pipeline — no model dependency.
 
 ```yaml
-# Compression tiers:
-# - Entries 1-3:  full fidelity
-# - Entries 4-15: key facts + rationale, no raw reasoning
-# - Entry 16+:    2-sentence summary per entry
-
 decisions:
   - agent: "extractor-v2"
     version: "2.1.4"
@@ -367,18 +362,54 @@ decisions:
       Line item descriptions preserved verbatim."
     timestamp: "2026-05-29T10:23:00Z"
     fields_changed: ["vendor", "total", "line_items", "status"]
+    pinned: false                       # if true, never compressed regardless of age
     trace-ref:
       store: "context-store"
       entry: "step/1"
       content-hash: "sha256:a3f4b2c1d9e8f7a6b5c4d3e2f1a0b9c8"
 ```
 
-**Compression rule**: The SDK applies semantic compression when a new decision is added:
-- Entries 1–3: stored verbatim
-- Entries 4–15: SDK passes through an LLM to compress — key facts + rationale preserved, raw reasoning removed
-- Entry 16+: SDK compresses to a 2-sentence summary per entry
+**Compression model**: Two tiers, applied when a new decision is added during packaging.
 
-This caps `decision-chain.yaml` at approximately 15–20KB regardless of pipeline length.
+- **Verbatim window** (most recent `compression_window` entries, default N=5): stored exactly as written. Current agents always receive full-fidelity recent history.
+- **Compressed tail** (all entries beyond N): rationale field compressed in-place using the SDK's NLP pipeline (see below). All other fields — `agent`, `action`, `timestamp`, `fields_changed`, `trace-ref` — are always stored verbatim.
+
+**Short-circuit rule**: if an entry's rationale is already at or under `compression_char_budget` (default 280 characters), it is stored verbatim regardless of position. No compression is applied to entries that don't need it.
+
+**Pinned entries**: setting `pinned: true` on any entry opts it out of compression permanently, regardless of age or position. Agents SHOULD pin entries that represent status transitions, errors, retries, or decisions with complex conditional reasoning.
+
+**`compression_window`** is configurable per SDK instance (default 5). Set higher for pipelines with many agents; set lower for pipelines where token economy is critical.
+
+This caps `decision-chain.yaml` at approximately 10–15KB regardless of pipeline length.
+
+### SDK Compression Pipeline
+
+The SDK compresses older rationale fields using a deterministic pipeline. No model weights. No external API. Runs in ~0.5ms per entry and does not block the agent path — it runs during packaging after the agent has returned its output.
+
+**Pipeline steps** (in order):
+
+1. **YAKE keyword extraction** (`yake-rust` crate) — extract top-10 keyphrases from `action + rationale` combined. YAKE is single-document and unsupervised; no corpus required. Handles capitalised identifiers (agent names, field names, system IDs) as meaningful tokens.
+
+2. **Sentence scoring** — score each sentence in `rationale` by YAKE keyword overlap, normalised by sentence length.
+
+3. **Position weights** — first sentence +0.10 (restates task), last sentence +0.20 (states outcome). Outcomes appear last in agent rationale; standard extractive methods systematically miss them without this correction.
+
+4. **Numeric lock** — any sentence containing a digit, percentage, or currency value is automatically included regardless of score. Numeric values (`confidence: 0.94`, `3.2% above PO`) are the most information-dense parts of agent rationale.
+
+5. **Identifier preservation** — any sentence containing a hyphenated or versioned identifier (`extractor-v2`, `PO-2026-0018`) receives a +0.15 score bonus.
+
+6. **Pick until budget** — select highest-scoring sentences until `compression_char_budget` is reached.
+
+**Overriding the pipeline**: The SDK exposes a `CompressorFn` callback for applications that want higher-quality compression:
+
+```rust
+sdk.set_compressor(|action: &str, rationale: &str, budget: usize| -> String {
+    // caller provides any model or strategy
+    my_model.summarise(action, rationale, budget)
+});
+```
+
+If no callback is set, the deterministic pipeline above is used. The format is identical either way — the callback is a quality upgrade, not a protocol change.
 
 ### next-agent-brief.md (optional)
 
@@ -960,7 +991,9 @@ For SDK implementors, in priority order:
 - [ ] `designed` output mode (theme/layout rendering)
 - [ ] `full-html` output mode (HTML sanitisation, asset packaging)
 - [ ] Lineage tracking (parent reference, delta generation)
-- [ ] Decision-chain compression (three-tier semantic compression)
+- [ ] Decision-chain compression (verbatim window + YAKE NLP pipeline for tail entries)
+- [ ] `pinned: true` flag respected — pinned entries never compressed
+- [ ] `CompressorFn` callback API — optional override for AI-based compression
 - [ ] Static export generation
 - [ ] External store reference resolution
 - [ ] `data-adf-id` assignment at render time

@@ -104,10 +104,10 @@ JSON Schema (Draft 7+) defining exactly what the agent must return. The SDK vali
 Current agent-readable document state. Pipeline stage, status, confidence, readiness flags.
 
 ### decision-chain.yaml
-Ordered agent decision log. Newest first. SDK applies tiered compression:
-- Entries 1–3: full fidelity
-- Entries 4–15: key facts + rationale
-- Entry 16+: 2-sentence summary
+Ordered agent decision log. Newest first. SDK applies two-tier compression during packaging — no model dependency.
+
+**Verbatim window**: most recent N entries stored exactly as written (N = `compression_window`, default 5).
+**Compressed tail**: older entries have their `rationale` field compressed in-place using the SDK's YAKE-based NLP pipeline. All other fields (`agent`, `action`, `timestamp`, `fields_changed`, `trace-ref`) always stored verbatim.
 
 Entry structure:
 ```yaml
@@ -115,11 +115,14 @@ Entry structure:
   action: "what it did"
   rationale: "why"
   timestamp: "ISO 8601"
+  pinned: false                  # true = never compressed regardless of age
   trace-ref:                     # optional — points to external full context
     store: "external-id"
     entry: "step/N"
     content-hash: "sha256:..."
 ```
+
+Set `pinned: true` on entries representing status transitions, errors, retries, or complex conditional decisions. Pinned entries are never compressed.
 
 ---
 
