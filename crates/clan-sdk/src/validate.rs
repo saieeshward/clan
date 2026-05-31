@@ -142,10 +142,17 @@ fn content_checks(clan: &ClanFile, report: &mut ValidationReport) {
     // human/index.html (if present): no <script>, no <html>/<head>/<body> tags.
     if let Ok(html) = clan.read_entry_string("human/index.html") {
         let lower = html.to_lowercase();
-        for forbidden in &["<script", "<html", "<head", "<body"] {
-            if lower.contains(forbidden) {
+        // Use precise patterns to avoid false positives (e.g. <header matching <head).
+        for (label, pattern) in &[
+            ("<script", "<script"),
+            ("<html", "<html"),
+            ("<head>", "<head>"),    // exact close, not <header>
+            ("<head ", "<head "),    // <head with attribute
+            ("<body", "<body"),
+        ] {
+            if lower.contains(*pattern) {
                 report.content.push(format!(
-                    "human/index.html contains forbidden tag: {forbidden}"
+                    "human/index.html contains forbidden tag: {label}"
                 ));
             }
         }
