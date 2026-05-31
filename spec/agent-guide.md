@@ -82,9 +82,9 @@ You have full design control. Provide a complete `<!DOCTYPE html>` document for 
 
 - **Preferred**: produce a complete `<!DOCTYPE html>` document — full control, no style conflicts
 - Fragments (no `<html>`/`<head>`/`<body>`) are also accepted
-- No `<script>` tags — the app injects the edit bridge; your scripts will be stripped
-- No `on*` event handler attributes (`onclick`, `onload`, etc.)
-- No `<iframe>`, `<object>`, `<embed>`, `<form>` elements
+- `<script>` tags are **allowed** — the iframe sandbox prevents Tauri IPC access so scripts are safe
+- `on*` event handler attributes are allowed
+- No `<iframe>`, `<object>`, `<embed>`, or `<form>` elements
 - CDN fonts are supported: `<link rel="stylesheet" href="https://fonts.googleapis.com/...">` in `<head>` works
 - `@import url('https://fonts.googleapis.com/...')` in `<style>` also works
 - Add `data-adf-id="unique-id"` to every human-editable text element (headlines, paragraphs)

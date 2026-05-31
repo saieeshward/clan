@@ -249,10 +249,10 @@ pub fn pack(
     match output.mode.as_str() {
         "full-html" => {
             if let Some(h) = output.human {
-                // Strip only <script> tags — allow full HTML, external fonts/styles.
-                // Agents have creative freedom; the viewer sandbox controls execution.
-                let clean_html = strip_scripts(&h.html);
-                builder.add_entry("human/index.html", clean_html.into_bytes());
+                // The iframe sandbox (allow-scripts, no allow-same-origin) isolates agent
+                // scripts to a null origin — they cannot reach Tauri IPC or parent state.
+                // No stripping needed; agents may use JS freely for animations, charts, etc.
+                builder.add_entry("human/index.html", h.html.into_bytes());
                 if let Some(css) = h.css {
                     builder.add_entry("human/styles.css", css.into_bytes());
                 }
