@@ -249,10 +249,10 @@ pub fn pack(
     match output.mode.as_str() {
         "full-html" => {
             if let Some(h) = output.human {
-                // Strip only <script> tags — allow full HTML, external fonts/styles.
-                // Agents have creative freedom; the viewer sandbox controls execution.
-                let clean_html = strip_scripts(&h.html);
-                builder.add_entry("human/index.html", clean_html.into_bytes());
+                // The iframe sandbox (allow-scripts, no allow-same-origin) isolates agent
+                // scripts to a null origin — they cannot reach Tauri IPC or parent state.
+                // No stripping needed; agents may use JS freely for animations, charts, etc.
+                builder.add_entry("human/index.html", h.html.into_bytes());
                 if let Some(css) = h.css {
                     builder.add_entry("human/styles.css", css.into_bytes());
                 }
@@ -284,6 +284,88 @@ pub fn pack(
     }
 
     builder.build()
+}
+
+/// Pack a new `.clan` directly from an HTML file (or stdin) — no JSON encoding needed.
+///
+/// This is the token-efficient path for `full-html` agents: instead of JSON-encoding
+/// a 12 KB HTML string into ~62 KB of escaped JSON, the agent writes the HTML to a
+/// file and the operator calls `clan pack-html`. Token cost: zero for the HTML encoding step.
+///
+/// Accepts an optional YAML-frontmatter block at the very start of the file:
+/// ```text
+/// ---
+/// structured:
+///   title: "My Report"
+///   key_finding: "example"
+/// decision:
+///   agent: "agent3"
+///   action: "produced final design"
+///   rationale: "combined prior agent work into polished output"
+///   pinned: true
+/// ---
+/// <!DOCTYPE html>
+/// ...
+/// ```
+/// If no frontmatter is present the HTML is packed as-is with empty structured data.
+pub fn pack_html(
+    parent: &ClanFile,
+    raw_html: &str,
+    delta: Option<String>,
+    compressor: Option<&Compressor>,
+) -> Result<Vec<u8>> {
+    // Parse optional YAML frontmatter.
+    let (structured, decision_entry, html_body) = parse_html_frontmatter(raw_html);
+
+    let output = AgentOutput {
+        mode: "full-html".to_string(),
+        structured,
+        design: None,
+        human: Some(HumanPayload {
+            html: html_body,
+            css: None,
+            assets: HashMap::new(),
+        }),
+        decision: decision_entry,
+    };
+
+    pack(parent, output, PackOptions { delta, ..Default::default() }, compressor)
+}
+
+/// Parse optional YAML frontmatter from the top of an HTML string.
+/// Returns (structured_data, decision_entry, html_without_frontmatter).
+fn parse_html_frontmatter(input: &str) -> (Value, Option<DecisionEntry>, String) {
+    let empty = (Value::Object(Default::default()), None, input.to_string());
+
+    let trimmed = input.trim_start();
+    if !trimmed.starts_with("---") {
+        return empty;
+    }
+
+    // Find the closing ---
+    let after_open = &trimmed[3..];
+    let Some(close) = after_open.find("\n---") else { return empty };
+
+    let yaml_src = &after_open[..close];
+    let html_body = after_open[close + 4..].trim_start().to_string();
+
+    let Ok(val) = serde_yaml::from_str::<serde_yaml::Value>(yaml_src) else { return empty };
+
+    let structured: Value = val
+        .get("structured")
+        .and_then(|v| serde_json::to_value(v).ok())
+        .unwrap_or_else(|| Value::Object(Default::default()));
+
+    let decision_entry = val.get("decision").and_then(|d| {
+        Some(DecisionEntry {
+            agent_name: d["agent"].as_str().unwrap_or("unknown").to_string(),
+            action: d["action"].as_str().unwrap_or("").to_string(),
+            rationale: d["rationale"].as_str().unwrap_or("").to_string(),
+            pinned: d["pinned"].as_bool().unwrap_or(false),
+        })
+    });
+
+    (structured, decision_entry, html_body)
 }
 
 /// Strip `<script>...</script>` blocks and `on*` event handler attributes.

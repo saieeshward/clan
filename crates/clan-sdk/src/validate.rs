@@ -4,6 +4,7 @@ use crate::container::ClanFile;
 use crate::error::{Error, Result};
 use crate::hash;
 
+
 /// A collected set of validation problems. Empty == valid.
 #[derive(Debug, Default)]
 pub struct ValidationReport {
@@ -139,24 +140,10 @@ fn content_checks(clan: &ClanFile, report: &mut ValidationReport) {
         }
     }
 
-    // human/index.html (if present): no <script>, no <html>/<head>/<body> tags.
-    if let Ok(html) = clan.read_entry_string("human/index.html") {
-        let lower = html.to_lowercase();
-        // Use precise patterns to avoid false positives (e.g. <header matching <head).
-        for (label, pattern) in &[
-            ("<script", "<script"),
-            ("<html", "<html"),
-            ("<head>", "<head>"),    // exact close, not <header>
-            ("<head ", "<head "),    // <head with attribute
-            ("<body", "<body"),
-        ] {
-            if lower.contains(*pattern) {
-                report.content.push(format!(
-                    "human/index.html contains forbidden tag: {label}"
-                ));
-            }
-        }
-    }
+    // human/index.html: no content checks on HTML structure.
+    // Full HTML documents, <script> tags, and on* event handlers are all permitted.
+    // The iframe sandbox (allow-scripts, no allow-same-origin) isolates agent JS
+    // to a null origin — it cannot reach Tauri IPC or parent app state.
 
     // decision-chain.yaml entries must have required fields.
     if let Ok(bytes) = clan.read_entry("agent/decision-chain.yaml") {

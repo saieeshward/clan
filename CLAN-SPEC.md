@@ -105,7 +105,7 @@ agent/decision-chain.yaml
 ### Optional Files
 
 ```
-human/index.html          ← rich human rendering (HTML fragment)
+human/index.html          ← rich human rendering (full HTML document or fragment)
 human/index.txt           ← plain text fallback
 human/styles.css          ← document styles
 human/patches.yaml        ← human text edits
@@ -435,15 +435,32 @@ Cross-reference invoice totals against the purchase order system.
 
 ### index.html
 
-An HTML **fragment** — not a full HTML document. The app wraps it in a shell with its own `<head>`, base stylesheet, and script injection.
+A complete HTML document or an HTML fragment. Full HTML documents are preferred — they give agents total design control with no style conflicts. The app detects which form it receives and handles both.
 
 **Rules**:
-- MUST NOT contain `<html>`, `<head>`, or `<body>` tags
-- MUST NOT contain `<script>` tags
-- MUST NOT reference external URLs in CSS `url()` calls
-- SHOULD use the app's CSS design tokens (`var(--clan-accent)`, etc.)
+- MUST NOT contain `<script>` tags (the app injects the edit bridge)
+- MUST NOT contain `on*` event handler attributes
+- MUST NOT contain `<iframe>`, `<object>`, `<embed>`, or `<form>` elements
 - SHOULD assign `data-adf-id` attributes to all human-editable text elements
+- MAY load fonts from CDNs (Google Fonts, Bunny Fonts, etc.) via `<link>` or `@import`
 - MAY reference assets via relative paths (`./assets/chart.svg`)
+- MAY use any CSS features including animations, custom properties, and external font imports
+
+**Recommended structure** (full HTML document):
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=...">
+  <style>/* all document styles here */</style>
+</head>
+<body>
+  <!-- document content -->
+</body>
+</html>
+```
 
 ```html
 <section class="invoice-hero">
@@ -582,7 +599,7 @@ Supported layouts: `card-grid`, `single-column`, `two-column`, `table-primary`, 
 
 ### Mode 3: full-html
 
-Agent provides complete HTML fragment, CSS, and SVG assets. The SDK validates, sanitises, and packages them.
+Agent provides a complete HTML document (or fragment), CSS, and SVG assets. The SDK validates and packages them.
 
 Use for: document-generating agents, report writers, first-time CLAN creation. Any agent with full design responsibility.
 
@@ -602,10 +619,13 @@ Use for: document-generating agents, report writers, first-time CLAN creation. A
 ```
 
 **HTML rules for full-html mode**:
-- Fragment only — no `<html>`, `<head>`, `<body>`
-- No `<script>` tags
-- No external URL references in CSS
+- Full HTML documents (`<!DOCTYPE html>...`) are preferred — use them for rich visual output
+- Fragments (bare HTML without `<html>`/`<head>`/`<body>`) are also accepted
+- `<script>` tags are fully allowed — use D3, Chart.js, count-up animations, anything
+- `on*` event handler attributes are allowed
+- No `<iframe>`, `<object>`, `<embed>`, or `<form>` elements
 - `data-adf-id` on all editable text elements
+- CDN fonts (`@import url()`, `<link>`) are fully supported
 - Asset filenames match keys in the `assets` object
 
 ---
@@ -803,9 +823,11 @@ Return only the JSON object — no markdown wrapper, no explanation.
 ## Rules
 - Return valid JSON only
 - Match output-schema.json exactly
-- HTML must be a fragment (no html/head/body tags)
-- No <script> tags in HTML
-- Use data-adf-id on editable text elements
+- Full HTML documents are preferred; fragments are also accepted
+- No `<script>` tags in agent-provided HTML
+- No `on*` event handlers, no `<iframe>/<object>/<embed>/<form>`
+- Use `data-adf-id` on editable text elements
+- CDN fonts (`@import`, `<link>`) are supported
 
 ## If something is unclear
 Read agent/context.md — it has task-specific rules that override these.
@@ -843,33 +865,36 @@ The agent reads this, follows the embedded `agent_guide`, produces JSON matching
 
 Applied to all agent-provided HTML before packaging into the archive:
 
-- Strip all `<script>` elements and content
-- Strip all `on*` event handler attributes (`onclick`, `onerror`, `onload`, etc.)
+- `<script>` tags and `on*` event handlers are **not stripped** — the iframe sandbox (see below) confines them to a null origin with no Tauri IPC access, making them safe
 - Strip `javascript:` URI schemes in `href` and `src`
-- Strip CSS `expression()`, `behavior:`, and external `url()` imports
+- Strip CSS `expression()` and `behavior:` (legacy IE exploit vectors only)
 - Disallow `<iframe>`, `<object>`, `<embed>`, `<form>` elements
-- Allow all other standard HTML5 elements and attributes
+- Allow all other standard HTML5 elements, attributes, and scripts
+- Allow external CSS `url()` and `@import` for fonts and design assets
 
-Implementation: use `ammonia` (Rust) with an explicit allowlist.
+Implementation: SDK validates for the short disallowed list only; does not rewrite scripts or CSS URLs.
 
 ### Rendering Sandbox (App layer)
 
 The Tauri app uses a multi-webview architecture:
 
 - **Shell WebView** — trusted. Full Tauri IPC access. Renders app chrome (sidebar, toolbar, panels).
-- **Document WebView** — sandboxed. No Tauri IPC. Renders agent-generated HTML via `clan://` custom protocol.
+- **Document WebView** — sandboxed iframe (`sandbox="allow-scripts allow-popups"`, no `allow-same-origin`). Renders agent-generated HTML.
 
-The document WebView is subject to CSP:
+The iframe has `allow-scripts` (agent JS runs freely) but **not** `allow-same-origin`. Without `allow-same-origin`, `srcDoc` iframes get a null/opaque origin — agent scripts cannot access the parent's Tauri IPC, localStorage, or app state. `postMessage` (used by the edit bridge) works regardless of origin and is unaffected by this restriction.
+
+The document WebView is subject to CSP (configured in `tauri.conf.json`):
 ```
 Content-Security-Policy:
-  default-src 'none';
-  style-src 'self' 'unsafe-inline';
-  img-src 'self' data:;
-  font-src 'self';
-  script-src 'none'
+  default-src 'self' asset: https://asset.localhost https:;
+  style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com https:;
+  font-src 'self' https://fonts.gstatic.com https: data:;
+  img-src 'self' asset: data: blob: https:;
+  script-src 'self' 'unsafe-inline';
+  connect-src 'self' https://ipc.localhost
 ```
 
-The `clan://` custom protocol is served by Rust from the in-memory extracted ZIP. No filesystem access from within the document WebView.
+CDN fonts (Google Fonts, etc.) are explicitly permitted. The `clan://` custom protocol is served by Rust from the in-memory extracted ZIP. No filesystem access from within the document WebView.
 
 ### Edit Bridge Security
 

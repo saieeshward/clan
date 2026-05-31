@@ -140,7 +140,7 @@ export default function DocumentView({ htmlContent, hasHumanView, manifest, edit
       srcDoc={srcDoc}
       onLoad={handleIframeLoad}
       style={{ width: '100%', flex: 1, border: 'none', background: '#0f1117' }}
-      sandbox="allow-scripts allow-same-origin allow-popups"
+      sandbox="allow-scripts allow-popups"
       title={manifest.title}
     />
   )
@@ -156,7 +156,11 @@ function injectIntoFullDoc(html: string): string {
   return html + bridge
 }
 
-/** Wrap an HTML fragment in a full document with base styles + edit bridge. */
+/**
+ * Wrap an HTML fragment in a minimal full document + edit bridge.
+ * Intentionally bare — agents that provide their own styles (inline <style> or
+ * via styles.css injected by main.rs) should not be clobbered by viewer defaults.
+ */
 function wrapFragment(fragment: string): string {
   return `<!DOCTYPE html>
 <html lang="en">
@@ -165,46 +169,17 @@ function wrapFragment(fragment: string): string {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --bg:#0f1117; --bg-card:#141922; --bg-card2:#1a2032;
-      --border:#1e2d45; --border2:#2a3350;
-      --text:#e2e8f0; --text-muted:#94a3b8; --text-dim:#64748b;
-      --accent:#6366f1; --accent-light:#818cf8;
-      --green:#4ade80; --yellow:#fbbf24; --red:#f87171;
-      --radius:10px; --radius-sm:6px;
-      --shadow:0 4px 24px rgba(0,0,0,0.4);
-    }
     html { scroll-behavior: smooth; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', system-ui, sans-serif;
-      background: var(--bg); color: var(--text);
-      line-height: 1.65; font-size: 15px;
+      background: #0f1117;
+      color: #e2e8f0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      font-size: 15px;
+      line-height: 1.65;
       -webkit-font-smoothing: antialiased;
     }
-    h1 { font-size: clamp(1.8rem,4vw,3rem); font-weight: 800; letter-spacing: -0.03em; color: #fff; line-height: 1.1; margin: 0 0 12px; }
-    h2 { font-size: 1.4rem; font-weight: 700; color: #f1f5f9; letter-spacing: -0.02em; margin: 32px 0 10px; }
-    h2::after { content:''; display:block; width:32px; height:3px; background:var(--accent); border-radius:2px; margin-top:8px; }
-    h3 { font-size: 1.05rem; font-weight: 600; color: #cbd5e1; margin: 20px 0 8px; }
-    h4 { font-size: 0.85rem; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.07em; margin: 16px 0 6px; }
-    p { margin: 0 0 14px; color: var(--text-muted); font-size: 0.95rem; line-height: 1.7; }
-    strong { color: #f1f5f9; font-weight: 600; }
-    ul, ol { padding-left: 22px; color: var(--text-muted); margin: 0 0 14px; }
-    li { margin: 5px 0; font-size: 0.92rem; line-height: 1.6; }
-    code { background:#1a2032; border:1px solid var(--border); color:var(--accent-light); padding:2px 7px; border-radius:4px; font-size:0.82em; font-family:'SF Mono','Fira Code',Consolas,monospace; }
-    table { width:100%; border-collapse:collapse; margin:16px 0 24px; border-radius:var(--radius); overflow:hidden; border:1px solid var(--border); }
-    thead tr { background:rgba(99,102,241,0.12); }
-    th { color:var(--accent-light); text-align:left; padding:11px 14px; font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; border-bottom:1px solid var(--border); }
-    td { padding:11px 14px; border-bottom:1px solid rgba(30,45,69,0.7); color:var(--text-muted); font-size:0.88rem; }
-    tr:last-child td { border-bottom:none; }
-    tbody tr:hover { background:rgba(99,102,241,0.04); }
-    td:first-child { color:#f1f5f9; font-weight:500; }
-    .card,.summary-card,[class*="-card"] { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:24px; box-shadow:0 2px 12px rgba(0,0,0,0.3); }
-    .grid,.card-grid,[class*="-grid"] { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:20px; margin:16px 0 24px; }
-    .badge,.status,[class*="-badge"] { display:inline-block; padding:3px 12px; border-radius:999px; font-size:0.75rem; font-weight:600; }
-    label { display:block; font-size:0.72rem; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:4px; }
-    section { margin:0 0 48px; }
-    footer { border-top:1px solid var(--border); margin-top:48px; padding-top:32px; }
-    ::-webkit-scrollbar { width:6px; } ::-webkit-scrollbar-thumb { background:var(--border2); border-radius:3px; }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-thumb { background: #1e2d45; border-radius: 3px; }
   </style>
 </head>
 <body>

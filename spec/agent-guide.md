@@ -16,6 +16,8 @@ CLAN (Context and Live Agent Notation) is a file format for passing structured c
 
 `shared/data.yaml` and `agent/decision-chain.yaml` are serialised as **TOON (Token-Oriented Object Notation)** — same data as the source YAML files, ~40% fewer tokens. Read them as structured key-value data.
 
+**⚠ Token-saving rule**: `clan read agent` includes all data (TOON-encoded). Do NOT also run `clan read data` — it returns the same content in a different format and wastes tokens.
+
 ---
 
 ## What you must return
@@ -70,15 +72,21 @@ Available layouts: `card-grid`, `single-column`, `two-column`, `table-primary`, 
   }
 }
 ```
-You have full design control. HTML must be a fragment (no `<html>`, `<head>`, `<body>` tags).
+You have full design control. Provide a complete `<!DOCTYPE html>` document for best results — full HTML documents render with no style conflicts from the viewer shell.
+
+**Lower-token path**: Instead of JSON-encoding the HTML (which expands it ~5x), write the HTML to a file and let the operator use `clan pack-html`. Add a YAML frontmatter block at the top of the HTML file to supply structured data and your decision entry — see `clan agent-help` for the format. This eliminates the JSON encoding cost entirely.
 
 ---
 
 ## HTML rules (full-html mode only)
 
-- Fragment only — no `<html>`, `<head>`, `<body>` tags
-- No `<script>` tags — the SDK will reject your output
-- No external URL references in CSS (`url('https://...')`)
+- **Preferred**: produce a complete `<!DOCTYPE html>` document — full control, no style conflicts
+- Fragments (no `<html>`/`<head>`/`<body>`) are also accepted
+- `<script>` tags are **allowed** — the iframe sandbox prevents Tauri IPC access so scripts are safe
+- `on*` event handler attributes are allowed
+- No `<iframe>`, `<object>`, `<embed>`, or `<form>` elements
+- CDN fonts are supported: `<link rel="stylesheet" href="https://fonts.googleapis.com/...">` in `<head>` works
+- `@import url('https://fonts.googleapis.com/...')` in `<style>` also works
 - Add `data-adf-id="unique-id"` to every human-editable text element (headlines, paragraphs)
 - Use `{{key}}` syntax to reference values from `shared/data.yaml`
 - Reference assets via relative path: `<img src="./assets/chart.svg">`

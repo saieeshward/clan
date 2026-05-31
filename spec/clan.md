@@ -129,7 +129,13 @@ Set `pinned: true` on entries representing status transitions, errors, retries, 
 ## human/ Directory
 
 ### index.html
-HTML **fragment** only — no `<html>`, `<head>`, `<body>` tags. No `<script>` tags. No external URL references. Agent-generated. Never directly modified by human edits.
+A complete HTML document or HTML fragment. **Full HTML documents are preferred** — they give agents total design control with no style conflicts from the viewer shell.
+
+- `<script>` tags are allowed — the iframe sandbox isolates them to a null origin with no Tauri IPC access
+- `on*` event handler attributes are allowed
+- No `<iframe>`, `<object>`, `<embed>`, or `<form>` elements
+- CDN fonts via `<link>` or `@import url()` are fully supported (Google Fonts, Bunny Fonts, etc.)
+- Agent-generated. Never directly modified by human edits.
 
 Data binding: use `{{key}}` syntax referencing `shared/data.yaml`. Resolved at render time.
 Editable elements: assign `data-adf-id="stable-id"` to all human-editable text nodes.
@@ -138,7 +144,7 @@ Editable elements: assign `data-adf-id="stable-id"` to all human-editable text n
 Plain text fallback. Auto-generated from index.html.
 
 ### styles.css
-Agent-generated. Scoped to document content. No external imports.
+Agent-generated. Scoped to document content. CDN font imports (`@import url()`) are permitted.
 
 ### patches.yaml
 Human text edits stored out-of-band. Applied over the HTML at render time.
@@ -187,23 +193,23 @@ SDK generates HTML from directives. Themes: `light-clean`, `dark-minimal`, `warm
   "mode": "full-html",
   "structured": { "...": "..." },
   "human": {
-    "html": "<section>...</section>",
-    "css": "...",
+    "html": "<!DOCTYPE html><html>...</html>",
+    "css": "/* optional — styles can be inline in html */",
     "assets": { "chart.svg": "<svg>...</svg>" }
   }
 }
 ```
-Agent provides complete HTML. SDK sanitises (no scripts, no events) and packages.
+Agent provides a complete HTML document (preferred) or fragment. The `html` field accepts full `<!DOCTYPE html>` documents. SDK strips `<script>` tags, `on*` attributes, and disallowed elements; all other HTML and CSS passes through unchanged.
 
 ---
 
 ## Security Rules
 
-- No `<script>` tags in human/index.html
-- No `on*` event handler attributes in HTML
-- No external URL references in CSS `url()`
+- `<script>` tags and `on*` event handlers are permitted — the iframe sandbox runs them in a null origin with no access to Tauri IPC or parent app state
 - No `<iframe>`, `<object>`, `<embed>`, `<form>` in HTML
+- No `javascript:` URI schemes in `href` or `src`
 - Patch content is plain text — no HTML in patch values
+- External CSS `url()`, `@import`, and CDN fonts are permitted
 
 ---
 
