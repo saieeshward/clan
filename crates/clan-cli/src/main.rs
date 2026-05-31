@@ -8,15 +8,17 @@
 //!   clan read data <file.clan>
 //!   clan info <file.clan>
 //!   clan pack --output <next.clan> [--delta "…"] <parent.clan> <output.json>
+//!   clan pack-html --output <next.clan> [--delta "…"] <parent.clan> <output.html>
 //!   clan export-static <file.clan> [--output static.json]
+//!   clan agent-help
 
 use std::path::PathBuf;
 
 use anyhow::{Context, Result};
 use clap::{Parser, Subcommand};
 use clan_sdk::{
-    assemble, create, export_static, pack, validate, AgentOutput, ClanFile, CreateOptions,
-    InjectOptions, PackOptions,
+    assemble, create, export_static, pack, pack_html, validate, AgentOutput, ClanFile,
+    CreateOptions, InjectOptions, PackOptions,
 };
 
 #[derive(Parser)]
@@ -83,6 +85,24 @@ enum Commands {
         #[arg(long)]
         output: Option<PathBuf>,
     },
+    /// Pack a new .clan directly from an HTML file — no JSON encoding needed.
+    /// The HTML file may contain an optional YAML frontmatter block (between --- markers)
+    /// at the very top to supply structured data and a decision entry.
+    PackHtml {
+        /// Parent .clan file.
+        parent: PathBuf,
+        /// HTML file to pack (or `-` for stdin).
+        html_file: String,
+        /// Output path for the new .clan file.
+        #[arg(long)]
+        output: PathBuf,
+        /// Human-readable description of what changed.
+        #[arg(long)]
+        delta: Option<String>,
+    },
+    /// Print a compact agent-oriented quick reference (< 200 tokens).
+    /// Use this instead of --help when operating as an AI agent.
+    AgentHelp,
 }
 
 #[derive(Subcommand)]
@@ -120,6 +140,10 @@ fn main() -> Result<()> {
             delta,
         } => cmd_pack(parent, output_json, output, delta),
         Commands::ExportStatic { file, output } => cmd_export_static(file, output),
+        Commands::PackHtml { parent, html_file, output, delta } => {
+            cmd_pack_html(parent, html_file, output, delta)
+        }
+        Commands::AgentHelp => { cmd_agent_help(); Ok(()) }
     }
 }
 
@@ -259,6 +283,82 @@ fn cmd_export_static(file: PathBuf, output: Option<PathBuf>) -> Result<()> {
         None => println!("{pretty}"),
     }
     Ok(())
+}
+
+fn cmd_pack_html(
+    parent_path: PathBuf,
+    html_file: String,
+    output: PathBuf,
+    delta: Option<String>,
+) -> Result<()> {
+    let parent = open(&parent_path)?;
+
+    let raw_html = if html_file == "-" {
+        use std::io::Read;
+        let mut s = String::new();
+        std::io::stdin().read_to_string(&mut s)?;
+        s
+    } else {
+        std::fs::read_to_string(&html_file)
+            .with_context(|| format!("could not read {html_file}"))?
+    };
+
+    let bytes = pack_html(&parent, &raw_html, delta, None).context("pack-html failed")?;
+    std::fs::write(&output, &bytes)
+        .with_context(|| format!("could not write {}", output.display()))?;
+    eprintln!("packed {} ({} bytes)", output.display(), bytes.len());
+    Ok(())
+}
+
+fn cmd_agent_help() {
+    // Deliberately terse — every line here costs agent tokens.
+    print!(r#"CLAN agent-help  (clan {version})
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+STEP 1 — Read your task (ONE command, not two):
+  clan read agent <file.clan>
+  ⚠ This includes all data. Do NOT also run `clan read data` — same content, wasted tokens.
+
+STEP 2a — Produce output as JSON (standard path):
+  Write a JSON file matching this shape:
+  {{
+    "mode": "full-html",
+    "structured": {{ "key": "value" }},
+    "human": {{
+      "html": "<!DOCTYPE html>...",
+      "css": "",
+      "assets": {{ "chart.svg": "<svg>...</svg>" }}
+    }},
+    "decision": {{
+      "agent": "your-name", "action": "what you did", "rationale": "why"
+    }}
+  }}
+  Then pack:  clan pack --output next.clan --delta "..." parent.clan output.json
+
+STEP 2b — Produce output as a raw HTML file (lower token cost, preferred):
+  Write a .html file. Optionally add YAML frontmatter at the very top:
+  ---
+  structured:
+    key_finding: "example"
+  decision:
+    agent: "agent3"
+    action: "produced final design"
+    rationale: "..."
+  ---
+  <!DOCTYPE html>
+  ...
+  Then pack:  clan pack-html --output next.clan --delta "..." parent.clan output.html
+
+STEP 3 — Verify:
+  clan info next.clan
+  clan validate next.clan
+
+OTHER COMMANDS (don't waste tokens on these unless you need them):
+  clan read human <file>   print current html
+  clan read chain <file>   print decision history only
+  clan info <file>         manifest metadata
+  clan validate <file>     structural check
+"#, version = env!("CARGO_PKG_VERSION"));
 }
 
 fn open(path: &PathBuf) -> Result<ClanFile> {
