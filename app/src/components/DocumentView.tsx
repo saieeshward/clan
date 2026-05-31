@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useCallback } from 'react'
 import type { ManifestInfo } from '../App'
 
 interface Props {
@@ -13,53 +13,92 @@ interface Props {
 // Makes elements with data-adf-id contenteditable and sends postMessage on blur.
 const EDIT_BRIDGE = `
 (function() {
-  if (window.__clan_edit_bridge_active) return;
-  window.__clan_edit_bridge_active = true;
+  // Idempotent — safe to call multiple times (e.g. React hot-reload).
+  if (window.__clan_bridge_listening) return;
+  window.__clan_bridge_listening = true;
 
   function activateEditing() {
     document.querySelectorAll('[data-adf-id]').forEach(function(el) {
+      if (el.dataset.clanEditing) return; // already wired
+      el.dataset.clanEditing = '1';
       el.setAttribute('contenteditable', 'true');
-      el.style.outline = '2px solid rgba(99,102,241,0.6)';
+      el.style.outline = '2px solid rgba(99,102,241,0.7)';
+      el.style.outlineOffset = '2px';
       el.style.borderRadius = '3px';
-      el.style.minHeight = '1em';
       el.style.cursor = 'text';
-      el.addEventListener('blur', function() {
+      el.style.transition = 'outline 0.15s';
+      el.addEventListener('blur', function onBlur() {
         window.parent.postMessage({
           type: 'clan-edit',
           id: el.getAttribute('data-adf-id'),
-          content: el.innerText
+          content: el.innerText.trim()
         }, '*');
       });
     });
+    // Toast hint
+    showHint('Click any highlighted element to edit it');
   }
 
   function deactivateEditing() {
     document.querySelectorAll('[data-adf-id]').forEach(function(el) {
       el.removeAttribute('contenteditable');
+      el.removeAttribute('data-clan-editing');
       el.style.outline = '';
+      el.style.outlineOffset = '';
       el.style.cursor = '';
     });
+    removeHint();
+  }
+
+  function showHint(msg) {
+    removeHint();
+    var hint = document.createElement('div');
+    hint.id = '__clan_hint';
+    hint.textContent = msg;
+    hint.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);' +
+      'background:rgba(99,102,241,0.9);color:#fff;padding:8px 18px;border-radius:20px;' +
+      'font-size:13px;font-family:system-ui;z-index:99999;pointer-events:none;' +
+      'box-shadow:0 4px 16px rgba(0,0,0,0.4);';
+    document.body.appendChild(hint);
+    setTimeout(removeHint, 3000);
+  }
+
+  function removeHint() {
+    var h = document.getElementById('__clan_hint');
+    if (h) h.remove();
   }
 
   window.addEventListener('message', function(e) {
-    if (e.data && e.data.type === 'clan-edit-mode') {
-      if (e.data.active) activateEditing();
-      else deactivateEditing();
-    }
+    if (!e.data || e.data.type !== 'clan-edit-mode') return;
+    if (e.data.active) activateEditing();
+    else deactivateEditing();
   });
 })();
 `
 
 export default function DocumentView({ htmlContent, hasHumanView, manifest, editMode, onPatch }: Props) {
   const iframeRef = useRef<HTMLIFrameElement>(null)
+  const editModeRef = useRef(editMode)
+  editModeRef.current = editMode
 
-  // Forward edit mode changes into the iframe via postMessage.
-  useEffect(() => {
+  // Send edit mode state to the iframe. Safe to call at any time.
+  const sendEditMode = useCallback((active: boolean) => {
     iframeRef.current?.contentWindow?.postMessage(
-      { type: 'clan-edit-mode', active: editMode },
+      { type: 'clan-edit-mode', active },
       '*'
     )
-  }, [editMode])
+  }, [])
+
+  // When editMode changes, push the new state in.
+  useEffect(() => {
+    sendEditMode(editMode)
+  }, [editMode, sendEditMode])
+
+  // When the iframe finishes loading, push the current editMode so it's
+  // never missed by a race condition between render and script execution.
+  const handleIframeLoad = useCallback(() => {
+    sendEditMode(editModeRef.current)
+  }, [sendEditMode])
 
   // Listen for patch messages from the edit bridge inside the iframe.
   useEffect(() => {
@@ -99,10 +138,8 @@ export default function DocumentView({ htmlContent, hasHumanView, manifest, edit
     <iframe
       ref={iframeRef}
       srcDoc={srcDoc}
+      onLoad={handleIframeLoad}
       style={{ width: '100%', flex: 1, border: 'none', background: '#0f1117' }}
-      // allow-scripts: needed for the edit bridge we inject (trusted code).
-      // allow-same-origin: needed so postMessage works cross-frame.
-      // Scripts from the agent are already stripped by the SDK before storage.
       sandbox="allow-scripts allow-same-origin allow-popups"
       title={manifest.title}
     />
