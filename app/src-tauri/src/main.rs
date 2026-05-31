@@ -3,7 +3,7 @@
 use std::path::PathBuf;
 use std::sync::Mutex;
 
-use clan_sdk::{validate, ClanFile};
+use clan_sdk::{apply_patch_and_repack, validate, ClanFile};
 use serde::{Deserialize, Serialize};
 use tauri::State;
 
@@ -14,6 +14,7 @@ struct AppState {
 struct LoadedClan {
     path: PathBuf,
     clan: ClanFile,
+    raw_bytes: Vec<u8>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -71,7 +72,8 @@ fn open_clan(path: String, state: State<AppState>) -> Result<OpenResult, String>
         }),
     };
 
-    *state.current.lock().unwrap() = Some(LoadedClan { path: p.clone(), clan });
+    let raw_bytes = std::fs::read(&p).map_err(|e| e.to_string())?;
+    *state.current.lock().unwrap() = Some(LoadedClan { path: p.clone(), clan, raw_bytes });
 
     Ok(OpenResult {
         path: p.display().to_string(),
@@ -189,12 +191,31 @@ fn apply_patches(html: &str, patch_yaml: &str) -> String {
     result
 }
 
+/// Persist a human text edit as a patch in the open .clan file (spec §11).
+#[tauri::command]
+fn save_patch(id: String, content: String, state: State<AppState>) -> Result<(), String> {
+    let mut guard = state.current.lock().unwrap();
+    let loaded = guard.as_mut().ok_or("no file open")?;
+
+    let new_bytes = apply_patch_and_repack(&loaded.clan, id, content)
+        .map_err(|e| e.to_string())?;
+
+    std::fs::write(&loaded.path, &new_bytes).map_err(|e| e.to_string())?;
+
+    // Reload the clan from the new bytes so the in-memory state stays current.
+    loaded.raw_bytes = new_bytes.clone();
+    loaded.clan = ClanFile::from_bytes(new_bytes).map_err(|e| e.to_string())?;
+
+    Ok(())
+}
+
 fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
         .manage(AppState { current: Mutex::new(None) })
         .invoke_handler(tauri::generate_handler![
             open_clan, get_human_html, get_data, get_chain, get_agent_state, get_context,
+            save_patch,
         ])
         .run(tauri::generate_context!())
         .expect("error while running CLAN Viewer");

@@ -16,6 +16,7 @@ pub mod hash;
 pub mod inject;
 pub mod manifest;
 pub mod pack;
+pub mod patch;
 pub mod toon;
 pub mod validate;
 
@@ -28,6 +29,7 @@ pub use inject::{assemble, AgentContext, InjectOptions};
 pub use manifest::{
     ExternalRef, FileEntry, Lineage, Manifest, CLAN_VERSION, CLAN_VERSION_MINOR,
 };
-pub use pack::{pack, AgentOutput, DecisionEntry, HumanPayload, PackOptions};
+pub use pack::{pack, strip_scripts, AgentOutput, DecisionEntry, HumanPayload, PackOptions};
+pub use patch::{apply_patch_and_repack, Patch, Patches};
 pub use toon::{to_toon, yaml_to_toon};
 pub use validate::{validate, ValidationReport};
