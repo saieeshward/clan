@@ -27,7 +27,5 @@
     "targets": "all",
     "icon": []
   },
-  "plugins": {
-    "dialog": {}
-  }
+  "plugins": {}
 }
