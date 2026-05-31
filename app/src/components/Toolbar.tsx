@@ -45,7 +45,10 @@ export default function Toolbar({
       <span style={s.logo}>CLAN</span>
       <span style={s.title}>{loading ? 'Loading…' : (title ?? 'No file open')}</span>
       {validation && (
-        <span style={{ ...s.badge, ...(valid ? {} : s.badgeWarn) }}>
+        <span
+          style={{ ...s.badge, ...(valid ? {} : s.badgeWarn), cursor: valid ? 'default' : 'help' }}
+          title={valid ? 'No validation issues' : validation}
+        >
           {valid ? '✓ valid' : '⚠ issues'}
         </span>
       )}

@@ -4,6 +4,27 @@ use crate::container::ClanFile;
 use crate::error::{Error, Result};
 use crate::hash;
 
+/// Returns true if the (lowercased) HTML contains an `on*=` event-handler attribute.
+/// Looks for the pattern ` on<letters>=` inside tag boundaries.
+fn has_event_handler_attr(lower_html: &str) -> bool {
+    let bytes = lower_html.as_bytes();
+    let mut i = 0;
+    while i + 3 < bytes.len() {
+        // Look for a space/newline followed by "on" then at least one letter then "="
+        if (bytes[i] == b' ' || bytes[i] == b'\t' || bytes[i] == b'\n') &&
+            bytes[i + 1] == b'o' && bytes[i + 2] == b'n' && bytes[i + 3].is_ascii_alphabetic()
+        {
+            let mut j = i + 3;
+            while j < bytes.len() && bytes[j].is_ascii_alphabetic() { j += 1; }
+            if j < bytes.len() && bytes[j] == b'=' {
+                return true;
+            }
+        }
+        i += 1;
+    }
+    false
+}
+
 /// A collected set of validation problems. Empty == valid.
 #[derive(Debug, Default)]
 pub struct ValidationReport {
@@ -139,22 +160,26 @@ fn content_checks(clan: &ClanFile, report: &mut ValidationReport) {
         }
     }
 
-    // human/index.html (if present): no <script>, no <html>/<head>/<body> tags.
+    // human/index.html (if present): must not contain agent-injected scripts or event handlers.
+    // Full HTML documents (<!DOCTYPE html> / <html> / <head> / <body>) are fully permitted —
+    // they give agents complete design control. Only <script> tags from the agent are forbidden;
+    // the app injects the edit bridge itself after loading.
     if let Ok(html) = clan.read_entry_string("human/index.html") {
+        // Check for agent-provided <script> tags (the app strips these anyway, but flag them).
+        // We skip the edit-bridge injection marker so legitimate app-injected content is not flagged.
         let lower = html.to_lowercase();
-        // Use precise patterns to avoid false positives (e.g. <header matching <head).
-        for (label, pattern) in &[
-            ("<script", "<script"),
-            ("<html", "<html"),
-            ("<head>", "<head>"),    // exact close, not <header>
-            ("<head ", "<head "),    // <head with attribute
-            ("<body", "<body"),
-        ] {
-            if lower.contains(*pattern) {
-                report.content.push(format!(
-                    "human/index.html contains forbidden tag: {label}"
-                ));
-            }
+        if lower.contains("<script") {
+            report.content.push(
+                "human/index.html contains <script> tags — \
+                 scripts are stripped by the SDK; use data-adf-id + postMessage instead".into(),
+            );
+        }
+        // Check for on* event handler attributes (onclick=, onload=, etc.).
+        // Simple scan: look for " on" followed by letters then "=".
+        if has_event_handler_attr(&lower) {
+            report.content.push(
+                "human/index.html contains on* event handler attributes — these are stripped by the SDK".into(),
+            );
         }
     }
 

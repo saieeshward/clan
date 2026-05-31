@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { invoke } from '@tauri-apps/api/core'
 import { open as openDialog } from '@tauri-apps/plugin-dialog'
 import Toolbar from './components/Toolbar'
@@ -39,6 +39,8 @@ export default function App() {
   const [editMode, setEditMode] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  // Prevent concurrent patch saves — each save repacks the ZIP so they must be serial.
+  const patchInFlight = useRef(false)
 
   async function handleOpenFile(filePath?: string) {
     setLoading(true)
@@ -71,13 +73,22 @@ export default function App() {
   }
 
   async function handlePatch(id: string, content: string) {
+    // Drop the incoming patch if one is already being written — saves are not idempotent
+    // (each repacks the full ZIP) and concurrent writes corrupt the in-memory state.
+    if (patchInFlight.current) {
+      console.warn('clan: patch dropped (previous save still in flight)', { id })
+      return
+    }
+    patchInFlight.current = true
     try {
       await invoke('save_patch', { id, content })
-      // Re-fetch the rendered HTML so patches are reflected.
+      // Re-fetch the rendered HTML so the applied patch is reflected in the iframe.
       const html = await invoke<string>('get_human_html')
       setHtmlContent(html)
     } catch (e) {
       console.error('save_patch failed:', e)
+    } finally {
+      patchInFlight.current = false
     }
   }
 
