@@ -2,9 +2,12 @@ interface Props {
   title?: string
   onOpen: () => void
   onToggleAgent: () => void
+  onToggleEdit: () => void
   agentPanelOpen: boolean
+  editMode: boolean
   loading: boolean
   validation?: string
+  hasFile: boolean
 }
 
 const s: Record<string, React.CSSProperties> = {
@@ -23,9 +26,19 @@ const s: Record<string, React.CSSProperties> = {
     display: 'flex', alignItems: 'center', gap: 6,
   },
   btnActive: { background: 'var(--accent)', borderColor: 'var(--accent)', color: '#fff' },
+  btnEdit: { background: '#1e3a2f', borderColor: '#166534', color: '#4ade80' },
+  editBadge: {
+    fontSize: 10, padding: '2px 8px', borderRadius: 999,
+    background: 'rgba(74,222,128,0.15)', color: '#4ade80',
+    border: '1px solid rgba(74,222,128,0.4)', letterSpacing: '0.05em',
+    animation: 'pulse 2s infinite',
+  },
 }
 
-export default function Toolbar({ title, onOpen, onToggleAgent, agentPanelOpen, loading, validation }: Props) {
+export default function Toolbar({
+  title, onOpen, onToggleAgent, onToggleEdit,
+  agentPanelOpen, editMode, loading, validation, hasFile
+}: Props) {
   const valid = validation === 'OK'
   return (
     <div style={s.bar}>
@@ -36,7 +49,17 @@ export default function Toolbar({ title, onOpen, onToggleAgent, agentPanelOpen, 
           {valid ? '✓ valid' : '⚠ issues'}
         </span>
       )}
+      {editMode && <span style={s.editBadge}>● EDITING</span>}
       <button style={s.btn} onClick={onOpen}>📂 Open</button>
+      {hasFile && (
+        <button
+          style={{ ...s.btn, ...(editMode ? s.btnEdit : {}) }}
+          onClick={onToggleEdit}
+          title={editMode ? 'Exit edit mode' : 'Edit document text'}
+        >
+          {editMode ? '✏️ Done' : '✏️ Edit'}
+        </button>
+      )}
       <button
         style={{ ...s.btn, ...(agentPanelOpen ? s.btnActive : {}) }}
         onClick={onToggleAgent}

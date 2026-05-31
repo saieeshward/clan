@@ -36,6 +36,7 @@ export default function App() {
   const [openResult, setOpenResult] = useState<OpenResult | null>(null)
   const [htmlContent, setHtmlContent] = useState<string>('')
   const [agentPanelOpen, setAgentPanelOpen] = useState(false)
+  const [editMode, setEditMode] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -69,6 +70,17 @@ export default function App() {
     }
   }
 
+  async function handlePatch(id: string, content: string) {
+    try {
+      await invoke('save_patch', { id, content })
+      // Re-fetch the rendered HTML so patches are reflected.
+      const html = await invoke<string>('get_human_html')
+      setHtmlContent(html)
+    } catch (e) {
+      console.error('save_patch failed:', e)
+    }
+  }
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
       <Toolbar
@@ -76,12 +88,15 @@ export default function App() {
         onOpen={() => handleOpenFile()}
         onToggleAgent={() => setAgentPanelOpen(o => !o)}
         agentPanelOpen={agentPanelOpen}
+        editMode={editMode}
+        onToggleEdit={() => setEditMode(o => !o)}
         loading={loading}
         validation={openResult?.validation}
+        hasFile={!!openResult}
       />
       <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
         <Sidebar manifest={openResult?.manifest ?? null} path={openResult?.path ?? null} />
-        <main style={{ flex: 1, overflow: 'auto', background: 'var(--bg)' }}>
+        <main style={{ flex: 1, overflow: 'hidden', background: 'var(--bg)', display: 'flex', flexDirection: 'column' }}>
           {error && (
             <div style={{ padding: 24, color: 'var(--danger)', fontFamily: 'monospace' }}>
               <strong>Error:</strong> {error}
@@ -93,6 +108,8 @@ export default function App() {
               htmlContent={htmlContent}
               hasHumanView={openResult.has_human_view}
               manifest={openResult.manifest}
+              editMode={editMode}
+              onPatch={handlePatch}
             />
           )}
         </main>

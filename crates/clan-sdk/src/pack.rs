@@ -249,8 +249,9 @@ pub fn pack(
     match output.mode.as_str() {
         "full-html" => {
             if let Some(h) = output.human {
-                // Sanitise HTML via ammonia.
-                let clean_html = ammonia::clean(&h.html);
+                // Strip only <script> tags — allow full HTML, external fonts/styles.
+                // Agents have creative freedom; the viewer sandbox controls execution.
+                let clean_html = strip_scripts(&h.html);
                 builder.add_entry("human/index.html", clean_html.into_bytes());
                 if let Some(css) = h.css {
                     builder.add_entry("human/styles.css", css.into_bytes());
@@ -283,4 +284,75 @@ pub fn pack(
     }
 
     builder.build()
+}
+
+/// Strip `<script>...</script>` blocks and `on*` event handler attributes.
+/// Everything else — including full `<html>/<head>/<body>`, external CSS
+/// `@import`, Google Fonts, CDN stylesheets — is allowed through. The viewer
+/// iframe sandbox controls execution; the SDK's job is only to prevent XSS.
+pub fn strip_scripts(html: &str) -> String {
+    // Remove <script ...>...</script> blocks (case-insensitive, multiline).
+    let mut out = html.to_string();
+    loop {
+        let lower = out.to_lowercase();
+        let Some(start) = lower.find("<script") else { break };
+        let Some(end_rel) = lower[start..].find("</script>") else {
+            // Unclosed script tag — strip to end.
+            out = out[..start].to_string();
+            break;
+        };
+        let end = start + end_rel + "</script>".len();
+        out = format!("{}{}", &out[..start], &out[end..]);
+    }
+    // Strip on* event handlers: onclick=, onerror=, etc.
+    strip_on_handlers(&out)
+}
+
+fn strip_on_handlers(html: &str) -> String {
+    // Simple state-machine: inside a tag, remove attributes starting with "on".
+    let bytes = html.as_bytes();
+    let mut out = Vec::with_capacity(bytes.len());
+    let mut i = 0;
+    let mut in_tag = false;
+    while i < bytes.len() {
+        if !in_tag && bytes[i] == b'<' && i + 1 < bytes.len() && bytes[i + 1] != b'/' {
+            in_tag = true;
+            out.push(bytes[i]);
+            i += 1;
+        } else if in_tag && bytes[i] == b'>' {
+            in_tag = false;
+            out.push(bytes[i]);
+            i += 1;
+        } else if in_tag {
+            // Check for on* attribute.
+            let rest = &bytes[i..];
+            if rest.starts_with(b"on")
+                && rest.len() > 2
+                && rest[2..].iter().next().map_or(false, |c| c.is_ascii_alphabetic())
+            {
+                // Skip to end of attribute value.
+                while i < bytes.len() && bytes[i] != b'>' {
+                    if bytes[i] == b'"' || bytes[i] == b'\'' {
+                        let q = bytes[i];
+                        i += 1;
+                        while i < bytes.len() && bytes[i] != q { i += 1; }
+                    }
+                    if i < bytes.len() {
+                        // Stop at next attribute or tag end.
+                        if bytes[i] == b' ' || bytes[i] == b'\t' || bytes[i] == b'\n' || bytes[i] == b'>' {
+                            break;
+                        }
+                        i += 1;
+                    }
+                }
+            } else {
+                out.push(bytes[i]);
+                i += 1;
+            }
+        } else {
+            out.push(bytes[i]);
+            i += 1;
+        }
+    }
+    String::from_utf8_lossy(&out).into_owned()
 }
