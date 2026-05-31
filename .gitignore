@@ -1,4 +1,6 @@
 .DS_Store
-*.xon.bak
+*.clan.bak
 *.tmp
 .env
+target/
+Cargo.lock

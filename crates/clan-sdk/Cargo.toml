@@ -1,0 +1,21 @@
+[package]
+name = "clan-sdk"
+description = "Reference SDK for CLAN — Context and Live Agent Notation. Read, write, validate, and pipeline .clan files."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+serde_yaml.workspace = true
+sha2.workspace = true
+uuid.workspace = true
+chrono.workspace = true
+zip.workspace = true
+jsonschema.workspace = true
+ammonia.workspace = true
+thiserror.workspace = true
