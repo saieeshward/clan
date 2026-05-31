@@ -7,8 +7,10 @@
 //!   clan read human <file.clan>
 //!   clan read data <file.clan>
 //!   clan info <file.clan>
+//!   clan edit <file.clan>
+//!   clan patch-html --output <next.clan> <parent.clan> <patch.html>
 //!   clan pack --output <next.clan> [--delta "…"] <parent.clan> <output.json>
-//!   clan pack-html --output <next.clan> [--delta "…"] <parent.clan> <output.html>
+//!   clan pack-html --output <next.clan> [--assets <dir>] [--delta "…"] <parent.clan> <output.html>
 //!   clan export-static <file.clan> [--output static.json]
 //!   clan agent-help
 
@@ -78,6 +80,23 @@ enum Commands {
         #[arg(long)]
         delta: Option<String>,
     },
+    /// Interactively edit a .clan file's data and UI in your default $EDITOR.
+    Edit {
+        /// The .clan file to edit in-place.
+        file: PathBuf,
+    },
+    /// Apply an HTML patch in-place without creating intermediate files.
+    /// The patch file should contain YAML frontmatter with `mode: patch-html`.
+    PatchHtml {
+        /// The .clan file to edit in-place.
+        file: PathBuf,
+        /// HTML patch file (or `-` for stdin).
+        html_file: String,
+        /// Human-readable description of what changed.
+        #[arg(long)]
+        delta: Option<String>,
+    },
+
     /// Export a .clan as a single JSON blob for SDK-less agents.
     ExportStatic {
         file: PathBuf,
@@ -96,6 +115,9 @@ enum Commands {
         /// Output path for the new .clan file.
         #[arg(long)]
         output: PathBuf,
+        /// Optional directory containing assets to bundle natively.
+        #[arg(long)]
+        assets: Option<PathBuf>,
         /// Human-readable description of what changed.
         #[arg(long)]
         delta: Option<String>,
@@ -139,9 +161,11 @@ fn main() -> Result<()> {
             output,
             delta,
         } => cmd_pack(parent, output_json, output, delta),
+        Commands::Edit { file } => cmd_edit(file),
+        Commands::PatchHtml { file, html_file, delta } => cmd_patch_html(file, html_file, delta),
         Commands::ExportStatic { file, output } => cmd_export_static(file, output),
-        Commands::PackHtml { parent, html_file, output, delta } => {
-            cmd_pack_html(parent, html_file, output, delta)
+        Commands::PackHtml { parent, html_file, output, assets, delta } => {
+            cmd_pack_html(parent, html_file, output, assets, delta)
         }
         Commands::AgentHelp => { cmd_agent_help(); Ok(()) }
     }
@@ -289,6 +313,7 @@ fn cmd_pack_html(
     parent_path: PathBuf,
     html_file: String,
     output: PathBuf,
+    assets_dir: Option<PathBuf>,
     delta: Option<String>,
 ) -> Result<()> {
     let parent = open(&parent_path)?;
@@ -303,10 +328,83 @@ fn cmd_pack_html(
             .with_context(|| format!("could not read {html_file}"))?
     };
 
-    let bytes = pack_html(&parent, &raw_html, delta, None).context("pack-html failed")?;
+    let mut assets_map = std::collections::HashMap::new();
+    if let Some(dir) = assets_dir {
+        if dir.is_dir() {
+            for entry in std::fs::read_dir(dir)? {
+                let entry = entry?;
+                let path = entry.path();
+                if path.is_file() {
+                    if let Some(name) = path.file_name().and_then(|n| n.to_str()) {
+                        let bytes = std::fs::read(&path)?;
+                        assets_map.insert(name.to_string(), bytes);
+                    }
+                }
+            }
+        }
+    }
+
+    let bytes = pack_html(&parent, &raw_html, Some(assets_map), delta, None).context("pack-html failed")?;
     std::fs::write(&output, &bytes)
         .with_context(|| format!("could not write {}", output.display()))?;
     eprintln!("packed {} ({} bytes)", output.display(), bytes.len());
+    Ok(())
+}
+
+fn cmd_patch_html(file: PathBuf, html_file: String, delta: Option<String>) -> Result<()> {
+    let clan = open(&file)?;
+    let raw_html = if html_file == "-" {
+        use std::io::Read;
+        let mut s = String::new();
+        std::io::stdin().read_to_string(&mut s)?;
+        s
+    } else {
+        std::fs::read_to_string(&html_file).with_context(|| format!("could not read {html_file}"))?
+    };
+    
+    let bytes = pack_html(&clan, &raw_html, None, delta, None)?;
+    std::fs::write(&file, &bytes)?;
+    eprintln!("Patched {} in-place", file.display());
+    Ok(())
+}
+
+fn cmd_edit(file: PathBuf) -> Result<()> {
+    let clan = open(&file)?;
+    let temp_dir = tempfile::tempdir()?;
+    let html_path = temp_dir.path().join("index.html");
+    
+    let existing_html = clan.read_entry_string("human/index.html").unwrap_or_default();
+    let existing_data = clan.read_entry_string("shared/data.yaml").unwrap_or_default();
+    
+    let mut content = String::new();
+    if !existing_data.is_empty() {
+        content.push_str("---\nstructured:\n");
+        for line in existing_data.lines() {
+            content.push_str(&format!("  {}\n", line));
+        }
+        content.push_str("---\n");
+    }
+    content.push_str(&existing_html);
+    std::fs::write(&html_path, &content)?;
+    
+    let editor = std::env::var("EDITOR").unwrap_or_else(|_| "nano".to_string());
+    let status = std::process::Command::new(editor)
+        .arg(&html_path)
+        .status()?;
+        
+    if !status.success() {
+        anyhow::bail!("Editor exited with non-zero status");
+    }
+    
+    let new_content = std::fs::read_to_string(&html_path)?;
+    if new_content == content {
+        eprintln!("No changes made.");
+        return Ok(());
+    }
+    
+    let bytes = pack_html(&clan, &new_content, None, Some("interactive human edit".into()), None)?;
+    std::fs::write(&file, &bytes)?;
+    eprintln!("Updated {}", file.display());
     Ok(())
 }
 
@@ -317,7 +415,7 @@ fn cmd_agent_help() {
 
 STEP 1 — Read your task (ONE command, not two):
   clan read agent <file.clan>
-  ⚠ This includes all data. Do NOT also run `clan read data` — same content, wasted tokens.
+  ⚠ This includes all data AND handoff tasks. Do NOT also run `clan read data`.
 
 STEP 2a — Produce output as JSON (standard path):
   Write a JSON file matching this shape:
@@ -349,7 +447,17 @@ STEP 2b — Produce output as a raw HTML file (lower token cost, preferred):
   ...
   Then pack:  clan pack-html --output next.clan --delta "..." parent.clan output.html
 
-STEP 3 — Verify:
+STEP 3 — Patch an existing document (lowest token cost):
+  clan patch-html <file.clan> - << 'EOF'
+  ---
+  mode: patch-html
+  patch_selector: "div.grid"
+  patch_action: "append"
+  ---
+  <div class="card">New Content</div>
+  EOF
+
+STEP 4 — Verify:
   clan info next.clan
   clan validate next.clan
 

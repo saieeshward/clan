@@ -12,6 +12,30 @@ Multi-agent AI systems have no standard for what passes between agents. Context 
 
 ---
 
+## Why a CLI?
+
+You actually touched on the exact reason why the `clan` CLI exists! To understand why you can't just upload a `.clan` file directly to a standard LLM chat interface right now, it helps to look at how platforms handle files like `.docx` or `.pdf`.
+
+### How LLMs handle `.docx` and `.pdf` files
+When you upload a `.docx` file to ChatGPT, Claude, or Gemini, the AI itself isn't actually reading the Word document file format. A `.docx` file is technically a ZIP archive full of complex XML files and media. 
+
+Instead, the platform's backend (the web app) intercepts your upload, runs a script to extract the raw text out of those XML files, formats it nicely, and secretly pastes that plain text into your chat prompt behind the scenes. The LLM only ever sees the extracted plain text, never the actual `.docx` file.
+
+### Why `.clan` files are different (for now)
+A `.clan` file is also a packaged archive containing multiple files (Markdown, YAML data, JSON schemas, HTML UIs). 
+
+The problem is that standard LLM web interfaces don't have a built-in "extractor" for `.clan` files yet. If you drag and drop a `.clan` file into a standard chat window, the platform doesn't know how to unzip it, figure out which file is the context vs. the decision history, and format it for the AI. It will likely just throw an "unsupported file format" error or see binary garbage.
+
+### The Role of the CLI
+Because the chat interfaces don't know how to parse a `.clan` file natively, the **`clan` CLI acts as the translator**. 
+
+When we run `clan read agent file.clan`, the CLI is doing exactly what the ChatGPT backend does for a Word document: it opens the archive, extracts the `context.md`, the `decision-chain.yaml`, and the `data.yaml`, compresses them to save tokens, and turns them into a single, highly-optimized text prompt that the LLM can easily read.
+
+### The Future of CLAN Uploads
+In the future, if a platform natively supports the CLAN format (or if you are using an agentic framework that has the CLAN SDK built-in), **you absolutely will be able to just upload it directly**. The framework would intercept the file, unpack it, and feed the context to the AI automatically, completely hiding the CLI from both you and the AI!
+
+---
+
 ## Key Properties
 
 | Property | Description |

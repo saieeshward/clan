@@ -28,10 +28,6 @@ export default function AgentPanel({ onClose }: Props) {
   const [content, setContent] = useState('')
   const [loading, setLoading] = useState(false)
 
-  useEffect(() => {
-    load(tab)
-  }, [tab])
-
   async function load(t: Tab) {
     setLoading(true)
     try {
@@ -44,6 +40,11 @@ export default function AgentPanel({ onClose }: Props) {
       setLoading(false)
     }
   }
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    load(tab)
+  }, [tab])
 
   const tabs: { id: Tab; label: string }[] = [
     { id: 'chain', label: 'Decisions' },

@@ -19,3 +19,4 @@ zip.workspace = true
 jsonschema.workspace = true
 ammonia.workspace = true
 thiserror.workspace = true
+lol_html = "2.1.0"

@@ -79,7 +79,9 @@ const EDIT_BRIDGE = `
 export default function DocumentView({ htmlContent, hasHumanView, manifest, editMode, onPatch }: Props) {
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const editModeRef = useRef(editMode)
-  editModeRef.current = editMode
+  useEffect(() => {
+    editModeRef.current = editMode
+  }, [editMode])
 
   // Send edit mode state to the iframe. Safe to call at any time.
   const sendEditMode = useCallback((active: boolean) => {

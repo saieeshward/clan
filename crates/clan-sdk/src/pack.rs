@@ -22,7 +22,7 @@ pub struct AgentOutput {
     pub structured: Value,
     /// For `designed` mode: visual directives.
     pub design: Option<Value>,
-    /// For `full-html` mode: html + css + assets.
+    /// For `full-html` or `patch-html` mode.
     pub human: Option<HumanPayload>,
     /// Decision entry written by this agent (optional; auto-generated if absent).
     pub decision: Option<DecisionEntry>,
@@ -32,7 +32,9 @@ pub struct AgentOutput {
 pub struct HumanPayload {
     pub html: String,
     pub css: Option<String>,
-    pub assets: HashMap<String, String>,
+    pub assets: HashMap<String, Vec<u8>>,
+    pub patch_selector: Option<String>,
+    pub patch_action: Option<String>,
 }
 
 #[derive(Debug)]
@@ -55,7 +57,7 @@ impl AgentOutput {
             .to_string();
 
         match mode.as_str() {
-            "data-update" | "designed" | "full-html" => {}
+            "data-update" | "designed" | "full-html" | "patch-html" => {}
             other => return Err(Error::UnsupportedMode(other.to_string())),
         }
 
@@ -70,20 +72,22 @@ impl AgentOutput {
             None
         };
 
-        let human = if mode == "full-html" {
+        let human = if mode == "full-html" || mode == "patch-html" {
             let html = v["human"]["html"]
                 .as_str()
-                .ok_or_else(|| Error::OutputRejected("full-html missing human.html".into()))?
+                .ok_or_else(|| Error::OutputRejected(format!("{} missing human.html", mode)))?
                 .to_string();
             let css = v["human"]["css"].as_str().map(|s| s.to_string());
             let assets = if let Some(obj) = v["human"]["assets"].as_object() {
                 obj.iter()
-                    .filter_map(|(k, val)| val.as_str().map(|s| (k.clone(), s.to_string())))
+                    .filter_map(|(k, val)| val.as_str().map(|s| (k.clone(), s.as_bytes().to_vec())))
                     .collect()
             } else {
                 HashMap::new()
             };
-            Some(HumanPayload { html, css, assets })
+            let patch_selector = v["human"]["patch_selector"].as_str().map(|s| s.to_string());
+            let patch_action = v["human"]["patch_action"].as_str().map(|s| s.to_string());
+            Some(HumanPayload { html, css, assets, patch_selector, patch_action })
         } else {
             None
         };
@@ -236,6 +240,7 @@ pub fn pack(
         if path == "shared/data.yaml" { continue; }
         if path == "agent/decision-chain.yaml" { continue; }
         if output.mode == "full-html" && path.starts_with("human/") { continue; }
+        // For patch-html, we keep existing human assets and index.html, we'll rewrite index.html below
         if let Ok(bytes) = parent.read_entry(&path) {
             builder.add_entry(path, bytes);
         }
@@ -249,26 +254,31 @@ pub fn pack(
     match output.mode.as_str() {
         "full-html" => {
             if let Some(h) = output.human {
-                // The iframe sandbox (allow-scripts, no allow-same-origin) isolates agent
-                // scripts to a null origin — they cannot reach Tauri IPC or parent state.
-                // No stripping needed; agents may use JS freely for animations, charts, etc.
                 builder.add_entry("human/index.html", h.html.into_bytes());
                 if let Some(css) = h.css {
                     builder.add_entry("human/styles.css", css.into_bytes());
                 }
                 for (name, content) in h.assets {
-                    builder.add_entry(format!("human/assets/{name}"), content.into_bytes());
+                    builder.add_entry(format!("human/assets/{name}"), content);
                 }
-                // Register new human entries in the manifest.
                 let m = builder.manifest_mut();
-                m.files.push(FileEntry {
-                    id: "human-view".into(),
-                    path: "human/index.html".into(),
-                    role: "human-view".into(),
-                    content_type: "text/html".into(),
-                    priority: Some(1),
-                    sha256: None, // populated by build()
-                });
+                if !m.files.iter().any(|f| f.role == "human-view") {
+                    m.files.push(FileEntry {
+                        id: "human-view".into(),
+                        path: "human/index.html".into(),
+                        role: "human-view".into(),
+                        content_type: "text/html".into(),
+                        priority: Some(1),
+                        sha256: None,
+                    });
+                }
+            }
+        }
+        "patch-html" => {
+            if let Some(h) = output.human {
+                let existing = parent.read_entry_string("human/index.html").unwrap_or_else(|_| "".to_string());
+                let new_html = apply_html_patch(&existing, &h);
+                builder.add_entry("human/index.html", new_html.into_bytes());
             }
         }
         "designed" => {
@@ -311,45 +321,82 @@ pub fn pack(
 pub fn pack_html(
     parent: &ClanFile,
     raw_html: &str,
+    assets_dir_files: Option<HashMap<String, Vec<u8>>>,
     delta: Option<String>,
     compressor: Option<&Compressor>,
 ) -> Result<Vec<u8>> {
     // Parse optional YAML frontmatter.
-    let (structured, decision_entry, html_body) = parse_html_frontmatter(raw_html);
+    let (parsed_mode, structured, decision_entry, patch_selector, patch_action, context_handoff, html_body) = parse_html_frontmatter(raw_html);
+    let mode = parsed_mode.unwrap_or_else(|| "full-html".to_string());
 
     let output = AgentOutput {
-        mode: "full-html".to_string(),
+        mode,
         structured,
         design: None,
         human: Some(HumanPayload {
             html: html_body,
             css: None,
-            assets: HashMap::new(),
+            assets: assets_dir_files.unwrap_or_default(),
+            patch_selector,
+            patch_action,
         }),
         decision: decision_entry,
     };
 
-    pack(parent, output, PackOptions { delta, ..Default::default() }, compressor)
+    let mut opts = PackOptions { delta, ..Default::default() };
+    let mut bytes = pack(parent, output, opts, compressor)?;
+    
+    // Handoff via context.md
+    if let Some(handoff) = context_handoff {
+        let mut builder = ClanBuilder::new(ClanFile::from_bytes(bytes.clone())?.manifest().clone());
+        let parent_clan = ClanFile::from_bytes(bytes)?;
+        for path in parent_clan.entry_paths()? {
+            if path == "manifest.yaml" || path == "agent/context.md" { continue; }
+            if let Ok(b) = parent_clan.read_entry(&path) {
+                builder.add_entry(path, b);
+            }
+        }
+        let existing_ctx = parent.read_entry_string("agent/context.md").unwrap_or_default();
+        let new_ctx = if existing_ctx.is_empty() { handoff } else { format!("{}\n\n---\n{}", existing_ctx, handoff) };
+        builder.add_entry("agent/context.md", new_ctx.into_bytes());
+        bytes = builder.build()?;
+    }
+    
+    Ok(bytes)
 }
 
 /// Parse optional YAML frontmatter from the top of an HTML string.
-/// Returns (structured_data, decision_entry, html_without_frontmatter).
-fn parse_html_frontmatter(input: &str) -> (Value, Option<DecisionEntry>, String) {
-    let empty = (Value::Object(Default::default()), None, input.to_string());
+/// Returns (mode, structured_data, decision_entry, patch_selector, patch_action, context_handoff, html_without_frontmatter).
+fn parse_html_frontmatter(input: &str) -> (Option<String>, Value, Option<DecisionEntry>, Option<String>, Option<String>, Option<String>, String) {
+    let empty = (None, Value::Object(Default::default()), None, None, None, None, input.to_string());
 
     let trimmed = input.trim_start();
     if !trimmed.starts_with("---") {
         return empty;
     }
 
-    // Find the closing ---
     let after_open = &trimmed[3..];
     let Some(close) = after_open.find("\n---") else { return empty };
 
     let yaml_src = &after_open[..close];
     let html_body = after_open[close + 4..].trim_start().to_string();
 
-    let Ok(val) = serde_yaml::from_str::<serde_yaml::Value>(yaml_src) else { return empty };
+    let val = match serde_yaml::from_str::<serde_yaml::Value>(yaml_src) {
+        Ok(v) => v,
+        Err(_) => {
+            // Auto-correction fallback for common LLM indentation/quote errors
+            let fixed = yaml_src.replace("\t", "  ");
+            match serde_yaml::from_str::<serde_yaml::Value>(&fixed) {
+                Ok(v) => v,
+                Err(_) => return empty,
+            }
+        }
+    };
+
+    let mode = val.get("mode").and_then(|v| v.as_str().map(|s| s.to_string()));
+    let patch_selector = val.get("patch_selector").and_then(|v| v.as_str().map(|s| s.to_string()));
+    let patch_action = val.get("patch_action").and_then(|v| v.as_str().map(|s| s.to_string()));
+    let context_handoff = val.get("next_task").or_else(|| val.get("context")).and_then(|v| v.as_str().map(|s| s.to_string()));
 
     let structured: Value = val
         .get("structured")
@@ -365,7 +412,35 @@ fn parse_html_frontmatter(input: &str) -> (Value, Option<DecisionEntry>, String)
         })
     });
 
-    (structured, decision_entry, html_body)
+    (mode, structured, decision_entry, patch_selector, patch_action, context_handoff, html_body)
+}
+
+fn apply_html_patch(existing: &str, payload: &HumanPayload) -> String {
+    use lol_html::{rewrite_str, element, RewriteStrSettings};
+    let selector = payload.patch_selector.as_deref().unwrap_or("body");
+    let action = payload.patch_action.as_deref().unwrap_or("append");
+    let html = &payload.html;
+    
+    let result = rewrite_str(
+        existing,
+        RewriteStrSettings {
+            element_content_handlers: vec![
+                element!(selector, |el| {
+                    match action {
+                        "append" => el.append(&html, lol_html::html_content::ContentType::Html),
+                        "prepend" => el.prepend(&html, lol_html::html_content::ContentType::Html),
+                        "replace" => el.replace(&html, lol_html::html_content::ContentType::Html),
+                        "before" => el.before(&html, lol_html::html_content::ContentType::Html),
+                        "after" => el.after(&html, lol_html::html_content::ContentType::Html),
+                        _ => el.append(&html, lol_html::html_content::ContentType::Html),
+                    }
+                    Ok(())
+                })
+            ],
+            ..RewriteStrSettings::default()
+        }
+    );
+    result.unwrap_or_else(|_| existing.to_string())
 }
 
 /// Strip `<script>...</script>` blocks and `on*` event handler attributes.
