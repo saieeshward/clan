@@ -513,3 +513,157 @@ fn strip_on_handlers(html: &str) -> String {
     }
     String::from_utf8_lossy(&out).into_owned()
 }
+
+/// Perform an RFC 7396 JSON Merge Patch on `a` using `b`.
+fn merge_json(a: &mut Value, b: &Value) {
+    if let Value::Object(b_map) = b {
+        if let Value::Object(a_map) = a {
+            for (k, v) in b_map {
+                if v.is_null() {
+                    a_map.remove(k);
+                } else {
+                    merge_json(a_map.entry(k.clone()).or_insert(Value::Null), v);
+                }
+            }
+            return;
+        }
+    }
+    *a = b.clone();
+}
+
+/// Patch `shared/data.yaml` inside the archive with a JSON Merge Patch (RFC 7396).
+/// This merges the patch over the existing data, preserving all other files,
+/// and increments the generation.
+pub fn patch_data(parent: &ClanFile, patch: &Value, compressor: Option<&Compressor>) -> Result<Vec<u8>> {
+    let existing_str = parent.read_entry_string("shared/data.yaml").unwrap_or_default();
+    let mut data: Value = if existing_str.is_empty() {
+        Value::Object(Default::default())
+    } else {
+        serde_yaml::from_str(&existing_str).map_err(|e| Error::OutputRejected(format!("existing data.yaml is invalid: {}", e)))?
+    };
+
+    merge_json(&mut data, patch);
+
+    // To preserve lineage, we formulate an AgentOutput just like pack_html does,
+    // where we only set structured data, and let `pack` handle generating the new ZIP.
+    let output = AgentOutput {
+        mode: "data-update".to_string(),
+        structured: data,
+        design: None,
+        human: None,
+        decision: None, // No decision entry unless the caller explicitly wants one
+    };
+
+    let opts = PackOptions { delta: None, ..Default::default() };
+    pack(parent, output, opts, compressor)
+}
+
+/// Append a new Decision to `shared/decision-chain.yaml` inside the archive.
+/// Preserves all other files and increments the generation.
+pub fn patch_decision(parent: &ClanFile, entry: DecisionEntry, compressor: Option<&Compressor>) -> Result<Vec<u8>> {
+    // To cleanly append a decision while bumping lineage, we can reuse `pack`.
+    // We want to KEEP the existing structured data exactly as it is!
+    
+    let existing_data_str = parent.read_entry_string("shared/data.yaml").unwrap_or_default();
+    let structured: Value = if existing_data_str.is_empty() {
+        Value::Object(Default::default())
+    } else {
+        serde_yaml::from_str(&existing_data_str).unwrap_or(Value::Object(Default::default()))
+    };
+
+    let output = AgentOutput {
+        mode: "data-update".to_string(), // we aren't actually modifying data, but we must provide a mode
+        structured,
+        design: None,
+        human: None,
+        decision: Some(entry),
+    };
+
+    let opts = PackOptions { delta: None, ..Default::default() };
+    pack(parent, output, opts, compressor)
+}
+
+/// Helper to repack a `.clan` file with a single updated or added entry.
+fn repack_with_entry(parent: &ClanFile, target_path: &str, new_bytes: Vec<u8>, delta: Option<String>) -> Result<Vec<u8>> {
+    let now = chrono::Utc::now().to_rfc3339();
+    let parent_manifest = parent.manifest();
+    let mut new_manifest = parent_manifest.clone();
+    new_manifest.id = uuid::Uuid::new_v4().to_string();
+    new_manifest.updated_at = now.clone();
+    new_manifest.lineage = Some(Lineage {
+        parent_id: parent_manifest.id.clone(),
+        parent_uri: format!("file:///unknown/{}.clan", parent_manifest.id),
+        parent_sha256: Some(parent.sha256()),
+        delta: delta.unwrap_or_default(),
+    });
+
+    // Ensure the file is tracked in manifest files array if it's an asset or state
+    let role = if target_path == "agent/state.yaml" {
+        "agent-state"
+    } else if target_path == "agent/context.md" {
+        "agent-context"
+    } else if target_path.starts_with("human/assets/") {
+        "human-asset"
+    } else {
+        "unknown"
+    };
+
+    if !new_manifest.files.iter().any(|f| f.path == target_path) {
+        new_manifest.files.push(crate::manifest::FileEntry {
+            id: target_path.replace("/", "-"),
+            path: target_path.to_string(),
+            role: role.to_string(),
+            content_type: "application/octet-stream".to_string(), // Builder will override this if it can infer
+            priority: None,
+            sha256: None,
+        });
+    }
+
+    let mut builder = ClanBuilder::new(new_manifest);
+
+    for path in parent.entry_paths()? {
+        if path == "manifest.yaml" || path == target_path { continue; }
+        let bytes = parent.read_entry(&path)?;
+        builder.add_entry(path, bytes);
+    }
+    
+    builder.add_entry(target_path, new_bytes);
+    builder.build()
+}
+
+/// Patch `agent/state.yaml` inside the archive with a JSON Merge Patch (RFC 7396).
+pub fn patch_state(parent: &ClanFile, patch: &Value) -> Result<Vec<u8>> {
+    let existing_str = parent.read_entry_string("agent/state.yaml").unwrap_or_default();
+    let mut state: Value = if existing_str.is_empty() {
+        Value::Object(Default::default())
+    } else {
+        serde_yaml::from_str(&existing_str).map_err(|e| Error::OutputRejected(format!("invalid state: {}", e)))?
+    };
+    merge_json(&mut state, patch);
+    let new_state = serde_yaml::to_string(&state)?.into_bytes();
+    repack_with_entry(parent, "agent/state.yaml", new_state, Some("patched agent/state.yaml".into()))
+}
+
+/// Patch or append to `agent/context.md`.
+pub fn patch_context(parent: &ClanFile, text: &str, append: bool) -> Result<Vec<u8>> {
+    let mut existing = parent.read_entry_string("agent/context.md").unwrap_or_default();
+    if append {
+        if !existing.is_empty() && !existing.ends_with('\n') {
+            existing.push('\n');
+        }
+        existing.push_str(text);
+    } else {
+        existing = text.to_string();
+    }
+    repack_with_entry(parent, "agent/context.md", existing.into_bytes(), Some("patched agent/context.md".into()))
+}
+
+/// Inject or replace an asset in `human/assets/`.
+pub fn patch_asset(parent: &ClanFile, internal_path: &str, bytes: Vec<u8>) -> Result<Vec<u8>> {
+    let full_path = if internal_path.starts_with("human/assets/") {
+        internal_path.to_string()
+    } else {
+        format!("human/assets/{}", internal_path)
+    };
+    repack_with_entry(parent, &full_path, bytes, Some(format!("added asset {}", internal_path)))
+}

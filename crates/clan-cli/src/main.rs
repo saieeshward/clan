@@ -19,8 +19,8 @@ use std::path::PathBuf;
 use anyhow::{Context, Result};
 use clap::{Parser, Subcommand};
 use clan_sdk::{
-    assemble, create, export_static, pack, pack_html, validate, AgentOutput, ClanFile,
-    CreateOptions, InjectOptions, PackOptions,
+    assemble, create, export_static, pack, pack_html, patch_data, patch_decision, patch_state, patch_context, patch_asset, validate, AgentOutput, ClanFile,
+    CreateOptions, InjectOptions, PackOptions, DecisionEntry,
 };
 
 #[derive(Parser)]
@@ -96,6 +96,56 @@ enum Commands {
         #[arg(long)]
         delta: Option<String>,
     },
+    /// Surgically patch `shared/data.yaml` inside a .clan file using JSON Merge Patch (RFC 7396).
+    PatchData {
+        /// The .clan file to edit in-place.
+        file: PathBuf,
+        /// JSON patch file (or `-` for stdin).
+        json_file: String,
+    },
+    /// Append a new decision entry to `shared/decision-chain.yaml` inside a .clan file.
+    PatchDecision {
+        /// The .clan file to edit in-place.
+        file: PathBuf,
+        /// Name of the agent making the decision.
+        #[arg(long)]
+        agent: String,
+        /// Short description of the action taken.
+        #[arg(long)]
+        action: String,
+        /// Detailed rationale for the decision.
+        #[arg(long)]
+        rationale: String,
+        /// Pin this decision to ensure it remains highly visible.
+        #[arg(long)]
+        pinned: bool,
+    },
+    /// Surgically patch `agent/state.yaml` inside a .clan file using JSON Merge Patch (RFC 7396).
+    PatchState {
+        /// The .clan file to edit in-place.
+        file: PathBuf,
+        /// JSON patch file (or `-` for stdin).
+        json_file: String,
+    },
+    /// Overwrite or append to `agent/context.md` inside a .clan file.
+    PatchContext {
+        /// The .clan file to edit in-place.
+        file: PathBuf,
+        /// Markdown file containing the context (or `-` for stdin).
+        markdown_file: String,
+        /// Append rather than overwrite.
+        #[arg(long)]
+        append: bool,
+    },
+    /// Inject or replace an asset (e.g. image) in `human/assets/` inside a .clan file.
+    PatchAsset {
+        /// The .clan file to edit in-place.
+        file: PathBuf,
+        /// Internal path within `human/assets/` (e.g. `logo.png`).
+        internal_path: String,
+        /// Local file containing the asset.
+        local_file: PathBuf,
+    },
 
     /// Export a .clan as a single JSON blob for SDK-less agents.
     ExportStatic {
@@ -163,6 +213,11 @@ fn main() -> Result<()> {
         } => cmd_pack(parent, output_json, output, delta),
         Commands::Edit { file } => cmd_edit(file),
         Commands::PatchHtml { file, html_file, delta } => cmd_patch_html(file, html_file, delta),
+        Commands::PatchData { file, json_file } => cmd_patch_data(file, json_file),
+        Commands::PatchDecision { file, agent, action, rationale, pinned } => cmd_patch_decision(file, agent, action, rationale, pinned),
+        Commands::PatchState { file, json_file } => cmd_patch_state(file, json_file),
+        Commands::PatchContext { file, markdown_file, append } => cmd_patch_context(file, markdown_file, append),
+        Commands::PatchAsset { file, internal_path, local_file } => cmd_patch_asset(file, internal_path, local_file),
         Commands::ExportStatic { file, output } => cmd_export_static(file, output),
         Commands::PackHtml { parent, html_file, output, assets, delta } => {
             cmd_pack_html(parent, html_file, output, assets, delta)
@@ -409,66 +464,131 @@ fn cmd_edit(file: PathBuf) -> Result<()> {
 }
 
 fn cmd_agent_help() {
-    // Deliberately terse — every line here costs agent tokens.
-    print!(r#"CLAN agent-help  (clan {version})
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    print!(r#"CLAN v{version} AGENT PROTOCOL
+Format: ZIP archive (.clan). Mutate ONLY via CLI.
 
-STEP 1 — Read your task (ONE command, not two):
-  clan read agent <file.clan>
-  ⚠ This includes all data AND handoff tasks. Do NOT also run `clan read data`.
+# READ
+clan read agent <file>    => Context, state, data, history (USE THIS FIRST)
+clan read human <file>    => Rendered HTML
+clan info <file>          => Manifest/lineage
 
-STEP 2a — Produce output as JSON (standard path):
-  Write a JSON file matching this shape:
-  {{
-    "mode": "full-html",
-    "structured": {{ "key": "value" }},
-    "human": {{
-      "html": "<!DOCTYPE html>...",
-      "css": "",
-      "assets": {{ "chart.svg": "<svg>...</svg>" }}
-    }},
-    "decision": {{
-      "agent": "your-name", "action": "what you did", "rationale": "why"
-    }}
-  }}
-  Then pack:  clan pack --output next.clan --delta "..." parent.clan output.json
+# WRITE (Full Replace)
+1. JSON Mode: clan pack --output <out> <in> <json_file>
+Schema:
+{{"mode":"full-html","structured":{{...}},"human":{{"html":"...","css":"...","assets":{{"img.png":"..."}}}},"decision":{{"agent":"X","action":"Y","rationale":"Z"}}}}
 
-STEP 2b — Produce output as a raw HTML file (lower token cost, preferred):
-  Write a .html file. Optionally add YAML frontmatter at the very top:
-  ---
-  structured:
-    key_finding: "example"
-  decision:
-    agent: "agent3"
-    action: "produced final design"
-    rationale: "..."
-  ---
-  <!DOCTYPE html>
-  ...
-  Then pack:  clan pack-html --output next.clan --delta "..." parent.clan output.html
+2. HTML Mode (Token-efficient): clan pack-html --output <out> <in> <html_file>
+Schema:
+---
+structured: {{...}}
+decision: {{agent: X, action: Y, rationale: Z}}
+---
+<!DOCTYPE html><html>...
 
-STEP 3 — Patch an existing document (lowest token cost):
-  clan patch-html <file.clan> - << 'EOF'
-  ---
-  mode: patch-html
-  patch_selector: "div.grid"
-  patch_action: "append"
-  ---
-  <div class="card">New Content</div>
-  EOF
+# PATCH (In-place, Lowest Token Cost, Preferred)
+1. DOM: clan patch-html <file> <patch_file>
+Schema:
+---
+mode: patch-html
+patch_selector: "div#app"
+patch_action: "append" | "replace" | "prepend"
+---
+<div>New</div>
 
-STEP 4 — Verify:
-  clan info next.clan
-  clan validate next.clan
+2. Data: clan patch-data <file> <json>       (RFC7396 Merge Patch shared/data.yaml)
+3. State: clan patch-state <file> <json>     (RFC7396 Merge Patch agent/state.yaml)
+4. Notes: clan patch-context <file> <md> [--append]
+5. History: clan patch-decision <file> --agent X --action Y --rationale Z
+6. Asset: clan patch-asset <file> <path/in/zip> <local_file>
 
-OTHER COMMANDS (don't waste tokens on these unless you need them):
-  clan read human <file>   print current html
-  clan read chain <file>   print decision history only
-  clan info <file>         manifest metadata
-  clan validate <file>     structural check
+# VERIFY
+clan validate <file>
 "#, version = env!("CARGO_PKG_VERSION"));
 }
 
 fn open(path: &PathBuf) -> Result<ClanFile> {
     ClanFile::open(path).with_context(|| format!("could not open {}", path.display()))
+}
+
+fn cmd_patch_data(file: PathBuf, json_file: String) -> Result<()> {
+    let clan = open(&file)?;
+    let raw_json = if json_file == "-" {
+        use std::io::Read;
+        let mut s = String::new();
+        std::io::stdin().read_to_string(&mut s)?;
+        s
+    } else {
+        std::fs::read_to_string(&json_file).with_context(|| format!("could not read {json_file}"))?
+    };
+
+    let patch: serde_json::Value = serde_json::from_str(&raw_json)
+        .context("invalid JSON patch provided")?;
+
+    let bytes = patch_data(&clan, &patch, None)?;
+    std::fs::write(&file, &bytes)?;
+    eprintln!("Patched data in-place: {}", file.display());
+    Ok(())
+}
+
+fn cmd_patch_decision(file: PathBuf, agent: String, action: String, rationale: String, pinned: bool) -> Result<()> {
+    let clan = open(&file)?;
+    
+    let entry = DecisionEntry {
+        agent_name: agent,
+        action,
+        rationale,
+        pinned,
+    };
+
+    let bytes = patch_decision(&clan, entry, None)?;
+    std::fs::write(&file, &bytes)?;
+    eprintln!("Appended decision in-place: {}", file.display());
+    Ok(())
+}
+
+fn cmd_patch_state(file: PathBuf, json_file: String) -> Result<()> {
+    let clan = open(&file)?;
+    let raw_json = if json_file == "-" {
+        use std::io::Read;
+        let mut s = String::new();
+        std::io::stdin().read_to_string(&mut s)?;
+        s
+    } else {
+        std::fs::read_to_string(&json_file).with_context(|| format!("could not read {json_file}"))?
+    };
+
+    let patch: serde_json::Value = serde_json::from_str(&raw_json)
+        .context("invalid JSON patch provided")?;
+
+    let bytes = patch_state(&clan, &patch)?;
+    std::fs::write(&file, &bytes)?;
+    eprintln!("Patched state in-place: {}", file.display());
+    Ok(())
+}
+
+fn cmd_patch_context(file: PathBuf, markdown_file: String, append: bool) -> Result<()> {
+    let clan = open(&file)?;
+    let text = if markdown_file == "-" {
+        use std::io::Read;
+        let mut s = String::new();
+        std::io::stdin().read_to_string(&mut s)?;
+        s
+    } else {
+        std::fs::read_to_string(&markdown_file).with_context(|| format!("could not read {markdown_file}"))?
+    };
+
+    let bytes = patch_context(&clan, &text, append)?;
+    std::fs::write(&file, &bytes)?;
+    eprintln!("Patched context in-place: {}", file.display());
+    Ok(())
+}
+
+fn cmd_patch_asset(file: PathBuf, internal_path: String, local_file: PathBuf) -> Result<()> {
+    let clan = open(&file)?;
+    let bytes = std::fs::read(&local_file).with_context(|| format!("could not read {}", local_file.display()))?;
+
+    let out_bytes = patch_asset(&clan, &internal_path, bytes)?;
+    std::fs::write(&file, &out_bytes)?;
+    eprintln!("Patched asset in-place: {}", file.display());
+    Ok(())
 }
