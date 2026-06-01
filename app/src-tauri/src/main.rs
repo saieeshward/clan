@@ -5,7 +5,7 @@ use std::sync::Mutex;
 
 use clan_sdk::{apply_patch_and_repack, validate, ClanFile};
 use serde::{Deserialize, Serialize};
-use tauri::State;
+use tauri::{State, Manager, Emitter};
 
 // ── File logger (writes to /tmp/clan-debug.log) ──────────────────────────────
 fn log(msg: &str) {
@@ -23,6 +23,8 @@ fn log(msg: &str) {
 
 struct AppState {
     current: Mutex<Option<LoadedClan>>,
+    edit_mode: Mutex<bool>,
+    preview_html: Mutex<String>,
 }
 
 struct LoadedClan {
@@ -361,9 +363,19 @@ fn inject_ids_for_tag(html: &str, tag: &str) -> String {
     out
 }
 
-/// Persist a human text edit as a patch in the open .clan file (spec §11).
+
+
 #[tauri::command]
-fn save_patch(id: String, content: String, state: State<AppState>) -> Result<(), String> {
+fn set_edit_mode(active: bool, state: State<AppState>) {
+    *state.edit_mode.lock().unwrap() = active;
+}
+
+#[tauri::command]
+fn update_preview_html(html: String, state: State<AppState>) {
+    *state.preview_html.lock().unwrap() = html;
+}
+
+fn do_save_patch(id: String, content: String, state: &AppState) -> Result<(), String> {
     log(&format!("save_patch: id={id:?} content={:?}…", &content[..content.len().min(80)]));
 
     let mut guard = state.current.lock().unwrap();
@@ -374,7 +386,6 @@ fn save_patch(id: String, content: String, state: State<AppState>) -> Result<(),
 
     std::fs::write(&loaded.path, &new_bytes).map_err(|e| e.to_string())?;
 
-    // Reload the clan from the new bytes so the in-memory state stays current.
     loaded.raw_bytes = new_bytes.clone();
     loaded.clan = ClanFile::from_bytes(new_bytes).map_err(|e| e.to_string())?;
 
@@ -382,13 +393,60 @@ fn save_patch(id: String, content: String, state: State<AppState>) -> Result<(),
     Ok(())
 }
 
+#[tauri::command]
+fn save_patch(id: String, content: String, state: State<AppState>) -> Result<(), String> {
+    do_save_patch(id, content, &*state)
+}
+
 fn main() {
     tauri::Builder::default()
+        .register_uri_scheme_protocol("clan", |app, request| {
+            let uri = request.uri().to_string();
+            let state = app.app_handle().state::<AppState>();
+            
+            if uri.contains("edit-mode") {
+                let mode = *state.edit_mode.lock().unwrap();
+                let body = if mode { "true" } else { "false" };
+                tauri::http::Response::builder()
+                    .header("Access-Control-Allow-Origin", "*")
+                    .status(200)
+                    .body(body.as_bytes().to_vec())
+                    .unwrap()
+            } else if uri.contains("document") {
+                let html = state.preview_html.lock().unwrap().clone();
+                tauri::http::Response::builder()
+                    .header("Content-Type", "text/html")
+                    .header("Access-Control-Allow-Origin", "*")
+                    .status(200)
+                    .body(html.into_bytes())
+                    .unwrap()
+            } else if uri.contains("patch") {
+                if let Ok(body_str) = String::from_utf8(request.body().clone()) {
+                    if let Ok(json) = serde_json::from_str::<serde_json::Value>(&body_str) {
+                        if let (Some(id), Some(content)) = (json["id"].as_str(), json["content"].as_str()) {
+                            let _ = do_save_patch(id.to_string(), content.to_string(), &*state);
+                            let _ = app.app_handle().emit("clan-patch-saved", serde_json::json!({ "id": id, "content": content }));
+                        }
+                    }
+                }
+                tauri::http::Response::builder()
+                    .header("Access-Control-Allow-Origin", "*")
+                    .status(200)
+                    .body(Vec::new())
+                    .unwrap()
+            } else {
+                tauri::http::Response::builder().status(404).body(Vec::new()).unwrap()
+            }
+        })
         .plugin(tauri_plugin_dialog::init())
-        .manage(AppState { current: Mutex::new(None) })
+        .manage(AppState { 
+            current: Mutex::new(None), 
+            edit_mode: Mutex::new(false),
+            preview_html: Mutex::new(String::new()),
+        })
         .invoke_handler(tauri::generate_handler![
             open_clan, get_human_html, get_data, get_chain, get_agent_state, get_context,
-            save_patch,
+            save_patch, set_edit_mode, update_preview_html
         ])
         .run(tauri::generate_context!())
         .expect("error while running CLAN Viewer");
