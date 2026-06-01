@@ -78,6 +78,21 @@ You have full design control. Provide a complete `<!DOCTYPE html>` document for 
 
 ---
 
+## Surgical Patching (Lowest token cost, in-place mutation)
+
+If you only need to update a small part of the document, do not output the full JSON or full HTML. Instead, output the precise patch and instruct the operator to use one of the `clan patch-*` commands. These commands mutate the document in-place, preserving all other context automatically.
+
+- **`clan patch-html`**: Updates the DOM directly. Requires YAML frontmatter specifying `patch_selector` (e.g. `div.content`) and `patch_action` (`append`, `replace`, `prepend`), followed by the HTML snippet.
+- **`clan patch-data`**: Merge-patches `shared/data.yaml` using RFC 7396 JSON Merge Patch.
+- **`clan patch-state`**: Merge-patches your private `agent/state.yaml` scratchpad using JSON Merge Patch.
+- **`clan patch-decision`**: Cleanly appends a new decision history log.
+- **`clan patch-context`**: Overwrites or appends to `agent/context.md` (e.g. for agent handoffs).
+- **`clan patch-asset`**: Injects or replaces a binary asset natively.
+
+See `clan agent-help` for the exact syntax of these commands.
+
+---
+
 ## HTML rules (full-html mode only)
 
 - **Preferred**: produce a complete `<!DOCTYPE html>` document — full control, no style conflicts

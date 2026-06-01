@@ -17,16 +17,17 @@ Pronounced "clan"
 8. [human/ Directory](#8-human-directory)
 9. [spec/ Directory](#9-spec-directory)
 10. [Output Modes](#10-output-modes)
-11. [Patch System](#11-patch-system)
-12. [Lineage Model](#12-lineage-model)
-13. [External Store References](#13-external-store-references)
-14. [Agent Injection Protocol](#14-agent-injection-protocol)
-15. [Static Export](#15-static-export)
-16. [Security Model](#16-security-model)
-17. [Validation Rules](#17-validation-rules)
-18. [Versioning](#18-versioning)
-19. [MCP Compatibility](#19-mcp-compatibility)
-20. [Implementation Checklist](#20-implementation-checklist)
+11. [In-Place Patching](#11-in-place-patching)
+12. [Patch System](#12-patch-system)
+13. [Lineage Model](#13-lineage-model)
+14. [External Store References](#14-external-store-references)
+15. [Agent Injection Protocol](#15-agent-injection-protocol)
+16. [Static Export](#16-static-export)
+17. [Security Model](#17-security-model)
+18. [Validation Rules](#18-validation-rules)
+19. [Versioning](#19-versioning)
+20. [MCP Compatibility](#20-mcp-compatibility)
+21. [Implementation Checklist](#21-implementation-checklist)
 
 ---
 
@@ -630,7 +631,41 @@ Use for: document-generating agents, report writers, first-time CLAN creation. A
 
 ---
 
-## 11. Patch System
+## 11. In-Place Patching
+
+For minimal token cost, agents can bypass JSON/HTML output entirely and mutate the document in-place using precise patch formats (via `clan patch-*` CLI commands).
+
+### `patch-html`
+Target: `human/index.html`
+Format: YAML frontmatter + HTML body.
+```html
+---
+mode: patch-html
+patch_selector: "div.content"
+patch_action: "append"
+---
+<p>New content</p>
+```
+
+### `patch-data` & `patch-state`
+Target: `shared/data.yaml` or `agent/state.yaml`
+Format: JSON payload. Applied using RFC 7396 JSON Merge Patch.
+
+### `patch-decision`
+Target: `agent/decision-chain.yaml`
+Format: CLI flags `--agent`, `--action`, `--rationale` to append cleanly.
+
+### `patch-context`
+Target: `agent/context.md`
+Format: Markdown payload (overwrites or appends via `--append`).
+
+### `patch-asset`
+Target: `human/assets/`
+Format: Binary/text injection natively into the ZIP without touching any other files.
+
+---
+
+## 12. Patch System
 
 Human text edits are stored out-of-band in `human/patches.yaml`. The agent-generated HTML is never directly modified by human input.
 
@@ -664,7 +699,7 @@ Agents receive `human/patches.yaml` as part of their context (if the SDK is conf
 
 ---
 
-## 12. Lineage Model
+## 13. Lineage Model
 
 Every CLAN is a node in a directed acyclic graph (DAG) of document versions. The `lineage` block in `manifest.yaml` records the parent.
 
@@ -694,7 +729,7 @@ lineage:
 
 ---
 
-## 13. External Store References
+## 14. External Store References
 
 Large context data (full reasoning traces, embedding indexes, raw conversation logs) lives outside the CLAN file and is referenced by URI with a content hash for integrity.
 
@@ -733,7 +768,7 @@ The `content-hash` enables any consumer to verify the external content hasn't ch
 
 ---
 
-## 14. Agent Injection Protocol
+## 15. Agent Injection Protocol
 
 When the SDK loads a CLAN file for an agent, it assembles a context object in this order:
 
@@ -835,7 +870,7 @@ Read agent/context.md — it has task-specific rules that override these.
 
 ---
 
-## 15. Static Export
+## 16. Static Export
 
 For agents without SDK access (direct LLM API calls, third-party agents), the SDK produces a single JSON export:
 
@@ -859,7 +894,7 @@ The agent reads this, follows the embedded `agent_guide`, produces JSON matching
 
 ---
 
-## 16. Security Model
+## 17. Security Model
 
 ### HTML Sanitisation (SDK layer)
 
@@ -906,7 +941,7 @@ The postMessage bridge between document WebView and shell WebView MUST:
 
 ---
 
-## 17. Validation Rules
+## 18. Validation Rules
 
 ### Structural Validation
 
@@ -946,7 +981,7 @@ A CLAN file is **content-valid** if additionally:
 
 ---
 
-## 18. Versioning
+## 19. Versioning
 
 CLAN uses a two-integer version scheme declared in `manifest.yaml`:
 
@@ -973,7 +1008,7 @@ clan_version_minor: 0  # minor — backwards-compatible additions increment this
 
 ---
 
-## 19. MCP Compatibility
+## 20. MCP Compatibility
 
 CLAN is designed to be compatible with the Model Context Protocol (MCP). The agent context object assembled by the SDK (Section 14) follows MCP resource conventions.
 
@@ -992,7 +1027,7 @@ An CLAN file may reference MCP resources in its `external` block (type `mcp-reso
 
 ---
 
-## 20. Implementation Checklist
+## 21. Implementation Checklist
 
 For SDK implementors, in priority order:
 

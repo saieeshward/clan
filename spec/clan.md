@@ -203,6 +203,40 @@ Agent provides a complete HTML document (preferred) or fragment. The `html` fiel
 
 ---
 
+## In-Place Patching
+
+For minimal token cost, agents can bypass JSON/HTML output entirely and mutate the document in-place using precise patch formats (via `clan patch-*` CLI commands).
+
+### `patch-html`
+Target: `human/index.html`
+Format: YAML frontmatter + HTML body.
+```html
+---
+mode: patch-html
+patch_selector: "div.content"
+patch_action: "append"
+---
+<p>New content</p>
+```
+
+### `patch-data` & `patch-state`
+Target: `shared/data.yaml` or `agent/state.yaml`
+Format: JSON payload. Applied using RFC 7396 JSON Merge Patch.
+
+### `patch-decision`
+Target: `agent/decision-chain.yaml`
+Format: CLI flags `--agent`, `--action`, `--rationale` to append cleanly.
+
+### `patch-context`
+Target: `agent/context.md`
+Format: Markdown payload (overwrites or appends via `--append`).
+
+### `patch-asset`
+Target: `human/assets/`
+Format: Binary/text injection natively into the ZIP without touching any other files.
+
+---
+
 ## Security Rules
 
 - `<script>` tags and `on*` event handlers are permitted — the iframe sandbox runs them in a null origin with no access to Tauri IPC or parent app state
