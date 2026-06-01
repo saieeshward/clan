@@ -862,6 +862,8 @@ Return only the JSON object — no markdown wrapper, no explanation.
 - No `<script>` tags in agent-provided HTML
 - No `on*` event handlers, no `<iframe>/<object>/<embed>/<form>`
 - Use `data-adf-id` on editable text elements
+- Use `{{key}}` in HTML for native data binding
+- Use `window.__CLAN__.data` in scripts for native JS access
 - CDN fonts (`@import`, `<link>`) are supported
 
 ## If something is unclear
@@ -965,6 +967,7 @@ A CLAN file is **valid** if and only if:
 A CLAN file is **content-valid** if additionally:
 
 - [ ] `shared/data.yaml` validates against its declared `$schema`
+- [ ] **Strict Contract:** `shared/data.yaml` strictly conforms to the JSON Schema defined in `agent/output-schema.json`. (CLI mutation commands dynamically enforce `additionalProperties: false` to reject uncontracted drift. Intentional migrations must update the schema using `patch-schema` or `--schema` override).
 - [ ] `human/index.html` (if present) contains no `<script>` tags
 - [ ] `human/index.html` (if present) contains no `<html>`, `<head>`, or `<body>` tags
 - [ ] `human/patches.yaml` (if present) — all `id` values are non-empty strings

@@ -15,7 +15,7 @@ use crate::error::{Error, Result};
 use crate::manifest::{FileEntry, Lineage, CLAN_VERSION, CLAN_VERSION_MINOR};
 
 /// Agent output decoded from JSON.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct AgentOutput {
     pub mode: String,
     /// Structured data fields to merge into `shared/data.yaml`.
@@ -28,7 +28,7 @@ pub struct AgentOutput {
     pub decision: Option<DecisionEntry>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct HumanPayload {
     pub html: String,
     pub css: Option<String>,
@@ -37,7 +37,7 @@ pub struct HumanPayload {
     pub patch_action: Option<String>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct DecisionEntry {
     pub agent_name: String,
     pub action: String,
@@ -120,8 +120,21 @@ impl AgentOutput {
 
     /// Validate the output against the declared JSON Schema.
     pub fn validate_schema(&self, schema_json: &str) -> Result<()> {
-        let schema: Value = serde_json::from_str(schema_json)
+        let mut schema: Value = serde_json::from_str(schema_json)
             .map_err(|e| Error::Schema(format!("invalid schema: {e}")))?;
+
+        // Dynamically enforce additionalProperties: false on the 'structured' property
+        if let Some(props) = schema.get_mut("properties").and_then(|p| p.get_mut("structured")) {
+            if let Some(obj) = props.as_object_mut() {
+                // Force strict mode
+                obj.insert("additionalProperties".to_string(), Value::Bool(false));
+                
+                // Whitelist the $schema root property so validation doesn't fail on YAML headers
+                if let Some(structured_props) = obj.get_mut("properties").and_then(|p| p.as_object_mut()) {
+                    structured_props.insert("$schema".to_string(), serde_json::json!({"type": "string"}));
+                }
+            }
+        }
         let output = serde_json::json!({
             "mode": self.mode,
             "structured": self.structured,
@@ -147,6 +160,8 @@ pub struct PackOptions {
     pub delta: Option<String>,
     /// Optional output path hint (informational only).
     pub output_path: Option<String>,
+    /// Optional schema override.
+    pub schema_override: Option<String>,
 }
 
 /// Pack a new `.clan` archive from a parent file and agent output.
@@ -167,6 +182,20 @@ pub fn pack(
             obj.insert(k.clone(), v.clone());
         }
     }
+    
+    // --- ENFORCE SCHEMA VALIDATION ---
+    // We validate the FULLY MERGED data against the schema, not just the partial update.
+    let schema_json = match &opts.schema_override {
+        Some(s) => Ok(s.clone()),
+        None => parent.read_entry_string("agent/output-schema.json"),
+    };
+    
+    if let Ok(schema_str) = schema_json {
+        let mut validation_output = output.clone();
+        validation_output.structured = data.clone();
+        validation_output.validate_schema(&schema_str)?;
+    }
+    
     let new_data_yaml = serde_yaml::to_string(&data)?.into_bytes();
 
     // --- Update decision chain ---
@@ -239,11 +268,16 @@ pub fn pack(
         if path == "manifest.yaml" { continue; }
         if path == "shared/data.yaml" { continue; }
         if path == "agent/decision-chain.yaml" { continue; }
+        if opts.schema_override.is_some() && path == "agent/output-schema.json" { continue; }
         if output.mode == "full-html" && path.starts_with("human/") { continue; }
         // For patch-html, we keep existing human assets and index.html, we'll rewrite index.html below
         if let Ok(bytes) = parent.read_entry(&path) {
             builder.add_entry(path, bytes);
         }
+    }
+
+    if let Some(new_schema) = &opts.schema_override {
+        builder.add_entry("agent/output-schema.json", new_schema.clone().into_bytes());
     }
 
     // Updated entries.
@@ -322,6 +356,7 @@ pub fn pack_html(
     parent: &ClanFile,
     raw_html: &str,
     assets_dir_files: Option<HashMap<String, Vec<u8>>>,
+    schema_override: Option<String>,
     delta: Option<String>,
     compressor: Option<&Compressor>,
 ) -> Result<Vec<u8>> {
@@ -343,7 +378,7 @@ pub fn pack_html(
         decision: decision_entry,
     };
 
-    let mut opts = PackOptions { delta, ..Default::default() };
+    let opts = PackOptions { delta, schema_override, ..Default::default() };
     let mut bytes = pack(parent, output, opts, compressor)?;
     
     // Handoff via context.md
@@ -580,6 +615,33 @@ pub fn patch_decision(parent: &ClanFile, entry: DecisionEntry, compressor: Optio
     };
 
     let opts = PackOptions { delta: None, ..Default::default() };
+    pack(parent, output, opts, compressor)
+}
+
+/// Replace `agent/output-schema.json` inside the archive.
+/// This allows an agent to atomically migrate a file's structure.
+pub fn patch_schema(parent: &ClanFile, schema_json: &str, compressor: Option<&Compressor>) -> Result<Vec<u8>> {
+    let existing_data_str = parent.read_entry_string("shared/data.yaml").unwrap_or_default();
+    let structured: Value = if existing_data_str.is_empty() {
+        Value::Object(Default::default())
+    } else {
+        serde_yaml::from_str(&existing_data_str).unwrap_or(Value::Object(Default::default()))
+    };
+
+    let output = AgentOutput {
+        mode: "data-update".to_string(), // use data-update to avoid touching HTML
+        structured,
+        design: None,
+        human: None,
+        decision: None,
+    };
+
+    let opts = PackOptions { 
+        delta: Some("schema migrated".to_string()), 
+        schema_override: Some(schema_json.to_string()),
+        ..Default::default()
+    };
+    
     pack(parent, output, opts, compressor)
 }
 

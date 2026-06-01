@@ -105,11 +105,12 @@ fn get_human_html(state: State<AppState>) -> Result<String, String> {
     let guard = state.current.lock().unwrap();
     let loaded = guard.as_ref().ok_or("no file open")?;
     let html = loaded.clan.read_entry_string("human/index.html").map_err(|e| e.to_string())?;
-    let resolved = if let Ok(bytes) = loaded.clan.read_entry("shared/data.yaml") {
+    let (resolved, data_json) = if let Ok(bytes) = loaded.clan.read_entry("shared/data.yaml") {
         if let Ok(data) = serde_yaml::from_slice::<serde_yaml::Value>(&bytes) {
-            resolve_bindings(&html, &data)
-        } else { html }
-    } else { html };
+            let json = serde_json::to_string(&data).unwrap_or_else(|_| "{}".to_string());
+            (resolve_bindings(&html, &data), json)
+        } else { (html, "{}".to_string()) }
+    } else { (html, "{}".to_string()) };
     // Auto-inject data-adf-id on editable elements that the agent didn't annotate.
     // Must happen before apply_patches so patch lookups find the stable auto IDs.
     let with_ids = auto_inject_adf_ids(&resolved);
@@ -122,7 +123,8 @@ fn get_human_html(state: State<AppState>) -> Result<String, String> {
     // Inject human/styles.css into the document if present.
     // For full HTML docs: inject into <head>. For fragments: prepend a <style> block.
     let css = loaded.clan.read_entry_string("human/styles.css").unwrap_or_default();
-    let final_html = inject_styles(&patched, &css);
+    let styled_html = inject_styles(&patched, &css);
+    let final_html = inject_clan_data(&styled_html, &data_json);
     Ok(final_html)
 }
 
@@ -139,6 +141,18 @@ fn inject_styles(html: &str, css: &str) -> String {
         format!("{}\n{}", style_tag, html)
     } else {
         format!("{}\n{}", style_tag, html)
+    }
+}
+
+fn inject_clan_data(html: &str, data_json: &str) -> String {
+    let script_tag = format!("<script>window.__CLAN__ = {{ data: {} }};</script>", data_json);
+    let lower = html.to_lowercase();
+    if lower.contains("</head>") {
+        html.replacen("</head>", &format!("{}</head>", script_tag), 1)
+    } else if lower.contains("<body") {
+        html.replacen("<body", &format!("{}<body", script_tag), 1)
+    } else {
+        format!("{}\n{}", script_tag, html)
     }
 }
 

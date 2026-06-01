@@ -25,7 +25,8 @@ CLAN (Context and Live Agent Notation) is a file format for passing structured c
 A **single JSON object** matching `agent/output-schema.json` exactly.
 
 - Return only the JSON object — no markdown wrapper, no explanation, no preamble
-- The SDK validates your output and packages it into a new `.clan` file
+- **STRICT SCHEMA ENFORCEMENT**: The SDK physically enforces JSON Schema validation with `additionalProperties: false`. If you change the structural shape of `shared/data.yaml` (e.g., adding a new `servers` array) without the schema contract being updated first, **the CLI will hard-reject your patch** to prevent UI breakage.
+- **SCHEMA MIGRATIONS**: If your task requires completely restructuring the file's purpose (e.g., turning an Ad Brief into a Client Deck), you MUST first update the schema using `clan patch-schema <file> <new_schema.json>`, or pass `--schema` to `clan pack`.
 - You do not write files, create ZIPs, or manage document structure
 
 ---
@@ -141,12 +142,20 @@ Entries in `agent/decision-chain.yaml` beyond the verbatim window are compressed
 
 ## Data binding
 
-In full-html mode, you can reference any key from `shared/data.yaml` using double-brace syntax. The app resolves these at render time — you do not need to hardcode values.
+In full-html mode, you can reference any key from `shared/data.yaml` using double-brace syntax. The app resolves these natively at render time — you do not need to hardcode values.
 
 ```html
 <h2>{{vendor}}</h2>                    <!-- becomes: Acme Corporation -->
 <span>{{total}}</span>                 <!-- becomes: 15375.00 -->
 <span>{{line_items.0.amount}}</span>   <!-- nested: 12500.00 -->
+```
+
+If you write custom JavaScript (e.g., for drawing charts), the data is also injected globally into the document window, so you do not need to fetch or parse it:
+
+```javascript
+// Access the same data natively in scripts
+const invoiceTotal = window.__CLAN__.data.total;
+const firstItem = window.__CLAN__.data.line_items[0];
 ```
 
 ---

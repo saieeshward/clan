@@ -76,14 +76,17 @@ pub fn create(opts: CreateOptions) -> Result<Vec<u8>> {
     );
     builder.add_entry("agent/context.md", context.into_bytes());
 
-    // output-schema.json — permissive schema for first-pass full-html.
+    // output-schema.json — strict schema for first-pass full-html.
     let schema = serde_json::json!({
         "$schema": "http://json-schema.org/draft-07/schema#",
         "type": "object",
         "required": ["mode", "structured"],
         "properties": {
             "mode": { "type": "string", "enum": ["data-update", "designed", "full-html"] },
-            "structured": { "type": "object" }
+            "structured": { 
+                "type": "object",
+                "additionalProperties": false
+            }
         }
     });
     builder.add_entry(

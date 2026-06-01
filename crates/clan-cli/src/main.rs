@@ -76,6 +76,9 @@ enum Commands {
         /// Output path for the new .clan file.
         #[arg(long)]
         output: PathBuf,
+        /// Optional new JSON schema to override the parent's schema.
+        #[arg(long)]
+        schema: Option<PathBuf>,
         /// Human-readable description of what changed.
         #[arg(long)]
         delta: Option<String>,
@@ -102,6 +105,13 @@ enum Commands {
         file: PathBuf,
         /// JSON patch file (or `-` for stdin).
         json_file: String,
+    },
+    /// Surgically patch `agent/output-schema.json` inside a .clan file.
+    PatchSchema {
+        /// The .clan file to edit in-place.
+        file: PathBuf,
+        /// JSON Schema file (or `-` for stdin).
+        schema_file: String,
     },
     /// Append a new decision entry to `shared/decision-chain.yaml` inside a .clan file.
     PatchDecision {
@@ -165,9 +175,12 @@ enum Commands {
         /// Output path for the new .clan file.
         #[arg(long)]
         output: PathBuf,
-        /// Optional directory containing assets to bundle natively.
+        /// Optional directory containing binary/text assets to mount.
         #[arg(long)]
         assets: Option<PathBuf>,
+        /// Optional new JSON schema to override the parent's schema.
+        #[arg(long)]
+        schema: Option<PathBuf>,
         /// Human-readable description of what changed.
         #[arg(long)]
         delta: Option<String>,
@@ -209,18 +222,20 @@ fn main() -> Result<()> {
             parent,
             output_json,
             output,
+            schema,
             delta,
-        } => cmd_pack(parent, output_json, output, delta),
+        } => cmd_pack(parent, output_json, output, schema, delta),
         Commands::Edit { file } => cmd_edit(file),
         Commands::PatchHtml { file, html_file, delta } => cmd_patch_html(file, html_file, delta),
         Commands::PatchData { file, json_file } => cmd_patch_data(file, json_file),
+        Commands::PatchSchema { file, schema_file } => cmd_patch_schema(file, schema_file),
         Commands::PatchDecision { file, agent, action, rationale, pinned } => cmd_patch_decision(file, agent, action, rationale, pinned),
         Commands::PatchState { file, json_file } => cmd_patch_state(file, json_file),
         Commands::PatchContext { file, markdown_file, append } => cmd_patch_context(file, markdown_file, append),
         Commands::PatchAsset { file, internal_path, local_file } => cmd_patch_asset(file, internal_path, local_file),
         Commands::ExportStatic { file, output } => cmd_export_static(file, output),
-        Commands::PackHtml { parent, html_file, output, assets, delta } => {
-            cmd_pack_html(parent, html_file, output, assets, delta)
+        Commands::PackHtml { parent, html_file, output, assets, schema, delta } => {
+            cmd_pack_html(parent, html_file, output, assets, schema, delta)
         }
         Commands::AgentHelp => { cmd_agent_help(); Ok(()) }
     }
@@ -318,6 +333,7 @@ fn cmd_pack(
     parent_path: PathBuf,
     output_json: String,
     output: PathBuf,
+    schema_path: Option<PathBuf>,
     delta: Option<String>,
 ) -> Result<()> {
     let parent = open(&parent_path)?;
@@ -333,9 +349,14 @@ fn cmd_pack(
     };
 
     let agent_output = AgentOutput::from_json(&json).context("failed to parse agent output")?;
+    let schema_override = if let Some(sp) = schema_path {
+        Some(std::fs::read_to_string(&sp).with_context(|| format!("could not read schema {}", sp.display()))?)
+    } else { None };
+
     let opts = PackOptions {
         delta,
         output_path: Some(parent_path.display().to_string()),
+        schema_override,
         ..Default::default()
     };
     let bytes = pack(&parent, agent_output, opts, None).context("pack failed")?;
@@ -369,6 +390,7 @@ fn cmd_pack_html(
     html_file: String,
     output: PathBuf,
     assets_dir: Option<PathBuf>,
+    schema_path: Option<PathBuf>,
     delta: Option<String>,
 ) -> Result<()> {
     let parent = open(&parent_path)?;
@@ -399,7 +421,11 @@ fn cmd_pack_html(
         }
     }
 
-    let bytes = pack_html(&parent, &raw_html, Some(assets_map), delta, None).context("pack-html failed")?;
+    let schema_override = if let Some(sp) = schema_path {
+        Some(std::fs::read_to_string(&sp).with_context(|| format!("could not read schema {}", sp.display()))?)
+    } else { None };
+
+    let bytes = pack_html(&parent, &raw_html, Some(assets_map), schema_override, delta, None).context("pack-html failed")?;
     std::fs::write(&output, &bytes)
         .with_context(|| format!("could not write {}", output.display()))?;
     eprintln!("packed {} ({} bytes)", output.display(), bytes.len());
@@ -417,7 +443,7 @@ fn cmd_patch_html(file: PathBuf, html_file: String, delta: Option<String>) -> Re
         std::fs::read_to_string(&html_file).with_context(|| format!("could not read {html_file}"))?
     };
     
-    let bytes = pack_html(&clan, &raw_html, None, delta, None)?;
+    let bytes = pack_html(&clan, &raw_html, None, None, delta, None)?;
     std::fs::write(&file, &bytes)?;
     eprintln!("Patched {} in-place", file.display());
     Ok(())
@@ -457,7 +483,7 @@ fn cmd_edit(file: PathBuf) -> Result<()> {
         return Ok(());
     }
     
-    let bytes = pack_html(&clan, &new_content, None, Some("interactive human edit".into()), None)?;
+    let bytes = pack_html(&clan, &new_content, None, None, Some("interactive human edit".into()), None)?;
     std::fs::write(&file, &bytes)?;
     eprintln!("Updated {}", file.display());
     Ok(())
@@ -473,17 +499,18 @@ clan read human <file>    => Rendered HTML
 clan info <file>          => Manifest/lineage
 
 # WRITE (Full Replace)
-1. JSON Mode: clan pack --output <out> <in> <json_file>
+1. JSON Mode: clan pack --output <out> [--schema <schema>] <in> <json_file>
 Schema:
 {{"mode":"full-html","structured":{{...}},"human":{{"html":"...","css":"...","assets":{{"img.png":"..."}}}},"decision":{{"agent":"X","action":"Y","rationale":"Z"}}}}
 
-2. HTML Mode (Token-efficient): clan pack-html --output <out> <in> <html_file>
+2. HTML Mode (Token-efficient): clan pack-html --output <out> [--schema <schema>] <in> <html_file>
 Schema:
 ---
 structured: {{...}}
 decision: {{agent: X, action: Y, rationale: Z}}
 ---
 <!DOCTYPE html><html>...
+(Hint: Use {{{{key}}}} for templating, or window.__CLAN__.data in JS)
 
 # PATCH (In-place, Lowest Token Cost, Preferred)
 1. DOM: clan patch-html <file> <patch_file>
@@ -495,11 +522,12 @@ patch_action: "append" | "replace" | "prepend"
 ---
 <div>New</div>
 
-2. Data: clan patch-data <file> <json>       (RFC7396 Merge Patch shared/data.yaml)
+2. Data: clan patch-data <file> <json>       (RFC7396 Merge Patch shared/data.yaml; MUST conform to output-schema.json)
 3. State: clan patch-state <file> <json>     (RFC7396 Merge Patch agent/state.yaml)
 4. Notes: clan patch-context <file> <md> [--append]
 5. History: clan patch-decision <file> --agent X --action Y --rationale Z
 6. Asset: clan patch-asset <file> <path/in/zip> <local_file>
+7. Schema: clan patch-schema <file> <schema.json>
 
 # VERIFY
 clan validate <file>
@@ -527,6 +555,23 @@ fn cmd_patch_data(file: PathBuf, json_file: String) -> Result<()> {
     let bytes = patch_data(&clan, &patch, None)?;
     std::fs::write(&file, &bytes)?;
     eprintln!("Patched data in-place: {}", file.display());
+    Ok(())
+}
+
+fn cmd_patch_schema(file: PathBuf, schema_file: String) -> Result<()> {
+    let clan = open(&file)?;
+    let raw_schema = if schema_file == "-" {
+        use std::io::Read;
+        let mut s = String::new();
+        std::io::stdin().read_to_string(&mut s)?;
+        s
+    } else {
+        std::fs::read_to_string(&schema_file).with_context(|| format!("could not read {schema_file}"))?
+    };
+
+    let bytes = clan_sdk::pack::patch_schema(&clan, &raw_schema, None)?;
+    std::fs::write(&file, &bytes)?;
+    eprintln!("Patched schema in-place: {}", file.display());
     Ok(())
 }
 
