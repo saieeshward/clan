@@ -166,10 +166,13 @@ pub fn pack(
     // --- Merge structured data into shared/data.yaml ---
     let existing_data_bytes = parent.read_entry("shared/data.yaml")?;
     let mut data: Value = serde_yaml::from_slice(&existing_data_bytes)?;
-    if let (Some(obj), Some(updates)) = (data.as_object_mut(), output.structured.as_object()) {
-        for (k, v) in updates {
-            obj.insert(k.clone(), v.clone());
-        }
+    
+    if output.mode == "data-update" {
+        // patch_data and patch_schema pass the fully merged state
+        data = output.structured.clone();
+    } else {
+        // pack_html passes a partial update delta, use RFC 7396 merge
+        merge_json(&mut data, &output.structured);
     }
     
     // --- ENFORCE SCHEMA VALIDATION ---

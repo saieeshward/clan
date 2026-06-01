@@ -490,7 +490,7 @@ fn cmd_edit(file: PathBuf) -> Result<()> {
 }
 
 fn cmd_agent_help() {
-    print!(r#"CLAN v0.12 AGENT PROTOCOL
+    print!(r#"CLAN v0.13 AGENT PROTOCOL
 Format: ZIP archive (.clan). Mutate ONLY via CLI.
 
 # READ
