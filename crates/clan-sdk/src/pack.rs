@@ -120,29 +120,18 @@ impl AgentOutput {
 
     /// Validate the output against the declared JSON Schema.
     pub fn validate_schema(&self, schema_json: &str) -> Result<()> {
-        let mut schema: Value = serde_json::from_str(schema_json)
+        let schema: Value = serde_json::from_str(schema_json)
             .map_err(|e| Error::Schema(format!("invalid schema: {e}")))?;
-
-        // Dynamically enforce additionalProperties: false on the 'structured' property
-        if let Some(props) = schema.get_mut("properties").and_then(|p| p.get_mut("structured")) {
-            if let Some(obj) = props.as_object_mut() {
-                // Force strict mode
-                obj.insert("additionalProperties".to_string(), Value::Bool(false));
-                
-                // Whitelist the $schema root property so validation doesn't fail on YAML headers
-                if let Some(structured_props) = obj.get_mut("properties").and_then(|p| p.as_object_mut()) {
-                    structured_props.insert("$schema".to_string(), serde_json::json!({"type": "string"}));
-                }
-            }
-        }
-        let output = serde_json::json!({
-            "mode": self.mode,
-            "structured": self.structured,
-        });
         let compiled = jsonschema::validator_for(&schema)
             .map_err(|e| Error::Schema(format!("could not compile schema: {e}")))?;
+            
+        let mut payload_to_validate = self.structured.clone();
+        if let Some(obj) = payload_to_validate.as_object_mut() {
+            obj.remove("$schema");
+        }
+            
         let errors: Vec<String> = compiled
-            .iter_errors(&output)
+            .iter_errors(&payload_to_validate)
             .map(|e| e.to_string())
             .collect();
         if !errors.is_empty() {

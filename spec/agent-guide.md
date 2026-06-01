@@ -25,7 +25,7 @@ CLAN (Context and Live Agent Notation) is a file format for passing structured c
 A **single JSON object** matching `agent/output-schema.json` exactly.
 
 - Return only the JSON object — no markdown wrapper, no explanation, no preamble
-- **STRICT SCHEMA ENFORCEMENT**: The SDK physically enforces JSON Schema validation with `additionalProperties: false`. If you change the structural shape of `shared/data.yaml` (e.g., adding a new `servers` array) without the schema contract being updated first, **the CLI will hard-reject your patch** to prevent UI breakage.
+- **STRICT SCHEMA ENFORCEMENT**: The SDK physically enforces JSON Schema validation. If you change the structural shape of `shared/data.yaml` (e.g., changing a field from an object to an array) without the schema contract being updated first, **the CLI will hard-reject your patch** to prevent UI breakage.
 - **SCHEMA MIGRATIONS**: If your task requires completely restructuring the file's purpose (e.g., turning an Ad Brief into a Client Deck), you MUST first update the schema using `clan patch-schema <file> <new_schema.json>`, or pass `--schema` to `clan pack`.
 - You do not write files, create ZIPs, or manage document structure
 

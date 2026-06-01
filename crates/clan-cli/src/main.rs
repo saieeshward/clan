@@ -490,7 +490,7 @@ fn cmd_edit(file: PathBuf) -> Result<()> {
 }
 
 fn cmd_agent_help() {
-    print!(r#"CLAN v{version} AGENT PROTOCOL
+    print!(r#"CLAN v0.12 AGENT PROTOCOL
 Format: ZIP archive (.clan). Mutate ONLY via CLI.
 
 # READ
@@ -500,11 +500,12 @@ clan info <file>          => Manifest/lineage
 
 # WRITE (Full Replace)
 1. JSON Mode: clan pack --output <out> [--schema <schema>] <in> <json_file>
-Schema:
+API Input Wrapper:
 {{"mode":"full-html","structured":{{...}},"human":{{"html":"...","css":"...","assets":{{"img.png":"..."}}}},"decision":{{"agent":"X","action":"Y","rationale":"Z"}}}}
+*(Note: output-schema.json ONLY validates the 'structured' payload object, not this API wrapper)*
 
 2. HTML Mode (Token-efficient): clan pack-html --output <out> [--schema <schema>] <in> <html_file>
-Schema:
+API Input Wrapper:
 ---
 structured: {{...}}
 decision: {{agent: X, action: Y, rationale: Z}}
@@ -531,7 +532,7 @@ patch_action: "append" | "replace" | "prepend"
 
 # VERIFY
 clan validate <file>
-"#, version = env!("CARGO_PKG_VERSION"));
+"#);
 }
 
 fn open(path: &PathBuf) -> Result<ClanFile> {

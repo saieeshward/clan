@@ -967,7 +967,7 @@ A CLAN file is **valid** if and only if:
 A CLAN file is **content-valid** if additionally:
 
 - [ ] `shared/data.yaml` validates against its declared `$schema`
-- [ ] **Strict Contract:** `shared/data.yaml` strictly conforms to the JSON Schema defined in `agent/output-schema.json`. (CLI mutation commands dynamically enforce `additionalProperties: false` to reject uncontracted drift. Intentional migrations must update the schema using `patch-schema` or `--schema` override).
+- [ ] **Strict Contract:** `shared/data.yaml` strictly conforms to the JSON Schema defined in `agent/output-schema.json`. (CLI mutation commands enforce this and will reject invalid data patches. The schema describes the data payload ONLY, not the CLI wrappers).
 - [ ] `human/index.html` (if present) contains no `<script>` tags
 - [ ] `human/index.html` (if present) contains no `<html>`, `<head>`, or `<body>` tags
 - [ ] `human/patches.yaml` (if present) — all `id` values are non-empty strings
