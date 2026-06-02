@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Paylane — Investment Committee Memo</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,900;1,400&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#07070e;--s1:#0f0f18;--s2:#161622;--bd:#232333;
+  --acc:#7c3aed;--acc2:#06b6d4;--acc3:#f59e0b;
+  --gr:#10b981;--rd:#ef4444;--am:#f59e0b;
+  --t1:#efeffc;--t2:#9898bc;--t3:#525270;
+  --radius:12px;
+}
+body{background:var(--bg);color:var(--t1);font-family:'Inter',sans-serif;font-size:15px;line-height:1.65;min-height:100vh}
+.page{max-width:960px;margin:0 auto;padding:48px 24px 80px}
+
+/* ── Header ── */
+.doc-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:48px;padding-bottom:24px;border-bottom:1px solid var(--bd);flex-wrap:wrap;gap:16px}
+.doc-meta{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--t3)}
+.doc-meta span{color:var(--t2)}
+.confidential{display:inline-flex;align-items:center;gap:6px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);border-radius:20px;padding:3px 12px;font-size:10px;font-weight:700;letter-spacing:.1em;color:#f87171;text-transform:uppercase}
+
+/* ── Title ── */
+.hero{margin-bottom:40px}
+.hero-label{font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--t3);margin-bottom:10px}
+h1{font-size:44px;font-weight:900;letter-spacing:-.025em;line-height:1.05;margin-bottom:12px;background:linear-gradient(135deg,#efeffc 30%,#a78bfa 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-desc{font-size:16px;color:var(--t2);max-width:600px;line-height:1.7}
+
+/* ── Verdict ── */
+.verdict-card{background:linear-gradient(135deg,rgba(124,58,237,.12),rgba(6,182,212,.06));border:1px solid rgba(124,58,237,.3);border-radius:16px;padding:28px 32px;display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center;margin-bottom:48px;flex-wrap:wrap}
+.vc-left{}
+.vc-tag{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--t3);margin-bottom:8px}
+.vc-verdict{font-size:28px;font-weight:800;color:var(--am);letter-spacing:-.01em;margin-bottom:8px}
+.vc-rationale{font-size:14px;color:var(--t2);max-width:560px;line-height:1.6}
+.vc-score{text-align:center}
+.vc-score-num{font-size:60px;font-weight:900;line-height:1;background:linear-gradient(180deg,#fbbf24,#f59e0b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.vc-score-label{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--t3);margin-top:4px}
+
+/* ── KPIs ── */
+.kpi-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:48px}
+.kpi{background:var(--s1);border:1px solid var(--bd);border-radius:var(--radius);padding:18px 16px;position:relative;overflow:hidden;transition:border-color .2s}
+.kpi:hover{border-color:rgba(124,58,237,.4)}
+.kpi::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px}
+.kpi.green::after{background:var(--gr)}
+.kpi.amber::after{background:var(--am)}
+.kpi.purple::after{background:var(--acc)}
+.kpi.cyan::after{background:var(--acc2)}
+.kpi-label{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--t3);margin-bottom:6px}
+.kpi-val{font-size:24px;font-weight:700;letter-spacing:-.02em;margin-bottom:2px}
+.kpi-sub{font-size:11px;color:var(--t3)}
+.val-green{color:var(--gr)}
+.val-amber{color:var(--am)}
+
+/* ── Sections ── */
+.section{margin-bottom:44px}
+.section-header{display:flex;align-items:center;gap:12px;margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid var(--bd)}
+.section-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.icon-risk{background:rgba(239,68,68,.1)}
+.icon-opp{background:rgba(16,185,129,.1)}
+.icon-check{background:rgba(124,58,237,.1)}
+.icon-exec{background:rgba(245,158,11,.1)}
+.section-title{font-size:17px;font-weight:700}
+
+/* ── Risk table ── */
+.risk-rows{display:flex;flex-direction:column;gap:10px}
+.risk-row{background:var(--s1);border:1px solid var(--bd);border-radius:10px;padding:16px 20px;display:grid;grid-template-columns:auto auto 1fr;gap:12px 16px;align-items:start}
+.risk-id{font-size:11px;font-weight:700;color:var(--t3);font-family:'JetBrains Mono',monospace;padding-top:2px}
+.sev{padding:3px 9px;border-radius:5px;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap}
+.sev-h{background:rgba(239,68,68,.15);color:#f87171}
+.sev-m{background:rgba(245,158,11,.12);color:#fbbf24}
+.sev-l{background:rgba(16,185,129,.1);color:#34d399}
+.risk-content .risk-title{font-size:14px;font-weight:600;margin-bottom:4px}
+.risk-content .risk-body{font-size:13px;color:var(--t2);line-height:1.55;margin-bottom:6px}
+.risk-content .risk-action{font-size:12px;color:var(--acc2);background:rgba(6,182,212,.07);border-left:2px solid var(--acc2);padding:5px 10px;border-radius:0 5px 5px 0}
+
+/* ── Opportunity grid ── */
+.opp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+.opp{background:var(--s1);border:1px solid var(--bd);border-top:3px solid var(--gr);border-radius:10px;padding:18px}
+.opp-score{font-size:32px;font-weight:900;color:var(--gr);margin-bottom:6px;line-height:1}
+.opp-title{font-size:13px;font-weight:600;margin-bottom:6px}
+.opp-body{font-size:12px;color:var(--t2);line-height:1.5}
+
+/* ── Checklist ── */
+.check-list{display:flex;flex-direction:column;gap:8px}
+.check-item{background:var(--s1);border:1px solid var(--bd);border-radius:8px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:13px;color:var(--t2)}
+.status-badge{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:3px 8px;border-radius:4px;white-space:nowrap}
+.s-missing{background:rgba(239,68,68,.12);color:#f87171}
+.s-pending{background:rgba(245,158,11,.12);color:#fbbf24}
+
+/* ── Exec summary ── */
+.exec-box{background:var(--s1);border:1px solid var(--bd);border-radius:var(--radius);padding:24px 28px}
+.exec-text{font-size:15px;color:var(--t2);line-height:1.75}
+.exec-text strong{color:var(--t1)}
+
+/* ── Footer ── */
+.doc-footer{margin-top:60px;padding-top:20px;border-top:1px solid var(--bd);display:flex;justify-content:space-between;font-size:11px;color:var(--t3);flex-wrap:wrap;gap:8px}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Header -->
+  <div class="doc-header">
+    <div>
+      <div class="doc-meta">Investment Committee Memo · <span>1 June 2026</span></div>
+      <div class="doc-meta" style="margin-top:4px">Prepared by: 3-Agent CLAN Pipeline · <span>v3 — Final Deliverable</span></div>
+    </div>
+    <div class="confidential">🔒 Strictly Confidential</div>
+  </div>
+
+  <!-- Title -->
+  <div class="hero">
+    <div class="hero-label">Due Diligence Report · Series A</div>
+    <h1 data-adf-id="memo-title">Paylane Technologies</h1>
+    <p class="hero-desc" data-adf-id="memo-desc">Irish B2B embedded payments infrastructure. €8M raise at €32M pre-money. This memo synthesises a 3-agent due diligence pipeline covering primary research, risk scoring, and investment recommendation.</p>
+  </div>
+
+  <!-- Verdict -->
+  <div class="verdict-card">
+    <div class="vc-left">
+      <div class="vc-tag">Investment Committee Verdict</div>
+      <div class="vc-verdict" data-adf-id="ic-verdict">⚠ CONDITIONAL PROCEED</div>
+      <p class="vc-rationale" data-adf-id="ic-rationale">Strong product-market fit, exceptional NRR, and a genuine regulatory moat — but two blocking issues must be resolved before close: the 11-month runway cliff and a 26.7× ARR multiple that is 50–80% above Irish B2B SaaS comps. Do not proceed at current valuation without a milestone ratchet.</p>
+    <div class="patched-note" style="border: 1px dashed #06b6d4; padding: 12px; border-radius: 8px; font-size: 13px; color: #9898bc; margin-top: 16px;">
+  <strong>Human Partner Override:</strong> Valuation ratchet amendment added. Pre-money capped at €28M unless Q3 customer migration target is fully met.
+</div>
+</div>
+    <div class="vc-score">
+      <div class="vc-score-num">72</div>
+      <div class="vc-score-label">Risk Score / 100</div>
+    </div>
+  </div>
+
+  <!-- KPIs -->
+  <div class="kpi-strip">
+    <div class="kpi green"><div class="kpi-label">ARR</div><div class="kpi-val val-green">€1.2M</div><div class="kpi-sub">+210% YoY</div></div>
+    <div class="kpi green"><div class="kpi-label">Gross Margin</div><div class="kpi-val val-green">68%</div><div class="kpi-sub">SaaS-grade</div></div>
+    <div class="kpi amber"><div class="kpi-label">Runway</div><div class="kpi-val val-amber">11 mo</div><div class="kpi-sub">€280k/mo burn</div></div>
+    <div class="kpi green"><div class="kpi-label">NRR</div><div class="kpi-val val-green">118%</div><div class="kpi-sub">Net expansion</div></div>
+    <div class="kpi green"><div class="kpi-label">LTV/CAC</div><div class="kpi-val val-green">12.4×</div><div class="kpi-sub">CAC €4.2k</div></div>
+    <div class="kpi purple"><div class="kpi-label">ARR Multiple</div><div class="kpi-val val-amber">26.7×</div><div class="kpi-sub">Comps: 15–18×</div></div>
+  </div>
+
+  <!-- Executive Summary -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon icon-exec">📝</div>
+      <div class="section-title">Executive Summary</div>
+    </div>
+    <div class="exec-box">
+      <p class="exec-text" data-adf-id="exec-summary">
+        <strong>Paylane Technologies</strong> is building the payments infrastructure layer for Irish and UK SMEs that the incumbents have left underserved. Their core insight — that Irish VAT reconciliation, Revenue Commissioners API integration, and real-time FX hedging at sub-€1,000 minimums are genuinely unsolved for the SME segment — is validated by <strong>87 paying customers, €1.2M ARR, and 118% NRR</strong>. The founding team carries direct, relevant pedigree: the CEO built SME payments at Stripe; the CTO ran the FX settlement engine at Wise.
+        <br><br>
+        The business has two genuine moats: the <strong>Revenue Commissioners API pilot</strong> (first-to-market, regulatory lag of 18–24 months for competitors) and the <strong>bank distribution flywheel</strong> via AIB and Bank of Ireland SME networks. A PSD2-native architecture means EU expansion requires sales headcount, not re-engineering.
+        <br><br>
+        The committee's conditional stance reflects two blocking issues: a <strong>runway cliff</strong> that leaves the company exposed to bridge risk during a 6–9 month raise process, and a <strong>valuation premium</strong> of 50–80% above comparable Irish B2B SaaS Series A deals in 2024. Neither is fatal — but both require resolution at term sheet stage.
+      </p>
+    </div>
+  </div>
+
+  <!-- Risk Register -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon icon-risk">⚠️</div>
+      <div class="section-title">Risk Register</div>
+    </div>
+    <div class="risk-rows">
+      <div class="risk-row">
+        <div class="risk-id">R1</div>
+        <div><span class="sev sev-h">HIGH</span></div>
+        <div class="risk-content">
+          <div class="risk-title" data-adf-id="r1-title">Runway Cliff — 11 Months</div>
+          <div class="risk-body">At €280k/mo burn, 11 months runway leaves almost no buffer against a 6–9 month Series A close process. Any extension risks a punishing bridge round.</div>
+          <div class="risk-action">→ Require 3-month burn reduction plan and confirmed bridge capacity before signing term sheet.</div>
+        </div>
+      </div>
+      <div class="risk-row">
+        <div class="risk-id">R2</div>
+        <div><span class="sev sev-h">HIGH</span></div>
+        <div class="risk-content">
+          <div class="risk-title">Valuation Premium — 26.7× ARR</div>
+          <div class="risk-body">Irish B2B SaaS comps (2024) average 15–18× ARR at Series A. Paylane is priced at a 50–80% premium with no public justification in the materials.</div>
+          <div class="risk-action">→ Counter at €24–26M pre-money or negotiate 12-month ARR milestone ratchet clause.</div>
+        </div>
+      </div>
+      <div class="risk-row">
+        <div class="risk-id">R3</div>
+        <div><span class="sev sev-m">MED</span></div>
+        <div class="risk-content">
+          <div class="risk-title">Stripe Localisation Counter-Move</div>
+          <div class="risk-body">Stripe is investing in EU localisation. Irish VAT reconciliation could be replicated within 12–18 months, eroding the primary product moat.</div>
+          <div class="risk-action">→ Assess depth of Revenue Commissioners API exclusivity and reconciliation engine IP protection.</div>
+        </div>
+      </div>
+      <div class="risk-row">
+        <div class="risk-id">R4</div>
+        <div><span class="sev sev-m">MED</span></div>
+        <div class="risk-content">
+          <div class="risk-title">PI Licence / CBI Regulatory Status</div>
+          <div class="risk-body">Payment facilitator operations require a Central Bank of Ireland PI licence. Current licensing status not confirmed — e-money agent arrangement creates counterparty risk.</div>
+          <div class="risk-action">→ Require CBI correspondence and PI licence application status before close.</div>
+        </div>
+      </div>
+      <div class="risk-row">
+        <div class="risk-id">R5</div>
+        <div><span class="sev sev-l">LOW</span></div>
+        <div class="risk-content">
+          <div class="risk-title">Customer Concentration</div>
+          <div class="risk-body">Musgrave and Cairn Homes are still pilots — not contracted ARR. Top 5 customers likely represent 35–40% of revenue.</div>
+          <div class="risk-action">→ Request top-10 revenue breakdown and pilot-to-contract conversion rate.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Opportunities -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon icon-opp">🟢</div>
+      <div class="section-title">Opportunity Map</div>
+    </div>
+    <div class="opp-grid">
+      <div class="opp">
+        <div class="opp-score">9/10</div>
+        <div class="opp-title" data-adf-id="opp1-title">Revenue Commissioners API Moat</div>
+        <div class="opp-body">First-mover on RCi integration. Competitors face 18–24 month regulatory lag to replicate.</div>
+      </div>
+      <div class="opp">
+        <div class="opp-score">8/10</div>
+        <div class="opp-title">NRR 118% — Land &amp; Expand</div>
+        <div class="opp-body">Exceptional for B2B fintech. If this holds at scale, capital efficiency will be class-leading.</div>
+      </div>
+      <div class="opp">
+        <div class="opp-score">7/10</div>
+        <div class="opp-title">EU Expansion Ready</div>
+        <div class="opp-body">PSD2-native architecture means Germany/Netherlands expansion needs sales headcount only — not re-engineering.</div>
+      </div>
+      <div class="opp">
+        <div class="opp-score">7/10</div>
+        <div class="opp-title">Bank Distribution Flywheel</div>
+        <div class="opp-body">AIB + BoI SME network = warm access to 120k+ Irish SMEs. Comparable plays produced 10× CAC improvement.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Open Diligence -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon icon-check">📋</div>
+      <div class="section-title">Open Diligence — 8 Items</div>
+    </div>
+    <div class="check-list">
+      <div class="check-item"><span>Audited management accounts (last 12 months)</span><span class="status-badge s-missing">Missing</span></div>
+      <div class="check-item"><span>CBI PI licence / e-money agent agreement</span><span class="status-badge s-missing">Missing</span></div>
+      <div class="check-item"><span>Top-10 customer revenue breakdown + signed contracts</span><span class="status-badge s-missing">Missing</span></div>
+      <div class="check-item"><span>Revenue Commissioners API agreement terms</span><span class="status-badge s-missing">Missing</span></div>
+      <div class="check-item"><span>Cap table (pre/post Series A)</span><span class="status-badge s-missing">Missing</span></div>
+      <div class="check-item"><span>Stripe dashboard read-only access for ARR verification</span><span class="status-badge s-missing">Missing</span></div>
+      <div class="check-item"><span>Technical architecture review — reconciliation engine IP</span><span class="status-badge s-missing">Missing</span></div>
+      <div class="check-item"><span>Reference calls: CEO (Stripe), CTO (Wise)</span><span class="status-badge s-pending">Pending</span></div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="doc-footer">
+    <span>Paylane Technologies · Series A Due Diligence · Investment Committee Memo</span>
+    <span>Confidential — Not for distribution · Generated via CLAN 3-agent pipeline</span>
+  </div>
+
+</div>
+</body>
+</html>

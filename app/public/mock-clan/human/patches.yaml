@@ -1,0 +1,12 @@
+patches:
+- id: .vc-left
+  content: |
+    <div class="patched-note" style="border: 1px dashed #06b6d4; padding: 12px; border-radius: 8px; font-size: 13px; color: #9898bc; margin-top: 16px;">
+      <strong>Human Partner Override:</strong> Valuation ratchet amendment added. Pre-money capped at €28M unless Q3 customer migration target is fully met.
+    </div>
+  edited_at: 2026-06-01T15:37:30.824240+00:00
+  edited_by: human
+- id: memo-title
+  content: Paylane Technologies
+  edited_at: 2026-06-01T15:41:34.540535+00:00
+  edited_by: human

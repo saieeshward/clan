@@ -1,0 +1,45 @@
+decisions:
+- agent: Human Partner
+  action: Applied valuation ratchet amendment
+  rationale: 'Approved transaction conditionally on valuation ratchet: max €28M pre-money cap unless 90% customer migration target is achieved by 2026-Q3.'
+  timestamp: 2026-06-01T15:37:30.822037+00:00
+  pinned: true
+- agent: Agent 3 — Investment Writer
+  action: Produced final board-ready investment memo
+  rationale: 'Synthesised Agent 1 research and Agent 2 risk analysis into a polished board memo. Executive summary, verdict card, KPI snapshot, risk register summary, opportunity highlights, and open diligence checklist. Full dark premium design with colour-coded verdict system. Pinned: this is the final deliverable.'
+  timestamp: 2026-06-01T15:37:01.931121+00:00
+  fields_changed:
+  - arr_eur
+  - company_name
+  - pre_money_eur
+  - raise_eur
+  - risk_score
+  - verdict
+  pinned: true
+- agent: Agent 2 — Risk Analyst
+  action: Risk scoring and opportunity mapping complete
+  rationale: 'Identified 2 HIGH risks (runway cliff at 11mo, 26.7x ARR multiple), 2 MEDIUM (Stripe competition moat erosion, PI licence ambiguity), 1 LOW (customer concentration). Mapped 4 opportunities (9/10 RC API moat, 8/10 NRR 118%). Overall score: 72/100. Verdict: CONDITIONAL PROCEED — do not close at current valuation without milestone ratchet. 8 open diligence items catalogued. Handoff to Agent 3 for final board memo.'
+  timestamp: 2026-06-01T15:30:49.770618+00:00
+  fields_changed:
+  - $schema
+  - company
+  - competitors
+  - differentiators
+  - financials
+  - market
+  - risk_analysis
+  - team
+  - traction
+- agent: Agent 1 — Researcher
+  action: Primary research pass complete
+  rationale: 'Structured all available data: ARR €1.2M at 210% YoY, NRR 118%, LTV/CAC 12.4x, team from Stripe/Wise/PwC, €18B TAM at 16% CAGR, 4 competitors mapped with weaknesses, 5 hard differentiators. Key risk flagged: 11-month runway. Full-html rendered with dark premium theme.'
+  timestamp: 2026-06-01T15:28:46.642080+00:00
+  fields_changed:
+  - $schema
+  - company
+  - competitors
+  - differentiators
+  - financials
+  - market
+  - team
+  - traction

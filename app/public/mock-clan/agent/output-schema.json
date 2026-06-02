@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "properties": {
+    "mode": {
+      "enum": [
+        "data-update",
+        "designed",
+        "full-html"
+      ],
+      "type": "string"
+    },
+    "structured": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "mode",
+    "structured"
+  ],
+  "type": "object"
+}

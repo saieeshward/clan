@@ -1,0 +1,146 @@
+$schema: spec/schemas/document.schema.json
+arr_eur: 1200000
+company:
+  employees: 24
+  founded: 2021
+  hq: Dublin, Ireland
+  legal: Paylane Technologies Ltd
+  name: Paylane
+  pre_money_eur: 32000000
+  raise_eur: 8000000
+  sector: B2B Payments Infrastructure
+  stage: Series A
+company_name: Paylane Technologies
+competitors:
+- name: Stripe
+  weakness: No Irish VAT reconciliation; enterprise-only pricing
+- name: GoCardless
+  weakness: No multi-currency; UK-centric
+- name: Fire Financial
+  weakness: Legacy API; no reconciliation engine
+- name: Ebury
+  weakness: High minimums, not SME-friendly
+differentiators:
+- Native Irish VAT reconciliation automation
+- Real-time FX hedging at SME-accessible minimums
+- 5-minute onboarding vs 3-week industry average
+- Open Banking PSD2-native bank matching
+- Revenue Commissioners API integration (live pilot)
+financials:
+  acv_eur: 13800
+  arr_eur: 1200000
+  arr_growth_pct: 210
+  burn_eur: 280000
+  cac_eur: 4200
+  churn_pct: 4.2
+  customers: 87
+  gross_margin_pct: 68
+  ltv_cac: 12.4
+  ltv_eur: 52000
+  mrr_eur: 100000
+  nrr_pct: 118
+  runway_months: 11
+  total_raised_eur: 2500000
+market:
+  cagr_pct: 16.4
+  key_tailwind: PSD2/Open Banking mandates forcing SME digitisation across EU
+  sam_eur: 1200000000
+  tam_eur: 18000000000
+pre_money_eur: 32000000
+raise_eur: 8000000
+risk_analysis:
+  diligence_checklist:
+  - item: Audited management accounts (last 12 months)
+    status: MISSING
+  - item: CBI PI licence application / e-money agent agreement
+    status: MISSING
+  - item: Top-10 customer revenue breakdown + contracts
+    status: MISSING
+  - item: Revenue Commissioners API agreement terms
+    status: MISSING
+  - item: Cap table (pre/post)
+    status: MISSING
+  - item: Stripe dashboard read-only access for ARR verification
+    status: MISSING
+  - item: Technical architecture review — reconciliation engine IP
+    status: MISSING
+  - item: 'Reference calls: CEO Stripe reference, CTO Wise reference'
+    status: PENDING
+  opportunities:
+  - detail: First-mover on Revenue Commissioners integration is a genuine regulatory moat. If API access is exclusive or has high compliance barriers, competitors face 18-24 month lag.
+    id: O1
+    score: 9
+    title: Revenue Commissioners API moat
+  - detail: 118% NRR is exceptional for B2B fintech. Indicates strong product-market fit and natural upsell motion. If this holds at scale, capital efficiency will be class-leading.
+    id: O2
+    score: 8
+    title: NRR 118% — land and expand
+  - detail: PSD2-native architecture means EU expansion (Germany, Netherlands, France) requires primarily sales investment, not re-engineering. €8M raise could fund a 2-country expansion.
+    id: O3
+    score: 7
+    title: EU expansion ready
+  - detail: AIB and BoI SME network partnerships create a warm distribution channel to 120,000+ Irish SMEs. Comparable plays (Xero + banks) have produced 10x CAC improvements.
+    id: O4
+    score: 7
+    title: Bank partnership as distribution
+  overall_score: 72
+  risks:
+  - category: Financial
+    detail: 11 months runway at €280k/mo burn. Series A closes average 6-9 months. Window is dangerously tight — any deal extension risks a bridge round at unfavourable terms.
+    id: R1
+    mitigation: Negotiate bridge or extension now; demand 3-month cut in burn before close.
+    severity: HIGH
+    title: Runway cliff
+  - category: Valuation
+    detail: €32M pre-money on €1.2M ARR = 26.7x. Irish B2B SaaS comps (2024) average 15-18x at Series A. Paylane is asking for a 50-80% premium. Requires strong growth-rate justification.
+    id: R2
+    mitigation: Counter at €24-26M pre-money or request 12-month ARR milestone ratchet.
+    severity: HIGH
+    title: ARR multiple premium
+  - category: Market
+    detail: Stripe is investing heavily in localisation. Irish VAT reconciliation could be replicated by Stripe within 12-18 months, eroding the primary moat.
+    id: R3
+    mitigation: Assess depth of Revenue Commissioners API exclusivity; IP protection on reconciliation engine.
+    severity: MEDIUM
+    title: Stripe counter-move risk
+  - category: Regulatory
+    detail: Operating as payment facilitator requires Central Bank of Ireland PI licence. Current status unclear from materials — operating under an e-money agent arrangement creates counterparty risk.
+    id: R4
+    mitigation: Require confirmation of PI licence application status and CBI correspondence before close.
+    severity: MEDIUM
+    title: PI licence exposure
+  - category: Sales
+    detail: Top 5 customers likely represent 35-40% of ARR. Musgrave and Cairn Homes are still pilots — not contracted ARR.
+    id: R5
+    mitigation: Request top-10 customer revenue breakdown and pilot conversion rates.
+    severity: LOW
+    title: Customer concentration
+  valuation_multiple: 26.7
+  valuation_note: '26.7x ARR is aggressive for Irish B2B SaaS at this stage. Comparable: Stripe 2021 raised at 50x, but Paylane is pre-scale. 20-22x would be more defensible.'
+  verdict: CONDITIONAL PROCEED
+risk_score: 72
+team:
+- background: Ex-Stripe 7yr Senior PM, TCD MSc CS
+  name: Siobhán Farrell
+  role: CEO
+- background: Ex-Wise backend lead, built €2B/day FX settlement
+  name: Darragh O'Brien
+  role: CTO
+- background: Ex-PwC Transaction Services, CFA, UCD Smurfit MBA
+  name: Marcus Hennessy
+  role: CFO
+- background: Ex-Salesforce Ireland, €4M ARR track record
+  name: Priya Nair
+  role: VP Sales
+traction:
+  customers_notable:
+  - Bord na Móna
+  - Applegreen Digital
+  - Musgrave Group (pilot)
+  partnerships:
+  - AIB API Banking Programme
+  - Bank of Ireland SME Network
+  press:
+  - Irish Times Business
+  - Silicon Republic Top 50 Irish Startups 2024
+verdict: CONDITIONAL PROCEED

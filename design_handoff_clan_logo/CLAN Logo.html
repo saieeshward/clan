@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CLAN — Logo System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+<style>
+  html, body { margin: 0; padding: 0; background: #f0eee9; }
+  * { box-sizing: border-box; }
+</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel" src="design-canvas.jsx"></script>
+<script type="text/babel" src="clan-logo.jsx"></script>
+<script type="text/babel">
+const { useState } = React;
+
+// ── shared board helpers ─────────────────────────────────────────────────────
+function Board({ bg, children, pad = 28, style }) {
+  return (
+    <div style={{
+      width: '100%', height: '100%', background: bg,
+      display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+      gap: 18, padding: pad, fontFamily: '"Space Grotesk", system-ui, sans-serif', ...style,
+    }}>{children}</div>
+  );
+}
+const Cap = ({ children, color = '#6b7283' }) => (
+  <div style={{ fontFamily: '"Space Mono", monospace', fontSize: 11, letterSpacing: '0.18em',
+    textTransform: 'uppercase', color }}>{children}</div>
+);
+
+// rounded "squircle" app icon — filled field, knockout mark
+function AppIcon({ size = 64, variant = 'constellation', bg = '#6366f1', live = false }) {
+  return (
+    <div style={{
+      width: size, height: size, borderRadius: size * 0.26, background: bg,
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      boxShadow: '0 1px 2px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.18)', flexShrink: 0,
+    }}>
+      <ClanMark variant={variant} scheme="knockout" size={size * 0.66} live={live} />
+    </div>
+  );
+}
+
+const HERO = 'constellation';
+
+// ── 1 · symbol directions ─────────────────────────────────────────────────────
+function SymbolBoard({ vk }) {
+  const V = VARIANTS[vk];
+  const isHero = vk === HERO;
+  return (
+    <Board bg="#0f1117" style={{ gap: 22 }}>
+      {isHero && (
+        <div style={{ position: 'absolute', top: 16, right: 16, fontFamily: '"Space Mono", monospace',
+          fontSize: 10, letterSpacing: '0.16em', color: '#0f1117', background: '#6366f1',
+          padding: '4px 9px', borderRadius: 20, fontWeight: 700 }}>RECOMMENDED</div>
+      )}
+      <ClanMark variant={vk} scheme="indigoDark" size={150} />
+      <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', gap: 9 }}>
+        <div style={{ fontSize: 20, fontWeight: 600, color: '#eceefb', letterSpacing: '0.01em' }}>{V.label}</div>
+        <div style={{ fontSize: 13, lineHeight: 1.5, color: '#8b91a3', maxWidth: 230, textWrap: 'pretty' }}>{V.blurb}</div>
+      </div>
+    </Board>
+  );
+}
+
+// ── 2 · lockups across schemes ────────────────────────────────────────────────
+function LockupBoard({ scheme, layout = 'horizontal' }) {
+  const S = SCHEMES[scheme];
+  return (
+    <Board bg={S.bg} style={{ gap: 0, position: 'relative' }}>
+      <ClanLockup variant={HERO} scheme={scheme} layout={layout} size={layout === 'stacked' ? 78 : 70} />
+      <div style={{ position: 'absolute', bottom: 14, left: 0, right: 0, textAlign: 'center' }}>
+        <Cap color={S.tag}>{S.label}</Cap>
+      </div>
+    </Board>
+  );
+}
+
+// ── 4 · context mocks ─────────────────────────────────────────────────────────
+function FaviconBoard() {
+  const sizes = [48, 32, 16];
+  return (
+    <Board bg="#0f1117" style={{ gap: 30 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 14, alignItems: 'center' }}>
+        <Cap>App icon · knockout</Cap>
+        <div style={{ display: 'flex', gap: 22, alignItems: 'center' }}>
+          {sizes.map((s) => <AppIcon key={s} size={s} variant={HERO} />)}
+        </div>
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 14, alignItems: 'center' }}>
+        <Cap>Bare mark · on dark</Cap>
+        <div style={{ display: 'flex', gap: 22, alignItems: 'center' }}>
+          {sizes.map((s) => <ClanMark key={s} variant={HERO} scheme="indigoDark" size={s} />)}
+        </div>
+      </div>
+      <Cap color="#4d5363">48 · 32 · 16 px</Cap>
+    </Board>
+  );
+}
+
+function TitlebarBoard() {
+  return (
+    <Board bg="#070910" pad={0} style={{ gap: 0, justifyContent: 'flex-start' }}>
+      {/* window chrome */}
+      <div style={{ width: '100%', height: 44, background: '#141922', borderBottom: '1px solid #1e2d45',
+        display: 'flex', alignItems: 'center', padding: '0 14px', gap: 10 }}>
+        <ClanMark variant={HERO} scheme="indigoDark" size={20} />
+        <span style={{ fontFamily: '"Space Grotesk", sans-serif', fontWeight: 600, fontSize: 13,
+          letterSpacing: '0.14em', color: '#eceefb' }}>CLAN</span>
+        <span style={{ color: '#3a4358' }}>·</span>
+        <span style={{ fontFamily: '"Space Mono", monospace', fontSize: 12, color: '#6b7283' }}>research-report.clan</span>
+        <div style={{ marginLeft: 'auto', display: 'flex', gap: 16, color: '#4d5363' }}>
+          <span style={{ width: 12, height: 2, background: '#4d5363', display: 'block', marginTop: 6 }}></span>
+          <span style={{ width: 11, height: 11, border: '1.5px solid #4d5363', borderRadius: 2 }}></span>
+          <span style={{ fontSize: 14, lineHeight: 1, color: '#6b7283' }}>×</span>
+        </div>
+      </div>
+      {/* toolbar */}
+      <div style={{ width: '100%', height: 40, background: '#0f1117', borderBottom: '1px solid #1e2d45',
+        display: 'flex', alignItems: 'center', padding: '0 14px', gap: 10 }}>
+        {['Open', 'Edit', 'Agent'].map((t) => (
+          <span key={t} style={{ fontFamily: '"Space Grotesk", sans-serif', fontSize: 12, color: '#8b91a3',
+            padding: '5px 10px', borderRadius: 6, background: t === 'Open' ? '#1e2438' : 'transparent' }}>{t}</span>
+        ))}
+        <span style={{ marginLeft: 'auto', fontFamily: '"Space Mono", monospace', fontSize: 10,
+          letterSpacing: '.1em', color: '#4ade80', border: '1px solid #1f3d2a', padding: '3px 8px', borderRadius: 20 }}>✓ VALID</span>
+      </div>
+      <div style={{ flex: 1, width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <Cap color="#2c3344">document canvas</Cap>
+      </div>
+    </Board>
+  );
+}
+
+function ReadmeBoard() {
+  return (
+    <Board bg="#f5f4ef" style={{ alignItems: 'flex-start', gap: 20, justifyContent: 'center' }}>
+      <ClanLockup variant={HERO} scheme="mono" layout="horizontal" size={62} />
+      <div style={{ fontFamily: '"Space Grotesk", sans-serif', fontSize: 15, lineHeight: 1.5,
+        color: '#3a3a36', maxWidth: 440, textWrap: 'pretty' }}>
+        An open container format for passing structured context between AI agents —
+        machine-readable and human-renderable from the same canonical data.
+      </div>
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+        {['Apache-2.0', 'spec v1.0', '.clan', 'Rust + Tauri'].map((b) => (
+          <span key={b} style={{ fontFamily: '"Space Mono", monospace', fontSize: 11, color: '#5b5b54',
+            background: '#e7e5dd', border: '1px solid #d8d6cc', padding: '4px 10px', borderRadius: 5 }}>{b}</span>
+        ))}
+      </div>
+    </Board>
+  );
+}
+
+// ── canvas ────────────────────────────────────────────────────────────────────
+function App() {
+  return (
+    <DesignCanvas>
+      <DCSection id="symbols" title="Symbol directions"
+        subtitle="One idea — a clan of connected nodes — drawn four ways. Pure circles + lines.">
+        {Object.keys(VARIANTS).map((vk) => (
+          <DCArtboard key={vk} id={vk} label={VARIANTS[vk].label} width={300} height={320}
+            style={{ background: '#0f1117' }}>
+            <SymbolBoard vk={vk} />
+          </DCArtboard>
+        ))}
+      </DCSection>
+
+      <DCSection id="lockup" title="Primary lockup"
+        subtitle="The Constellation mark + geometric wordmark, across colour treatments. Tell me which to promote.">
+        <DCArtboard id="lk-indigo" label="Indigo · Dark" width={460} height={190} style={{ background: '#0f1117' }}>
+          <LockupBoard scheme="indigoDark" />
+        </DCArtboard>
+        <DCArtboard id="lk-duo" label="Dual-tone · Dark" width={460} height={190} style={{ background: '#0f1117' }}>
+          <LockupBoard scheme="duoDark" />
+        </DCArtboard>
+        <DCArtboard id="lk-mono" label="Monochrome · Light" width={460} height={190} style={{ background: '#f5f4ef' }}>
+          <LockupBoard scheme="mono" />
+        </DCArtboard>
+        <DCArtboard id="lk-knock" label="Knockout · Indigo" width={460} height={190} style={{ background: '#6366f1' }}>
+          <LockupBoard scheme="knockout" />
+        </DCArtboard>
+        <DCArtboard id="lk-stack" label="Stacked" width={300} height={260} style={{ background: '#0f1117' }}>
+          <LockupBoard scheme="duoDark" layout="stacked" />
+        </DCArtboard>
+      </DCSection>
+
+      <DCSection id="live" title="Live logo"
+        subtitle="The lineage grows in, holds, then recedes — a continuously living mark. A pulse rings from the spine node.">
+        <DCArtboard id="live-lockup" label="Animated lockup" width={520} height={240} style={{ background: '#0f1117' }}>
+          <Board bg="#0f1117"><ClanLockup variant={HERO} scheme="duoDark" size={92} live /></Board>
+        </DCArtboard>
+        <DCArtboard id="live-mark" label="Animated mark" width={320} height={320} style={{ background: '#0f1117' }}>
+          <Board bg="#0f1117"><ClanMark variant={HERO} scheme="duoDark" size={190} live /></Board>
+        </DCArtboard>
+        <DCArtboard id="live-icon" label="Animated app icon" width={240} height={320} style={{ background: '#0f1117' }}>
+          <Board bg="#0f1117" style={{ gap: 18 }}>
+            <AppIcon size={120} variant={HERO} live />
+            <Cap>splash · loading</Cap>
+          </Board>
+        </DCArtboard>
+      </DCSection>
+
+      <DCSection id="context" title="In context"
+        subtitle="Where it has to hold up — favicon sizes, the Tauri window chrome, and the repo header.">
+        <DCArtboard id="ctx-fav" label="Favicon & app icon" width={360} height={300} style={{ background: '#0f1117' }}>
+          <FaviconBoard />
+        </DCArtboard>
+        <DCArtboard id="ctx-title" label="App titlebar" width={480} height={300} style={{ background: '#070910' }}>
+          <TitlebarBoard />
+        </DCArtboard>
+        <DCArtboard id="ctx-readme" label="README header" width={560} height={300} style={{ background: '#f5f4ef' }}>
+          <ReadmeBoard />
+        </DCArtboard>
+      </DCSection>
+    </DesignCanvas>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

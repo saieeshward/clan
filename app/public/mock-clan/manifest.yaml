@@ -1,0 +1,54 @@
+clan_version: 1
+clan_version_minor: 0
+id: b3fa56de-1130-4bcd-b815-296a0274bf90
+title: 'Due Diligence: Paylane — Series A'
+created_at: 2026-06-01T15:27:23.505151+00:00
+updated_at: 2026-06-01T15:37:30.822037+00:00
+document_type: report
+lineage:
+  parent_id: 3633abd0-6b14-465f-8041-c9c3a23f1389
+  parent_uri: file:///unknown/3633abd0-6b14-465f-8041-c9c3a23f1389.clan
+  parent_sha256: sha256:faaeb3eaf4f8d84c9c25ec9acbe5ade3a704a50b0c7607a7bbe56a0e6450abf4
+  delta: 'Human Partner override: added valuation ratchet cap to verdict section'
+files:
+- id: spec-full
+  path: spec/clan.md
+  role: spec-full
+  type: text/markdown
+  sha256: sha256:f118fa1bcccef0139317984dcf16b7e8d0080f571d1dc8a668e056966e5eafd1
+- id: spec-guide
+  path: spec/agent-guide.md
+  role: spec-agent-guide
+  type: text/markdown
+  sha256: sha256:58001df08d310f252739f62c5d5e6bdea0e2e030d05c63811a0d98652af67a66
+- id: canonical-data
+  path: shared/data.yaml
+  role: canonical-data
+  type: application/yaml
+  sha256: sha256:dbaf8939b94eb0cbfb0bfcc1a258ede1b9e3367bd5021ec7597ad6d7ff117762
+- id: agent-context
+  path: agent/context.md
+  role: agent-context
+  type: text/markdown
+  sha256: sha256:34a28dd25ba55f986c543b0fcf676f650e32fedd0de1fcb09f2143f1e288c3e0
+- id: agent-schema
+  path: agent/output-schema.json
+  role: agent-schema
+  type: application/json
+  sha256: sha256:11fc53ff91cef73f4309ed2715c9ee771c0b328d97a1a69faa500781edbf79c2
+- id: agent-state
+  path: agent/state.yaml
+  role: agent-state
+  type: application/yaml
+  sha256: sha256:b898832253719c6d0d4af76a835c947d8711c019141d27590dcd10ee41e1c29a
+- id: agent-chain
+  path: agent/decision-chain.yaml
+  role: agent-chain
+  type: application/yaml
+  sha256: sha256:a1789537ad412a2eaa82861791020dc020e219254cdf8d49bade6ad8a5f41f1d
+- id: human-view
+  path: human/index.html
+  role: human-view
+  type: text/html
+  priority: 1
+  sha256: sha256:f8fd6f09c830ae6276de6467448d1b792a528a0138336e6abdef437249eee19b
