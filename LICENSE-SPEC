@@ -1,0 +1,38 @@
+CLAN Specification License
+Copyright (c) 2026 Sai Eeshwar and Shreyansh Soni (https://github.com/saieeshward, https://github.com/batunii)
+
+The CLAN specification — including the notation format, schema design,
+and all documents describing the CLAN spec — is licensed under the
+Creative Commons Attribution 4.0 International License (CC BY 4.0).
+
+You are free to:
+  - Share: copy and redistribute the material in any medium or format
+  - Adapt: implement, build upon, and extend the specification for any
+    purpose, even commercially
+
+Under the following terms:
+  - Attribution: You must give appropriate credit to Sai Eeshwar and Shreyansh Soni as the
+    original creators of the CLAN specification. You must provide a link
+    to https://github.com/saieeshward/clan and indicate if changes were
+    made. You may do so in any reasonable manner, but not in any way that
+    suggests the licensor endorses you or your use.
+  - No additional restrictions: You may not apply legal terms or
+    technological measures that legally restrict others from doing
+    anything the license permits.
+
+Full legal text: https://creativecommons.org/licenses/by/4.0/legalcode
+
+---
+
+WHAT THIS MEANS IN PRACTICE:
+
+If you implement the CLAN spec in your own tool, SDK, or application,
+you must include a notice such as:
+
+  "This tool implements the CLAN specification, created by Sai Eeshwar and Shreyansh Soni.
+   https://github.com/saieeshward/clan"
+
+You may NOT:
+  - Publish the CLAN specification (or a derivative of it) without
+    crediting Sai Eeshwar and Shreyansh Soni as the original authors.
+  - Imply that Sai Eeshwar or Shreyansh Soni endorse your product or implementation.

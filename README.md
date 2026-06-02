@@ -43,8 +43,14 @@ In the future, if a platform natively supports the CLAN format (or if you are us
 | **Self-describing** | Every CLAN contains its own spec. Any agent can understand and produce CLAN without prior training. |
 | **Dual-audience** | Agents read structured YAML/JSON. Humans see rendered HTML. Same data, no duplication. |
 | **Living lineage** | Every CLAN references its parent. The full document history is reconstructable. |
-| **Open** | Format spec and SDK are Apache 2.0. Anyone can implement CLAN. |
+| **Open** | Format spec and SDK are licensed under Mozilla Public License 2.0. Anyone can implement CLAN. |
 | **Compact** | Typical CLAN file: 10–60KB. Rich document with charts: 100–500KB. |
+
+---
+
+## Maintainers
+
+Maintained and owned by Sai Eeshwar (https://github.com/saieeshward) and Shreyansh Soni (https://github.com/batunii).
 
 ---
 
