@@ -1,4 +1,6 @@
 .DS_Store
+.agents/
+.claude/
 *.clan.bak
 *.tmp
 .env
