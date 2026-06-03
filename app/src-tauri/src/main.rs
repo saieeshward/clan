@@ -307,8 +307,22 @@ fn find_closing_tag(html: &str, from: usize, tag: &str) -> Option<usize> {
                 .then_some(pos + rel)
         });
 
-        // Find the next closing tag.
-        let next_close = slice.find(close_pat.as_str()).map(|rel| pos + rel);
+        // Find the next closing tag — require a word boundary after the name
+        // so "</td" doesn't match "</tbody>" or "</th" match "</thead>".
+        let next_close = {
+            let mut found = None;
+            let mut search_from = 0;
+            while let Some(rel) = slice[search_from..].find(close_pat.as_str()) {
+                let abs = pos + search_from + rel;
+                let after = abs + close_pat.len();
+                if matches!(lower.as_bytes().get(after), Some(b'>' | b' ' | b'\t' | b'\n' | b'\r') | None) {
+                    found = Some(abs);
+                    break;
+                }
+                search_from += rel + 1;
+            }
+            found
+        };
 
         match (next_open, next_close) {
             (Some(o), Some(c)) if o < c => {
@@ -344,14 +358,35 @@ fn inject_ids_for_tag(html: &str, tag: &str) -> String {
     let mut pos = 0;
     let mut count = 0usize;
     let open = format!("<{}", tag);
+    let lower = html.to_lowercase();
 
     while pos < html.len() {
+        // Skip over <script>...</script> blocks — injecting IDs into JS template
+        // literals creates duplicate data-adf-id values across all generated rows.
+        if lower[pos..].starts_with("<script") {
+            let end = lower[pos..].find("</script>")
+                .map(|r| pos + r + "</script>".len())
+                .unwrap_or(html.len());
+            out.push_str(&html[pos..end]);
+            pos = end;
+            continue;
+        }
+
         let Some(rel) = html[pos..].find(open.as_str()) else {
             out.push_str(&html[pos..]);
             break;
         };
         let tag_start = pos + rel;
         let after_name = tag_start + open.len();
+
+        // If the match is inside a <script> block, skip to after the block.
+        if lower[..tag_start].rfind("<script").map_or(false, |s| {
+            lower[s..tag_start].find("</script>").is_none()
+        }) {
+            out.push_str(&html[pos..after_name]);
+            pos = after_name;
+            continue;
+        }
 
         // Verify next char is a tag boundary, not part of a longer tag name (e.g. <pre> vs <p>).
         let next = html.as_bytes().get(after_name).copied().unwrap_or(0);
