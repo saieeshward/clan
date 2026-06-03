@@ -1,5 +1,9 @@
 <p align="center">
-  <img src="design/assets/clan-mark.svg" width="72" height="72" alt="CLAN mark" />
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="design/assets/clan-lockup-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="design/assets/clan-lockup-light.svg">
+    <img src="design/assets/clan-lockup-light.svg" height="72" alt="CLAN logo" />
+  </picture>
 </p>
 
 # CLAN — Context and Live Agent Notation
