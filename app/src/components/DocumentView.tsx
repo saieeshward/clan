@@ -19,6 +19,7 @@ interface Props {
 // Makes elements with data-adf-id contenteditable and sends postMessage on blur.
 const EDIT_BRIDGE = `
 (function() {
+  var clanScheme = window.navigator.userAgent.includes('Mac') || window.navigator.userAgent.includes('iP') ? 'clan://localhost' : 'http://clan.localhost';
   if (window.__clan_bridge_listening) return;
   window.__clan_bridge_listening = true;
 
@@ -65,7 +66,8 @@ const EDIT_BRIDGE = `
         el.removeAttribute('contenteditable');
         var id = el.getAttribute('data-adf-id');
         var content = el.innerHTML;
-        fetch('clan://patch', {
+        // Bypass postMessage entirely using our custom HTTP protocol
+        fetch(clanScheme + '/patch', {
           method: 'POST',
           body: JSON.stringify({ id: id, content: content })
         }).catch(function(err) { console.error('Patch failed:', err); });
@@ -92,6 +94,7 @@ const EDIT_BRIDGE = `
   setInterval(function() {
     injectMissingIds();
     fetch('clan://edit-mode')
+    fetch(clanScheme + '/edit-mode')
       .then(function(res) { return res.text(); })
       .then(function(text) {
         var active = text === 'true';
@@ -185,8 +188,9 @@ export default function DocumentView({ htmlContent, hasHumanView, manifest, edit
 </html>`
     }
 
+    const clanScheme = window.navigator.userAgent.includes('Mac') || window.navigator.userAgent.includes('iP') ? 'clan://localhost' : 'http://clan.localhost';
     invoke('update_preview_html', { html: fullHtml }).then(() => {
-      setIframeSrc('clan://document?t=' + Date.now())
+      setIframeSrc(clanScheme + '/document?t=' + Date.now())
     }).catch(console.error)
   }, [htmlContent, hasHumanView])
 
