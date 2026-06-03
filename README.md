@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="design/assets/clan-mark.svg" width="72" height="72" alt="CLAN mark" />
+</p>
+
 # CLAN — Context and Live Agent Notation
 
 > Pronounced **"clan"** — like a clan, every file carries shared lineage connecting it to every document that came before it.
@@ -83,13 +87,11 @@ my-document.clan          ← ZIP container (DEFLATE)
 
 | Document | Description |
 |---|---|
-| [CLAN-SPEC.md](CLAN-SPEC.md) | Full format specification |
-| [ARCHITECTURE.html](ARCHITECTURE.html) | System architecture diagrams |
-| [SEQUENCE-DIAGRAMS.md](SEQUENCE-DIAGRAMS.md) | All key interaction flows |
-| [LICENSE-GUIDANCE.md](LICENSE-GUIDANCE.md) | Licensing strategy |
-| [PATENT-GUIDANCE.md](PATENT-GUIDANCE.md) | Defensive publication and patent strategy |
+| [spec/CLAN-SPEC.md](spec/CLAN-SPEC.md) | Full format specification |
+| [spec/SEQUENCE-DIAGRAMS.md](spec/SEQUENCE-DIAGRAMS.md) | All key interaction flows |
 | [spec/clan.md](spec/clan.md) | Embedded spec (travels inside every .clan file) |
 | [spec/agent-guide.md](spec/agent-guide.md) | Agent injection guide (travels inside every .clan file) |
+| [design/](design/) | Logo assets and design handoff files |
 
 ---
 
