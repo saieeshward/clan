@@ -66,7 +66,6 @@ const EDIT_BRIDGE = `
         el.removeAttribute('contenteditable');
         var id = el.getAttribute('data-adf-id');
         var content = el.innerHTML;
-        // Bypass postMessage entirely using our custom HTTP protocol
         fetch(clanScheme + '/patch', {
           method: 'POST',
           body: JSON.stringify({ id: id, content: content })
@@ -93,7 +92,6 @@ const EDIT_BRIDGE = `
   // Poll for edit mode and inject IDs into any newly-rendered dynamic elements.
   setInterval(function() {
     injectMissingIds();
-    fetch('clan://edit-mode')
     fetch(clanScheme + '/edit-mode')
       .then(function(res) { return res.text(); })
       .then(function(text) {
