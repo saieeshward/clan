@@ -7,7 +7,7 @@
 use std::path::PathBuf;
 use std::sync::Mutex;
 
-use clan_sdk::{apply_patch_and_repack, validate, ClanFile};
+use clan_sdk::{apply_patch_and_repack, validate, ClanBuilder, ClanFile};
 use serde::{Deserialize, Serialize};
 use tauri::{State, Manager, Emitter};
 
@@ -428,6 +428,49 @@ fn update_preview_html(html: String, state: State<AppState>) {
     *state.preview_html.lock().unwrap() = html;
 }
 
+fn strip_scripts(html: &str) -> String {
+    let lower = html.to_lowercase();
+    let mut result = String::with_capacity(html.len());
+    let mut pos = 0;
+    loop {
+        match lower[pos..].find("<script") {
+            None => { result.push_str(&html[pos..]); break; }
+            Some(rel) => {
+                result.push_str(&html[pos..pos + rel]);
+                let after_open = pos + rel;
+                match lower[after_open..].find("</script>") {
+                    None => break,
+                    Some(end_rel) => { pos = after_open + end_rel + "</script>".len(); }
+                }
+            }
+        }
+    }
+    result
+}
+
+fn do_snapshot(rendered_html: String, state: &AppState) -> Result<(), String> {
+    let clean = strip_scripts(&rendered_html);
+    log(&format!("snapshot: stripped len={}", clean.len()));
+
+    let mut guard = state.current.lock().unwrap();
+    let loaded = guard.as_mut().ok_or("no file open")?;
+
+    let mut builder = ClanBuilder::new(loaded.clan.manifest().clone());
+    for path in loaded.clan.entry_paths().map_err(|e| e.to_string())? {
+        if path == "manifest.yaml" || path == "human/index.html" { continue; }
+        if let Ok(bytes) = loaded.clan.read_entry(&path) {
+            builder.add_entry(path, bytes);
+        }
+    }
+    builder.add_entry("human/index.html", clean.into_bytes());
+    let new_bytes = builder.build().map_err(|e| e.to_string())?;
+    std::fs::write(&loaded.path, &new_bytes).map_err(|e| e.to_string())?;
+    loaded.raw_bytes = new_bytes.clone();
+    loaded.clan = ClanFile::from_bytes(new_bytes).map_err(|e| e.to_string())?;
+    log("snapshot: written to human/index.html");
+    Ok(())
+}
+
 fn do_save_patch(id: String, content: String, state: &AppState) -> Result<(), String> {
     log(&format!("save_patch: id={id:?} content={:?}…", &content[..content.len().min(80)]));
 
@@ -438,7 +481,6 @@ fn do_save_patch(id: String, content: String, state: &AppState) -> Result<(), St
         .map_err(|e| e.to_string())?;
 
     std::fs::write(&loaded.path, &new_bytes).map_err(|e| e.to_string())?;
-
     loaded.raw_bytes = new_bytes.clone();
     loaded.clan = ClanFile::from_bytes(new_bytes).map_err(|e| e.to_string())?;
 
@@ -472,6 +514,15 @@ fn main() {
                     .header("Access-Control-Allow-Origin", "*")
                     .status(200)
                     .body(html.into_bytes())
+                    .unwrap()
+            } else if uri.contains("snapshot") {
+                if let Ok(html) = String::from_utf8(request.body().clone()) {
+                    let _ = do_snapshot(html, &*state);
+                }
+                tauri::http::Response::builder()
+                    .header("Access-Control-Allow-Origin", "*")
+                    .status(200)
+                    .body(Vec::new())
                     .unwrap()
             } else if uri.contains("patch") {
                 if let Ok(body_str) = String::from_utf8(request.body().clone()) {

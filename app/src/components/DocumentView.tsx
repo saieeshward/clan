@@ -44,40 +44,41 @@ const EDIT_BRIDGE = `
 
   function activateEditing() {
     document.querySelectorAll('[data-adf-id]').forEach(function(el) {
-      if (el.dataset.clanEditSetup) return;
-      el.dataset.clanEditSetup = 'true';
-      var originalOutline = el.style.outline;
-      var originalCursor = el.style.cursor;
-      el.dataset.origOutline = originalOutline || '';
-      el.dataset.origCursor = originalCursor || '';
+      if (!el.dataset.clanEditSetup) {
+        // Save originals BEFORE applying any styles, then register listeners once.
+        el.dataset.clanEditSetup = 'true';
+        el.dataset.origOutline = el.style.outline || '';
+        el.dataset.origCursor = el.style.cursor || '';
+
+        el.addEventListener('click', function(e) {
+          if (!window.__clan_edit_mode) return;
+          e.preventDefault();
+          e.stopPropagation();
+          el.setAttribute('contenteditable', 'true');
+          el.focus();
+        });
+
+        el.addEventListener('blur', function() {
+          if (!window.__clan_edit_mode) return;
+          el.removeAttribute('contenteditable');
+          var id = el.getAttribute('data-adf-id');
+          var content = el.innerHTML;
+          fetch(clanScheme + '/patch', {
+            method: 'POST',
+            body: JSON.stringify({ id: id, content: content })
+          }).catch(function(err) { console.error('Patch failed:', err); });
+        });
+
+        el.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            el.blur();
+          }
+        });
+      }
+      // Always apply highlight styles on every activation.
       el.style.outline = '2px solid rgba(59, 130, 246, 0.5)';
       el.style.cursor = 'text';
-
-      el.addEventListener('click', function(e) {
-        if (!window.__clan_edit_mode) return;
-        e.preventDefault();
-        e.stopPropagation();
-        el.setAttribute('contenteditable', 'true');
-        el.focus();
-      });
-
-      el.addEventListener('blur', function() {
-        if (!window.__clan_edit_mode) return;
-        el.removeAttribute('contenteditable');
-        var id = el.getAttribute('data-adf-id');
-        var content = el.innerHTML;
-        fetch(clanScheme + '/patch', {
-          method: 'POST',
-          body: JSON.stringify({ id: id, content: content })
-        }).catch(function(err) { console.error('Patch failed:', err); });
-      });
-
-      el.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter' && !e.shiftKey) {
-          e.preventDefault();
-          el.blur();
-        }
-      });
     });
   }
 
@@ -89,9 +90,32 @@ const EDIT_BRIDGE = `
     });
   }
 
+  // After 2 ticks (600ms), snapshot the fully-rendered DOM so JS-generated
+  // elements get their IDs baked into human/index.html for stable patching.
+  var snapshotTick = 0;
+
   // Poll for edit mode and inject IDs into any newly-rendered dynamic elements.
   setInterval(function() {
     injectMissingIds();
+
+    snapshotTick++;
+    if (snapshotTick === 2 && !window.__clan_snapshot_sent) {
+      window.__clan_snapshot_sent = true;
+      // Strip bridge-added outline/cursor from snapshot so stored HTML is clean.
+      document.querySelectorAll('[data-adf-id]').forEach(function(el) {
+        el.style.outline = el.dataset.origOutline || '';
+        el.style.cursor = el.dataset.origCursor || '';
+      });
+      var snap = document.documentElement.outerHTML;
+      if (window.__clan_edit_mode) {
+        document.querySelectorAll('[data-adf-id]').forEach(function(el) {
+          el.style.outline = '2px solid rgba(59, 130, 246, 0.5)';
+          el.style.cursor = 'text';
+        });
+      }
+      fetch(clanScheme + '/snapshot', { method: 'POST', body: snap }).catch(function() {});
+    }
+
     fetch(clanScheme + '/edit-mode')
       .then(function(res) { return res.text(); })
       .then(function(text) {

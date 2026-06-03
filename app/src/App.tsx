@@ -2,7 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-import { useState, useRef } from 'react'
+import { useState } from 'react'
 import { invoke } from '@tauri-apps/api/core'
 import { open as openDialog } from '@tauri-apps/plugin-dialog'
 import Toolbar from './components/Toolbar'
@@ -43,8 +43,6 @@ export default function App() {
   const [editMode, setEditMode] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  // Prevent concurrent patch saves — each save repacks the ZIP so they must be serial.
-  const patchInFlight = useRef(false)
 
   async function handleOpenFile(filePath?: string) {
     setLoading(true)
@@ -76,24 +74,10 @@ export default function App() {
     }
   }
 
-  async function handlePatch(id: string, content: string) {
-    // Drop the incoming patch if one is already being written — saves are not idempotent
-    // (each repacks the full ZIP) and concurrent writes corrupt the in-memory state.
-    if (patchInFlight.current) {
-      console.warn('clan: patch dropped (previous save still in flight)', { id })
-      return
-    }
-    patchInFlight.current = true
-    try {
-      await invoke('save_patch', { id, content })
-      // Re-fetch the rendered HTML so the applied patch is reflected in the iframe.
-      const html = await invoke<string>('get_human_html')
-      setHtmlContent(html)
-    } catch (e) {
-      console.error('save_patch failed:', e)
-    } finally {
-      patchInFlight.current = false
-    }
+  function handlePatch(_id: string, _content: string) {
+    // The protocol handler already saved the patch. The user's edit is already
+    // visible in the DOM — don't reload the iframe or it will revert to the
+    // unpatched template (especially for JS-rendered content).
   }
 
   return (
