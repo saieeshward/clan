@@ -19,7 +19,6 @@ uuid = { version = "1", features = ["v4"] }
 chrono = { version = "0.4", features = ["serde", "clock"] }
 zip = { version = "2", default-features = false, features = ["deflate"] }
 jsonschema = "0.26"
-ammonia = "4"
 thiserror = "2"
 clap = { version = "4", features = ["derive"] }
 anyhow = "1"
