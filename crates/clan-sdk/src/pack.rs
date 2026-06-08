@@ -480,18 +480,26 @@ fn apply_html_patch(existing: &str, payload: &HumanPayload) -> String {
 /// iframe sandbox controls execution; the SDK's job is only to prevent XSS.
 pub fn strip_scripts(html: &str) -> String {
     // Remove <script ...>...</script> blocks (case-insensitive, multiline).
-    let mut out = html.to_string();
-    loop {
-        let lower = out.to_lowercase();
-        let Some(start) = lower.find("<script") else { break };
-        let Some(end_rel) = lower[start..].find("</script>") else {
-            // Unclosed script tag — strip to end.
-            out = out[..start].to_string();
-            break;
-        };
-        let end = start + end_rel + "</script>".len();
-        out = format!("{}{}", &out[..start], &out[end..]);
+    // Lowercase once and search offsets into the original string instead of
+    // re-allocating a lowercased copy on every iteration.
+    let lower = html.to_lowercase();
+    let mut out = String::with_capacity(html.len());
+    let mut pos = 0;
+    while let Some(rel) = lower[pos..].find("<script") {
+        let start = pos + rel;
+        out.push_str(&html[pos..start]);
+        match lower[start..].find("</script>") {
+            Some(end_rel) => {
+                pos = start + end_rel + "</script>".len();
+            }
+            None => {
+                // Unclosed script tag — strip to end.
+                pos = html.len();
+                break;
+            }
+        }
     }
+    out.push_str(&html[pos..]);
     // Strip on* event handlers: onclick=, onerror=, etc.
     strip_on_handlers(&out)
 }
@@ -511,6 +519,20 @@ fn strip_on_handlers(html: &str) -> String {
             in_tag = false;
             out.push(bytes[i]);
             i += 1;
+        } else if in_tag && (bytes[i] == b'"' || bytes[i] == b'\'') {
+            // Copy a quoted attribute value verbatim so a '>' inside it does
+            // not prematurely end the tag (e.g. `class="a>b" onclick="..."`).
+            let q = bytes[i];
+            out.push(bytes[i]);
+            i += 1;
+            while i < bytes.len() && bytes[i] != q {
+                out.push(bytes[i]);
+                i += 1;
+            }
+            if i < bytes.len() {
+                out.push(bytes[i]); // closing quote
+                i += 1;
+            }
         } else if in_tag {
             // Check for on* attribute.
             let rest = &bytes[i..];
@@ -724,4 +746,54 @@ pub fn patch_asset(parent: &ClanFile, internal_path: &str, bytes: Vec<u8>) -> Re
         format!("human/assets/{}", internal_path)
     };
     repack_with_entry(parent, &full_path, bytes, Some(format!("added asset {}", internal_path)))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::strip_scripts;
+
+    #[test]
+    fn strips_script_blocks() {
+        let html = "<p>hi</p><script>evil()</script><b>bye</b>";
+        assert_eq!(strip_scripts(html), "<p>hi</p><b>bye</b>");
+    }
+
+    #[test]
+    fn strips_script_case_insensitively() {
+        let html = "a<SCRIPT>x</SCRIPT>b<ScRiPt>y</sCrIpT>c";
+        assert_eq!(strip_scripts(html), "abc");
+    }
+
+    #[test]
+    fn strips_unclosed_script_to_end() {
+        let html = "keep<script>dangling";
+        assert_eq!(strip_scripts(html), "keep");
+    }
+
+    #[test]
+    fn strips_on_handler_attribute() {
+        let out = strip_scripts(r#"<div onclick="evil()">x</div>"#);
+        assert!(!out.contains("onclick"), "onclick survived: {out}");
+        assert!(out.contains(">x</div>"));
+    }
+
+    // Regression for #16: a '>' inside a quoted attribute value must not end
+    // the tag early, or an on* handler after it would survive sanitisation.
+    #[test]
+    fn gt_inside_quoted_attr_does_not_bypass_on_handler_strip() {
+        let out = strip_scripts(r#"<div class="a>b" onclick="evil()">x</div>"#);
+        assert!(
+            !out.contains("onclick"),
+            "sanitizer bypassed — onclick survived: {out}"
+        );
+        // The quoted value (including the inner '>') is preserved verbatim.
+        assert!(out.contains(r#"class="a>b""#), "quoted attr mangled: {out}");
+    }
+
+    #[test]
+    fn single_quoted_gt_also_handled() {
+        let out = strip_scripts(r#"<img alt='x>y' onerror='boom()'>"#);
+        assert!(!out.contains("onerror"), "onerror survived: {out}");
+        assert!(out.contains("alt='x>y'"), "quoted attr mangled: {out}");
+    }
 }

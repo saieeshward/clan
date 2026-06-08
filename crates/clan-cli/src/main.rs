@@ -494,8 +494,8 @@ fn cmd_edit(file: PathBuf) -> Result<()> {
 }
 
 fn cmd_agent_help() {
-    print!(r#"CLAN v0.13 AGENT PROTOCOL
-Format: ZIP archive (.clan). Mutate ONLY via CLI.
+    print!("CLAN v{} AGENT PROTOCOL\n", env!("CARGO_PKG_VERSION"));
+    print!(r#"Format: ZIP archive (.clan). Mutate ONLY via CLI.
 
 # READ
 clan read agent <file>    => Context, state, data, history (USE THIS FIRST)
