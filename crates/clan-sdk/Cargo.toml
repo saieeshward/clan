@@ -7,6 +7,8 @@ license.workspace = true
 repository.workspace = true
 authors.workspace = true
 rust-version.workspace = true
+keywords.workspace = true
+categories.workspace = true
 
 [dependencies]
 serde.workspace = true
@@ -18,4 +20,4 @@ chrono.workspace = true
 zip.workspace = true
 jsonschema.workspace = true
 thiserror.workspace = true
-lol_html = "2.1.0"
+lol_html.workspace = true
