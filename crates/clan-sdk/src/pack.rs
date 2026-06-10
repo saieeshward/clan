@@ -155,6 +155,9 @@ pub struct PackOptions {
     pub output_path: Option<String>,
     /// Optional schema override.
     pub schema_override: Option<String>,
+    /// Extra entries to write into the new archive, taking precedence over
+    /// entries carried over from the parent.
+    pub extra_entries: Vec<(String, Vec<u8>)>,
 }
 
 /// Pack a new `.clan` archive from a parent file and agent output.
@@ -306,7 +309,7 @@ pub fn pack(
         "patch-html" => {
             if let Some(h) = output.human {
                 let existing = parent.read_entry_string("human/index.html").unwrap_or_else(|_| "".to_string());
-                let new_html = apply_html_patch(&existing, &h);
+                let new_html = apply_html_patch(&existing, &h)?;
                 builder.add_entry("human/index.html", new_html.into_bytes());
             }
         }
@@ -320,6 +323,10 @@ pub fn pack(
             // serve time. Nothing extra to do here.
         }
         _ => {}
+    }
+
+    for (path, bytes) in opts.extra_entries {
+        builder.add_entry(path, bytes);
     }
 
     builder.build()
@@ -373,26 +380,17 @@ pub fn pack_html(
         decision: decision_entry,
     };
 
-    let opts = PackOptions { delta, schema_override, ..Default::default() };
-    let mut bytes = pack(parent, output, opts, compressor)?;
-    
-    // Handoff via context.md
+    let mut opts = PackOptions { delta, schema_override, ..Default::default() };
+
+    // Handoff via context.md: passed straight into pack() as an extra entry,
+    // so the archive is built exactly once (no rebuild, no byte clones).
     if let Some(handoff) = context_handoff {
-        let mut builder = ClanBuilder::new(ClanFile::from_bytes(bytes.clone())?.manifest().clone());
-        let parent_clan = ClanFile::from_bytes(bytes)?;
-        for path in parent_clan.entry_paths()? {
-            if path == "manifest.yaml" || path == "agent/context.md" { continue; }
-            if let Ok(b) = parent_clan.read_entry(&path) {
-                builder.add_entry(path, b);
-            }
-        }
         let existing_ctx = parent.read_entry_string("agent/context.md").unwrap_or_default();
         let new_ctx = if existing_ctx.is_empty() { handoff } else { format!("{}\n\n---\n{}", existing_ctx, handoff) };
-        builder.add_entry("agent/context.md", new_ctx.into_bytes());
-        bytes = builder.build()?;
+        opts.extra_entries.push(("agent/context.md".to_string(), new_ctx.into_bytes()));
     }
-    
-    Ok(bytes)
+
+    pack(parent, output, opts, compressor)
 }
 
 /// Parse optional YAML frontmatter from the top of an HTML string.
@@ -445,17 +443,20 @@ fn parse_html_frontmatter(input: &str) -> (Option<String>, Value, Option<Decisio
     (mode, structured, decision_entry, patch_selector, patch_action, context_handoff, html_body)
 }
 
-fn apply_html_patch(existing: &str, payload: &HumanPayload) -> String {
+fn apply_html_patch(existing: &str, payload: &HumanPayload) -> Result<String> {
     use lol_html::{rewrite_str, element, RewriteStrSettings};
+    use std::cell::Cell;
     let selector = payload.patch_selector.as_deref().unwrap_or("body");
     let action = payload.patch_action.as_deref().unwrap_or("append");
     let html = &payload.html;
-    
+    let matched = Cell::new(0usize);
+
     let result = rewrite_str(
         existing,
         RewriteStrSettings {
             element_content_handlers: vec![
                 element!(selector, |el| {
+                    matched.set(matched.get() + 1);
                     match action {
                         "append" => el.append(&html, lol_html::html_content::ContentType::Html),
                         "prepend" => el.prepend(&html, lol_html::html_content::ContentType::Html),
@@ -469,8 +470,15 @@ fn apply_html_patch(existing: &str, payload: &HumanPayload) -> String {
             ],
             ..RewriteStrSettings::default()
         }
-    );
-    result.unwrap_or_else(|_| existing.to_string())
+    )
+    .map_err(|e| Error::OutputRejected(format!("patch-html: could not apply selector {selector:?}: {e}")))?;
+
+    if matched.get() == 0 {
+        return Err(Error::OutputRejected(format!(
+            "patch-html: selector {selector:?} matched no elements — nothing was patched"
+        )));
+    }
+    Ok(result)
 }
 
 /// Strip `<script>...</script>` blocks and `on*` event handler attributes.
@@ -610,29 +618,29 @@ pub fn patch_data(parent: &ClanFile, patch: &Value, compressor: Option<&Compress
     pack(parent, output, opts, compressor)
 }
 
-/// Append a new Decision to `shared/decision-chain.yaml` inside the archive.
-/// Preserves all other files and increments the generation.
+/// Append a new Decision to `agent/decision-chain.yaml` inside the archive.
+/// Preserves all other files and increments the generation. Swaps only the
+/// chain entry — no schema validation runs, since the data is untouched.
 pub fn patch_decision(parent: &ClanFile, entry: DecisionEntry, compressor: Option<&Compressor>) -> Result<Vec<u8>> {
-    // To cleanly append a decision while bumping lineage, we can reuse `pack`.
-    // We want to KEEP the existing structured data exactly as it is!
-    
-    let existing_data_str = parent.read_entry_string("shared/data.yaml").unwrap_or_default();
-    let structured: Value = if existing_data_str.is_empty() {
-        Value::Object(Default::default())
-    } else {
-        serde_yaml::from_str(&existing_data_str).unwrap_or(Value::Object(Default::default()))
-    };
+    let now = Utc::now().to_rfc3339();
+    let chain_bytes = parent.read_entry("agent/decision-chain.yaml")?;
+    let mut chain = DecisionChain::from_yaml(&chain_bytes)?;
 
-    let output = AgentOutput {
-        mode: "data-update".to_string(), // we aren't actually modifying data, but we must provide a mode
-        structured,
-        design: None,
-        human: None,
-        decision: Some(entry),
-    };
+    let delta = format!("appended decision by {}", entry.agent_name);
+    chain.prepend(Decision {
+        agent: entry.agent_name,
+        version: None,
+        action: entry.action,
+        rationale: entry.rationale,
+        timestamp: now,
+        fields_changed: Vec::new(),
+        pinned: entry.pinned,
+        trace_ref: None,
+    });
+    compress_chain(&mut chain, &CompressionConfig::default(), compressor);
+    let new_chain_yaml = chain.to_yaml()?;
 
-    let opts = PackOptions { delta: None, ..Default::default() };
-    pack(parent, output, opts, compressor)
+    repack_with_entry(parent, "agent/decision-chain.yaml", new_chain_yaml, Some(delta))
 }
 
 /// Replace `agent/output-schema.json` inside the archive.
@@ -749,6 +757,199 @@ pub fn patch_asset(parent: &ClanFile, internal_path: &str, bytes: Vec<u8>) -> Re
 #[cfg(test)]
 mod tests {
     use super::strip_scripts;
+    use super::*;
+    use crate::manifest::Manifest;
+
+    /// Build a minimal in-memory clan with the given data and schema.
+    fn test_clan(data_yaml: &str, schema_json: &str) -> ClanFile {
+        fn entry(id: &str, path: &str, role: &str, ct: &str) -> FileEntry {
+            FileEntry {
+                id: id.into(),
+                path: path.into(),
+                role: role.into(),
+                content_type: ct.into(),
+                priority: None,
+                sha256: None,
+            }
+        }
+        let manifest = Manifest {
+            clan_version: CLAN_VERSION,
+            clan_version_minor: CLAN_VERSION_MINOR,
+            id: "11111111-2222-3333-4444-555555555555".into(),
+            title: "Test".into(),
+            created_at: "2026-06-01T10:00:00Z".into(),
+            updated_at: "2026-06-01T10:00:00Z".into(),
+            document_type: None,
+            lineage: None,
+            external: vec![],
+            files: vec![
+                entry("canonical-data", "shared/data.yaml", "canonical-data", "application/yaml"),
+                entry("agent-context", "agent/context.md", "agent-context", "text/markdown"),
+                entry("agent-schema", "agent/output-schema.json", "agent-schema", "application/json"),
+                entry("agent-chain", "agent/decision-chain.yaml", "agent-chain", "application/yaml"),
+                entry("human-view", "human/index.html", "human-view", "text/html"),
+            ],
+        };
+        let mut builder = ClanBuilder::new(manifest);
+        builder.add_entry("shared/data.yaml", data_yaml.as_bytes().to_vec());
+        builder.add_entry("agent/context.md", b"original task".to_vec());
+        builder.add_entry("agent/output-schema.json", schema_json.as_bytes().to_vec());
+        builder.add_entry("agent/decision-chain.yaml", b"decisions: []\n".to_vec());
+        builder.add_entry(
+            "human/index.html",
+            b"<html><body><div id=\"app\">x</div></body></html>".to_vec(),
+        );
+        ClanFile::from_bytes(builder.build().unwrap()).unwrap()
+    }
+
+    const PERMISSIVE_SCHEMA: &str = r#"{"type": "object"}"#;
+    const STRICT_SCHEMA: &str =
+        r#"{"type": "object", "required": ["title"], "properties": {"title": {"type": "string"}}}"#;
+
+    // Regression for #14: appending a decision must not run schema validation,
+    // because the canonical data is untouched. The old implementation routed
+    // through pack(), which rejected the append whenever the existing data
+    // happened to violate the schema.
+    #[test]
+    fn patch_decision_does_not_validate_schema() {
+        // Data violates the strict schema (no `title`).
+        let parent = test_clan("vendor: Acme\n", STRICT_SCHEMA);
+
+        // Sanity: the full pack() route (old behaviour) rejects this archive.
+        let output = AgentOutput {
+            mode: "data-update".into(),
+            structured: serde_json::json!({"vendor": "Acme"}),
+            design: None,
+            human: None,
+            decision: None,
+        };
+        assert!(
+            pack(&parent, output, PackOptions::default(), None).is_err(),
+            "test setup: pack() should reject schema-violating data"
+        );
+
+        let bytes = patch_decision(
+            &parent,
+            DecisionEntry {
+                agent_name: "agent7".into(),
+                action: "reviewed".into(),
+                rationale: "looks good".into(),
+                pinned: true,
+            },
+            None,
+        )
+        .expect("patch_decision must succeed without validating data");
+
+        let next = ClanFile::from_bytes(bytes).unwrap();
+        let chain =
+            DecisionChain::from_yaml(&next.read_entry("agent/decision-chain.yaml").unwrap())
+                .unwrap();
+        assert_eq!(chain.decisions.len(), 1);
+        assert_eq!(chain.decisions[0].agent, "agent7");
+        assert!(chain.decisions[0].pinned);
+        assert!(chain.decisions[0].fields_changed.is_empty());
+        // Data and lineage preserved.
+        assert_eq!(
+            next.read_entry_string("shared/data.yaml").unwrap(),
+            "vendor: Acme\n"
+        );
+        assert_eq!(
+            next.manifest().lineage.as_ref().unwrap().parent_id,
+            parent.manifest().id
+        );
+    }
+
+    // Regression for #15: a context_handoff must be applied inside the single
+    // pack() build — one new generation, parent entries intact, contexts merged.
+    #[test]
+    fn pack_html_context_handoff_builds_once() {
+        let parent = test_clan("vendor: Acme\n", PERMISSIVE_SCHEMA);
+        let html = "---\n\
+                    structured:\n  title: \"T\"\n\
+                    next_task: \"agent2: refine the layout\"\n\
+                    ---\n\
+                    <!DOCTYPE html><html><body><p>hi</p></body></html>";
+
+        let bytes = pack_html(&parent, html, None, None, None, None).unwrap();
+        let next = ClanFile::from_bytes(bytes).unwrap();
+
+        // Contexts merged: original + separator + handoff.
+        assert_eq!(
+            next.read_entry_string("agent/context.md").unwrap(),
+            "original task\n\n---\nagent2: refine the layout"
+        );
+        // Exactly one generation: lineage points straight at the parent.
+        assert_eq!(
+            next.manifest().lineage.as_ref().unwrap().parent_id,
+            parent.manifest().id
+        );
+        // New HTML landed; other parent entries carried over.
+        assert!(next
+            .read_entry_string("human/index.html")
+            .unwrap()
+            .contains("<p>hi</p>"));
+        assert!(next.has_entry("agent/output-schema.json"));
+        assert!(next.has_entry("agent/decision-chain.yaml"));
+    }
+
+    #[test]
+    fn pack_html_handoff_without_existing_context() {
+        let parent = {
+            // Same as test_clan but with an empty context.
+            let clan = test_clan("vendor: Acme\n", PERMISSIVE_SCHEMA);
+            let mut builder = ClanBuilder::new(clan.manifest().clone());
+            for (path, bytes) in clan.read_all_entries().unwrap() {
+                if path == "manifest.yaml" { continue; }
+                builder.add_entry(path, bytes);
+            }
+            builder.add_entry("agent/context.md", Vec::new());
+            ClanFile::from_bytes(builder.build().unwrap()).unwrap()
+        };
+        let html = "---\nnext_task: \"start here\"\n---\n<p>doc</p>";
+        let next = ClanFile::from_bytes(
+            pack_html(&parent, html, None, None, None, None).unwrap(),
+        )
+        .unwrap();
+        assert_eq!(
+            next.read_entry_string("agent/context.md").unwrap(),
+            "start here"
+        );
+    }
+
+    // Regression for #21: a patch whose selector matches nothing must fail
+    // loudly instead of returning the document unchanged and "succeeding".
+    #[test]
+    fn patch_html_errors_when_selector_matches_nothing() {
+        let parent = test_clan("vendor: Acme\n", PERMISSIVE_SCHEMA);
+        let payload = |selector: &str| AgentOutput {
+            mode: "patch-html".into(),
+            structured: serde_json::json!({}),
+            design: None,
+            human: Some(HumanPayload {
+                html: "<span>new</span>".into(),
+                css: None,
+                assets: HashMap::new(),
+                patch_selector: Some(selector.into()),
+                patch_action: Some("append".into()),
+            }),
+            decision: None,
+        };
+
+        let err = pack(&parent, payload("#does-not-exist"), PackOptions::default(), None)
+            .expect_err("zero-match selector must be an error");
+        assert!(
+            err.to_string().contains("matched no elements"),
+            "unexpected error message: {err}"
+        );
+
+        // A matching selector still works.
+        let bytes = pack(&parent, payload("#app"), PackOptions::default(), None).unwrap();
+        let next = ClanFile::from_bytes(bytes).unwrap();
+        assert!(next
+            .read_entry_string("human/index.html")
+            .unwrap()
+            .contains("<span>new</span>"));
+    }
 
     #[test]
     fn strips_script_blocks() {
