@@ -10,8 +10,9 @@ use crate::error::{Error, Result};
 
 /// Major format version this SDK produces and supports.
 pub const CLAN_VERSION: u32 = 1;
-/// Minor format version this SDK produces.
-pub const CLAN_VERSION_MINOR: u32 = 0;
+/// Minor format version this SDK produces (1: view/fork/merge_policies
+/// manifest fields, multi-parent lineage, merge-report — spec §22–§27).
+pub const CLAN_VERSION_MINOR: u32 = 1;
 
 /// The root `manifest.yaml` structure.
 #[derive(Debug, Clone, Serialize, Deserialize)]

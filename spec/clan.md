@@ -274,4 +274,4 @@ The structured members are canonical; the HTML view is derivable. `--no-render` 
 
 ## Licence
 
-CLAN Specification — Apache License 2.0
+CLAN Specification — CLAN Specification License (see LICENSE-SPEC in the repository). Reference SDK — MPL-2.0.

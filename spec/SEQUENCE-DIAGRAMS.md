@@ -405,3 +405,50 @@ sequenceDiagram
     SDK->>SDK: Run all validation checks (Section 17)
     SDK-->>CLI: Valid ✓ (or list of errors)
 ```
+
+---
+
+## 9. Fork/Join Parallel Pipeline (v1.1, spec §24)
+
+Multiple agents work the same document concurrently via per-agent namespaces; a deterministic merge folds them back with conflicts recorded as data.
+
+```mermaid
+sequenceDiagram
+    participant Orch as Orchestrator
+    participant CLI as clan CLI
+    participant A1 as Researcher Agent
+    participant A2 as Analyst Agent
+    actor Human
+
+    Orch->>CLI: clan fork report.clan --agents researcher,analyst
+    CLI-->>Orch: researcher.clan + analyst.clan (each with fork block + empty agents/<id>/ namespace)
+
+    par Branch: researcher
+        A1->>CLI: clan read agent researcher.clan
+        note right of A1: context includes the Branch Mode block (§26)
+        A1->>CLI: clan patch-data researcher.clan out.json --namespace
+        A1->>CLI: clan patch-decision researcher.clan --agent researcher ...
+        note right of CLI: writes land ONLY in agents/researcher/
+    and Branch: analyst
+        A2->>CLI: clan read agent analyst.clan
+        A2->>CLI: clan patch-data analyst.clan out.json --namespace
+        A2->>CLI: clan patch-decision analyst.clan --agent analyst ...
+    end
+
+    Orch->>CLI: clan merge researcher.clan analyst.clan --output merged.clan
+    CLI->>CLI: deterministic per-key fold (merge_policies; no LLM call)
+    CLI-->>Orch: merged.clan (multi-parent lineage, merge-report.yaml)
+    note right of CLI: stderr — next: 1 contested key(s) ... (§27)
+
+    alt Agent adjudicates
+        Orch->>CLI: clan read report merged.clan
+        Orch->>CLI: clan patch-data merged.clan choice.json
+        Orch->>CLI: clan patch-decision --action "adjudicated status" ...
+    else Human adjudicates
+        Human->>CLI: opens merged.clan in viewer, contested keys badged (§25)
+        Human->>CLI: picks value via patch bridge
+    end
+
+    Orch->>CLI: clan render merged.clan
+    CLI-->>Human: human view materialised once, at the end (§23)
+```

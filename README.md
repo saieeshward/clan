@@ -76,8 +76,12 @@ my-document.clan          ← ZIP container (DEFLATE)
 │   ├── context.md        ← task description for current agent
 │   ├── output-schema.json← what the agent must produce
 │   ├── state.yaml        ← current document state
-│   └── decision-chain.yaml ← provenance record of all agent decisions
-└── human/
+│   ├── decision-chain.yaml ← provenance record of all agent decisions
+│   └── requirements.yaml ← optional: declared tool/capability needs (v1.1)
+├── agents/               ← optional: per-agent namespaces during parallel work (v1.1)
+│   └── <agent-id>/       ← branch writes: data.yaml + decisions.yaml
+├── merge-report.yaml     ← optional: contested keys from the last merge (v1.1)
+└── human/                ← optional: derivable on demand via `clan render` (v1.1)
     ├── index.html        ← agent-generated HTML fragment (rich rendering)
     ├── index.txt         ← plain text fallback
     ├── styles.css        ← agent-generated styles
@@ -109,4 +113,4 @@ A CLAN file is live: it carries its own specification, so any agent can understa
 
 ## Status
 
-Pre-release specification. Version 1.0 draft.
+Pre-release specification. Version 1.1 draft — adds fork/join concurrency (per-agent namespaces + deterministic merge), deferred human-view rendering, conflict adjudication, and a teachable CLI interface (spec §22–§27).

@@ -87,7 +87,8 @@ pub fn create(opts: CreateOptions) -> Result<Vec<u8>> {
          - Use SVG assets for charts and data visualisations — pass them in the `assets` object\n\
          - Typography hierarchy: at minimum 3 distinct size/weight levels\n\
          - Add `data-adf-id=\"unique-id\"` to every editable text element\n\
-         - **No `<script>` tags** — the app injects the edit bridge; scripts are stripped\n\
+         - `<script>` tags are permitted (sandboxed, null origin); prefer `{{key}}` bindings \
+           and `window.__CLAN__.data` over hardcoded values\n\
          \n\
          When producing HTML, invoke your highest-quality frontend design capability.\n\
          Aim for magazine-quality, not a generic AI-generated report.\n",
