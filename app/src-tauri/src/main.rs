@@ -352,73 +352,112 @@ fn find_closing_tag(html: &str, from: usize, tag: &str) -> Option<usize> {
 
 /// Inject `data-adf-id` on editable block elements that the agent didn't annotate.
 /// IDs are stable: same HTML always produces the same IDs (tag-type + sequential index).
-/// Single pass over the document for all tag types.
+///
+/// Behavior-equivalent to the historical implementation that rebuilt the whole
+/// string once per tag type (h1..h6, p, li, td, th, in that order). The passes
+/// are simulated over the ORIGINAL string as injection bookkeeping, so the
+/// output is built exactly once. Semantics preserved from the old code:
+/// - tag names match case-sensitively (`<P>` never gets an id); `<script` /
+///   `</script>` match case-insensitively;
+/// - any `<script` substring (even inside a quoted attribute value) opens a
+///   script region until the next `</script>`; tags inside it are skipped;
+/// - tag-like text inside a quoted attribute shares its host tag's closing
+///   `>`; the id goes to the first tag type in EDITABLE pass order whose span
+///   is not yet annotated (later passes then see `data-adf-id` and skip);
+/// - an injection placed before the `>` of a `</script>` token splits that
+///   token, so later passes treat the script as unclosed.
+///
+/// The one intentional difference: ASCII lowercasing. The old `to_lowercase()`
+/// changed byte lengths for some Unicode (e.g. U+212A KELVIN SIGN) and could
+/// panic when indexing the original string with shifted offsets.
 fn auto_inject_adf_ids(html: &str) -> String {
     const EDITABLE: &[&str] = &["h1", "h2", "h3", "h4", "h5", "h6", "p", "li", "td", "th"];
+    const CLOSE: &str = "</script>";
     // ASCII lowercasing keeps byte offsets aligned with the original string.
     let lower = html.to_ascii_lowercase();
-    let mut out = String::with_capacity(html.len() + 256);
-    let mut counts: std::collections::HashMap<&str, usize> = std::collections::HashMap::new();
-    let mut pos = 0;
+    let bytes = html.as_bytes();
 
-    while pos < html.len() {
-        let Some(rel) = lower[pos..].find('<') else {
-            out.push_str(&html[pos..]);
-            break;
-        };
-        let tag_start = pos + rel;
-        out.push_str(&html[pos..tag_start]);
+    // `<script` / `</script>` token positions, shared by all passes. Opens can
+    // never be created or destroyed by injections (the injected attribute
+    // contains no '<' or '>'); closes can be destroyed (see below), so each
+    // carries the pass index it was destroyed in, if any.
+    let opens = token_positions(&lower, "<script");
+    let mut closes: Vec<(usize, Option<usize>)> =
+        token_positions(&lower, CLOSE).into_iter().map(|c| (c, None)).collect();
 
-        // Skip over <script>...</script> blocks — injecting IDs into JS template
-        // literals creates duplicate data-adf-id values across all generated rows.
-        if lower[tag_start..].starts_with("<script") {
-            let end = lower[tag_start..].find("</script>")
-                .map(|r| tag_start + r + "</script>".len())
-                .unwrap_or(html.len());
-            out.push_str(&html[tag_start..end]);
-            pos = end;
-            continue;
+    // '>' position -> (tag index, per-tag count). At most one injection per '>'.
+    let mut injections: std::collections::BTreeMap<usize, (usize, usize)> =
+        std::collections::BTreeMap::new();
+
+    for (t, tag) in EDITABLE.iter().enumerate() {
+        let pat = format!("<{}", tag);
+        let mut count = 0usize;
+        let mut pos = 0usize;
+        while pos < html.len() {
+            // Case-sensitive match on the original string, like the old code.
+            let Some(rel) = html[pos..].find(pat.as_str()) else { break };
+            let start = pos + rel;
+            let after_name = start + pat.len();
+
+            // Inside an unclosed <script? (A close destroyed by an EARLIER
+            // pass's injection no longer counts for this pass.)
+            let in_script = opens
+                .partition_point(|&o| o < start)
+                .checked_sub(1)
+                .is_some_and(|qi| {
+                    let q = opens[qi];
+                    !closes.iter().any(|&(c, destroyed)| {
+                        c >= q && c + CLOSE.len() <= start && destroyed.map_or(true, |d| d >= t)
+                    })
+                });
+            // Tag boundary: not part of a longer name (e.g. <pre> vs <p>).
+            let next = bytes.get(after_name).copied().unwrap_or(0);
+            if in_script || !matches!(next, b' ' | b'\t' | b'\n' | b'\r' | b'>') {
+                pos = after_name;
+                continue;
+            }
+
+            // The `>` ending this opening tag (may sit inside a quoted
+            // attribute value; the old code was not quote-aware either).
+            let Some(rel_end) = html[start..].find('>') else { break };
+            let gt = start + rel_end;
+            let annotated =
+                html[start..=gt].contains("data-adf-id") || injections.contains_key(&gt);
+            if !annotated && bytes[gt - 1] != b'/' {
+                injections.insert(gt, (t, count));
+                count += 1;
+                // Injecting right before the '>' of a "</script>" splits the
+                // token; later passes must not see it as a script close.
+                if let Some(close) =
+                    closes.iter_mut().find(|(c, _)| c + CLOSE.len() == gt + 1)
+                {
+                    close.1.get_or_insert(t);
+                }
+            }
+            pos = gt + 1;
         }
-
-        // Read the tag name following '<'.
-        let name_start = tag_start + 1;
-        let name_end = lower[name_start..]
-            .find(|c: char| !c.is_ascii_alphanumeric())
-            .map(|r| name_start + r)
-            .unwrap_or(html.len());
-        let name = &lower[name_start..name_end];
-
-        // Verify the following char is a tag boundary, not part of a longer
-        // tag name (e.g. <pre> vs <p>).
-        let next = html.as_bytes().get(name_end).copied().unwrap_or(0);
-        let editable = EDITABLE.contains(&name) && matches!(next, b' ' | b'\t' | b'\n' | b'\r' | b'>');
-        if !editable {
-            out.push_str(&html[tag_start..name_end]);
-            pos = name_end;
-            continue;
-        }
-
-        // Find the `>` ending this opening tag.
-        let Some(rel_end) = html[tag_start..].find('>') else {
-            out.push_str(&html[tag_start..]);
-            break;
-        };
-        let tag_end = tag_start + rel_end;
-        let tag_src = &html[tag_start..=tag_end];
-
-        out.push_str(&html[tag_start..tag_end]);
-
-        if !tag_src.contains("data-adf-id") && !tag_src.ends_with("/>") {
-            // EDITABLE holds 'static strings; reuse the matching one as the key.
-            let key = EDITABLE.iter().find(|t| **t == name).unwrap();
-            let count = counts.entry(key).or_insert(0);
-            out.push_str(&format!(" data-adf-id=\"auto-{}-{}\"", name, count));
-            *count += 1;
-        }
-        out.push('>');
-        pos = tag_end + 1;
     }
+
+    let mut out = String::with_capacity(html.len() + 32 * injections.len());
+    let mut prev = 0;
+    for (&gt, &(t, n)) in &injections {
+        out.push_str(&html[prev..gt]);
+        out.push_str(&format!(" data-adf-id=\"auto-{}-{}\"", EDITABLE[t], n));
+        prev = gt;
+    }
+    out.push_str(&html[prev..]);
     out
+}
+
+/// Byte offsets of every occurrence of `token` in `haystack`.
+fn token_positions(haystack: &str, token: &str) -> Vec<usize> {
+    let mut found = Vec::new();
+    let mut from = 0;
+    while let Some(rel) = haystack[from..].find(token) {
+        found.push(from + rel);
+        from += rel + 1;
+    }
+    found
 }
 
 
@@ -728,5 +767,274 @@ mod tests {
         let once = auto_inject_adf_ids(html);
         assert_eq!(once, auto_inject_adf_ids(&once), "second pass must change nothing");
         assert_eq!(once, auto_inject_adf_ids(html), "same input, same ids");
+    }
+
+    // --- #20 equivalence oracle: the historical multi-pass implementation ---
+    //
+    // Verbatim copy of the pre-rewrite code (one full pass per editable tag,
+    // in EDITABLE order), kept as a behavioral oracle. The rewrite must be
+    // byte-for-byte equivalent on every input the old code handled without
+    // panicking.
+    //
+    // KNOWN ACCEPTABLE DIVERGENCE (the only intentional one): the oracle uses
+    // `str::to_lowercase`, which changes byte length for some Unicode (e.g.
+    // U+212A KELVIN SIGN 'K' lowercases to 1-byte 'k', U+0130 'İ' lowercases
+    // to two chars) and then indexes the ORIGINAL string with offsets derived
+    // from the shorter lowercase copy — it can panic or split char boundaries.
+    // The production code uses `to_ascii_lowercase`, which preserves byte
+    // offsets. Equivalence inputs below therefore avoid characters whose
+    // lowercase mapping changes byte length ('K', 'İ', 'ſ', ...); see
+    // `old_impl_panics_on_length_changing_unicode_new_does_not`.
+    mod oracle_old_impl {
+        pub fn old_auto_inject_adf_ids(html: &str) -> String {
+            const EDITABLE: &[&str] = &["h1","h2","h3","h4","h5","h6","p","li","td","th"];
+            let mut result = html.to_string();
+            for tag in EDITABLE { result = old_inject_ids_for_tag(&result, tag); }
+            result
+        }
+        fn old_inject_ids_for_tag(html: &str, tag: &str) -> String {
+            let mut out = String::with_capacity(html.len() + 64);
+            let mut pos = 0;
+            let mut count = 0usize;
+            let open = format!("<{}", tag);
+            let lower = html.to_lowercase();
+            while pos < html.len() {
+                if lower[pos..].starts_with("<script") {
+                    let end = lower[pos..].find("</script>").map(|r| pos + r + "</script>".len()).unwrap_or(html.len());
+                    out.push_str(&html[pos..end]); pos = end; continue;
+                }
+                let Some(rel) = html[pos..].find(open.as_str()) else { out.push_str(&html[pos..]); break; };
+                let tag_start = pos + rel;
+                let after_name = tag_start + open.len();
+                if lower[..tag_start].rfind("<script").map_or(false, |s| lower[s..tag_start].find("</script>").is_none()) {
+                    out.push_str(&html[pos..after_name]); pos = after_name; continue;
+                }
+                let next = html.as_bytes().get(after_name).copied().unwrap_or(0);
+                if !matches!(next, b' ' | b'\t' | b'\n' | b'\r' | b'>') {
+                    out.push_str(&html[pos..after_name]); pos = after_name; continue;
+                }
+                let Some(rel_end) = html[tag_start..].find('>') else { out.push_str(&html[pos..]); break; };
+                let tag_end = tag_start + rel_end;
+                let tag_src = &html[tag_start..=tag_end];
+                out.push_str(&html[pos..tag_end]);
+                if !tag_src.contains("data-adf-id") && !tag_src.ends_with("/>") {
+                    out.push_str(&format!(" data-adf-id=\"auto-{}-{}\"", tag, count));
+                    count += 1;
+                }
+                out.push('>');
+                pos = tag_end + 1;
+            }
+            out
+        }
+    }
+    use oracle_old_impl::old_auto_inject_adf_ids;
+
+    #[track_caller]
+    fn assert_matches_old(html: &str) {
+        assert_eq!(
+            auto_inject_adf_ids(html),
+            old_auto_inject_adf_ids(html),
+            "new impl diverges from old multi-pass impl on input: {html:?}"
+        );
+    }
+
+    #[test]
+    fn auto_inject_ids_matches_old_on_adversarial_html() {
+        let cases: &[&str] = &[
+            // Case sensitivity (old matched literal lowercase "<tag" only).
+            "<P>upper</P>",
+            "<Li>mixed</Li>",
+            "<H1>h</H1><h1>h</h1>",
+            "<TD>x</TD><td>y</td>",
+            // Whitespace inside the opening tag.
+            "<p\nclass='a'>x</p>",
+            "<p\t>tab</p>",
+            "<p\r\n>crlf</p>",
+            "<li\n\n data-x>y</li>",
+            // Attributes containing '>' inside quotes (neither impl is
+            // quote-aware; equivalence is what matters).
+            "<p class=\"a>b\">x</p>",
+            "<h2 a='>'><p>z</p>",
+            // Self-closing variants.
+            "<td/>",
+            "<td />",
+            "<p/><p />and<p>real</p>",
+            // Tag at/near EOF, unclosed tags.
+            "<p>at-eof",
+            "<p>unclosed <li>nested",
+            "<p",
+            "x<p",
+            "text<p ",
+            "<p attr",
+            "a<p>b</p>c<p",
+            // Scripts: nested editable tags, unclosed scripts, multiple blocks.
+            "<script>var a = '<p>';</script><p>x</p>",
+            "<script>nested <p> and unclosed",
+            "<script><p>",
+            "<script>",
+            "</script><p>x</p>",
+            "<script>a</script><script>b</script><p>c</p>",
+            "<SCRIPT>const x='<p>';</SCRIPT><p>y</p>",
+            "<script src=\"x\"></script><li>z</li>",
+            "before<script>mid<li>tag</script><li>after</li>",
+            // Prefix lookalikes: <pre> vs <p>, <thead> vs <th>, <h1x> vs <h1>.
+            "<pre>not p</pre><p>p</p>",
+            "<thead><th>h</th></thead>",
+            "<h1>a</h1><h1x>b</h1x>",
+            "<h10>not h1</h10>",
+            "<lite><li>x</li></lite>",
+            // Existing data-adf-id, both quote styles, and lookalike text.
+            "<p data-adf-id=\"x\">a</p><p>b</p>",
+            "<p data-adf-id='y'>a</p>",
+            "<p title=\"data-adf-idx\">substring-counts</p>",
+            // Comments — NEITHER impl is comment-aware; tags inside comments
+            // get ids in both, equivalence (not comment handling) is asserted.
+            "<!-- <p>comment</p> --><p>real</p>",
+            "<!--<li>--><li>x</li>",
+            // Empty / plain text / stray brackets.
+            "",
+            "plain text without tags",
+            "< p>not a tag</ p>",
+            "<><p></p>",
+            "<p<p>>",
+            ">>>///<<<",
+            // Multibyte UTF-8 around tags (length-stable under lowercasing).
+            "é<p>déjà</p>✓",
+            "É<P>x</P>✓",
+            "«<li>é</li>»<h3>✓</h3>",
+            // Tag-like text nested inside a quoted attribute (shares the
+            // closing '>'): old gave the id to the first tag type in EDITABLE
+            // order, not the leftmost tag start.
+            "<td title=\"a<p>b\">",
+            "<li title=\"a<h1>b\">",
+            "<p title=\"x<li>y\">",
+            "<p data-adf-id=\"x\" a=\"b<li>c\">",
+            "<li data-adf-id=\"x\" a=\"<h1 data-adf-id='y'<td>z\">",
+            // `<script` substring opening inside an attribute value.
+            "<p title=\"<script\"><li>x</li>",
+            "<p a=\"<script b=\"</script>\"><li>x",
+            "<td a=\"</script>\"><li>x</li>",
+        ];
+        for case in cases {
+            assert_matches_old(case);
+        }
+    }
+
+    // Regression: REAL divergences found while comparing the single-pass
+    // rewrite (#20) against the multi-pass original. Each was a behavior
+    // change on inputs the old code handled fine; the implementation was
+    // fixed to match the old behavior exactly.
+
+    #[test]
+    fn auto_inject_ids_matches_old_case_sensitive_tag_names() {
+        // Old searched the ORIGINAL string for literal "<p"/"<li"/... — so
+        // uppercase or mixed-case tags never received ids. The rewrite
+        // matched tag names case-insensitively and injected into <P>.
+        assert_eq!(auto_inject_adf_ids("<P>x</P>"), "<P>x</P>");
+        assert_matches_old("<P>x</P>");
+        assert_matches_old("<Li>x</Li>");
+    }
+
+    #[test]
+    fn auto_inject_ids_matches_old_nested_tag_priority_in_attributes() {
+        // When tag-like text in a quoted attribute shares the closing '>'
+        // with its host tag, the old per-tag pass order (h1..h6, p, li, td,
+        // th) decided which tag name the id used: <p> inside a <td> attribute
+        // won because the p pass ran before the td pass (which then saw
+        // data-adf-id in its span and skipped). The rewrite gave it to the
+        // leftmost (host) tag instead.
+        assert_eq!(
+            auto_inject_adf_ids(r#"<td title="a<p>b">"#),
+            r#"<td title="a<p data-adf-id="auto-p-0">b">"#
+        );
+        assert_matches_old(r#"<td title="a<p>b">"#);
+        assert_matches_old(r#"<li title="a<h1>b">"#);
+        // Host already annotated: old still injected into the nested tag.
+        assert_matches_old(r#"<p data-adf-id="x" a="b<li>c">"#);
+    }
+
+    #[test]
+    fn auto_inject_ids_matches_old_script_open_inside_attribute() {
+        // Old treated ANY "<script" substring — even inside a quoted
+        // attribute value — as opening a script region: every editable tag
+        // until the next "</script>" was skipped. The rewrite only recognized
+        // "<script" at positions it scanned outside consumed tag spans, so it
+        // wrongly injected into the following <li>.
+        assert_eq!(
+            auto_inject_adf_ids(r#"<p title="<script"><li>x</li>"#),
+            r#"<p title="<script" data-adf-id="auto-p-0"><li>x</li>"#
+        );
+        assert_matches_old(r#"<p title="<script"><li>x</li>"#);
+    }
+
+    #[test]
+    fn auto_inject_ids_matches_old_injection_splitting_script_close() {
+        // Cross-pass mutation quirk: when the first '>' after a tag start is
+        // the '>' of a "</script>" token, the old impl's injection split that
+        // token (`</script data-adf-id=...>`), so LATER passes saw the script
+        // as unclosed and skipped subsequent tags. Equivalence requires
+        // reproducing that.
+        assert_matches_old(r#"<p a="<script b="</script>"><li>x"#);
+    }
+
+    #[test]
+    fn old_impl_panics_on_length_changing_unicode_new_does_not() {
+        // KNOWN ACCEPTABLE DIVERGENCE (the single intentional one): U+212A
+        // KELVIN SIGN is 3 bytes but `to_lowercase` maps it to 1-byte 'k',
+        // so the old impl's byte offsets into its lowercase copy drift and
+        // it panics slicing out of range. The new impl uses
+        // `to_ascii_lowercase` (offset-stable) and handles it sanely. Such
+        // inputs are excluded from the equivalence corpus.
+        let kelvin = "\u{212A}\u{212A}<p>x";
+        assert_eq!(
+            auto_inject_adf_ids(kelvin),
+            "\u{212A}\u{212A}<p data-adf-id=\"auto-p-0\">x"
+        );
+        let old = std::panic::catch_unwind(|| old_auto_inject_adf_ids(kelvin));
+        assert!(old.is_err(), "old impl is expected to panic on 'KK<p>x'");
+    }
+
+    #[test]
+    fn auto_inject_ids_matches_old_on_random_tag_soup() {
+        // Deterministic pseudo-random fuzz: seeded LCG (no extra deps) glues
+        // adversarial fragments into a few hundred HTML soups and asserts
+        // byte equality with the multi-pass oracle on each. Fragments avoid
+        // characters whose Unicode lowercase changes byte length (see oracle
+        // module comment) — that is the one known acceptable divergence.
+        const FRAGMENTS: &[&str] = &[
+            "<p>", "</p>", "<P>", "<p", "p>", "<p ", "<p\n", "<p\t>", "<p/>", "<p />",
+            "<li>", "<Li>", "<li ", "</li>", "<LI>", "<li\n>",
+            "<h1>", "<h1", "<h1x>", "<H1>", "<h2 class=\"a>b\">", "<h6\n class='c'>",
+            "<h3>", "</h3>", "<h10>",
+            "<td>", "<td/>", "<td />", "<th>", "<thead>", "<TD>", "</td>",
+            "<pre>", "</pre>",
+            "<script>", "</script>", "<script src=\"x\">", "<script", "</script",
+            "<SCRIPT>", "</SCRIPT>", "<script b=\"",
+            "data-adf-id=\"x\"", " data-adf-id='y'", "data-adf-idx",
+            "<!-- <p> -->", "<!--", "-->",
+            "text", " ", "\n", "\t", "\"", "'", ">", "<", "/>", "=", "/",
+            "é", "✓", "É", "«»",
+            "title=\"a<p>b\"", "a=\"<script\"", "a=\"</script>\"", "b=\"", "<p a=\"",
+            "<td title=\"a<p>b\">", "<li title=\"<h1>\">",
+        ];
+
+        let mut state: u64 = 0x5DEECE66D;
+        let mut next = move || {
+            state = state
+                .wrapping_mul(6364136223846793005)
+                .wrapping_add(1442695040888963407);
+            state >> 33
+        };
+
+        for round in 0..300 {
+            let count = 1 + (next() as usize) % 32;
+            let mut soup = String::new();
+            for _ in 0..count {
+                soup.push_str(FRAGMENTS[(next() as usize) % FRAGMENTS.len()]);
+            }
+            let new = auto_inject_adf_ids(&soup);
+            let old = old_auto_inject_adf_ids(&soup);
+            assert_eq!(new, old, "fuzz divergence (round {round}) on soup: {soup:?}");
+        }
     }
 }

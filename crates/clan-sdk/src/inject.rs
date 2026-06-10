@@ -142,6 +142,10 @@ mod tests {
 }"#;
 
     fn clan_with(schema: &str, chain_yaml: &str) -> ClanFile {
+        clan_with_guide(GUIDE, schema, chain_yaml)
+    }
+
+    fn clan_with_guide(guide: &str, schema: &str, chain_yaml: &str) -> ClanFile {
         fn entry(id: &str, path: &str, role: &str, ct: &str) -> FileEntry {
             FileEntry {
                 id: id.into(),
@@ -171,7 +175,7 @@ mod tests {
             ],
         };
         let mut builder = ClanBuilder::new(manifest);
-        builder.add_entry("spec/agent-guide.md", GUIDE.as_bytes().to_vec());
+        builder.add_entry("spec/agent-guide.md", guide.as_bytes().to_vec());
         builder.add_entry("agent/context.md", b"the task".to_vec());
         builder.add_entry("agent/output-schema.json", schema.as_bytes().to_vec());
         builder.add_entry("shared/data.yaml", b"vendor: Acme\n".to_vec());
@@ -319,6 +323,307 @@ mod tests {
         assert!(ctx.text.contains("fields_changed [2]"), "{}", ctx.text);
         assert!(ctx.text.contains("alpha"), "{}", ctx.text);
         assert!(ctx.text.contains("beta"), "{}", ctx.text);
+    }
+
+    // --- #25 adversarial: window boundaries ---
+    // Sentinel field names ("zq-sent-N") are deliberately unique so the
+    // contains/!contains assertions cannot collide with other context text
+    // (agent names, headings, schema keys, ...).
+
+    /// Chain of `n` decisions, newest first, each changing one unique
+    /// sentinel field.
+    fn sentinel_chain(n: usize) -> String {
+        let mut chain = String::from("decisions:\n");
+        for i in 0..n {
+            let field = format!("zq-sent-{i}");
+            chain.push_str(&decision_yaml(i, &[&field]));
+        }
+        chain
+    }
+
+    #[test]
+    fn chains_shorter_than_window_keep_all_fields_changed() {
+        for n in 1..=4 {
+            let clan = clan_with(SIMPLE_SCHEMA, &sentinel_chain(n));
+            let ctx = assemble(&clan, &InjectOptions::default()).unwrap();
+            for i in 0..n {
+                assert!(
+                    ctx.text.contains(&format!("zq-sent-{i}")),
+                    "chain of {n}: entry {i} must keep fields_changed:\n{}",
+                    ctx.text
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn chain_of_exactly_window_size_keeps_everything() {
+        let clan = clan_with(SIMPLE_SCHEMA, &sentinel_chain(FIELDS_CHANGED_WINDOW));
+        let ctx = assemble(&clan, &InjectOptions::default()).unwrap();
+        for i in 0..FIELDS_CHANGED_WINDOW {
+            assert!(
+                ctx.text.contains(&format!("zq-sent-{i}")),
+                "entry {i} of an exactly-window-sized chain must be kept:\n{}",
+                ctx.text
+            );
+        }
+    }
+
+    #[test]
+    fn chain_of_window_plus_one_prunes_only_the_oldest() {
+        let clan = clan_with(SIMPLE_SCHEMA, &sentinel_chain(FIELDS_CHANGED_WINDOW + 1));
+        let ctx = assemble(&clan, &InjectOptions::default()).unwrap();
+        for i in 0..FIELDS_CHANGED_WINDOW {
+            assert!(
+                ctx.text.contains(&format!("zq-sent-{i}")),
+                "entry {i} is inside the window and must be kept:\n{}",
+                ctx.text
+            );
+        }
+        assert!(
+            !ctx.text.contains(&format!("zq-sent-{FIELDS_CHANGED_WINDOW}")),
+            "entry {FIELDS_CHANGED_WINDOW} (first outside the window) must be pruned:\n{}",
+            ctx.text
+        );
+    }
+
+    // --- #25 adversarial: missing key, pinned entries, name collisions ---
+
+    #[test]
+    fn missing_fields_changed_key_is_neither_panic_nor_invented() {
+        // Decision serialisation skips empty fields_changed entirely
+        // (#[serde(skip_serializing_if = "Vec::is_empty")]), so real chains
+        // routinely lack the key. Both recent and old entries here omit it.
+        let mut chain = String::from("decisions:\n");
+        for i in 0..7 {
+            chain.push_str(&format!(
+                "- agent: agent{i}\n  action: act{i}\n  rationale: r{i}\n  timestamp: \"2026-06-01T00:00:00Z\"\n"
+            ));
+        }
+        let clan = clan_with(SIMPLE_SCHEMA, &chain);
+        let ctx = assemble(&clan, &InjectOptions::default()).unwrap();
+        assert!(
+            !ctx.text.contains("fields_changed"),
+            "the key must not be invented for entries that never had it:\n{}",
+            ctx.text
+        );
+        // All seven entries are still present.
+        for i in 0..7 {
+            assert!(ctx.text.contains(&format!("agent: agent{i}")), "{}", ctx.text);
+        }
+    }
+
+    #[test]
+    fn pinned_old_entries_currently_lose_fields_changed_too() {
+        // CURRENT BEHAVIOR, asserted on purpose: pruning is purely positional
+        // (index >= FIELDS_CHANGED_WINDOW); `pinned: true` does NOT exempt an
+        // old entry's fields_changed. If pinning is ever meant to preserve
+        // them, this test must be consciously rewritten.
+        let mut chain = sentinel_chain(5);
+        chain.push_str(
+            "- agent: agent-old\n  action: act-old\n  rationale: r-old\n  timestamp: \"2026-05-01T00:00:00Z\"\n  pinned: true\n  fields_changed: [zq-pinned-sentinel]\n",
+        );
+        let clan = clan_with(SIMPLE_SCHEMA, &chain);
+        let ctx = assemble(&clan, &InjectOptions::default()).unwrap();
+        assert!(
+            !ctx.text.contains("zq-pinned-sentinel"),
+            "pinned-but-old fields_changed is pruned under the current design:\n{}",
+            ctx.text
+        );
+        // The pinned entry itself (and its flag) survive — only the list goes.
+        assert!(ctx.text.contains("agent: agent-old"), "{}", ctx.text);
+        assert!(ctx.text.contains("pinned: true"), "{}", ctx.text);
+    }
+
+    #[test]
+    fn pruning_with_field_names_colliding_with_context_text() {
+        // A field literally named "agent" (also a decision key and a word in
+        // the guide/context) must not confuse pruning. The recent entry keeps
+        // it; the old entry's unique sentinel proves old lists still go.
+        let mut chain = String::from("decisions:\n");
+        chain.push_str(&decision_yaml(0, &["agent", "zq-recent-sentinel"]));
+        for i in 1..5 {
+            chain.push_str(&decision_yaml(i, &[]));
+        }
+        chain.push_str(&decision_yaml(5, &["agent", "zq-old-sentinel"]));
+        let clan = clan_with(SIMPLE_SCHEMA, &chain);
+        let ctx = assemble(&clan, &InjectOptions::default()).unwrap();
+        assert!(
+            ctx.text.contains("fields_changed [2]"),
+            "recent two-element list must survive intact:\n{}",
+            ctx.text
+        );
+        assert!(ctx.text.contains("zq-recent-sentinel"), "{}", ctx.text);
+        assert!(
+            !ctx.text.contains("zq-old-sentinel"),
+            "old list must be pruned even when its sibling values collide with other text:\n{}",
+            ctx.text
+        );
+    }
+
+    // --- #25 adversarial: malformed-ish chains must not panic ---
+
+    #[test]
+    fn scalar_items_in_decisions_list_do_not_panic() {
+        // Valid YAML, wrong shape: scalars instead of mappings.
+        let clan = clan_with(SIMPLE_SCHEMA, "decisions: [one, 2, true, null]\n");
+        let ctx = assemble(&clan, &InjectOptions::default()).unwrap();
+        assert!(ctx.text.contains("decisions [4]"), "{}", ctx.text);
+    }
+
+    #[test]
+    fn mixed_scalars_and_mappings_in_decisions_do_not_panic() {
+        let chain = format!(
+            "decisions:\n- just-a-string\n{}- 42\n",
+            decision_yaml(1, &["zq-mixed-sentinel"])
+        );
+        let clan = clan_with(SIMPLE_SCHEMA, &chain);
+        let ctx = assemble(&clan, &InjectOptions::default()).unwrap();
+        // The mapping entry (index 1, inside the window) keeps its list.
+        assert!(ctx.text.contains("zq-mixed-sentinel"), "{}", ctx.text);
+    }
+
+    #[test]
+    fn empty_decisions_list_does_not_panic() {
+        let clan = clan_with(SIMPLE_SCHEMA, "decisions: []\n");
+        let ctx = assemble(&clan, &InjectOptions::default()).unwrap();
+        assert!(ctx.text.contains("decisions [0]"), "{}", ctx.text);
+        assert!(!ctx.text.contains("fields_changed"), "{}", ctx.text);
+    }
+
+    #[test]
+    fn empty_mapping_chain_does_not_panic() {
+        let clan = clan_with(SIMPLE_SCHEMA, "{}\n");
+        let ctx = assemble(&clan, &InjectOptions::default()).unwrap();
+        assert!(ctx.text.contains("# Decision History (TOON)"), "{}", ctx.text);
+    }
+
+    #[test]
+    fn non_sequence_decisions_value_does_not_panic() {
+        for chain in ["decisions: nope\n", "decisions: {a: 1}\n", "decisions: null\n"] {
+            let clan = clan_with(SIMPLE_SCHEMA, chain);
+            assemble(&clan, &InjectOptions::default())
+                .unwrap_or_else(|e| panic!("chain {chain:?} must assemble: {e}"));
+        }
+    }
+
+    #[test]
+    fn non_list_fields_changed_value_does_not_panic() {
+        // fields_changed holding a scalar instead of a list: not "empty", so
+        // it is kept inside the window and dropped outside it — never a panic.
+        let mut chain = String::from(
+            "decisions:\n- agent: a0\n  action: x\n  rationale: r\n  timestamp: t\n  fields_changed: zq-scalar-recent\n",
+        );
+        for i in 1..5 {
+            chain.push_str(&decision_yaml(i, &[]));
+        }
+        chain.push_str(
+            "- agent: a5\n  action: x\n  rationale: r\n  timestamp: t\n  fields_changed: zq-scalar-old\n",
+        );
+        let clan = clan_with(SIMPLE_SCHEMA, &chain);
+        let ctx = assemble(&clan, &InjectOptions::default()).unwrap();
+        assert!(ctx.text.contains("zq-scalar-recent"), "{}", ctx.text);
+        assert!(!ctx.text.contains("zq-scalar-old"), "{}", ctx.text);
+    }
+
+    #[test]
+    fn truly_invalid_yaml_chain_is_an_error_not_a_panic() {
+        let clan = clan_with(SIMPLE_SCHEMA, "decisions: [unclosed\n");
+        assert!(assemble(&clan, &InjectOptions::default()).is_err());
+    }
+
+    // --- #24 adversarial: digest tracks guide content ---
+
+    #[test]
+    fn skip_guide_digest_tracks_guide_content() {
+        let opts = InjectOptions { skip_guide: true, ..Default::default() };
+
+        let guide_a = "guide version A";
+        let guide_b = "guide version B — content changed";
+        let ctx_a = assemble(&clan_with_guide(guide_a, SIMPLE_SCHEMA, "decisions: []\n"), &opts).unwrap();
+        let ctx_b = assemble(&clan_with_guide(guide_b, SIMPLE_SCHEMA, "decisions: []\n"), &opts).unwrap();
+
+        let digest_a = crate::hash::sha256_prefixed(guide_a.as_bytes());
+        let digest_b = crate::hash::sha256_prefixed(guide_b.as_bytes());
+        assert_ne!(digest_a, digest_b);
+        assert!(ctx_a.text.contains(&digest_a), "{}", ctx_a.text);
+        assert!(ctx_b.text.contains(&digest_b), "{}", ctx_b.text);
+        assert!(
+            !ctx_a.text.contains(&digest_b) && !ctx_b.text.contains(&digest_a),
+            "each note must carry exactly its own guide's digest"
+        );
+        // Neither body leaks into the skipped view.
+        assert!(!ctx_a.text.contains(guide_a) && !ctx_b.text.contains(guide_b));
+    }
+
+    // --- #23 adversarial: schema injection edge cases ---
+
+    #[test]
+    fn invalid_json_schema_falls_back_to_raw_injection() {
+        // assemble() never validates the schema file; a broken one must be
+        // injected raw, not turn into an error or panic.
+        let schema = "{not json";
+        let clan = clan_with(schema, "decisions: []\n");
+        let ctx = assemble(&clan, &InjectOptions::default()).unwrap();
+        assert!(
+            ctx.text.contains("# Output Schema (return JSON matching this exactly)"),
+            "{}", ctx.text
+        );
+        assert!(ctx.text.contains(schema), "{}", ctx.text);
+        assert_eq!(ctx.output_schema_json, schema);
+    }
+
+    #[test]
+    fn empty_object_schema_falls_back_to_raw() {
+        // "{}" TOON-encodes to an empty string, which the verifier rejects;
+        // the raw two bytes must be injected instead of an empty section.
+        let clan = clan_with("{}", "decisions: []\n");
+        let ctx = assemble(&clan, &InjectOptions::default()).unwrap();
+        assert!(
+            ctx.text.contains("# Output Schema (return JSON matching this exactly)\n\n{}"),
+            "{}", ctx.text
+        );
+        assert_eq!(ctx.output_schema_json, "{}");
+    }
+
+    #[test]
+    fn unicode_schema_keys_are_handled() {
+        let schema = r#"{
+  "type": "object",
+  "properties": {
+    "tîtré": {"type": "string"},
+    "金額": {"type": "number"}
+  }
+}"#;
+        let clan = clan_with(schema, "decisions: []\n");
+        let ctx = assemble(&clan, &InjectOptions::default()).unwrap();
+        // Whichever injection path wins, the unicode keys must appear and the
+        // validation contract must stay byte-identical.
+        assert!(ctx.text.contains("tîtré"), "{}", ctx.text);
+        assert!(ctx.text.contains("金額"), "{}", ctx.text);
+        assert_eq!(ctx.output_schema_json, schema);
+    }
+
+    // --- #23/#24 interaction: the validation contract is inviolable ---
+
+    #[test]
+    fn output_schema_json_is_always_the_raw_bytes() {
+        // Every combination of guide handling and schema path (TOON-able,
+        // ambiguous, invalid JSON) must surface the raw file content.
+        let ambiguous = r#"{"type": "object", "properties": {"code": {"enum": ["123"]}}}"#;
+        for schema in [SIMPLE_SCHEMA, ambiguous, "{not json", "{}"] {
+            for skip_guide in [false, true] {
+                for include_patches in [false, true] {
+                    let clan = clan_with(schema, "decisions: []\n");
+                    let opts = InjectOptions { include_patches, skip_guide };
+                    let ctx = assemble(&clan, &opts).unwrap();
+                    assert_eq!(
+                        ctx.output_schema_json, schema,
+                        "raw schema bytes lost (skip_guide={skip_guide}, include_patches={include_patches})"
+                    );
+                }
+            }
+        }
     }
 }
 

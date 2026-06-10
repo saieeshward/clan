@@ -594,3 +594,292 @@ mod schema_roundtrip_tests {
         }
     }
 }
+
+/// Adversarial tests for issue #23. The safety claim under attack:
+/// `json_to_toon_verified` must NEVER return `Some(toon)` whose
+/// verification-parse differs from the original value. False negatives
+/// (needless fallback to raw JSON) are acceptable; false positives are bugs.
+#[cfg(test)]
+mod adversarial_tests {
+    use super::*;
+    use serde_json::{json, Value as J};
+
+    /// Minimal deterministic LCG so the loop is reproducible without a
+    /// `rand` dependency (constants from PCG/Knuth).
+    struct Lcg(u64);
+    impl Lcg {
+        fn next(&mut self) -> u64 {
+            self.0 = self
+                .0
+                .wrapping_mul(6364136223846793005)
+                .wrapping_add(1442695040888963407);
+            self.0 >> 11
+        }
+        fn below(&mut self, n: u64) -> u64 {
+            self.next() % n
+        }
+    }
+
+    const TRICKY_STRINGS: &[&str] = &[
+        "123", "1e5", "true", "false", "null", "", " padded ", "a: b", "[3]",
+        "key [2]", "naïve – ünïcode ✓", "line\nbreak", "tab\there", "-0",
+        "007", "  ", "0.5", "-1.5e-3", "NaN", "inf", "[0]", ": ", "x [1]",
+        "yes", "~", "-0.0", "1.0", "9223372036854775807", "carriage\rreturn",
+        "crlf\r\nline", "9223372036854775808", "\t", "a\n  b: 1",
+    ];
+    const TRICKY_KEYS: &[&str] = &[
+        "", "key [2]", "a: b", "decisions", "type", "properties", "x",
+        " lead", "trail ", "[2]", "k\nk", "ünï", "a:b", "items [1]", "enum",
+    ];
+
+    /// The claim itself, checked independently of the implementation's own
+    /// comparison: if `Some(toon)` comes back, parsing it must yield the
+    /// original value — compared both as `serde_json::Value` AND by exact
+    /// serialised text (the latter catches loose float equality such as
+    /// `-0.0 == 0.0` slipping through `PartialEq`).
+    fn assert_claim(v: &J) -> Option<String> {
+        let toon = json_to_toon_verified(v)?;
+        let parsed = parse_toon(&toon).unwrap_or_else(|| {
+            panic!("Some(toon) returned but parse_toon rejected it:\n{toon}\nfor input {v}")
+        });
+        let back: J = serde_json::to_value(&parsed)
+            .unwrap_or_else(|e| panic!("parsed TOON not JSON-convertible ({e}):\n{toon}"));
+        assert_eq!(&back, v, "FALSE POSITIVE: lossy TOON was accepted:\n{toon}");
+        assert_eq!(
+            serde_json::to_string(&back).unwrap(),
+            serde_json::to_string(v).unwrap(),
+            "FALSE POSITIVE: values compare equal but serialise differently:\n{toon}"
+        );
+        // Determinism: a second encode must produce the identical text.
+        assert_eq!(json_to_toon_verified(v).as_deref(), Some(toon.as_str()));
+        Some(toon)
+    }
+
+    fn gen_value(rng: &mut Lcg, depth: u32) -> J {
+        let pick = if depth >= 4 { rng.below(7) } else { rng.below(10) };
+        match pick {
+            0 => J::Null,
+            1 => J::Bool(rng.below(2) == 0),
+            2 => json!(rng.next() as i64),
+            3 => {
+                let f = match rng.below(8) {
+                    0 => 0.0,
+                    1 => -0.0,
+                    2 => 1e300,
+                    3 => -1e-300,
+                    4 => 1.5,
+                    5 => -2.25,
+                    6 => 1e15 + 0.5,
+                    _ => (rng.next() as i64 as f64) / 1000.0,
+                };
+                json!(f)
+            }
+            4 => match rng.below(7) {
+                0 => json!(i64::MAX),
+                1 => json!(i64::MIN),
+                2 => json!(u64::MAX),
+                3 => json!(i64::MAX as u64 + 1), // just above i64 range
+                4 => json!(0i64),
+                5 => json!(-1i64),
+                _ => json!(7i64),
+            },
+            5 | 6 => {
+                J::String(TRICKY_STRINGS[rng.below(TRICKY_STRINGS.len() as u64) as usize].into())
+            }
+            7 => {
+                let n = rng.below(4) as usize;
+                J::Array((0..n).map(|_| gen_value(rng, depth + 1)).collect())
+            }
+            8 => {
+                // Arrays of (possibly heterogeneous, possibly key-colliding)
+                // objects: the flattened sequence encoding's weakest spot.
+                let n = rng.below(4) as usize;
+                J::Array(
+                    (0..n)
+                        .map(|_| {
+                            let fields = 1 + rng.below(3) as usize;
+                            let mut m = serde_json::Map::new();
+                            for _ in 0..fields {
+                                let key =
+                                    TRICKY_KEYS[rng.below(TRICKY_KEYS.len() as u64) as usize];
+                                m.insert(key.into(), gen_value(rng, depth + 2));
+                            }
+                            J::Object(m)
+                        })
+                        .collect(),
+                )
+            }
+            _ => {
+                let n = rng.below(5) as usize;
+                let mut m = serde_json::Map::new();
+                for _ in 0..n {
+                    let key = TRICKY_KEYS[rng.below(TRICKY_KEYS.len() as u64) as usize];
+                    m.insert(key.into(), gen_value(rng, depth + 1));
+                }
+                J::Object(m)
+            }
+        }
+    }
+
+    /// Property loop: a few hundred deterministic pseudo-random values per
+    /// seed. Every `Some(toon)` must parse back to the exact original.
+    #[test]
+    fn seeded_property_roundtrip_never_lies() {
+        let mut encoded = 0u32;
+        let mut total = 0u32;
+        for seed in [1u64, 0xDEADBEEF, 0x23, 42, 0x5EED] {
+            let mut rng = Lcg(seed);
+            for _ in 0..400 {
+                let v = gen_value(&mut rng, 0);
+                total += 1;
+                if assert_claim(&v).is_some() {
+                    encoded += 1;
+                }
+            }
+        }
+        // Sanity: the test must not be vacuous — a healthy share of values
+        // should actually be encodable.
+        assert!(encoded > total / 20, "only {encoded}/{total} values encoded");
+    }
+
+    /// Hand-crafted nasty scalars and keys, each checked against the claim.
+    #[test]
+    fn handcrafted_nasty_values_never_corrupt() {
+        let cases = vec![
+            json!({"": 1}),                                   // empty key
+            json!({"": {"a": 1}}),                            // empty key, mapping value
+            json!({"key [2]": "x"}),                          // key ending in " [2]", scalar
+            json!({"key [2]": {"a": 1, "b": 2}}),             // key ending in " [2]", object
+            json!({"key [1]": [{"a": 1}]}),                   // header-shaped key + real seq
+            json!({"key [1]": {"a": 1}}),                     // header-shaped key + object
+            json!({"a": "-0"}),                               // string "-0"
+            json!({"a": "007"}),                              // leading-zero numeric string
+            json!({"a": "  "}),                               // string equal to INDENT
+            json!({"a": ["  "]}),                             // INDENT string inside a sequence
+            json!({"decisions": [{"id": 1}, {"id": 2}]}),     // key "decisions"
+            json!({"a": [[1, 2], [3], []]}),                  // array of arrays
+            json!({"a": [[[1]], [[2], [3]]]}),                // array of arrays of arrays
+            json!({"x": {}, "y": 1}),                         // empty object next to scalar
+            json!({"a": [{"x": {}}, {"y": 1}]}),              // empty-object item collision
+            json!({"a": [{"x": {}, "y": 1}]}),                // flattened empty obj + scalar
+            json!({"a": ["x", {"y": 1}]}),                    // scalar/object item collision
+            json!({"a": "x\nb: 2", "b": 2}),                  // multiline forging a sibling
+            json!({"k\nk": 1}),                               // key containing newline
+            json!({"a": -0.0}),                               // negative zero
+            json!({"a": 0.0}),                                // positive zero
+            json!({"a": 1e300}),                              // huge float
+            json!({"a": 5e-324}),                             // smallest subnormal
+            json!({"a": i64::MAX}),
+            json!({"a": i64::MIN}),
+            json!({"a": u64::MAX}),
+            json!({"a": 1e15 + 0.5}),
+            json!({"a": ["[3]"]}),                            // string forging a seq header
+            json!({"a": ["[0]"]}),
+            json!({"a": [[]]}),                               // genuine empty nested seq
+            json!({"a": [" lead", "trail ", "", "a: b"]}),
+            json!({"a [1]": [1]}),                            // key vs header collision
+            json!([1, 2, 3]),                                 // top-level array
+            json!([]),
+            json!({}),
+            json!(null),
+            json!("a: b"),                                    // top-level entry-shaped string
+            json!("123"),
+            json!(""),
+        ];
+        for v in &cases {
+            assert_claim(v);
+        }
+        // Non-vacuity: the genuinely unambiguous ones must encode.
+        assert!(assert_claim(&json!({"": 1})).is_some());
+        assert!(assert_claim(&json!({"key [2]": "x"})).is_some());
+        assert!(assert_claim(&json!({"x": {}, "y": 1})).is_some());
+        assert!(assert_claim(&json!({"a": [[1, 2], [3], []]})).is_some());
+        assert!(assert_claim(&json!({"decisions": [{"id": 1}, {"id": 2}]})).is_some());
+        // Known-ambiguous ones must refuse.
+        assert_eq!(json_to_toon_verified(&json!({"a": [{"x": {}}, {"y": 1}]})), None);
+        assert_eq!(json_to_toon_verified(&json!({"a": ["[3]"]})), None);
+        assert_eq!(json_to_toon_verified(&json!({"a": "x\nb: 2", "b": 2})), None);
+    }
+
+    /// 50-level nesting in both objects and arrays must neither panic nor lie.
+    #[test]
+    fn deep_nesting_is_safe() {
+        let mut obj = json!({"leaf": 1});
+        for i in 0..50 {
+            obj = json!({ format!("level{i}"): obj });
+        }
+        assert!(assert_claim(&obj).is_some(), "deep object should be lossless");
+
+        let mut arr = json!([1]);
+        for _ in 0..50 {
+            arr = json!([arr]);
+        }
+        let wrapped = json!({"deep": arr});
+        assert!(assert_claim(&wrapped).is_some(), "deep array should be lossless");
+    }
+
+    /// Heterogeneous object arrays: every grouping the flattening could
+    /// mis-split. The length check + roundtrip must catch all of them.
+    #[test]
+    fn heterogeneous_object_arrays_never_merge_or_split_silently() {
+        let cases = vec![
+            json!({"s": [{"a": 1}, {"b": 2}]}),               // disjoint keys merge
+            json!({"s": [{"a": 1}, {"b": 2}, {"a": 3, "b": 4}]}),
+            json!({"s": [{"a": 1, "b": 2}, {"a": 3}, {"b": 4}]}),
+            json!({"s": [{"a": 1}, {"a": 2, "b": 3}]}),       // legitimately splittable
+            json!({"s": [{"a": 1, "b": 2}, {"b": 3}]}),
+            json!({"s": [{"a": {"x": 1}}, {"a": {"x": 2}}]}), // nested mapping items
+            json!({"s": [{"a": 1}, 5, {"a": 2}]}),            // scalars interleaved
+            json!({"s": [{"a": "b: c"}]}),                    // value forging a kv line
+            json!({"s": [{"a": 1}, {"a": 1}]}),               // identical consecutive items
+        ];
+        for v in &cases {
+            assert_claim(v);
+        }
+        // The splittable layouts are exactly recoverable and must encode.
+        assert!(assert_claim(&json!({"s": [{"a": 1}, {"a": 2, "b": 3}]})).is_some());
+        assert!(assert_claim(&json!({"s": [{"a": {"x": 1}}, {"a": {"x": 2}}]})).is_some());
+    }
+
+    /// jsonschema validation-equivalence: whenever a schema-shaped value is
+    /// accepted, the recovered schema must validate identical payloads.
+    #[test]
+    fn validation_equivalence_for_generated_schemas() {
+        let probes = [
+            json!({"p": 1}),
+            json!({"p": "1"}),
+            json!({"p": "draft"}),
+            json!({"p": true}),
+            json!({"p": null}),
+            json!({"p": []}),
+            json!({"p": {}}),
+            json!({"p": -0.0}),
+            json!({}),
+            json!({"p": 1, "extra": "x"}),
+        ];
+        let mut rng = Lcg(0xC0FFEE);
+        let mut checked = 0u32;
+        for _ in 0..300 {
+            let body = gen_value(&mut rng, 1);
+            let schema = json!({
+                "type": "object",
+                "properties": {"p": body},
+                "required": ["p"]
+            });
+            let Some(toon) = assert_claim(&schema) else { continue };
+            let recovered: J = serde_json::to_value(&parse_toon(&toon).unwrap()).unwrap();
+            let Ok(before) = jsonschema::validator_for(&schema) else { continue };
+            let after = jsonschema::validator_for(&recovered)
+                .expect("recovered schema failed to compile although original did");
+            for p in &probes {
+                assert_eq!(
+                    before.is_valid(p),
+                    after.is_valid(p),
+                    "validation diverged after TOON round-trip\nschema: {schema}\npayload: {p}"
+                );
+            }
+            checked += 1;
+        }
+        assert!(checked > 10, "only {checked} schemas were actually compared");
+    }
+}
