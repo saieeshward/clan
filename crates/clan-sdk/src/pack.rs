@@ -160,6 +160,23 @@ pub struct PackOptions {
     pub extra_entries: Vec<(String, Vec<u8>)>,
 }
 
+/// Teaching guard (spec §27.2): on a forked branch file only the branch
+/// namespace may be written, so shared/human-mutating operations are
+/// rejected with the correct alternative named in the message.
+fn reject_if_forked(parent: &ClanFile, attempted: &str) -> Result<()> {
+    if let Some(fork) = &parent.manifest().fork {
+        return Err(Error::NamespaceViolation(format!(
+            "this file is forked for agent '{agent}' — {attempted} is not allowed during a parallel interval.\n\
+             next: write your data with `clan patch-data --namespace` (routes to {ns}data.yaml)\n\
+             next: record decisions with `clan patch-decision` (auto-routed to {ns}decisions.yaml)\n\
+             next: when all branches are done, join them with `clan merge`",
+            agent = fork.agent_id,
+            ns = fork.namespace,
+        )));
+    }
+    Ok(())
+}
+
 /// Pack a new `.clan` archive from a parent file and agent output.
 pub fn pack(
     parent: &ClanFile,
@@ -167,6 +184,7 @@ pub fn pack(
     opts: PackOptions,
     compressor: Option<&Compressor>,
 ) -> Result<Vec<u8>> {
+    reject_if_forked(parent, "packing a new generation (writes shared/data.yaml)")?;
     let now = Utc::now().to_rfc3339();
     let parent_manifest = parent.manifest();
 
@@ -248,7 +266,27 @@ pub fn pack(
             .unwrap_or_else(|| format!("file:///unknown/{}.clan", parent_manifest.id)),
         parent_sha256: Some(parent.sha256()),
         delta,
+        parents: Vec::new(),
+        merge: false,
     });
+
+    // View bookkeeping (spec §23): view-producing modes refresh the view;
+    // a data-only update leaves an existing view stale.
+    match output.mode.as_str() {
+        "full-html" | "patch-html" | "designed" => {
+            if let Some(view) = &mut new_manifest.view {
+                view.present = true;
+                view.stale = false;
+            }
+        }
+        _ => {
+            if let Some(view) = &mut new_manifest.view {
+                if view.present {
+                    view.stale = true;
+                }
+            }
+        }
+    }
 
     // Rebuild the files registry, keeping everything from the parent.
     // New/updated entries will have their sha256 recomputed by ClanBuilder.
@@ -595,6 +633,7 @@ fn merge_json(a: &mut Value, b: &Value) {
 /// This merges the patch over the existing data, preserving all other files,
 /// and increments the generation.
 pub fn patch_data(parent: &ClanFile, patch: &Value, compressor: Option<&Compressor>) -> Result<Vec<u8>> {
+    reject_if_forked(parent, "a direct write to shared/data.yaml")?;
     let existing_str = parent.read_entry_string("shared/data.yaml").unwrap_or_default();
     let mut data: Value = if existing_str.is_empty() {
         Value::Object(Default::default())
@@ -614,7 +653,28 @@ pub fn patch_data(parent: &ClanFile, patch: &Value, compressor: Option<&Compress
         decision: None, // No decision entry unless the caller explicitly wants one
     };
 
-    let opts = PackOptions { delta: None, ..Default::default() };
+    let mut opts = PackOptions { delta: None, ..Default::default() };
+
+    // Adjudication (spec §25): a data write that settles a contested key
+    // removes it from the merge report and decrements `unresolved`.
+    if parent.has_entry(crate::merge::MERGE_REPORT_PATH) {
+        if let Ok(mut report) =
+            crate::merge::MergeReport::from_yaml(&parent.read_entry(crate::merge::MERGE_REPORT_PATH)?)
+        {
+            let patched: std::collections::BTreeSet<&str> = patch
+                .as_object()
+                .map(|o| o.keys().map(String::as_str).collect())
+                .unwrap_or_default();
+            let before = report.conflicts.len();
+            report.conflicts.retain(|c| !patched.contains(c.key.as_str()));
+            if report.conflicts.len() != before {
+                report.unresolved = report.conflicts.len();
+                opts.extra_entries
+                    .push((crate::merge::MERGE_REPORT_PATH.to_string(), report.to_yaml()?));
+            }
+        }
+    }
+
     pack(parent, output, opts, compressor)
 }
 
@@ -623,8 +683,21 @@ pub fn patch_data(parent: &ClanFile, patch: &Value, compressor: Option<&Compress
 /// chain entry — no schema validation runs, since the data is untouched.
 pub fn patch_decision(parent: &ClanFile, entry: DecisionEntry, compressor: Option<&Compressor>) -> Result<Vec<u8>> {
     let now = Utc::now().to_rfc3339();
-    let chain_bytes = parent.read_entry("agent/decision-chain.yaml")?;
-    let mut chain = DecisionChain::from_yaml(&chain_bytes)?;
+
+    // On a forked branch file decisions are auto-routed into the branch
+    // namespace, so they fold cleanly at `clan merge` (spec §24.1).
+    let chain_path = match parent.manifest().fork_namespace() {
+        Some(ns) => format!("{ns}decisions.yaml"),
+        None => "agent/decision-chain.yaml".to_string(),
+    };
+    let mut chain = if parent.has_entry(&chain_path) {
+        DecisionChain::from_yaml(&parent.read_entry(&chain_path)?)?
+    } else if chain_path == "agent/decision-chain.yaml" {
+        // The shared chain is a required member; surface the real error.
+        DecisionChain::from_yaml(&parent.read_entry(&chain_path)?)?
+    } else {
+        DecisionChain::default()
+    };
 
     let delta = format!("appended decision by {}", entry.agent_name);
     chain.prepend(Decision {
@@ -640,12 +713,41 @@ pub fn patch_decision(parent: &ClanFile, entry: DecisionEntry, compressor: Optio
     compress_chain(&mut chain, &CompressionConfig::default(), compressor);
     let new_chain_yaml = chain.to_yaml()?;
 
-    repack_with_entry(parent, "agent/decision-chain.yaml", new_chain_yaml, Some(delta))
+    repack_with_entry(parent, &chain_path, new_chain_yaml, Some(delta))
+}
+
+/// Merge-patch the branch namespace `agents/<agent_id>/data.yaml` of a forked
+/// file (RFC 7396). The shared members are untouched — this is the only data
+/// write a branch agent is allowed (spec §24.1).
+pub fn patch_data_namespaced(parent: &ClanFile, patch: &Value) -> Result<Vec<u8>> {
+    let ns = parent.manifest().fork_namespace().ok_or_else(|| {
+        Error::NamespaceViolation(
+            "this file is not forked — there is no branch namespace.\n\
+             next: write shared data directly with `clan patch-data` (no --namespace)"
+                .into(),
+        )
+    })?;
+    let data_path = format!("{ns}data.yaml");
+    let mut data: Value = if parent.has_entry(&data_path) {
+        let existing = parent.read_entry_string(&data_path)?;
+        if existing.trim().is_empty() {
+            Value::Object(Default::default())
+        } else {
+            serde_yaml::from_str(&existing)
+                .map_err(|e| Error::OutputRejected(format!("existing {data_path} is invalid: {e}")))?
+        }
+    } else {
+        Value::Object(Default::default())
+    };
+    merge_json(&mut data, patch);
+    let new_yaml = serde_yaml::to_string(&data)?.into_bytes();
+    repack_with_entry(parent, &data_path, new_yaml, Some(format!("patched {data_path}")))
 }
 
 /// Replace `agent/output-schema.json` inside the archive.
 /// This allows an agent to atomically migrate a file's structure.
 pub fn patch_schema(parent: &ClanFile, schema_json: &str, compressor: Option<&Compressor>) -> Result<Vec<u8>> {
+    reject_if_forked(parent, "replacing the shared output schema")?;
     let existing_data_str = parent.read_entry_string("shared/data.yaml").unwrap_or_default();
     let structured: Value = if existing_data_str.is_empty() {
         Value::Object(Default::default())
@@ -682,6 +784,8 @@ fn repack_with_entry(parent: &ClanFile, target_path: &str, new_bytes: Vec<u8>, d
         parent_uri: format!("file:///unknown/{}.clan", parent_manifest.id),
         parent_sha256: Some(parent.sha256()),
         delta: delta.unwrap_or_default(),
+        parents: Vec::new(),
+        merge: false,
     });
 
     // Ensure the file is tracked in manifest files array if it's an asset or state
@@ -691,6 +795,10 @@ fn repack_with_entry(parent: &ClanFile, target_path: &str, new_bytes: Vec<u8>, d
         "agent-context"
     } else if target_path.starts_with("human/assets/") {
         "human-asset"
+    } else if target_path.starts_with("agents/") && target_path.ends_with("/data.yaml") {
+        "branch-data"
+    } else if target_path.starts_with("agents/") && target_path.ends_with("/decisions.yaml") {
+        "branch-decisions"
     } else {
         "unknown"
     };
@@ -732,6 +840,7 @@ pub fn patch_state(parent: &ClanFile, patch: &Value) -> Result<Vec<u8>> {
 
 /// Patch or append to `agent/context.md`.
 pub fn patch_context(parent: &ClanFile, text: &str, append: bool) -> Result<Vec<u8>> {
+    reject_if_forked(parent, "rewriting the shared agent/context.md")?;
     let mut existing = parent.read_entry_string("agent/context.md").unwrap_or_default();
     if append {
         if !existing.is_empty() && !existing.ends_with('\n') {
@@ -746,6 +855,7 @@ pub fn patch_context(parent: &ClanFile, text: &str, append: bool) -> Result<Vec<
 
 /// Inject or replace an asset in `human/assets/`.
 pub fn patch_asset(parent: &ClanFile, internal_path: &str, bytes: Vec<u8>) -> Result<Vec<u8>> {
+    reject_if_forked(parent, "writing human/ assets")?;
     let full_path = if internal_path.starts_with("human/assets/") {
         internal_path.to_string()
     } else {
@@ -781,6 +891,9 @@ mod tests {
             updated_at: "2026-06-01T10:00:00Z".into(),
             document_type: None,
             lineage: None,
+            view: None,
+            fork: None,
+            merge_policies: None,
             external: vec![],
             files: vec![
                 entry("canonical-data", "shared/data.yaml", "canonical-data", "application/yaml"),

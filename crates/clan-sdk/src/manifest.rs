@@ -29,6 +29,20 @@ pub struct Manifest {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub lineage: Option<Lineage>,
 
+    /// Human-view state (spec §23). Absent on v1.0 files — treat as
+    /// "present iff human/index.html exists".
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub view: Option<ViewState>,
+
+    /// Fork block (spec §24.1) — present only on a branch file produced by
+    /// `clan fork`. Names the one agent allowed to write, and where.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub fork: Option<ForkInfo>,
+
+    /// Per-key merge policies applied by `clan merge` (spec §24.3).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub merge_policies: Option<MergePolicies>,
+
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub external: Vec<ExternalRef>,
 
@@ -36,6 +50,10 @@ pub struct Manifest {
 }
 
 /// Lineage block — records the parent CLAN file (spec §12).
+///
+/// The single-parent fields remain the v1.0 form. A merged file additionally
+/// carries every parent in `parents[]` (spec §24.2); `parent_id` then holds
+/// the first parent so v1.0 readers keep working.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Lineage {
     pub parent_id: String,
@@ -43,6 +61,70 @@ pub struct Lineage {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub parent_sha256: Option<String>,
     pub delta: String,
+    /// All parents of a merge (spec §24.2). Empty for the single-parent form.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub parents: Vec<ParentRef>,
+    /// True when this file was produced by `clan merge`.
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub merge: bool,
+}
+
+/// One parent of a merged CLAN file (spec §24.2).
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ParentRef {
+    pub id: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub sha256: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub delta: Option<String>,
+    /// The forking agent that produced this branch, when known.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub agent_id: Option<String>,
+}
+
+/// Human-view state (spec §23). The structured members are canonical; the
+/// HTML view is a derivable artifact that may be absent or stale.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ViewState {
+    /// `human/index.html` exists in this file.
+    pub present: bool,
+    /// A view can be materialised from the current structured members.
+    #[serde(default = "default_true")]
+    pub renderable: bool,
+    /// The view exists but predates the current `shared/data.yaml`.
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub stale: bool,
+}
+
+/// Fork block (spec §24.1).
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ForkInfo {
+    /// The one agent allowed to write in this branch file.
+    pub agent_id: String,
+    /// The namespace prefix this agent writes under (`agents/<agent_id>/`).
+    pub namespace: String,
+    /// sha256 of the file the fork was issued from.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub forked_from: Option<String>,
+}
+
+/// Per-key merge policies (spec §24.3). Policy names: `last-write`,
+/// `append`, `max`, `min`, `agent-priority`.
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct MergePolicies {
+    /// Policy applied to keys not listed in `keys`. Default: `last-write`.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub default: Option<String>,
+    #[serde(default, skip_serializing_if = "std::collections::BTreeMap::is_empty")]
+    pub keys: std::collections::BTreeMap<String, String>,
+}
+
+fn is_false(b: &bool) -> bool {
+    !*b
+}
+
+fn default_true() -> bool {
+    true
 }
 
 /// A single entry in the file registry (spec §5).
@@ -137,8 +219,56 @@ impl Manifest {
                     ));
                 }
             }
+            for parent in &lineage.parents {
+                if !is_uuid_v4(&parent.id) {
+                    problems.push(format!(
+                        "lineage.parents entry is not a valid UUID v4: {}",
+                        parent.id
+                    ));
+                }
+                if parent.id == self.id {
+                    problems.push("a CLAN must not list itself among its own parents".into());
+                }
+            }
+            if lineage.merge && lineage.parents.len() < 2 {
+                problems.push("lineage.merge is set but fewer than 2 parents are listed".into());
+            }
+        }
+        if let Some(fork) = &self.fork {
+            if fork.agent_id.trim().is_empty() {
+                problems.push("fork.agent_id is empty".into());
+            }
+            let expected = format!("agents/{}/", fork.agent_id);
+            if fork.namespace != expected {
+                problems.push(format!(
+                    "fork.namespace must be {expected:?}, found {:?}",
+                    fork.namespace
+                ));
+            }
+        }
+        if let Some(policies) = &self.merge_policies {
+            let known = ["last-write", "append", "max", "min", "agent-priority"];
+            let mut check = |name: &str, where_: String| {
+                if !known.contains(&name) {
+                    problems.push(format!(
+                        "unknown merge policy {name:?} for {where_} (expected one of {known:?})"
+                    ));
+                }
+            };
+            if let Some(d) = &policies.default {
+                check(d, "merge_policies.default".into());
+            }
+            for (key, policy) in &policies.keys {
+                check(policy, format!("merge_policies.keys.{key}"));
+            }
         }
         problems
+    }
+
+    /// The namespace prefix the named branch agent writes under, if this is a
+    /// forked file.
+    pub fn fork_namespace(&self) -> Option<&str> {
+        self.fork.as_ref().map(|f| f.namespace.as_str())
     }
 
     /// Validate or error.
@@ -197,6 +327,9 @@ mod tests {
             updated_at: "2026-05-31T10:00:00Z".into(),
             document_type: Some("invoice".into()),
             lineage: None,
+            view: None,
+            fork: None,
+            merge_policies: None,
             external: vec![],
             files: vec![FileEntry {
                 id: "canonical-data".into(),

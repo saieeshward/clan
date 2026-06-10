@@ -40,4 +40,10 @@ pub enum Error {
 
     #[error("unsupported output mode: {0}")]
     UnsupportedMode(String),
+
+    #[error("forked-file namespace violation: {0}")]
+    NamespaceViolation(String),
+
+    #[error("merge error: {0}")]
+    Merge(String),
 }

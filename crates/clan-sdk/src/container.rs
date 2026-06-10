@@ -219,6 +219,9 @@ mod tests {
             updated_at: "2026-05-31T10:00:00Z".into(),
             document_type: None,
             lineage: None,
+            view: None,
+            fork: None,
+            merge_policies: None,
             external: vec![],
             files: vec![FileEntry {
                 id: "canonical-data".into(),

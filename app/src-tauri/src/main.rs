@@ -630,6 +630,7 @@ mod tests {
             title: "Viewer Test".into(),
             brief: "test brief".into(),
             document_type: None,
+            no_render: false,
         })
         .unwrap();
         std::fs::write(&path, bytes).unwrap();

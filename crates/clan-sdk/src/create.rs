@@ -21,12 +21,20 @@ pub struct CreateOptions {
     pub title: String,
     pub brief: String,
     pub document_type: Option<String>,
+    /// Agent-only file (spec §23): skip the human view placeholder. The view
+    /// stays derivable — any later hop can materialise it with `clan render`.
+    pub no_render: bool,
 }
 
 /// Create a new `.clan` archive from scratch and return its raw bytes.
 pub fn create(opts: CreateOptions) -> Result<Vec<u8>> {
     let now = Utc::now().to_rfc3339();
     let id = Uuid::new_v4().to_string();
+
+    let mut files = file_registry();
+    if opts.no_render {
+        files.retain(|f| f.path != "human/index.html");
+    }
 
     let manifest = Manifest {
         clan_version: CLAN_VERSION,
@@ -37,8 +45,15 @@ pub fn create(opts: CreateOptions) -> Result<Vec<u8>> {
         updated_at: now.clone(),
         document_type: opts.document_type,
         lineage: None,
+        view: Some(crate::manifest::ViewState {
+            present: !opts.no_render,
+            renderable: true,
+            stale: false,
+        }),
+        fork: None,
+        merge_policies: None,
         external: vec![],
-        files: file_registry(),
+        files,
     };
 
     let mut builder = ClanBuilder::new(manifest);
@@ -100,14 +115,17 @@ pub fn create(opts: CreateOptions) -> Result<Vec<u8>> {
     builder.add_entry("agent/decision-chain.yaml", b"decisions: []\n".to_vec());
 
     // human/index.html — placeholder shown before the first agent pass.
-    let pending_html = format!(
-        "<section class=\"pending\">\n  \
-         <h1 data-adf-id=\"heading-0\">{}</h1>\n  \
-         <p data-adf-id=\"para-0\">Awaiting initial agent pass…</p>\n\
-         </section>\n",
-        opts.title
-    );
-    builder.add_entry("human/index.html", pending_html.into_bytes());
+    // Skipped entirely for agent-only files (spec §23).
+    if !opts.no_render {
+        let pending_html = format!(
+            "<section class=\"pending\">\n  \
+             <h1 data-adf-id=\"heading-0\">{}</h1>\n  \
+             <p data-adf-id=\"para-0\">Awaiting initial agent pass…</p>\n\
+             </section>\n",
+            opts.title
+        );
+        builder.add_entry("human/index.html", pending_html.into_bytes());
+    }
 
     builder.build()
 }

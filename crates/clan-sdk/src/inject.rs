@@ -66,6 +66,62 @@ pub fn assemble(clan: &ClanFile, opts: &InjectOptions) -> Result<AgentContext> {
         parts.push(section("# CLAN Agent Guide", &guide));
     }
 
+    // 1b. Situational blocks (spec §26) — selected by file state, appended
+    // after the byte-stable guide so an agent never reads about a capability
+    // its current file does not exhibit. A sequential agent on an unforked,
+    // conflict-free file gets exactly the v1.0 injection.
+    if let Some(fork) = &clan.manifest().fork {
+        parts.push(section(
+            "# Branch Mode (this file is forked)",
+            &format!(
+                "You are branch agent `{agent}`. Write ONLY inside `{ns}`:\n\
+                 - data: `clan patch-data <file> <json> --namespace` (routes to {ns}data.yaml)\n\
+                 - decisions: `clan patch-decision` (auto-routed to {ns}decisions.yaml)\n\
+                 Writes to shared/ are rejected until the branches are joined with `clan merge`.\n\
+                 Your namespace folds into shared/data.yaml via the manifest merge policies.",
+                agent = fork.agent_id,
+                ns = fork.namespace,
+            ),
+        ));
+    }
+    if clan.has_entry(crate::merge::MERGE_REPORT_PATH) {
+        if let Ok(report) =
+            crate::merge::MergeReport::from_yaml(&clan.read_entry(crate::merge::MERGE_REPORT_PATH)?)
+        {
+            if report.unresolved > 0 {
+                let report_toon = toon::yaml_to_toon(
+                    &clan.read_entry(crate::merge::MERGE_REPORT_PATH)?,
+                )?;
+                parts.push(section(
+                    "# Contested Keys (merge report — adjudication pending)",
+                    &format!(
+                        "{report_toon}\n\
+                         These keys were contested when parallel branches merged; the listed winner \
+                         was picked by policy and currently sits in the data. To adjudicate a key: \
+                         `clan patch-data` with your chosen value, then `clan patch-decision` \
+                         recording why."
+                    ),
+                ));
+            }
+        }
+    }
+    if let Some(view) = &clan.manifest().view {
+        if !view.present && view.renderable {
+            parts.push(section(
+                "# Human View",
+                "No human view exists in this file (agent-only chain). Produce one with \
+                 `clan render <file>` or `clan pack-html` only if your task requires it.",
+            ));
+        }
+    }
+    if clan.has_entry("agent/requirements.yaml") {
+        let req_toon = toon::yaml_to_toon(&clan.read_entry("agent/requirements.yaml")?)?;
+        parts.push(section(
+            "# Capability Requirements (agent/requirements.yaml)",
+            &req_toon,
+        ));
+    }
+
     // 2. Task context.
     let task = clan.read_entry_string("agent/context.md")?;
     parts.push(section("# Your Task", &task));
@@ -165,6 +221,9 @@ mod tests {
             updated_at: "2026-06-01T10:00:00Z".into(),
             document_type: None,
             lineage: None,
+            view: None,
+            fork: None,
+            merge_policies: None,
             external: vec![],
             files: vec![
                 entry("spec-guide", "spec/agent-guide.md", "spec-agent-guide", "text/markdown"),

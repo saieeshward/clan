@@ -23,8 +23,10 @@ use std::path::PathBuf;
 use anyhow::{Context, Result};
 use clap::{Parser, Subcommand};
 use clan_sdk::{
-    assemble, create, export_static, pack, pack_html, patch_data, patch_decision, patch_state, patch_context, patch_asset, validate, AgentOutput, ClanFile,
-    CreateOptions, InjectOptions, PackOptions, DecisionEntry,
+    assemble, create, export_static, fork, merge, pack, pack_html, patch_data,
+    patch_data_namespaced, patch_decision, patch_state, patch_context, patch_asset, render,
+    validate, AgentOutput, ClanFile, CreateOptions, InjectOptions, MergeOptions, MergePolicies,
+    PackOptions, DecisionEntry, MERGE_REPORT_PATH,
 };
 
 #[derive(Parser)]
@@ -34,6 +36,10 @@ use clan_sdk::{
     version = env!("CARGO_PKG_VERSION"),
 )]
 struct Cli {
+    /// Suppress `next:` teaching hints (spec §27). CLAN_NO_HINTS=1 does the same.
+    #[arg(long, global = true)]
+    quiet: bool,
+
     #[command(subcommand)]
     command: Commands,
 }
@@ -54,9 +60,50 @@ enum Commands {
         /// Output path for the new .clan file.
         #[arg(long, value_name = "PATH")]
         output: Option<PathBuf>,
+        /// Agent-only file: skip the human view (spec §23). Any later hop can
+        /// materialise it with `clan render`.
+        #[arg(long)]
+        no_render: bool,
         /// Deprecated: positional output path. Use --output instead.
         #[arg(value_name = "OUTPUT", conflicts_with = "output", hide = true)]
         positional_output: Option<PathBuf>,
+    },
+    /// Fork a file into one branch per agent for parallel work (spec §24.1).
+    /// Each agent writes only inside its own `agents/<id>/` namespace.
+    Fork {
+        /// Parent .clan file.
+        parent: PathBuf,
+        /// Comma-separated agent ids (e.g. researcher,analyst,critic).
+        #[arg(long, value_delimiter = ',', required = true)]
+        agents: Vec<String>,
+        /// Directory to write `<agent>.clan` branch files into.
+        #[arg(long, value_name = "DIR")]
+        output_dir: PathBuf,
+    },
+    /// Join fork branches into one merged file (spec §24.3): a deterministic
+    /// per-key fold — conflicts land in merge-report.yaml, not failures.
+    Merge {
+        /// Branch .clan files (2 or more), folded in argument order.
+        #[arg(required = true, num_args = 2..)]
+        branches: Vec<PathBuf>,
+        /// Output path for the merged .clan file.
+        #[arg(long)]
+        output: PathBuf,
+        /// Per-key policy overrides, e.g. --policy findings=append --policy score=max.
+        /// Policies: last-write (default), append, max, min, agent-priority.
+        #[arg(long = "policy", value_name = "KEY=POLICY")]
+        policies: Vec<String>,
+        /// Drop the agents/<id>/ namespaces instead of keeping them as provenance.
+        #[arg(long)]
+        prune_namespaces: bool,
+        /// Human-readable description of the merge.
+        #[arg(long)]
+        delta: Option<String>,
+    },
+    /// Materialise the human view from the structured members (spec §23).
+    Render {
+        /// The .clan file to render in-place.
+        file: PathBuf,
     },
     /// Validate a .clan file and print a report.
     Validate {
@@ -113,6 +160,10 @@ enum Commands {
         file: PathBuf,
         /// JSON patch file (or `-` for stdin).
         json_file: String,
+        /// On a forked branch file: write into your `agents/<id>/` namespace
+        /// instead of the (locked) shared data (spec §24.1).
+        #[arg(long)]
+        namespace: bool,
     },
     /// Surgically patch `agent/output-schema.json` inside a .clan file.
     PatchSchema {
@@ -216,6 +267,8 @@ enum ReadSection {
     Data { file: PathBuf },
     /// Print agent/decision-chain.yaml.
     Chain { file: PathBuf },
+    /// Print merge-report.yaml (contested keys from the last merge), TOON-encoded.
+    Report { file: PathBuf },
 }
 
 /// ASCII banner shown once, on the first ever run of the CLI (#31).
@@ -269,12 +322,14 @@ fn maybe_show_welcome_banner() {
 fn main() -> Result<()> {
     maybe_show_welcome_banner();
     let cli = Cli::parse();
+    let hints = Hints::new(cli.quiet);
     match cli.command {
         Commands::Create {
             title,
             brief,
             doc_type,
             output,
+            no_render,
             positional_output,
         } => {
             let output = match (output, positional_output) {
@@ -287,9 +342,14 @@ fn main() -> Result<()> {
                 }
                 (None, None) => anyhow::bail!("missing output path: pass --output <PATH>"),
             };
-            cmd_create(title, brief, doc_type, output)
+            cmd_create(title, brief, doc_type, output, no_render, &hints)
         }
-        Commands::Validate { file, strict } => cmd_validate(file, strict),
+        Commands::Fork { parent, agents, output_dir } => cmd_fork(parent, agents, output_dir, &hints),
+        Commands::Merge { branches, output, policies, prune_namespaces, delta } => {
+            cmd_merge(branches, output, policies, prune_namespaces, delta, &hints)
+        }
+        Commands::Render { file } => cmd_render(file, &hints),
+        Commands::Validate { file, strict } => cmd_validate(file, strict, &hints),
         Commands::Read { section } => cmd_read(section),
         Commands::Info { file } => cmd_info(file),
         Commands::Pack {
@@ -298,21 +358,84 @@ fn main() -> Result<()> {
             output,
             schema,
             delta,
-        } => cmd_pack(parent, output_json, output, schema, delta),
+        } => cmd_pack(parent, output_json, output, schema, delta, &hints),
         Commands::Edit { file } => cmd_edit(file),
         Commands::PatchHtml { file, html_file, delta } => cmd_patch_html(file, html_file, delta),
-        Commands::PatchData { file, json_file } => cmd_patch_data(file, json_file),
+        Commands::PatchData { file, json_file, namespace } => cmd_patch_data(file, json_file, namespace, &hints),
         Commands::PatchSchema { file, schema_file } => cmd_patch_schema(file, schema_file),
-        Commands::PatchDecision { file, agent, action, rationale, pinned } => cmd_patch_decision(file, agent, action, rationale, pinned),
+        Commands::PatchDecision { file, agent, action, rationale, pinned } => cmd_patch_decision(file, agent, action, rationale, pinned, &hints),
         Commands::PatchState { file, json_file } => cmd_patch_state(file, json_file),
         Commands::PatchContext { file, markdown_file, append } => cmd_patch_context(file, markdown_file, append),
         Commands::PatchAsset { file, internal_path, local_file } => cmd_patch_asset(file, internal_path, local_file),
         Commands::ExportStatic { file, output } => cmd_export_static(file, output),
         Commands::PackHtml { parent, html_file, output, assets, schema, delta } => {
-            cmd_pack_html(parent, html_file, output, assets, schema, delta)
+            cmd_pack_html(parent, html_file, output, assets, schema, delta, &hints)
         }
         Commands::AgentHelp => { cmd_agent_help(); Ok(()) }
     }
+}
+
+/// Teaching hints (spec §27): deterministic, bounded (≤3 lines), and
+/// precondition-gated — a hint never mentions a capability whose
+/// preconditions are absent from the file's state. Emitted on the diagnostic
+/// stream (stderr) so stdout stays pure data; suppressed by --quiet or
+/// CLAN_NO_HINTS=1.
+struct Hints {
+    enabled: bool,
+}
+
+impl Hints {
+    fn new(quiet: bool) -> Self {
+        Self {
+            enabled: !quiet && std::env::var_os("CLAN_NO_HINTS").is_none(),
+        }
+    }
+
+    fn emit<S: AsRef<str>>(&self, lines: &[S]) {
+        if !self.enabled {
+            return;
+        }
+        for line in lines.iter().take(3) {
+            eprintln!("next: {}", line.as_ref());
+        }
+    }
+}
+
+/// Hints derived purely from a written file's state (spec §27.1): each line's
+/// precondition is the manifest/member state that makes it actionable.
+fn file_state_hints(clan: &ClanFile, path: &std::path::Path) -> Vec<String> {
+    let mut hints = Vec::new();
+    let m = clan.manifest();
+    let p = path.display();
+
+    if let Some(fork) = &m.fork {
+        hints.push(format!(
+            "you are branch agent '{}'; write only inside {} (patch-data --namespace, patch-decision auto-routes)",
+            fork.agent_id, fork.namespace
+        ));
+    }
+    if clan.has_entry(MERGE_REPORT_PATH) {
+        if let Ok(report) = clan.read_entry(MERGE_REPORT_PATH) {
+            if let Ok(report) = clan_sdk::MergeReport::from_yaml(&report) {
+                if report.unresolved > 0 {
+                    hints.push(format!(
+                        "{} contested key(s) in merge-report.yaml — `clan read report {p}`, then adjudicate with patch-data + patch-decision",
+                        report.unresolved
+                    ));
+                }
+            }
+        }
+    }
+    if let Some(view) = &m.view {
+        if !view.present && view.renderable {
+            hints.push(format!(
+                "file is agent-only; `clan render {p}` materialises the human view when needed"
+            ));
+        } else if view.present && view.stale {
+            hints.push(format!("human view is stale — `clan render {p}` to refresh"));
+        }
+    }
+    hints
 }
 
 fn cmd_create(
@@ -320,25 +443,125 @@ fn cmd_create(
     brief: String,
     doc_type: Option<String>,
     output: PathBuf,
+    no_render: bool,
+    hints: &Hints,
 ) -> Result<()> {
     let bytes = create(CreateOptions {
         title: title.clone(),
         brief,
         document_type: doc_type,
+        no_render,
     })
     .context("failed to create .clan file")?;
     std::fs::write(&output, &bytes)
         .with_context(|| format!("could not write {}", output.display()))?;
+    let clan = ClanFile::from_bytes(bytes.clone())?;
     eprintln!(
         "created {} ({} bytes)  id={}",
         output.display(),
         bytes.len(),
-        ClanFile::from_bytes(bytes)?.manifest().id
+        clan.manifest().id
     );
+    let mut lines = vec![format!("clan read agent {}", output.display())];
+    lines.extend(file_state_hints(&clan, &output));
+    hints.emit(&lines);
     Ok(())
 }
 
-fn cmd_validate(file: PathBuf, strict: bool) -> Result<()> {
+fn cmd_fork(parent_path: PathBuf, agents: Vec<String>, output_dir: PathBuf, hints: &Hints) -> Result<()> {
+    let parent = open(&parent_path)?;
+    let branches = fork(&parent, &agents).context("fork failed")?;
+    std::fs::create_dir_all(&output_dir)
+        .with_context(|| format!("could not create {}", output_dir.display()))?;
+    for (agent_id, bytes) in &branches {
+        let path = output_dir.join(format!("{agent_id}.clan"));
+        std::fs::write(&path, bytes)
+            .with_context(|| format!("could not write {}", path.display()))?;
+        eprintln!("forked {} for agent '{agent_id}'", path.display());
+    }
+    hints.emit(&[
+        format!(
+            "each agent writes only inside its own agents/<id>/ namespace ({} branches, conflicts impossible by construction)",
+            branches.len()
+        ),
+        format!(
+            "when all branches are done: clan merge {}\\*.clan --output <merged.clan>",
+            output_dir.display()
+        ),
+    ]);
+    Ok(())
+}
+
+fn cmd_merge(
+    branch_paths: Vec<PathBuf>,
+    output: PathBuf,
+    policy_args: Vec<String>,
+    prune_namespaces: bool,
+    delta: Option<String>,
+    hints: &Hints,
+) -> Result<()> {
+    let mut branches = Vec::with_capacity(branch_paths.len());
+    for path in &branch_paths {
+        branches.push(open(path)?);
+    }
+
+    let policies = if policy_args.is_empty() {
+        None
+    } else {
+        let mut keys = std::collections::BTreeMap::new();
+        for arg in &policy_args {
+            let (key, policy) = arg
+                .split_once('=')
+                .with_context(|| format!("invalid --policy {arg:?}: expected KEY=POLICY"))?;
+            keys.insert(key.to_string(), policy.to_string());
+        }
+        Some(MergePolicies { default: None, keys })
+    };
+
+    let outcome = merge(
+        &branches,
+        MergeOptions { policies, prune_namespaces, delta },
+    )
+    .context("merge failed")?;
+    std::fs::write(&output, &outcome.bytes)
+        .with_context(|| format!("could not write {}", output.display()))?;
+    eprintln!(
+        "merged {} branches into {} ({} contested key(s))",
+        branches.len(),
+        output.display(),
+        outcome.report.unresolved
+    );
+    if outcome.report.unresolved > 0 {
+        hints.emit(&[
+            format!(
+                "{} contested key(s) recorded in merge-report.yaml — `clan read report {}`",
+                outcome.report.unresolved,
+                output.display()
+            ),
+            "adjudicate each: clan patch-data <file> <json> (settles the key), then clan patch-decision --agent <you> --action \"adjudicated <key>\" --rationale \"...\"".to_string(),
+        ]);
+    } else {
+        hints.emit(&[format!(
+            "clean merge — clan read agent {} to continue",
+            output.display()
+        )]);
+    }
+    Ok(())
+}
+
+fn cmd_render(file: PathBuf, hints: &Hints) -> Result<()> {
+    let clan = open(&file)?;
+    let bytes = render(&clan).context("render failed")?;
+    std::fs::write(&file, &bytes)?;
+    eprintln!("materialised human view in {}", file.display());
+    hints.emit(&[format!(
+        "open in the viewer, or `clan read human {}` to print the HTML",
+        file.display()
+    )]);
+    Ok(())
+}
+
+fn cmd_validate(file: PathBuf, strict: bool, hints: &Hints) -> Result<()> {
     let clan = ClanFile::open(&file)
         .with_context(|| format!("could not open {}", file.display()))?;
     let report = validate(&clan);
@@ -349,6 +572,7 @@ fn cmd_validate(file: PathBuf, strict: bool) -> Result<()> {
     if strict && !report.is_content_valid() {
         std::process::exit(2);
     }
+    hints.emit(&file_state_hints(&clan, &file));
     Ok(())
 }
 
@@ -377,6 +601,17 @@ fn cmd_read(section: ReadSection) -> Result<()> {
         ReadSection::Chain { file } => {
             let clan = open(&file)?;
             print!("{}", clan.read_entry_string("agent/decision-chain.yaml")?);
+        }
+        ReadSection::Report { file } => {
+            let clan = open(&file)?;
+            if !clan.has_entry(MERGE_REPORT_PATH) {
+                anyhow::bail!(
+                    "no merge report: {} was not produced by `clan merge` (or its report was pruned)",
+                    file.display()
+                );
+            }
+            let yaml = clan.read_entry(MERGE_REPORT_PATH)?;
+            print!("{}", clan_sdk::yaml_to_toon(&yaml)?);
         }
     }
     Ok(())
@@ -410,6 +645,7 @@ fn cmd_pack(
     output: PathBuf,
     schema_path: Option<PathBuf>,
     delta: Option<String>,
+    hints: &Hints,
 ) -> Result<()> {
     let parent = open(&parent_path)?;
 
@@ -442,6 +678,7 @@ fn cmd_pack(
         output.display(),
         bytes.len()
     );
+    hints.emit(&file_state_hints(&ClanFile::from_bytes(bytes)?, &output));
     Ok(())
 }
 
@@ -467,6 +704,7 @@ fn cmd_pack_html(
     assets_dir: Option<PathBuf>,
     schema_path: Option<PathBuf>,
     delta: Option<String>,
+    hints: &Hints,
 ) -> Result<()> {
     let parent = open(&parent_path)?;
 
@@ -504,6 +742,7 @@ fn cmd_pack_html(
     std::fs::write(&output, &bytes)
         .with_context(|| format!("could not write {}", output.display()))?;
     eprintln!("packed {} ({} bytes)", output.display(), bytes.len());
+    hints.emit(&file_state_hints(&ClanFile::from_bytes(bytes)?, &output));
     Ok(())
 }
 
@@ -605,8 +844,22 @@ patch_action: "append" | "replace" | "prepend"
 6. Asset: clan patch-asset <file> <path/in/zip> <local_file>
 7. Schema: clan patch-schema <file> <schema.json>
 
+# PARALLEL (fork/join, spec S24)
+clan fork <file> --agents a,b,c --output-dir <dir>   => one branch per agent
+On a BRANCH file: write ONLY your namespace agents/<you>/ :
+  clan patch-data <branch> <json> --namespace        (your data)
+  clan patch-decision <branch> --agent <you> ...     (auto-routed)
+clan merge <branches...> --output <out> [--policy key=append|max|min|last-write|agent-priority]
+clan read report <file>   => contested keys (adjudicate: patch-data + patch-decision)
+
+# VIEW (optional, spec S23)
+clan create/pack --no-render  => agent-only file (no HTML at each hop)
+clan render <file>            => materialise the human view on demand
+
 # VERIFY
 clan validate <file>
+
+Commands print `next:` hints gated on file state (suppress: --quiet / CLAN_NO_HINTS=1).
 "#);
 }
 
@@ -614,7 +867,7 @@ fn open(path: &PathBuf) -> Result<ClanFile> {
     ClanFile::open(path).with_context(|| format!("could not open {}", path.display()))
 }
 
-fn cmd_patch_data(file: PathBuf, json_file: String) -> Result<()> {
+fn cmd_patch_data(file: PathBuf, json_file: String, namespace: bool, hints: &Hints) -> Result<()> {
     let clan = open(&file)?;
     let raw_json = if json_file == "-" {
         use std::io::Read;
@@ -628,9 +881,44 @@ fn cmd_patch_data(file: PathBuf, json_file: String) -> Result<()> {
     let patch: serde_json::Value = serde_json::from_str(&raw_json)
         .context("invalid JSON patch provided")?;
 
-    let bytes = patch_data(&clan, &patch, None)?;
+    // Track which contested keys this write settles, for the adjudication hint.
+    let contested_before: Vec<String> = clan
+        .read_entry(MERGE_REPORT_PATH)
+        .ok()
+        .and_then(|b| clan_sdk::MergeReport::from_yaml(&b).ok())
+        .map(|r| r.conflicts.iter().map(|c| c.key.clone()).collect())
+        .unwrap_or_default();
+
+    let bytes = if namespace {
+        patch_data_namespaced(&clan, &patch)?
+    } else {
+        patch_data(&clan, &patch, None)?
+    };
     std::fs::write(&file, &bytes)?;
     eprintln!("Patched data in-place: {}", file.display());
+
+    let next = ClanFile::from_bytes(bytes)?;
+    let mut lines: Vec<String> = Vec::new();
+    if !namespace {
+        let settled: Vec<&String> = contested_before
+            .iter()
+            .filter(|k| patch.get(k.as_str()).is_some())
+            .collect();
+        if !settled.is_empty() {
+            lines.push(format!(
+                "{} contested key(s) settled — record the adjudication: clan patch-decision {} --agent <you> --action \"adjudicated {}\" --rationale \"...\"",
+                settled.len(),
+                file.display(),
+                settled
+                    .iter()
+                    .map(|s| s.as_str())
+                    .collect::<Vec<_>>()
+                    .join(", ")
+            ));
+        }
+    }
+    lines.extend(file_state_hints(&next, &file));
+    hints.emit(&lines);
     Ok(())
 }
 
@@ -651,9 +939,10 @@ fn cmd_patch_schema(file: PathBuf, schema_file: String) -> Result<()> {
     Ok(())
 }
 
-fn cmd_patch_decision(file: PathBuf, agent: String, action: String, rationale: String, pinned: bool) -> Result<()> {
+fn cmd_patch_decision(file: PathBuf, agent: String, action: String, rationale: String, pinned: bool, hints: &Hints) -> Result<()> {
     let clan = open(&file)?;
-    
+    let forked_ns = clan.manifest().fork_namespace().map(str::to_string);
+
     let entry = DecisionEntry {
         agent_name: agent,
         action,
@@ -664,6 +953,11 @@ fn cmd_patch_decision(file: PathBuf, agent: String, action: String, rationale: S
     let bytes = patch_decision(&clan, entry, None)?;
     std::fs::write(&file, &bytes)?;
     eprintln!("Appended decision in-place: {}", file.display());
+    if let Some(ns) = forked_ns {
+        hints.emit(&[format!(
+            "decision recorded in your branch namespace ({ns}decisions.yaml); it folds into the shared chain at clan merge"
+        )]);
+    }
     Ok(())
 }
 
