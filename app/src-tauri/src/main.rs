@@ -33,8 +33,8 @@ struct AppState {
 
 struct LoadedClan {
     path: PathBuf,
+    // The ClanFile already holds the raw archive bytes (clan.raw_bytes()).
     clan: ClanFile,
-    raw_bytes: Vec<u8>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -68,6 +68,10 @@ struct OpenResult {
 
 #[tauri::command]
 fn open_clan(path: String, state: State<AppState>) -> Result<OpenResult, String> {
+    do_open_clan(path, &state)
+}
+
+fn do_open_clan(path: String, state: &AppState) -> Result<OpenResult, String> {
     let p = PathBuf::from(&path);
     let clan = ClanFile::open(&p).map_err(|e| e.to_string())?;
     let manifest = clan.manifest().clone();
@@ -92,8 +96,8 @@ fn open_clan(path: String, state: State<AppState>) -> Result<OpenResult, String>
         }),
     };
 
-    let raw_bytes = std::fs::read(&p).map_err(|e| e.to_string())?;
-    *state.current.lock().unwrap() = Some(LoadedClan { path: p.clone(), clan, raw_bytes });
+    // The ClanFile already read the file once; no second disk read needed.
+    *state.current.lock().unwrap() = Some(LoadedClan { path: p.clone(), clan });
 
     Ok(OpenResult {
         path: p.display().to_string(),
@@ -189,22 +193,26 @@ fn get_context(state: State<AppState>) -> Result<String, String> {
 }
 
 fn resolve_bindings(html: &str, data: &serde_yaml::Value) -> String {
+    // Byte-indexed scan — no Vec<char> allocation over the document.
     let mut output = String::with_capacity(html.len());
-    let chars: Vec<char> = html.chars().collect();
-    let mut i = 0;
-    while i < chars.len() {
-        if i + 1 < chars.len() && chars[i] == '{' && chars[i+1] == '{' {
-            let rest: String = chars[i+2..].iter().collect();
-            if let Some(end) = rest.find("}}") {
-                let key = rest[..end].trim();
+    let mut rest = html;
+    while let Some(start) = rest.find("{{") {
+        output.push_str(&rest[..start]);
+        let after = &rest[start + 2..];
+        match after.find("}}") {
+            Some(end) => {
+                let key = after[..end].trim();
                 output.push_str(&resolve_key(key, data));
-                i += 2 + end + 2;
-                continue;
+                rest = &after[end + 2..];
+            }
+            None => {
+                // Unterminated braces: keep the remainder verbatim.
+                output.push_str(&rest[start..]);
+                return output;
             }
         }
-        output.push(chars[i]);
-        i += 1;
     }
+    output.push_str(rest);
     output
 }
 
@@ -344,71 +352,68 @@ fn find_closing_tag(html: &str, from: usize, tag: &str) -> Option<usize> {
 
 /// Inject `data-adf-id` on editable block elements that the agent didn't annotate.
 /// IDs are stable: same HTML always produces the same IDs (tag-type + sequential index).
+/// Single pass over the document for all tag types.
 fn auto_inject_adf_ids(html: &str) -> String {
     const EDITABLE: &[&str] = &["h1", "h2", "h3", "h4", "h5", "h6", "p", "li", "td", "th"];
-    let mut result = html.to_string();
-    for tag in EDITABLE {
-        result = inject_ids_for_tag(&result, tag);
-    }
-    result
-}
-
-fn inject_ids_for_tag(html: &str, tag: &str) -> String {
-    let mut out = String::with_capacity(html.len() + 64);
+    // ASCII lowercasing keeps byte offsets aligned with the original string.
+    let lower = html.to_ascii_lowercase();
+    let mut out = String::with_capacity(html.len() + 256);
+    let mut counts: std::collections::HashMap<&str, usize> = std::collections::HashMap::new();
     let mut pos = 0;
-    let mut count = 0usize;
-    let open = format!("<{}", tag);
-    let lower = html.to_lowercase();
 
     while pos < html.len() {
-        // Skip over <script>...</script> blocks — injecting IDs into JS template
-        // literals creates duplicate data-adf-id values across all generated rows.
-        if lower[pos..].starts_with("<script") {
-            let end = lower[pos..].find("</script>")
-                .map(|r| pos + r + "</script>".len())
-                .unwrap_or(html.len());
-            out.push_str(&html[pos..end]);
-            pos = end;
-            continue;
-        }
-
-        let Some(rel) = html[pos..].find(open.as_str()) else {
+        let Some(rel) = lower[pos..].find('<') else {
             out.push_str(&html[pos..]);
             break;
         };
         let tag_start = pos + rel;
-        let after_name = tag_start + open.len();
+        out.push_str(&html[pos..tag_start]);
 
-        // If the match is inside a <script> block, skip to after the block.
-        if lower[..tag_start].rfind("<script").map_or(false, |s| {
-            lower[s..tag_start].find("</script>").is_none()
-        }) {
-            out.push_str(&html[pos..after_name]);
-            pos = after_name;
+        // Skip over <script>...</script> blocks — injecting IDs into JS template
+        // literals creates duplicate data-adf-id values across all generated rows.
+        if lower[tag_start..].starts_with("<script") {
+            let end = lower[tag_start..].find("</script>")
+                .map(|r| tag_start + r + "</script>".len())
+                .unwrap_or(html.len());
+            out.push_str(&html[tag_start..end]);
+            pos = end;
             continue;
         }
 
-        // Verify next char is a tag boundary, not part of a longer tag name (e.g. <pre> vs <p>).
-        let next = html.as_bytes().get(after_name).copied().unwrap_or(0);
-        if !matches!(next, b' ' | b'\t' | b'\n' | b'\r' | b'>') {
-            out.push_str(&html[pos..after_name]);
-            pos = after_name;
+        // Read the tag name following '<'.
+        let name_start = tag_start + 1;
+        let name_end = lower[name_start..]
+            .find(|c: char| !c.is_ascii_alphanumeric())
+            .map(|r| name_start + r)
+            .unwrap_or(html.len());
+        let name = &lower[name_start..name_end];
+
+        // Verify the following char is a tag boundary, not part of a longer
+        // tag name (e.g. <pre> vs <p>).
+        let next = html.as_bytes().get(name_end).copied().unwrap_or(0);
+        let editable = EDITABLE.contains(&name) && matches!(next, b' ' | b'\t' | b'\n' | b'\r' | b'>');
+        if !editable {
+            out.push_str(&html[tag_start..name_end]);
+            pos = name_end;
             continue;
         }
 
         // Find the `>` ending this opening tag.
         let Some(rel_end) = html[tag_start..].find('>') else {
-            out.push_str(&html[pos..]);
+            out.push_str(&html[tag_start..]);
             break;
         };
         let tag_end = tag_start + rel_end;
         let tag_src = &html[tag_start..=tag_end];
 
-        out.push_str(&html[pos..tag_end]);
+        out.push_str(&html[tag_start..tag_end]);
 
         if !tag_src.contains("data-adf-id") && !tag_src.ends_with("/>") {
-            out.push_str(&format!(" data-adf-id=\"auto-{}-{}\"", tag, count));
-            count += 1;
+            // EDITABLE holds 'static strings; reuse the matching one as the key.
+            let key = EDITABLE.iter().find(|t| **t == name).unwrap();
+            let count = counts.entry(key).or_insert(0);
+            out.push_str(&format!(" data-adf-id=\"auto-{}-{}\"", name, count));
+            *count += 1;
         }
         out.push('>');
         pos = tag_end + 1;
@@ -456,23 +461,25 @@ fn do_snapshot(rendered_html: String, state: &AppState) -> Result<(), String> {
     let loaded = guard.as_mut().ok_or("no file open")?;
 
     let mut builder = ClanBuilder::new(loaded.clan.manifest().clone());
-    for path in loaded.clan.entry_paths().map_err(|e| e.to_string())? {
+    for (path, bytes) in loaded.clan.read_all_entries().map_err(|e| e.to_string())? {
         if path == "manifest.yaml" || path == "human/index.html" { continue; }
-        if let Ok(bytes) = loaded.clan.read_entry(&path) {
-            builder.add_entry(path, bytes);
-        }
+        builder.add_entry(path, bytes);
     }
     builder.add_entry("human/index.html", clean.into_bytes());
     let new_bytes = builder.build().map_err(|e| e.to_string())?;
     std::fs::write(&loaded.path, &new_bytes).map_err(|e| e.to_string())?;
-    loaded.raw_bytes = new_bytes.clone();
     loaded.clan = ClanFile::from_bytes(new_bytes).map_err(|e| e.to_string())?;
     log("snapshot: written to human/index.html");
     Ok(())
 }
 
+#[cfg(test)]
+static SAVE_COUNT: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize::new(0);
+
 fn do_save_patch(id: String, content: String, state: &AppState) -> Result<(), String> {
     log(&format!("save_patch: id={id:?} content={:?}…", &content[..content.len().min(80)]));
+    #[cfg(test)]
+    SAVE_COUNT.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
 
     let mut guard = state.current.lock().unwrap();
     let loaded = guard.as_mut().ok_or("no file open")?;
@@ -481,11 +488,22 @@ fn do_save_patch(id: String, content: String, state: &AppState) -> Result<(), St
         .map_err(|e| e.to_string())?;
 
     std::fs::write(&loaded.path, &new_bytes).map_err(|e| e.to_string())?;
-    loaded.raw_bytes = new_bytes.clone();
     loaded.clan = ClanFile::from_bytes(new_bytes).map_err(|e| e.to_string())?;
 
     log(&format!("save_patch: done, file repacked. id={id:?}"));
     Ok(())
+}
+
+/// Handle a `clan://patch` request body. Saves the patch exactly once and
+/// returns the payload for the informational `clan-patch-saved` event.
+/// The frontend listener must treat that event as a notification only and
+/// never call `save_patch` in response — doing so writes the file twice (#9).
+fn handle_patch_request(body: &str, state: &AppState) -> Option<serde_json::Value> {
+    let json = serde_json::from_str::<serde_json::Value>(body).ok()?;
+    let id = json["id"].as_str()?;
+    let content = json["content"].as_str()?;
+    do_save_patch(id.to_string(), content.to_string(), state).ok()?;
+    Some(serde_json::json!({ "id": id, "content": content }))
 }
 
 #[tauri::command]
@@ -526,11 +544,8 @@ fn main() {
                     .unwrap()
             } else if uri.contains("patch") {
                 if let Ok(body_str) = String::from_utf8(request.body().clone()) {
-                    if let Ok(json) = serde_json::from_str::<serde_json::Value>(&body_str) {
-                        if let (Some(id), Some(content)) = (json["id"].as_str(), json["content"].as_str()) {
-                            let _ = do_save_patch(id.to_string(), content.to_string(), &*state);
-                            let _ = app.app_handle().emit("clan-patch-saved", serde_json::json!({ "id": id, "content": content }));
-                        }
+                    if let Some(payload) = handle_patch_request(&body_str, &state) {
+                        let _ = app.app_handle().emit("clan-patch-saved", payload);
                     }
                 }
                 tauri::http::Response::builder()
@@ -554,4 +569,164 @@ fn main() {
         ])
         .run(tauri::generate_context!())
         .expect("error while running CLAN Viewer");
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn empty_state() -> AppState {
+        AppState {
+            current: Mutex::new(None),
+            edit_mode: Mutex::new(false),
+            preview_html: Mutex::new(String::new()),
+        }
+    }
+
+    /// Create a real .clan file on disk and open it into a fresh AppState.
+    fn open_temp_clan() -> (tempfile::TempDir, AppState) {
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("test.clan");
+        let bytes = clan_sdk::create(clan_sdk::CreateOptions {
+            title: "Viewer Test".into(),
+            brief: "test brief".into(),
+            document_type: None,
+        })
+        .unwrap();
+        std::fs::write(&path, bytes).unwrap();
+
+        let state = empty_state();
+        do_open_clan(path.display().to_string(), &state).unwrap();
+        (dir, state)
+    }
+
+    // Regression for #10: open_clan must not read the file from disk twice.
+    // The loaded ClanFile's own raw bytes are the single source of truth and
+    // must match what is on disk.
+    #[test]
+    fn open_clan_populates_state_from_single_read() {
+        let (dir, state) = open_temp_clan();
+        let path = dir.path().join("test.clan");
+
+        let guard = state.current.lock().unwrap();
+        let loaded = guard.as_ref().expect("state must hold the opened file");
+        assert_eq!(loaded.clan.manifest().title, "Viewer Test");
+        assert_eq!(
+            loaded.clan.raw_bytes(),
+            std::fs::read(&path).unwrap().as_slice(),
+            "in-memory archive must match the file on disk"
+        );
+    }
+
+    // Regression for #9: one clan://patch request must produce exactly one
+    // save (one repack + one disk write), with the emitted payload echoing
+    // the edit. The frontend listener must never save again.
+    #[test]
+    fn patch_request_saves_exactly_once() {
+        let (dir, state) = open_temp_clan();
+        let path = dir.path().join("test.clan");
+
+        let before = SAVE_COUNT.load(std::sync::atomic::Ordering::SeqCst);
+        let payload = handle_patch_request(
+            r#"{"id":"heading-0","content":"Edited Title"}"#,
+            &state,
+        )
+        .expect("valid patch body must save and return a payload");
+        let after = SAVE_COUNT.load(std::sync::atomic::Ordering::SeqCst);
+
+        assert_eq!(after - before, 1, "a single edit must save exactly once");
+        assert_eq!(payload["id"], "heading-0");
+        assert_eq!(payload["content"], "Edited Title");
+
+        // The patch landed on disk exactly once.
+        let on_disk = ClanFile::open(&path).unwrap();
+        let patches = on_disk.read_entry_string("human/patches.yaml").unwrap();
+        assert_eq!(patches.matches("heading-0").count(), 1);
+        assert!(patches.contains("Edited Title"));
+    }
+
+    #[test]
+    fn patch_request_rejects_malformed_bodies() {
+        let (_dir, state) = open_temp_clan();
+        let before = SAVE_COUNT.load(std::sync::atomic::Ordering::SeqCst);
+        assert!(handle_patch_request("not json", &state).is_none());
+        assert!(handle_patch_request(r#"{"id":"x"}"#, &state).is_none());
+        let after = SAVE_COUNT.load(std::sync::atomic::Ordering::SeqCst);
+        assert_eq!(after, before, "malformed bodies must not trigger saves");
+    }
+
+    // --- #19: resolve_bindings ---
+
+    fn yaml(src: &str) -> serde_yaml::Value {
+        serde_yaml::from_str(src).unwrap()
+    }
+
+    #[test]
+    fn resolve_bindings_substitutes_keys() {
+        let data = yaml("vendor: Acme\nmeta:\n  total: 42\nitems:\n  - first\n  - second\n");
+        assert_eq!(
+            resolve_bindings("<p>{{vendor}} owes {{meta.total}} for {{items.1}}</p>", &data),
+            "<p>Acme owes 42 for second</p>"
+        );
+    }
+
+    #[test]
+    fn resolve_bindings_keeps_unknown_keys_verbatim() {
+        let data = yaml("vendor: Acme\n");
+        assert_eq!(resolve_bindings("{{nope}} {{vendor}}", &data), "{{nope}} Acme");
+    }
+
+    #[test]
+    fn resolve_bindings_preserves_unterminated_braces() {
+        let data = yaml("vendor: Acme\n");
+        assert_eq!(resolve_bindings("a {{vendor}} b {{open", &data), "a Acme b {{open");
+    }
+
+    #[test]
+    fn resolve_bindings_handles_multibyte_text() {
+        let data = yaml("name: Zoë\n");
+        assert_eq!(
+            resolve_bindings("héllo «{{ name }}» — ✓", &data),
+            "héllo «Zoë» — ✓"
+        );
+    }
+
+    // --- #20: auto_inject_adf_ids ---
+
+    #[test]
+    fn auto_inject_ids_all_tag_types_in_one_pass() {
+        let html = "<h1>A</h1><p>b</p><p>c</p><ul><li>d</li></ul><table><tr><td>e</td><th>f</th></tr></table>";
+        let out = auto_inject_adf_ids(html);
+        assert!(out.contains(r#"<h1 data-adf-id="auto-h1-0">A</h1>"#), "{out}");
+        assert!(out.contains(r#"<p data-adf-id="auto-p-0">b</p>"#), "{out}");
+        assert!(out.contains(r#"<p data-adf-id="auto-p-1">c</p>"#), "{out}");
+        assert!(out.contains(r#"<li data-adf-id="auto-li-0">d</li>"#), "{out}");
+        assert!(out.contains(r#"<td data-adf-id="auto-td-0">e</td>"#), "{out}");
+        assert!(out.contains(r#"<th data-adf-id="auto-th-0">f</th>"#), "{out}");
+    }
+
+    #[test]
+    fn auto_inject_ids_respects_existing_ids_and_boundaries() {
+        let html = r#"<p data-adf-id="mine">keep</p><pre>not a p</pre><p class="x">tag</p>"#;
+        let out = auto_inject_adf_ids(html);
+        assert!(out.contains(r#"<p data-adf-id="mine">keep</p>"#), "{out}");
+        assert!(out.contains("<pre>not a p</pre>"), "<pre> must not be treated as <p>: {out}");
+        assert!(out.contains(r#"<p class="x" data-adf-id="auto-p-0">tag</p>"#), "{out}");
+    }
+
+    #[test]
+    fn auto_inject_ids_skips_script_blocks() {
+        let html = "<script>const t = `<p>${row}</p>`;</script><p>real</p>";
+        let out = auto_inject_adf_ids(html);
+        assert!(out.contains("`<p>${row}</p>`"), "script content must be untouched: {out}");
+        assert!(out.contains(r#"<p data-adf-id="auto-p-0">real</p>"#), "{out}");
+    }
+
+    #[test]
+    fn auto_inject_ids_is_stable_and_idempotent() {
+        let html = "<p>a</p><p>b</p>";
+        let once = auto_inject_adf_ids(html);
+        assert_eq!(once, auto_inject_adf_ids(&once), "second pass must change nothing");
+        assert_eq!(once, auto_inject_adf_ids(html), "same input, same ids");
+    }
 }
