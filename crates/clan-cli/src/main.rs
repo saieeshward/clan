@@ -5,7 +5,7 @@
 //! `clan` — command-line tool for CLAN files.
 //!
 //! Usage:
-//!   clan create --title "My Doc" --brief "…" [--type invoice] <output.clan>
+//!   clan create --title "My Doc" --brief "…" [--type invoice] --output <output.clan>
 //!   clan validate <file.clan>
 //!   clan read agent <file.clan>
 //!   clan read human <file.clan>
@@ -52,7 +52,11 @@ enum Commands {
         #[arg(long = "doc-type")]
         doc_type: Option<String>,
         /// Output path for the new .clan file.
-        output: PathBuf,
+        #[arg(long, value_name = "PATH")]
+        output: Option<PathBuf>,
+        /// Deprecated: positional output path. Use --output instead.
+        #[arg(value_name = "OUTPUT", conflicts_with = "output", hide = true)]
+        positional_output: Option<PathBuf>,
     },
     /// Validate a .clan file and print a report.
     Validate {
@@ -218,7 +222,20 @@ fn main() -> Result<()> {
             brief,
             doc_type,
             output,
-        } => cmd_create(title, brief, doc_type, output),
+            positional_output,
+        } => {
+            let output = match (output, positional_output) {
+                (Some(path), _) => path,
+                (None, Some(path)) => {
+                    eprintln!(
+                        "warning: the positional output path is deprecated; use --output <PATH>"
+                    );
+                    path
+                }
+                (None, None) => anyhow::bail!("missing output path: pass --output <PATH>"),
+            };
+            cmd_create(title, brief, doc_type, output)
+        }
         Commands::Validate { file, strict } => cmd_validate(file, strict),
         Commands::Read { section } => cmd_read(section),
         Commands::Info { file } => cmd_info(file),
