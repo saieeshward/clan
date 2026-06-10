@@ -144,6 +144,35 @@ fn patch_html_nonmatching_selector_exits_nonzero() {
     );
 }
 
+// --- #24: clan read agent --skip-guide ---
+
+#[test]
+fn read_agent_skip_guide_omits_guide_body() {
+    let dir = tempfile::tempdir().unwrap();
+    let parent = create_parent(dir.path());
+
+    let full = clan(&["read", "agent", parent.to_str().unwrap()]);
+    assert!(full.status.success(), "{}", stderr(&full));
+    let skipped = clan(&["read", "agent", parent.to_str().unwrap(), "--skip-guide"]);
+    assert!(skipped.status.success(), "{}", stderr(&skipped));
+
+    let full_text = String::from_utf8_lossy(&full.stdout).into_owned();
+    let skipped_text = String::from_utf8_lossy(&skipped.stdout).into_owned();
+
+    assert!(skipped_text.contains("guide body skipped"), "{skipped_text}");
+    assert!(skipped_text.contains("sha256:"), "skip note must carry the guide digest");
+    assert!(
+        skipped_text.len() < full_text.len() / 2,
+        "skipping the guide should cut the context substantially \
+         (full: {}, skipped: {})",
+        full_text.len(),
+        skipped_text.len()
+    );
+    // The rest of the context is unchanged.
+    let tail = |s: &str| s.split("# Your Task").nth(1).map(str::to_owned);
+    assert_eq!(tail(&skipped_text), tail(&full_text));
+}
+
 #[test]
 fn patch_html_matching_selector_succeeds() {
     let dir = tempfile::tempdir().unwrap();

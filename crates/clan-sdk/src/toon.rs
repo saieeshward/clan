@@ -43,6 +43,222 @@ pub fn yaml_to_toon(yaml: &[u8]) -> crate::Result<String> {
     Ok(to_toon(&value))
 }
 
+/// Encode a JSON value as TOON, **verified lossless**: the TOON text is
+/// decoded again and compared against the input. Returns `None` whenever the
+/// value cannot be represented unambiguously (e.g. strings that look like
+/// numbers, multiline strings, sequences of heterogeneous objects) — callers
+/// must then fall back to the raw JSON.
+pub fn json_to_toon_verified(value: &serde_json::Value) -> Option<String> {
+    let yaml: Value = serde_yaml::to_value(value).ok()?;
+    let toon = to_toon(&yaml);
+    if toon.trim().is_empty() {
+        return None;
+    }
+    let parsed = parse_toon(&toon)?;
+    let roundtrip: serde_json::Value = serde_json::to_value(&parsed).ok()?;
+    (&roundtrip == value).then_some(toon)
+}
+
+// ---------------------------------------------------------------------------
+// Verification decoder. TOON is an input-side format — agents read it, nothing
+// in the pipeline parses it back. This decoder exists ONLY so that
+// `json_to_toon_verified` can prove a particular encoding is lossless before
+// it is injected in place of raw JSON. It inverts the encoder above; where
+// the encoding is ambiguous (flattened sequence items are delimited by a
+// repeated key), the roundtrip comparison rejects the result.
+// ---------------------------------------------------------------------------
+
+/// Parse TOON text produced by [`to_toon`] back into a YAML value.
+/// Verification use only; not part of the TOON contract.
+pub(crate) fn parse_toon(text: &str) -> Option<Value> {
+    let lines: Vec<(usize, &str)> = text
+        .lines()
+        .map(|l| {
+            let body = l.trim_start_matches(' ');
+            let spaces = l.len() - body.len();
+            (spaces, body)
+        })
+        .collect();
+    if lines.iter().any(|(s, _)| s % INDENT.len() != 0) {
+        return None;
+    }
+
+    let mut idx = 0;
+    // A single scalar line is a bare scalar document.
+    let value = if lines.len() == 1 && !looks_like_entry(lines[0].1) {
+        idx = 1;
+        parse_scalar(lines[0].1)
+    } else {
+        Value::Mapping(parse_mapping(&lines, &mut idx, 0)?)
+    };
+    (idx == lines.len()).then_some(value)
+}
+
+/// True when the line could open a mapping entry (kv or `key [n]` header).
+fn looks_like_entry(line: &str) -> bool {
+    line.contains(": ") || seq_header(line).is_some()
+}
+
+/// Match a key-less `[n]` header (nested sequence item).
+fn bare_seq_header(line: &str) -> Option<usize> {
+    let digits = line.strip_prefix('[')?.strip_suffix(']')?;
+    if digits.is_empty() || !digits.bytes().all(|b| b.is_ascii_digit()) {
+        return None;
+    }
+    digits.parse().ok()
+}
+
+/// Match `key [n]` headers. Returns (key, n).
+fn seq_header(line: &str) -> Option<(&str, usize)> {
+    if line.contains(": ") {
+        return None; // scalar kv line, even if it ends in [n]
+    }
+    let open = line.rfind(" [")?;
+    let rest = &line[open + 2..];
+    let digits = rest.strip_suffix(']')?;
+    if digits.is_empty() || !digits.bytes().all(|b| b.is_ascii_digit()) {
+        return None;
+    }
+    Some((&line[..open], digits.parse().ok()?))
+}
+
+fn parse_scalar(s: &str) -> Value {
+    match s {
+        "null" => Value::Null,
+        "true" => Value::Bool(true),
+        "false" => Value::Bool(false),
+        _ => {
+            if let Ok(i) = s.parse::<i64>() {
+                if i.to_string() == s {
+                    return Value::Number(i.into());
+                }
+            }
+            if let Ok(f) = s.parse::<f64>() {
+                if f.to_string() == s {
+                    return Value::Number(serde_yaml::Number::from(f));
+                }
+            }
+            Value::String(s.to_string())
+        }
+    }
+}
+
+fn parse_mapping(
+    lines: &[(usize, &str)],
+    idx: &mut usize,
+    depth: usize,
+) -> Option<serde_yaml::Mapping> {
+    let mut map = serde_yaml::Mapping::new();
+    let indent = depth * INDENT.len();
+    while *idx < lines.len() {
+        let (spaces, _line) = lines[*idx];
+        if spaces < indent {
+            break; // end of this block
+        }
+        if spaces > indent {
+            return None; // unexpected deeper line
+        }
+        let (key, value) = parse_entry(lines, idx, depth)?;
+        if map.insert(Value::String(key), value).is_some() {
+            return None; // duplicate key — ambiguous
+        }
+    }
+    Some(map)
+}
+
+/// Parse one mapping entry starting at `idx` (which sits at `depth`).
+fn parse_entry(
+    lines: &[(usize, &str)],
+    idx: &mut usize,
+    depth: usize,
+) -> Option<(String, Value)> {
+    let (_, line) = lines[*idx];
+    if let Some((key, n)) = seq_header(line) {
+        *idx += 1;
+        let items = parse_seq_items(lines, idx, depth + 1)?;
+        if items.len() != n {
+            return None;
+        }
+        return Some((key.to_string(), Value::Sequence(items)));
+    }
+    if let Some(split) = line.find(": ") {
+        let (key, value) = (&line[..split], &line[split + 2..]);
+        *idx += 1;
+        return Some((key.to_string(), parse_scalar(value)));
+    }
+    // Bare key: nested (possibly empty) mapping.
+    let key = line.to_string();
+    *idx += 1;
+    let child = if *idx < lines.len() && lines[*idx].0 == (depth + 1) * INDENT.len() {
+        parse_mapping(lines, idx, depth + 1)?
+    } else {
+        serde_yaml::Mapping::new()
+    };
+    Some((key, Value::Mapping(child)))
+}
+
+/// Parse the items of a sequence at `depth`. Mapping items are flattened by
+/// the encoder; a new item starts when a key repeats within the current item.
+fn parse_seq_items(lines: &[(usize, &str)], idx: &mut usize, depth: usize) -> Option<Vec<Value>> {
+    let indent = depth * INDENT.len();
+    let mut items: Vec<Value> = Vec::new();
+    let mut current: Option<serde_yaml::Mapping> = None;
+
+    while *idx < lines.len() {
+        let (spaces, line) = lines[*idx];
+        if spaces < indent {
+            break;
+        }
+        if spaces > indent {
+            return None;
+        }
+        let next_is_deeper = lines
+            .get(*idx + 1)
+            .map_or(false, |(s, _)| *s > indent);
+        if let Some(n) = bare_seq_header(line) {
+            // Nested sequence item: "[n]" header with its own items below.
+            if let Some(m) = current.take() {
+                items.push(Value::Mapping(m));
+            }
+            *idx += 1;
+            let inner = parse_seq_items(lines, idx, depth + 1)?;
+            if inner.len() != n {
+                return None;
+            }
+            items.push(Value::Sequence(inner));
+        } else if looks_like_entry(line) || next_is_deeper {
+            // Field of a (flattened) mapping item — possibly a bare key whose
+            // nested mapping value sits on the deeper lines that follow.
+            let (key, value) = parse_entry(lines, idx, depth)?;
+            let key_v = Value::String(key);
+            match current.as_mut() {
+                Some(m) if !m.contains_key(&key_v) => {
+                    m.insert(key_v, value);
+                }
+                Some(_) | None => {
+                    if let Some(m) = current.take() {
+                        items.push(Value::Mapping(m));
+                    }
+                    let mut m = serde_yaml::Mapping::new();
+                    m.insert(key_v, value);
+                    current = Some(m);
+                }
+            }
+        } else {
+            // Scalar item.
+            if let Some(m) = current.take() {
+                items.push(Value::Mapping(m));
+            }
+            items.push(parse_scalar(line));
+            *idx += 1;
+        }
+    }
+    if let Some(m) = current.take() {
+        items.push(Value::Mapping(m));
+    }
+    Some(items)
+}
+
 fn encode_value(value: &Value, depth: usize, out: &mut String) {
     match value {
         Value::Mapping(map) => {
@@ -191,5 +407,190 @@ meta:
         let yaml = "tags:\n  - a\n  - b\n  - c\n";
         let toon = yaml_to_toon(yaml.as_bytes()).unwrap();
         assert_eq!(toon, "tags [3]\n  a\n  b\n  c");
+    }
+}
+
+/// Heavy coverage for #23: TOON-encoding JSON Schemas must be provably
+/// lossless or refuse (return None) — never silently wrong.
+#[cfg(test)]
+mod schema_roundtrip_tests {
+    use super::*;
+    use serde_json::json;
+
+    fn assert_lossless(v: serde_json::Value) {
+        let toon = json_to_toon_verified(&v)
+            .unwrap_or_else(|| panic!("expected lossless TOON encoding for {v}"));
+        let parsed = parse_toon(&toon).expect("verified TOON must parse");
+        let back: serde_json::Value = serde_json::to_value(&parsed).unwrap();
+        assert_eq!(back, v, "round-trip mismatch for TOON:\n{toon}");
+    }
+
+    fn assert_falls_back(v: serde_json::Value) {
+        assert_eq!(
+            json_to_toon_verified(&v),
+            None,
+            "ambiguous value must fall back to raw JSON: {v}"
+        );
+    }
+
+    #[test]
+    fn typical_json_schema_roundtrips() {
+        assert_lossless(json!({
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "type": "object",
+            "required": ["title", "vendor"],
+            "additionalProperties": false,
+            "properties": {
+                "title": {"type": "string", "minLength": 1},
+                "vendor": {"type": "string"},
+                "total": {"type": "number", "minimum": 0},
+                "count": {"type": "integer", "maximum": 100},
+                "status": {"enum": ["draft", "pending-approval", "approved"]},
+                "line_items": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "description": {"type": "string"},
+                            "amount": {"type": "number"}
+                        }
+                    }
+                }
+            }
+        }));
+    }
+
+    #[test]
+    fn nested_objects_and_refs_roundtrip() {
+        assert_lossless(json!({
+            "type": "object",
+            "properties": {
+                "billing": {"$ref": "#/$defs/address"},
+                "shipping": {"$ref": "#/$defs/address"}
+            },
+            "$defs": {
+                "address": {
+                    "type": "object",
+                    "properties": {
+                        "street": {"type": "string"},
+                        "country": {"enum": ["IE", "GB", "US"]}
+                    }
+                }
+            }
+        }));
+    }
+
+    #[test]
+    fn mixed_scalar_enum_roundtrips() {
+        assert_lossless(json!({"enum": [1, "one", true, null, 2.5]}));
+    }
+
+    #[test]
+    fn empty_containers_roundtrip() {
+        assert_lossless(json!({
+            "type": "object",
+            "properties": {},
+            "required": []
+        }));
+    }
+
+    #[test]
+    fn homogeneous_object_array_roundtrips() {
+        // anyOf items share the key layout, so flattened items are
+        // delimited by the repeating first key.
+        assert_lossless(json!({
+            "anyOf": [
+                {"type": "string"},
+                {"type": "number"},
+                {"type": "boolean"}
+            ]
+        }));
+    }
+
+    // --- ambiguity: must fall back, never corrupt ---
+
+    #[test]
+    fn numeric_looking_string_falls_back() {
+        assert_falls_back(json!({"enum": ["123"]}));
+        assert_falls_back(json!({"default": "2.5"}));
+    }
+
+    #[test]
+    fn bool_and_null_looking_strings_fall_back() {
+        assert_falls_back(json!({"const": "true"}));
+        assert_falls_back(json!({"default": "null"}));
+    }
+
+    #[test]
+    fn multiline_string_falls_back() {
+        assert_falls_back(json!({"description": "line one\nline two"}));
+    }
+
+    #[test]
+    fn key_containing_separator_falls_back() {
+        assert_falls_back(json!({"weird: key": 1}));
+    }
+
+    #[test]
+    fn heterogeneous_object_array_falls_back() {
+        // Items with disjoint keys cannot be delimited in flattened form.
+        assert_falls_back(json!({
+            "anyOf": [
+                {"type": "object", "properties": {"a": {"type": "string"}}},
+                {"required": ["a"]}
+            ]
+        }));
+    }
+
+    #[test]
+    fn top_level_non_object_is_handled() {
+        assert_lossless(json!({"x": 1}));
+        // Boolean schemas (`true`/`false`) are valid JSON Schema documents.
+        assert_lossless(json!(true));
+    }
+
+    #[test]
+    fn encoding_is_deterministic() {
+        let v = json!({"type": "object", "properties": {"a": {"type": "string"}}});
+        assert_eq!(json_to_toon_verified(&v), json_to_toon_verified(&v));
+    }
+
+    // --- schema-validation equivalence before/after compression ---
+
+    #[test]
+    fn validation_equivalence_after_roundtrip() {
+        let schema = json!({
+            "type": "object",
+            "required": ["title"],
+            "properties": {
+                "title": {"type": "string", "minLength": 2},
+                "total": {"type": "number", "minimum": 0},
+                "status": {"enum": ["draft", "approved"]}
+            },
+            "additionalProperties": false
+        });
+        let toon = json_to_toon_verified(&schema).expect("schema should be losslessly encodable");
+        let recovered: serde_json::Value =
+            serde_json::to_value(&parse_toon(&toon).unwrap()).unwrap();
+
+        let before = jsonschema::validator_for(&schema).unwrap();
+        let after = jsonschema::validator_for(&recovered).unwrap();
+
+        let payloads = [
+            json!({"title": "ok", "total": 5, "status": "draft"}),   // valid
+            json!({"title": "ok"}),                                   // valid
+            json!({}),                                                // missing required
+            json!({"title": "x"}),                                    // too short
+            json!({"title": "ok", "total": -1}),                      // below minimum
+            json!({"title": "ok", "status": "nope"}),                 // bad enum
+            json!({"title": "ok", "extra": 1}),                       // additionalProperties
+        ];
+        for p in payloads {
+            assert_eq!(
+                before.is_valid(&p),
+                after.is_valid(&p),
+                "validation diverged after TOON round-trip for payload {p}"
+            );
+        }
     }
 }

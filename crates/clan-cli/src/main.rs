@@ -205,6 +205,10 @@ enum ReadSection {
         file: PathBuf,
         #[arg(long)]
         no_patches: bool,
+        /// Skip the agent guide body (for agents that already read it);
+        /// prints a one-line note with the guide digest instead.
+        #[arg(long)]
+        skip_guide: bool,
     },
     /// Print human/index.html.
     Human { file: PathBuf },
@@ -301,12 +305,13 @@ fn cmd_validate(file: PathBuf, strict: bool) -> Result<()> {
 
 fn cmd_read(section: ReadSection) -> Result<()> {
     match section {
-        ReadSection::Agent { file, no_patches } => {
+        ReadSection::Agent { file, no_patches, skip_guide } => {
             let clan = open(&file)?;
             let ctx = assemble(
                 &clan,
                 &InjectOptions {
                     include_patches: !no_patches,
+                    skip_guide,
                 },
             )
             .context("failed to assemble agent context")?;
