@@ -72,9 +72,14 @@ impl ClanFile {
         self.read_entry(&entry.path)
     }
 
-    /// True if the archive contains an entry at `path`.
+    /// True if the archive contains an entry at `path`. Consults the ZIP
+    /// central directory only — the entry is never decompressed.
     pub fn has_entry(&self, path: &str) -> bool {
-        read_named(&self.raw, path).is_ok()
+        let cursor = Cursor::new(&self.raw);
+        match ZipArchive::new(cursor) {
+            Ok(archive) => archive.index_for_name(path).is_some(),
+            Err(_) => false,
+        }
     }
 
     /// The raw archive bytes (used to compute this file's own digest for the
@@ -86,6 +91,24 @@ impl ClanFile {
     /// `sha256:<hex>` digest of the whole archive.
     pub fn sha256(&self) -> String {
         hash::sha256_prefixed(&self.raw)
+    }
+
+    /// Read and decompress every entry in a single archive pass
+    /// (central-directory order). Use this instead of looping over
+    /// [`ClanFile::entry_paths`] + [`ClanFile::read_entry`], which would
+    /// instantiate one `ZipArchive` per entry.
+    pub fn read_all_entries(&self) -> Result<Vec<(String, Vec<u8>)>> {
+        let cursor = Cursor::new(&self.raw);
+        let mut archive = ZipArchive::new(cursor)?;
+        let mut entries = Vec::with_capacity(archive.len());
+        for i in 0..archive.len() {
+            let mut file = archive.by_index(i)?;
+            let name = file.name().to_string();
+            let mut buf = Vec::with_capacity(file.size() as usize);
+            file.read_to_end(&mut buf)?;
+            entries.push((name, buf));
+        }
+        Ok(entries)
     }
 
     /// List all entry paths in the archive (central-directory order).
@@ -235,5 +258,75 @@ mod tests {
         let clan = ClanFile::from_bytes(bytes).unwrap();
         assert!(clan.read_entry("nope.txt").is_err());
         assert!(!clan.has_entry("nope.txt"));
+    }
+
+    // Regression for #11: has_entry must answer from the central directory
+    // without decompressing the entry. We corrupt the entry's data bytes so
+    // any read fails its CRC check — has_entry must still return true.
+    #[test]
+    fn has_entry_does_not_decompress() {
+        let manifest_yaml = sample_manifest().to_yaml().unwrap();
+        let payload = b"CORRUPTME-PAYLOAD-CORRUPTME";
+
+        let mut out = Cursor::new(Vec::new());
+        {
+            let mut zip = ZipWriter::new(&mut out);
+            let deflated =
+                SimpleFileOptions::default().compression_method(CompressionMethod::Deflated);
+            let stored =
+                SimpleFileOptions::default().compression_method(CompressionMethod::Stored);
+            zip.start_file(MANIFEST_PATH, deflated).unwrap();
+            zip.write_all(&manifest_yaml).unwrap();
+            // Stored, so the payload appears verbatim in the archive bytes.
+            zip.start_file("shared/data.yaml", stored).unwrap();
+            zip.write_all(payload).unwrap();
+            zip.finish().unwrap();
+        }
+        let mut raw = out.into_inner();
+
+        let offset = raw
+            .windows(payload.len())
+            .position(|w| w == payload)
+            .expect("stored payload not found in archive");
+        raw[offset] ^= 0xFF; // corrupt the entry data → CRC mismatch on read
+
+        let clan = ClanFile::from_bytes(raw).unwrap();
+        assert!(
+            clan.has_entry("shared/data.yaml"),
+            "has_entry must not depend on decompressing the entry"
+        );
+        assert!(
+            clan.read_entry("shared/data.yaml").is_err(),
+            "corrupted entry should fail an actual read (test setup sanity check)"
+        );
+    }
+
+    // Regression for #12: read_all_entries must return the same set of
+    // entries as the per-entry read path, in central-directory order.
+    #[test]
+    fn read_all_entries_matches_per_entry_reads() {
+        let mut manifest = sample_manifest();
+        manifest.files.push(FileEntry {
+            id: "context".into(),
+            path: "agent/context.md".into(),
+            role: "agent-context".into(),
+            content_type: "text/markdown".into(),
+            priority: None,
+            sha256: None,
+        });
+        let mut builder = ClanBuilder::new(manifest);
+        builder.add_entry("shared/data.yaml", b"vendor: Acme\n".to_vec());
+        builder.add_entry("agent/context.md", b"do the thing\n".to_vec());
+        let clan = ClanFile::from_bytes(builder.build().unwrap()).unwrap();
+
+        let all = clan.read_all_entries().unwrap();
+        let paths = clan.entry_paths().unwrap();
+        assert_eq!(
+            all.iter().map(|(p, _)| p.clone()).collect::<Vec<_>>(),
+            paths
+        );
+        for (path, bytes) in &all {
+            assert_eq!(bytes, &clan.read_entry(path).unwrap(), "mismatch at {path}");
+        }
     }
 }

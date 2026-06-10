@@ -260,16 +260,15 @@ pub fn pack(
     let mut builder = ClanBuilder::new(new_manifest);
 
     // Carry over all parent entries unchanged, except ones we're replacing.
-    for path in parent.entry_paths()? {
+    // Single-pass read: one ZipArchive instantiation for the whole archive.
+    for (path, bytes) in parent.read_all_entries()? {
         if path == "manifest.yaml" { continue; }
         if path == "shared/data.yaml" { continue; }
         if path == "agent/decision-chain.yaml" { continue; }
         if opts.schema_override.is_some() && path == "agent/output-schema.json" { continue; }
         if output.mode == "full-html" && path.starts_with("human/") { continue; }
         // For patch-html, we keep existing human assets and index.html, we'll rewrite index.html below
-        if let Ok(bytes) = parent.read_entry(&path) {
-            builder.add_entry(path, bytes);
-        }
+        builder.add_entry(path, bytes);
     }
 
     if let Some(new_schema) = &opts.schema_override {
@@ -701,9 +700,8 @@ fn repack_with_entry(parent: &ClanFile, target_path: &str, new_bytes: Vec<u8>, d
 
     let mut builder = ClanBuilder::new(new_manifest);
 
-    for path in parent.entry_paths()? {
+    for (path, bytes) in parent.read_all_entries()? {
         if path == "manifest.yaml" || path == target_path { continue; }
-        let bytes = parent.read_entry(&path)?;
         builder.add_entry(path, bytes);
     }
     

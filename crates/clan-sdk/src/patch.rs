@@ -73,13 +73,11 @@ pub fn apply_patch_and_repack(
     // Rebuild the archive with updated patches.yaml.
     let mut builder = ClanBuilder::new(clan.manifest().clone());
 
-    for path in clan.entry_paths()? {
+    for (path, bytes) in clan.read_all_entries()? {
         if path == "manifest.yaml" || path == "human/patches.yaml" {
             continue;
         }
-        if let Ok(bytes) = clan.read_entry(&path) {
-            builder.add_entry(path, bytes);
-        }
+        builder.add_entry(path, bytes);
     }
     builder.add_entry("human/patches.yaml", patches_yaml);
 
