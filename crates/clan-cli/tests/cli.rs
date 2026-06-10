@@ -10,8 +10,23 @@ use std::process::{Command, Output};
 fn clan(args: &[&str]) -> Output {
     Command::new(env!("CARGO_BIN_EXE_clan"))
         .args(args)
+        // Keep unrelated tests hermetic: never write the first-run marker
+        // into the developer's real config dir (see banner tests below).
+        .env("CLAN_NO_BANNER", "1")
         .output()
         .expect("failed to run clan binary")
+}
+
+/// Run the binary with banner control left to the caller.
+fn clan_banner(args: &[&str], config_dir: &Path, no_banner: bool) -> Output {
+    let mut cmd = Command::new(env!("CARGO_BIN_EXE_clan"));
+    cmd.args(args)
+        .env_remove("CLAN_NO_BANNER")
+        .env("CLAN_CONFIG_DIR", config_dir);
+    if no_banner {
+        cmd.env("CLAN_NO_BANNER", "1");
+    }
+    cmd.output().expect("failed to run clan binary")
 }
 
 fn stderr(out: &Output) -> String {
@@ -142,6 +157,122 @@ fn patch_html_nonmatching_selector_exits_nonzero() {
         std::fs::read(&parent).unwrap(),
         "file must be untouched after a failed patch"
     );
+}
+
+// --- #31: ASCII art on first installation ---
+
+const BANNER_TAGLINE: &str = "Context and Live Agent Notation";
+
+#[test]
+fn banner_shows_on_first_run_only() {
+    let dir = tempfile::tempdir().unwrap();
+    let cfg = dir.path().join("cfg");
+
+    let first = clan_banner(&["agent-help"], &cfg, false);
+    assert!(first.status.success());
+    assert!(
+        stderr(&first).contains(BANNER_TAGLINE),
+        "first run must greet on stderr: {}",
+        stderr(&first)
+    );
+    assert!(
+        stderr(&first).contains("_____"),
+        "banner should contain the ASCII art: {}",
+        stderr(&first)
+    );
+
+    // Marker recorded, carrying the version.
+    let marker = cfg.join("welcomed");
+    assert!(marker.exists());
+    assert_eq!(
+        std::fs::read_to_string(&marker).unwrap(),
+        env!("CARGO_PKG_VERSION")
+    );
+
+    let second = clan_banner(&["agent-help"], &cfg, false);
+    assert!(second.status.success());
+    assert!(
+        !stderr(&second).contains(BANNER_TAGLINE),
+        "second run must be silent: {}",
+        stderr(&second)
+    );
+}
+
+#[test]
+fn banner_never_pollutes_stdout() {
+    let dir = tempfile::tempdir().unwrap();
+    let cfg = dir.path().join("cfg");
+
+    let first = clan_banner(&["agent-help"], &cfg, false);
+    let second = clan_banner(&["agent-help"], &cfg, false);
+    assert_eq!(
+        first.stdout, second.stdout,
+        "stdout must be byte-identical whether or not the banner fires"
+    );
+    assert!(!String::from_utf8_lossy(&first.stdout).contains(BANNER_TAGLINE));
+}
+
+#[test]
+fn no_banner_env_suppresses_without_side_effects() {
+    let dir = tempfile::tempdir().unwrap();
+    let cfg = dir.path().join("cfg");
+
+    let out = clan_banner(&["agent-help"], &cfg, true);
+    assert!(out.status.success());
+    assert!(!stderr(&out).contains(BANNER_TAGLINE));
+    assert!(
+        !cfg.join("welcomed").exists(),
+        "CLAN_NO_BANNER must not write the marker"
+    );
+
+    // Opt back in afterwards: greeting still happens once.
+    let later = clan_banner(&["agent-help"], &cfg, false);
+    assert!(stderr(&later).contains(BANNER_TAGLINE));
+}
+
+#[test]
+fn unwritable_config_dir_degrades_silently() {
+    let dir = tempfile::tempdir().unwrap();
+    // Point the config dir inside an existing FILE so create_dir_all fails.
+    let blocker = dir.path().join("blocker");
+    std::fs::write(&blocker, b"file").unwrap();
+    let cfg = blocker.join("cfg");
+
+    let out = clan_banner(&["agent-help"], &cfg, false);
+    assert!(out.status.success(), "command must still work: {}", stderr(&out));
+    assert!(
+        !stderr(&out).contains(BANNER_TAGLINE),
+        "banner must not fire when the marker cannot be recorded (else it \
+         would greet on every run): {}",
+        stderr(&out)
+    );
+}
+
+#[test]
+fn banner_does_not_break_piped_workflows() {
+    let dir = tempfile::tempdir().unwrap();
+    let cfg = dir.path().join("cfg");
+    let parent = dir.path().join("p.clan");
+
+    // First-ever invocation is a real command; banner goes to stderr, the
+    // command's own output and exit code are unaffected.
+    let create = clan_banner(
+        &[
+            "create", "--title", "Banner", "--brief", "b",
+            "--output", parent.to_str().unwrap(),
+        ],
+        &cfg,
+        false,
+    );
+    assert!(create.status.success(), "{}", stderr(&create));
+    assert!(stderr(&create).contains(BANNER_TAGLINE));
+    assert!(parent.exists());
+
+    let read = clan_banner(&["read", "data", parent.to_str().unwrap()], &cfg, false);
+    assert!(read.status.success());
+    let data = String::from_utf8_lossy(&read.stdout);
+    assert!(data.contains("$schema"), "stdout must be pure data: {data}");
+    assert!(!data.contains(BANNER_TAGLINE));
 }
 
 // --- #24: clan read agent --skip-guide ---

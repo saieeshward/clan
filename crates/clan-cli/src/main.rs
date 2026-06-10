@@ -218,7 +218,56 @@ enum ReadSection {
     Chain { file: PathBuf },
 }
 
+/// ASCII banner shown once, on the first ever run of the CLI (#31).
+const WELCOME_BANNER: &str = r#"
+   _____ _        _    _   _
+  / ____| |      / \  | \ | |
+ | |    | |     / _ \ |  \| |
+ | |____| |___ / ___ \| |\  |
+  \_____|_____/_/   \_\_| \_|
+"#;
+
+/// Resolve the directory holding the first-run marker:
+/// $CLAN_CONFIG_DIR, then $XDG_CONFIG_HOME/clan, then ~/.config/clan.
+fn banner_config_dir() -> Option<PathBuf> {
+    if let Some(dir) = std::env::var_os("CLAN_CONFIG_DIR") {
+        return Some(PathBuf::from(dir));
+    }
+    if let Some(xdg) = std::env::var_os("XDG_CONFIG_HOME") {
+        return Some(PathBuf::from(xdg).join("clan"));
+    }
+    std::env::var_os("HOME")
+        .or_else(|| std::env::var_os("USERPROFILE"))
+        .map(|home| PathBuf::from(home).join(".config").join("clan"))
+}
+
+/// Print the welcome banner on the very first run, then never again.
+/// stderr only — stdout belongs to command output and is often piped.
+/// CLAN_NO_BANNER=1 disables it entirely (no marker is written either);
+/// an unwritable config dir silently skips the banner.
+fn maybe_show_welcome_banner() {
+    if std::env::var_os("CLAN_NO_BANNER").is_some() {
+        return;
+    }
+    let Some(dir) = banner_config_dir() else { return };
+    let marker = dir.join("welcomed");
+    if marker.exists() {
+        return;
+    }
+    let _ = std::fs::create_dir_all(&dir);
+    // Only greet if the marker sticks, so a read-only config dir doesn't
+    // produce the banner on every run.
+    if std::fs::write(&marker, env!("CARGO_PKG_VERSION")).is_err() {
+        return;
+    }
+    eprintln!(
+        "{WELCOME_BANNER}\n  CLAN v{} — Context and Live Agent Notation\n  Documents that carry their own context. Run `clan agent-help` to get started.\n",
+        env!("CARGO_PKG_VERSION")
+    );
+}
+
 fn main() -> Result<()> {
+    maybe_show_welcome_banner();
     let cli = Cli::parse();
     match cli.command {
         Commands::Create {

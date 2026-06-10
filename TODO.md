@@ -91,7 +91,7 @@ Priority order: fix blockers first, then correctness, then packaging, then optim
 - [x] Promote `lol_html = "2.1.0"` from `clan-sdk/Cargo.toml` into `[workspace.dependencies]`
 - [x] Add `[[bin]]` entry to `crates/clan-cli/Cargo.toml` declaring binary name explicitly
 - [ ] Add correct logo for the app.
-- [ ] ASCII Art on first installation [OPT]
+- [x] ASCII Art on first installation [OPT]
 
 ### App packaging
 
