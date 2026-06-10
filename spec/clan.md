@@ -237,6 +237,24 @@ Format: Binary/text injection natively into the ZIP without touching any other f
 
 ---
 
+## Parallel Work (fork/join)
+
+Multiple agents work on one document by forking: `clan fork <file> --agents a,b,c --output-dir <dir>` gives each agent its own branch file with a private namespace `agents/<id>/`. On a branch file:
+
+- Write data ONLY via `clan patch-data <branch> <json> --namespace` (lands in `agents/<id>/data.yaml`)
+- Record decisions via `clan patch-decision` (auto-routed to `agents/<id>/decisions.yaml`)
+- Writes to `shared/` or `human/` are rejected until the branches are joined
+
+`clan merge <branches...> --output <out>` folds all namespaces into `shared/data.yaml` deterministically using per-key policies (`last-write` default; `append`, `max`, `min`, `agent-priority` via manifest `merge_policies` or `--policy key=policy`). Keys where branches disagreed are recorded in `merge-report.yaml` with winner/loser provenance — read with `clan read report`, settle with `patch-data` + `patch-decision`.
+
+---
+
+## Optional Human View
+
+The structured members are canonical; the HTML view is derivable. `--no-render` on `create`/`pack` produces agent-only files; `clan render <file>` materialises the view on demand at any hop. The manifest `view: {present, renderable, stale}` block tracks the state.
+
+---
+
 ## Security Rules
 
 - `<script>` tags and `on*` event handlers are permitted — the iframe sandbox runs them in a null origin with no access to Tauri IPC or parent app state

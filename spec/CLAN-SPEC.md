@@ -1,4 +1,4 @@
-# CLAN Specification v1.0
+# CLAN Specification v1.1
 
 **Context and Live Agent Notation**
 Pronounced "clan"
@@ -28,6 +28,12 @@ Pronounced "clan"
 19. [Versioning](#19-versioning)
 20. [MCP Compatibility](#20-mcp-compatibility)
 21. [Implementation Checklist](#21-implementation-checklist)
+22. [Agent-Only Flow — The Preservation Rule](#22-agent-only-flow--the-preservation-rule)
+23. [Deferred Rendering](#23-deferred-rendering)
+24. [Fork/Join Concurrency](#24-forkjoin-concurrency)
+25. [Conflict Adjudication](#25-conflict-adjudication)
+26. [Conditional Context Injection](#26-conditional-context-injection)
+27. [Teachable Interface](#27-teachable-interface)
 
 ---
 
@@ -1071,3 +1077,221 @@ For SDK implementors, in priority order:
 - [ ] Edit bridge injection and postMessage handling
 - [ ] Lineage timeline rendering
 - [ ] Agent section panel (structured YAML display, collapsed by default)
+- [ ] Conflict badges on bindings whose key appears in `merge-report.yaml` (Section 25)
+
+---
+
+## 22. Agent-Only Flow — The Preservation Rule
+
+A CLAN chain is **lossless** iff every hop preserves all five context layers. Each layer is optional to *read* but mandatory to *preserve*:
+
+| # | Layer | Member(s) |
+|---|---|---|
+| 1 | Distilled state | `shared/data.yaml` |
+| 2 | Working transcript / scratchpad | `agent/context.md`, `agent/state.yaml`, optional `agent/transcript/` |
+| 3 | Contracts | `agent/output-schema.json` |
+| 4 | Provenance | `agent/decision-chain.yaml` |
+| 5 | Capability requirements | `agent/requirements.yaml` (optional) |
+
+**The pass-through rule (normative):** an agent or SDK that consumes only a subset of layers MUST carry all other layers forward unmodified into the child file. `pack`, `pack-html`, and all `patch-*` operations satisfy this by construction; any third-party implementation MUST too. This single rule is what makes a chain pluggable into a different framework at any hop: the receiving framework finds every layer intact regardless of what intermediate hops read.
+
+### agent/requirements.yaml (optional)
+
+Tool *implementations* are framework-resident and cannot portably travel. CLAN carries the **declaration** instead, so a receiving framework can check capability fit before running the next hop:
+
+```yaml
+requires:
+  tools:
+    - name: web_search
+      why: "verify vendor registration numbers"
+    - name: code_execution
+      why: "recompute totals"
+  model_hints:
+    min_context_tokens: 64000
+```
+
+Receiving orchestrators SHOULD warn (not fail) on unmet requirements. When present, the member is injected into agent context (Section 26) and must parse as YAML (Section 18).
+
+---
+
+## 23. Deferred Rendering
+
+The structured members (Section 22, layers 1–5) are canonical. The human view (`human/`) is a **derivable artifact**: any conforming implementation can materialise it from the structured members at any point in the chain. Pure agent-to-agent chains skip rendering at every hop; the last hop — or a human's tooling — renders once.
+
+### manifest.yaml: `view` field
+
+```yaml
+view:
+  present: false        # human/index.html exists in this file
+  renderable: true      # a view CAN be produced from current structured members
+  stale: false          # present but produced from an older data.yaml generation
+```
+
+Rules:
+- `present: false, renderable: true` — agent-only file; render on demand.
+- `stale: true` is set automatically by any data-changing operation that does not update the view; view-producing output modes (`full-html`, `patch-html`, `designed`) clear it.
+- A file with `present: true` MUST render without error from its own members (the Section 25 invariant guarantees `shared/data.yaml` is always single-valued, hence always bindable).
+- The field is absent on v1.0 files: readers treat absence as "present iff `human/index.html` exists".
+
+### CLI
+
+- `clan create --no-render` / `clan pack --no-render` — produce agent-only files (`present: false`).
+- `clan render <file>` — materialise `human/` from structured members (default deterministic theme renderer; an agent may instead produce a richer view via `pack-html`); sets `present: true, stale: false`. Scalar fields are emitted as `{{key}}` bindings so the viewer resolves live data.
+
+Render-per-hop workflows are unchanged: omit `--no-render` and behaviour is identical to v1.0.
+
+---
+
+## 24. Fork/Join Concurrency
+
+Concurrency model: **isolate writes, then deterministically fold.** No locks, no CRDTs, no merge servers. This mirrors the per-branch isolation + per-key reducer model production agent frameworks ship as their only supported concurrency mechanism — expressed as files.
+
+### 24.1 `clan fork`
+
+```
+clan fork parent.clan --agents researcher,analyst,critic --output-dir branches/
+```
+
+Produces one child per agent. Each child:
+- carries the full parent content (pass-through rule, Section 22);
+- gains a manifest `fork` block naming its writer:
+
+```yaml
+fork:
+  agent_id: researcher
+  namespace: agents/researcher/
+  forked_from: sha256:<parent digest>
+```
+
+- gains an empty private namespace: `agents/<agent_id>/data.yaml` and `agents/<agent_id>/decisions.yaml`, registered in the file registry with roles `branch-data` / `branch-decisions`.
+
+**Namespace rule (normative):** on a forked file, the named agent MUST write only inside `agents/<agent_id>/`. Conforming implementations MUST reject writes to `shared/`, `agent/` contracts, and `human/` with a teaching error (Section 27.2). `patch-data --namespace` routes to the branch data; `patch-decision` auto-routes to the branch decision log; `patch-state` (the agent-private scratchpad) remains allowed. Conflicts are thereby impossible by construction during the parallel interval. Forking a branch file is rejected: merge first.
+
+### 24.2 Multi-parent lineage
+
+A merged file lists every parent. The single-parent fields remain the v1.0 form (`parent_id` holds the first parent, so v1.0 readers keep working):
+
+```yaml
+lineage:
+  parent_id: <first-branch uuid>
+  parent_uri: file:///...
+  parent_sha256: sha256:<first-branch digest>
+  delta: "merged branches: researcher, analyst"
+  merge: true
+  parents:
+    - id: <branch uuid>
+      sha256: sha256:<digest>
+      agent_id: researcher
+    - id: <branch uuid>
+      sha256: sha256:<digest>
+      agent_id: analyst
+```
+
+`merge: true` with fewer than 2 `parents[]` entries is a structural error.
+
+### 24.3 `clan merge`
+
+```
+clan merge branches/*.clan --output merged.clan [--policy findings=append] [--prune-namespaces]
+```
+
+Folds every branch's `agents/<id>/data.yaml` into `shared/data.yaml`, deterministically, using per-key policies — explicit `--policy` overrides, else the manifest's `merge_policies` block, else `last-write`:
+
+```yaml
+merge_policies:
+  default: last-write
+  keys:
+    findings: append           # concatenate values (arrays flatten)
+    risk_score: max            # numeric max (min likewise)
+    status: last-write         # the latest-listed writer wins
+    summary: agent-priority    # the earliest-listed writer wins
+```
+
+Branches are folded in argument order; `last-write` means the latest-listed writer of a key wins. All branches MUST share one fork point (`forked_from`) and carry distinct agent ids. Branch `decisions.yaml` entries fold into the merged `agent/decision-chain.yaml` in timestamp order beneath a pinned-style `clan-merge` summary entry. Branch namespaces are retained in the merged file as provenance (cheap — ZIP-deflated) unless `--prune-namespaces`.
+
+The merge is **mechanical — no LLM call required.** Token cost of the whole fan-out: each branch agent reads the shared base once plus its own namespace; no agent ever reads a sibling's transcript.
+
+### 24.4 merge-report.yaml
+
+Every key where two or more parents wrote **different values** under a winner-picking policy is recorded (`append` keeps everything and is therefore never a conflict):
+
+```yaml
+generated_by: clan merge v1.1.0
+conflicts:
+  - key: status
+    winner: { value: "needs-review", agent: analyst, policy: last-write }
+    losers:
+      - { value: "approved", agent: researcher }
+unresolved: 1   # decremented as adjudications land (Section 25)
+```
+
+Conflicts are **data, not failures**: `clan merge` exits 0 with conflicts present (non-zero only on structural errors), reports the contested-key count, and hints adjudication (Section 27). `clan read report` prints the report TOON-encoded.
+
+---
+
+## 25. Conflict Adjudication
+
+**Invariant (normative): `shared/data.yaml` is never ambiguous.** Merge always produces exactly one value per key. No inline conflict markers, no multi-values — the UI bindings (`{{key}}`) and downstream injection both depend on this. Losing values survive in branch namespaces and `merge-report.yaml`.
+
+Adjudication protocol — identical for humans and agents:
+1. Read `merge-report.yaml` (injected automatically while `unresolved > 0`, Section 26).
+2. Choose a value → `clan patch-data` with the chosen value.
+3. Record it → `clan patch-decision --agent <id> --action "adjudicated <key>" --rationale "..."`.
+4. The write removes the key from `merge-report.yaml` and decrements `unresolved`.
+
+Viewer behaviour: elements whose binding key appears in `merge-report.yaml` SHOULD be badged (contested-value indicator) surfacing the competing values with agent provenance; the human's pick runs the same protocol via the existing patch bridge. Conflicts are rendered, not erased.
+
+---
+
+## 26. Conditional Context Injection
+
+The base agent guide (`spec/agent-guide.md`) is **byte-stable** across all files and hops — never edited per file (prompt-cache-friendly). Situational knowledge is appended *after* it as small blocks, selected by **file state**, so an agent never reads about a capability its current file doesn't exhibit:
+
+| Condition (from manifest / members) | Injected block |
+|---|---|
+| `fork` block present | Branch mode: agent id, namespace, the two allowed write commands |
+| `merge-report.yaml` with `unresolved > 0` | The report (TOON) + the 4-step adjudication protocol (Section 25) |
+| `view: {present: false, renderable: true}` | One-line note: no view exists; `clan render` materialises one if the task requires it |
+| `agent/requirements.yaml` present | The requirements member (TOON) |
+| none of the above | nothing |
+
+A sequential agent on an unforked, conflict-free file receives exactly the v1.0 injection — zero added cost for the common case.
+
+---
+
+## 27. Teachable Interface
+
+**Principle: every command teaches the next step; nothing teaches ahead of need.** An agent learns the CLAN protocol through the outputs of the commands it actually runs. An agent that never forks never hears about merging.
+
+### 27.1 Hint lines
+
+Every CLI command MAY append `next:` hint lines to its **diagnostic stream (stderr)** after its primary output — stdout stays pure data, so piped consumers are never polluted:
+
+```
+next: 2 contested key(s) in merge-report.yaml — `clan read report merged.clan`
+next: adjudicate each: clan patch-data <file> <json>, then clan patch-decision ...
+```
+
+Normative properties:
+- **Deterministic.** `hint = f(command, result, file state)` — same inputs, same hints. Testable.
+- **Bounded.** At most 3 lines per command. Hints are headlines, not documentation; each names the command that gives the detail.
+- **Stable prefix.** Every hint line starts `next:` (machine-strippable). `--quiet` or `CLAN_NO_HINTS=1` suppresses all hints.
+- **Precondition-gated.** A hint MUST NOT mention a capability whose preconditions are absent from the current file state: no merge hints on unforked files, no adjudication hints when `unresolved == 0`, no render hints when `present: true, stale: false`.
+
+### 27.2 Errors teach
+
+Every guardrail rejection MUST name the correct alternative in the same message:
+
+```
+error: this file is forked for agent 'researcher' — a direct write to shared/data.yaml
+       is not allowed during a parallel interval.
+next:  write your data with `clan patch-data --namespace` (routes to agents/researcher/data.yaml)
+next:  record decisions with `clan patch-decision` (auto-routed)
+next:  when all branches are done, join them with `clan merge`
+```
+
+For agents, the error message *is* the documentation: conventions that rely on agents remembering prose fail; commands that correct on contact succeed.
+
+### 27.3 Consequence for the base guide
+
+As the hint map covers protocol mechanics at point of use, the byte-stable base guide SHOULD shrink over minor versions toward its irreducible core: what you received, what you must return, the schema contract. Everything procedural moves to the channel where it is actionable — the command output.
