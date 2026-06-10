@@ -109,6 +109,28 @@ Actual model spend (workflow-measured): flows 1–8 = **886,158 subagent tokens 
 7. **F7** Fork copies the parent `context.md` verbatim, so branch agents see a task block (output mode full-html, design requirements) that conflicts with branch-mode rules — 4 receipts flagged the ambiguity. `fork` should support per-branch context rewriting (e.g. `--brief-per-agent`).
 8. **F8** `requirements.yaml` (L5) is dead weight until `create`/`fork` can declare it and `read agent` surfaces unmet requirements loudly.
 
+## 6b. Flow-11 — the metamorphosis flow (Brief → Concept Deck → Client Pitch)
+
+The flagship transformation case: **one** `doc.clan`, three hops, each producing a *substantially different document* (new document stage, new JSON Schema via `--schema`, full view replacement) while losing nothing. Three real agents (134k tokens, ~24 min), audit results measured from snapshots:
+
+| Metamorphosis contract | Result |
+|---|---|
+| Views genuinely different | ✓ light serif agency brief (`#e9e5dc`) → dark display-type concept deck → cream/navy client board deck; 3 distinct titles/identities |
+| Schema migrated per hop | ✓ brief-schema → deck-schema → pitch-schema, all via `pack-html --schema`; every generation validates |
+| Hop-1 brief survives to hop-3 | ✓ verbatim — `single_minded_proposition`, `key_insight`, `budget_eur`, persona "Sorcha" all present in final data |
+| Hop-2 concepts survive to hop-3 | ✓ all three concept names verbatim |
+| Provenance | ✓ chain grew to 3 pinned decisions; lineage unbroken (note: hops ≠ generations — each hop's pack+patch sequence creates several generations) |
+| Assets through full-html replacement | ⚠ survived only because the agent rediscovered `--assets` via `--help` and re-supplied the SVG → **F10** |
+| Errors | 1 (guessed `clan read decisions`; corrected to `read chain` from the error) |
+
+**New findings:**
+- **F9** `clan create` bootstraps a `{type: object}` stub schema — agents get no field guidance (4 receipts complained) and `patch-schema` never naturally triggers. Accept/generate a meaningful starting schema.
+- **F10** Full-html replacement drops parent `human/assets/`; carrying assets requires re-passing `--assets`. Either auto-carry assets referenced by the new HTML, or hint it.
+- **F11** `pack-html` frontmatter *merge-patches* `shared/data.yaml` (RFC 7396) — prior fields survive automatically — but no doc says so, so flow-11 agents re-transcribed the full brief + concepts verbatim in every hop's frontmatter (hundreds of wasted lines, transcription-drift risk). One sentence in agent-guide/agent-help ("omit fields to keep them") fixes it.
+- **F12** Agents guess `clan read decisions`; add it as an alias of `read chain`.
+
+**Metamorphosis verdict:** the contract holds — radical per-hop transformation with zero context loss is exactly what the format does well, and schema migration (`--schema`) worked first-try at every hop. The two rough edges are carry-semantics (F10/F11): the format preserves; the *documentation* doesn't yet tell agents how much it preserves.
+
 ## 7. Verdict
 
 - **Tokens:** roughly a tie at this scale; CLAN +15–40% injected scaffolding vs disciplined ad-hoc, offset partly by `--skip-guide`, branch isolation, and a zero-LLM merge. Sequential CLAN's TOON-distilled re-injection grows slower than ad-hoc's re-read-the-narrative pattern as pipelines lengthen — at 3 hops the curves haven't crossed yet.
