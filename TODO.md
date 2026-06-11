@@ -159,7 +159,7 @@ Priority order: fix blockers first, then correctness, then packaging, then optim
 - [x] **F1** `patch-data`/`pack` no longer append an `unknown-agent / processed document` decision when none is supplied
 - [x] **F2** stale-view hint is view-source-aware (`view.source`); never suggests destructive `render` over a hand-authored view
 - [x] **F3** CLI strips a leading UTF-8 BOM on all text inputs (PowerShell 5.1 `Out-File` default no longer breaks JSON parsing)
-- [x] **F4** viewer edit bridge strips instrumentation before saving + skips no-op patches; SDK-side no-op guard in `do_save_patch` *(app changes UNVERIFIED — clan-app cannot build here without VS Build Tools / windres)*
+- [x] **F4** viewer edit bridge strips instrumentation before saving + skips no-op patches; SDK-side no-op guard in `do_save_patch`. **VERIFIED 2026-06-11** (VS Build Tools reinstalled): Rust no-op guard has a regression test; runtime check in the production build confirmed saved patch content carries no instrumentation and an unchanged element produces no patch
 - [x] **F5** full-html replacement folds superseded `human/patches.yaml` into the decision chain as an `agent: human` entry before dropping them
 - [x] **F6** prose-key conflicts carry an `append` suggestion in the merge report; branch-mode injection + agent-help warn about prose-key collisions
 - [x] **F7** `clan fork --context-dir` overrides per-branch `context.md`; every branch gets a branch-mode banner so inherited full-html/design instructions don't mislead
