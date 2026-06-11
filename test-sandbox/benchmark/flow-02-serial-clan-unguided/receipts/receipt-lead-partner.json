@@ -1,0 +1,34 @@
+{
+  "role": "lead-partner",
+  "flow": "flow-02-serial-clan-unguided",
+  "commands_run": [
+    "clan --help",
+    "clan agent-help",
+    "clan info doc.clan",
+    "clan read agent doc.clan",
+    "clan read human doc.clan > human-view.html",
+    "Copy-Item doc.clan final.clan",
+    "clan patch-data final.clan final-patch.json",
+    "clan patch-html final.clan final-patch.html",
+    "clan patch-decision final.clan --agent lead-partner --action ... --rationale ... --pinned",
+    "clan validate final.clan",
+    "clan read human final.clan (verification grep)",
+    "New-Item -ItemType Directory -Force ..\\snapshots; Copy-Item final.clan ..\\snapshots\\03-lead-partner.clan",
+    "New-Item -ItemType Directory -Force ..\\receipts"
+  ],
+  "files_read": [
+    {"path": "C:\\Users\\syson\\Documents\\Code\\clan\\test-sandbox\\benchmark\\flow-02-serial-clan-unguided\\work\\doc.clan (via clan read agent/human)", "approx_chars": 45000},
+    {"path": "C:\\Users\\syson\\Documents\\Code\\clan\\test-sandbox\\benchmark\\flow-02-serial-clan-unguided\\work\\human-view.html", "approx_chars": 16000}
+  ],
+  "files_written": [
+    "C:\\Users\\syson\\Documents\\Code\\clan\\test-sandbox\\benchmark\\flow-02-serial-clan-unguided\\work\\final.clan",
+    "C:\\Users\\syson\\Documents\\Code\\clan\\test-sandbox\\benchmark\\flow-02-serial-clan-unguided\\work\\final-patch.json",
+    "C:\\Users\\syson\\Documents\\Code\\clan\\test-sandbox\\benchmark\\flow-02-serial-clan-unguided\\work\\final-patch.html",
+    "C:\\Users\\syson\\Documents\\Code\\clan\\test-sandbox\\benchmark\\flow-02-serial-clan-unguided\\work\\human-view.html",
+    "C:\\Users\\syson\\Documents\\Code\\clan\\test-sandbox\\benchmark\\flow-02-serial-clan-unguided\\snapshots\\03-lead-partner.clan",
+    "C:\\Users\\syson\\Documents\\Code\\clan\\test-sandbox\\benchmark\\flow-02-serial-clan-unguided\\receipts\\receipt-lead-partner.json"
+  ],
+  "errors": [],
+  "problems_and_friction": "No command failures. Two friction points: (1) after patch-data the CLI hinted 'human view is stale - clan render to refresh', but running render would have regenerated the view and risked clobbering the hand-built HTML from stages 1-2, so I deliberately skipped it and used patch-html instead (the hint is misleading for full-html documents); (2) dumping the human view via PowerShell redirection produced a UTF-16 file with mangled euro signs in my read-back, which was cosmetic but made inspection noisier. The agent-help quick reference made tool discovery otherwise painless.",
+  "context_understood": "I was hop 3 of 3 (lead partner) receiving a .clan document carrying stage-1 CRM market research and stage-2 risk analysis for Brightline (40-person Dublin ad agency), and had to synthesize a single costed recommendation (HubSpot, ~EUR 70k year-1), a 3-phase rollout plan, an executive summary, and explicit specialist-weighing rationale into final.clan with both structured data and a polished HTML view."
+}

@@ -1,0 +1,74 @@
+---
+mode: patch-html
+patch_selector: "div.wrap"
+patch_action: "append"
+---
+<style>
+  .risk-sec { margin-top: 56px; border-top: 1px solid #262a36; padding-top: 40px; }
+  .risk-sec .risk-kicker { font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: #6366f1; font-weight: 700; margin-bottom: 8px; }
+  .risk-sec h2 { font-size: 26px; font-weight: 800; color: #f3f4f8; margin: 0 0 6px; }
+  .risk-sec h3 { font-size: 16px; font-weight: 700; color: #c7c9d6; margin: 28px 0 10px; }
+  .risk-sec p, .risk-sec li { font-size: 13.5px; line-height: 1.65; color: #9da1b2; }
+  .risk-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 12px; }
+  .risk-card { background: #161924; border: 1px solid #262a36; border-radius: 12px; padding: 16px 18px; }
+  .risk-card b { color: #e7e9f2; display: block; margin-bottom: 6px; font-size: 13px; }
+  .risk-card span { font-size: 12.5px; line-height: 1.6; color: #9da1b2; }
+  .risk-badge { display: inline-block; font-size: 10.5px; font-weight: 700; padding: 2px 8px; border-radius: 99px; margin-left: 6px; vertical-align: 1px; }
+  .rb-low { background: #14331f; color: #4ade80; } .rb-mod { background: #3a2e12; color: #fbbf24; } .rb-high { background: #3a1620; color: #f87171; }
+  table.risk-reg { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 12.5px; }
+  table.risk-reg th { text-align: left; color: #6366f1; font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; padding: 8px 10px; border-bottom: 1px solid #262a36; }
+  table.risk-reg td { padding: 9px 10px; border-bottom: 1px solid #1d2130; color: #aeb2c2; vertical-align: top; line-height: 1.5; }
+  table.risk-reg td.sev { font-weight: 800; text-align: center; width: 44px; }
+  .sev-2 { color: #4ade80; } .sev-3 { color: #fbbf24; } .sev-4 { color: #f87171; }
+  .risk-verdict { margin-top: 28px; background: linear-gradient(135deg, #1b1e2e, #161924); border: 1px solid #34384a; border-left: 3px solid #6366f1; border-radius: 12px; padding: 18px 22px; }
+</style>
+<section class="risk-sec" data-adf-id="risk-section">
+  <div class="risk-kicker" data-adf-id="risk-kicker">Stage 2 · Risk Analysis</div>
+  <h2 data-adf-id="risk-title">Risk Analysis — GDPR, Lock-in, Migration, Hidden Costs, Support</h2>
+  <p data-adf-id="risk-method">Knowledge-only assessment (cutoff Jan 2026). DPF status, sub-processor lists and contract terms must be re-verified against vendor DPAs and trust pages before signature.</p>
+
+  <h3 data-adf-id="risk-h-gdpr">GDPR posture &amp; EU data residency</h3>
+  <div class="risk-grid">
+    <div class="risk-card"><b>Salesforce <span class="risk-badge rb-low">LOW–MOD</span></b><span data-adf-id="risk-gdpr-sf">EU residency via Hyperforce; EU Operating Zone (extra cost) adds EU-located support. US parent keeps FISA 702 / CLOUD Act reachability regardless of residency. DPF-certified, SCC fallback, mature DPA and audit stack (ISO 27001/27701, SOC 2). Large but well-documented sub-processor list.</span></div>
+    <div class="risk-card"><b>HubSpot <span class="risk-badge rb-low">LOW–MOD</span></b><span data-adf-id="risk-gdpr-hs">Frankfurt (AWS eu-central-1) hosting must be chosen <em>at portal creation</em> — later relocation is effectively a re-implementation. US parent, DPF-certified, SCCs in DPA; some support/telemetry access can originate outside the EU. Good sub-processor transparency.</span></div>
+    <div class="risk-card"><b>Zoho <span class="risk-badge rb-mod">MODERATE</span></b><span data-adf-id="risk-gdpr-zoho">Zoho-owned Amsterdam + Dublin data centres (no hyperscaler dependency — a plus). Indian parent has no EU adequacy decision: India-based support access rests on SCCs, and sub-processor/audit documentation is thinner. Request EU-only support handling and run a TIA.</span></div>
+  </div>
+  <p data-adf-id="risk-gdpr-note">Shared assumption: the EU–US Data Privacy Framework remains valid as of Jan 2026 but is litigation-exposed (Schrems-pattern). With EU residency plus SCC fallback, all three are viable for an Irish controller holding B2B contact data (no special-category data).</p>
+
+  <h3 data-adf-id="risk-h-lockin">Vendor lock-in &amp; exit cost</h3>
+  <p data-adf-id="risk-lockin">Salesforce is the deepest trap: data egress is easy (APIs, weekly export) but <em>process</em> egress — Apex/Flow automations and metadata — is a EUR 15–40k rebuild, on top of multi-year non-cancellable orders. HubSpot exports CRM objects cleanly, but marketing workflows, email assets and attribution history do not port, and annual contracts carry auto-renewal uplift clauses. Zoho has the lightest contractual lock-in, but the Zoho One bundle is an operational lock-in trap: once email, finance and projects ride on it, exit cost multiplies across the business — keep scope CRM-only for the first 12 months.</p>
+
+  <h3 data-adf-id="risk-h-migration">Migration risk</h3>
+  <p data-adf-id="risk-migration">Inbound migration (assumed: spreadsheets / lightweight legacy CRM) is technically low-complexity everywhere; HubSpot has the best guided tooling, Salesforce realistically requires a partner (cost already modelled), Zoho is fine until something stalls — and the thin Irish partner pool slows the rescue. The dominant migration risk is human, not technical: if 40 creatives abandon the tool, the CRM is stale within a quarter. Adoption risk ranks Salesforce worst, HubSpot best.</p>
+
+  <h3 data-adf-id="risk-h-hidden">Hidden-cost risk</h3>
+  <p data-adf-id="risk-hidden">Salesforce: ~9% list-rise cadence (2023, 2025 — assume recurrence), paid ad-ops add-ons, Premier Support (~30% uplift) and an admin retainer push realistic 3-year TCO to 1.5–2× the EUR 79.2k/yr headline. HubSpot: the marketing-contact tier is the trap — cost scales with database size, not seats; an agency importing prospect lists can double the EUR 9.5–19k/yr add-on, and custom objects sit behind an Enterprise upgrade (~EUR 150/seat). Zoho: the headline price is honest, but budget EUR 5–10k/yr in middleware and developer glue to fill the Meta/programmatic gaps.</p>
+
+  <h3 data-adf-id="risk-h-support">Support risk</h3>
+  <p data-adf-id="risk-support">HubSpot is the standout for Brightline: EMEA HQ in Dublin, phone/chat support included at Pro tier, deepest local agency-partner bench — LOW. Salesforce standard support is slow; meaningful SLAs cost extra, but the Irish partner ecosystem is excellent — LOW with a retainer, MODERATE without. Zoho routes support through an EU/India mix, premium support adds ~20–25%, and local partners are scarce — MODERATE–HIGH; Brightline would be largely self-reliant.</p>
+
+  <h3 data-adf-id="risk-h-register">Risk register</h3>
+  <table class="risk-reg" data-adf-id="risk-register-table">
+    <thead><tr><th>Risk</th><th>Vendor</th><th>Sev</th><th>Mitigation</th></tr></thead>
+    <tbody>
+      <tr><td>Admin burden overwhelms a 40-person agency; adoption collapses</td><td>Salesforce</td><td class="sev sev-4">4</td><td>Partner retainer + named internal admin, or eliminate from shortlist</td></tr>
+      <tr><td>Compounding ~9% price rises + add-on dependency inflate 3-yr TCO 1.5–2×</td><td>Salesforce</td><td class="sev sev-4">4</td><td>Multi-year price-lock and add-on caps negotiated pre-signature; model 3-yr TCO</td></tr>
+      <tr><td>Process lock-in: proprietary automations make exit a EUR 15–40k rebuild</td><td>Salesforce</td><td class="sev sev-3">3</td><td>Tool-agnostic workflow docs; quarterly full exports; prefer Flow over Apex</td></tr>
+      <tr><td>US government access (FISA 702 / CLOUD Act) despite EU residency</td><td>Salesforce</td><td class="sev sev-2">2</td><td>EU Operating Zone; DPF + SCCs; keep only B2B contact data in CRM</td></tr>
+      <tr><td>Marketing-contact tier creep — cost scales with database size, can double the add-on</td><td>HubSpot</td><td class="sev sev-4">4</td><td>Contractual tier pricing schedule; quarterly list hygiene; mark non-marketing contacts</td></tr>
+      <tr><td>EU hosting must be chosen at portal creation; later relocation ≈ re-implementation</td><td>HubSpot</td><td class="sev sev-3">3</td><td>EU residency specified in order form; verify portal region before any import</td></tr>
+      <tr><td>Feature ceiling forces ~EUR 150/seat Enterprise upgrade later</td><td>HubSpot</td><td class="sev sev-2">2</td><td>Validate reporting needs in trial; pre-price the Enterprise delta</td></tr>
+      <tr><td>Renewal auto-uplift on annual prepaid contracts</td><td>HubSpot</td><td class="sev sev-2">2</td><td>Cap uplift (CPI or fixed %); calendar the renewal notice window</td></tr>
+      <tr><td>Ad-ops gaps (Meta, programmatic) require DIY middleware — EUR 5–10k/yr and fragility</td><td>Zoho</td><td class="sev sev-4">4</td><td>Pilot Meta sync in trial; budget middleware; treat failure as deal-breaker</td></tr>
+      <tr><td>India-parent transfers rest on SCCs with no adequacy decision; thinner transparency</td><td>Zoho</td><td class="sev sev-3">3</td><td>EU-only support handling in DPA; complete a TIA; residency confirmed in writing</td></tr>
+      <tr><td>Thin Irish partner/talent pool — slow rescue when integrations stall</td><td>Zoho</td><td class="sev sev-3">3</td><td>Pre-qualify a UK/EU partner before contract; train an internal power-user</td></tr>
+      <tr><td>Zoho One bundle converts cheap CRM into business-wide operational lock-in</td><td>Zoho</td><td class="sev sev-2">2</td><td>CRM-only scope for 12 months; written exit/export test before bundle expansion</td></tr>
+      <tr><td>DPF invalidation (Schrems-pattern litigation) disrupts US-parent transfer basis</td><td>All (US parents)</td><td class="sev sev-2">2</td><td>SCCs as contractual fallback in every DPA; EU residency limits exposure</td></tr>
+      <tr><td>All pricing is Jan-2026 knowledge-cutoff list pricing; actuals may differ</td><td>All</td><td class="sev sev-3">3</td><td>Mandatory pre-contract verification of vendor quotes before sign-off</td></tr>
+    </tbody>
+  </table>
+
+  <div class="risk-verdict" data-adf-id="risk-verdict">
+    <b style="color:#e7e9f2">Risk verdict:</b> the preliminary ranking <b style="color:#6366f1">HubSpot &gt; Zoho &gt; Salesforce</b> survives the stress-test. HubSpot's dominant risks (contact-tier creep, renewal uplift) are contract-mitigable and its GDPR + Dublin support posture fit best. Zoho's savings carry recurring taxes: middleware glue, support self-reliance, heavier GDPR diligence. Salesforce carries the highest composite risk for capability Brightline does not yet need.
+  </div>
+</section>

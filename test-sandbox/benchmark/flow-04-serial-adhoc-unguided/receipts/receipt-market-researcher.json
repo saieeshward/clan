@@ -1,0 +1,20 @@
+{
+  "role": "market-researcher",
+  "flow": "flow-04-serial-adhoc-unguided",
+  "commands_run": [
+    "Get-ChildItem -Recurse C:\\Users\\syson\\Documents\\Code\\clan\\test-sandbox\\benchmark\\flow-04-serial-adhoc-unguided\\work | Select-Object FullName, Length",
+    "$snap = '...\\snapshots\\01-market-researcher'; New-Item -ItemType Directory -Force $snap | Out-Null; Copy-Item -Recurse -Force '...\\work\\*' $snap; New-Item -ItemType Directory -Force '...\\receipts' | Out-Null; Get-ChildItem -Recurse $snap | Select-Object FullName"
+  ],
+  "files_read": [
+    {"path": "C:\\Users\\syson\\Documents\\Code\\clan\\test-sandbox\\benchmark\\flow-04-serial-adhoc-unguided\\work\\brief.md", "approx_chars": 341}
+  ],
+  "files_written": [
+    "C:\\Users\\syson\\Documents\\Code\\clan\\test-sandbox\\benchmark\\flow-04-serial-adhoc-unguided\\work\\01-market-research.md",
+    "C:\\Users\\syson\\Documents\\Code\\clan\\test-sandbox\\benchmark\\flow-04-serial-adhoc-unguided\\work\\PIPELINE-STATE.md",
+    "C:\\Users\\syson\\Documents\\Code\\clan\\test-sandbox\\benchmark\\flow-04-serial-adhoc-unguided\\snapshots\\01-market-researcher\\* (copy of work dir)",
+    "C:\\Users\\syson\\Documents\\Code\\clan\\test-sandbox\\benchmark\\flow-04-serial-adhoc-unguided\\receipts\\receipt-market-researcher.json"
+  ],
+  "errors": [],
+  "problems_and_friction": "Main difficulty was producing EUR pricing with no web access: vendor list prices shift often and HubSpot's contact-tier/seat hybrid pricing makes a 40-seat estimate genuinely fuzzy, so I flagged everything as +/-20% with an explicit knowledge-cutoff caveat. The work dir contained an empty pre-existing 'snapshots' subdirectory, which got copied into the snapshot as harmless noise. No protocol was given, so I invented a PIPELINE-STATE.md handoff convention for the risk-analyst.",
+  "context_understood": "Stage 1 of a 3-stage serial pipeline: read brief.md (CRM evaluation for Brightline, a 40-seat Dublin ad agency) and produce comparative market research on Salesforce/HubSpot/Zoho for a downstream risk-analyst."
+}

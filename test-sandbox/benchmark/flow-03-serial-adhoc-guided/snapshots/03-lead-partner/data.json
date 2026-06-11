@@ -1,0 +1,87 @@
+{
+    "market_candidates":  [
+                              "Salesforce Sales Cloud",
+                              "HubSpot (Sales Hub + Marketing Hub)",
+                              "Zoho CRM"
+                          ],
+    "market_pricing_eur_per_user_month":  {
+                                              "salesforce_enterprise":  165,
+                                              "salesforce_pro_suite":  100,
+                                              "hubspot_blended":  110,
+                                              "zoho_enterprise":  40
+                                          },
+    "market_annual_cost_eur_40_seats":  {
+                                            "salesforce_enterprise":  79000,
+                                            "salesforce_pro_suite":  48000,
+                                            "hubspot":  53000,
+                                            "zoho_enterprise":  19000
+                                        },
+    "market_implementation_cost_eur":  {
+                                           "salesforce":  "10000-30000",
+                                           "hubspot":  "3000-6000",
+                                           "zoho":  "0-5000"
+                                       },
+    "market_adops_integration_rank":  [
+                                          "HubSpot",
+                                          "Salesforce",
+                                          "Zoho"
+                                      ],
+    "market_preliminary_steer":  "HubSpot best capability-per-euro for ad agency; Zoho budget hedge; Salesforce only if enterprise-client procurement demands it",
+    "market_assumptions":  "Knowledge cutoff Jan 2026, no web access; list prices ballpark, annual billing ex-VAT; all 40 staff seated",
+    "risk_eu_residency":  {
+                              "salesforce":  "Hyperforce EU (Frankfurt/Paris); optional EU Operating Zone at extra cost",
+                              "hubspot":  "EU data centre (Frankfurt, AWS eu-central-1); region fixed at portal creation",
+                              "zoho":  "EU data centres (Amsterdam region); Indian parent, transfer analysis to India"
+                          },
+    "risk_lockin_rank_high_to_low":  ["Salesforce", "HubSpot", "Zoho"],
+    "risk_exit_cost_estimate_eur":  {
+                                        "salesforce":  "15000-40000",
+                                        "hubspot":  "8000-20000",
+                                        "zoho":  "5000-12000"
+                                    },
+    "risk_hidden_cost_multiplier_year1":  {
+                                              "salesforce":  "1.5-2.0x licence",
+                                              "hubspot":  "1.2-1.5x licence (contact tiers + onboarding)",
+                                              "zoho":  "1.2-1.4x licence (middleware + premium support)"
+                                          },
+    "risk_support_rank_best_to_worst":  ["HubSpot (Dublin EMEA HQ)", "Salesforce (with Premier, +30%)", "Zoho (buy premium support + EU partner)"],
+    "risk_top_severity_items":  [
+                                    "Joint-controller GDPR exposure from ad-audience syncs (all vendors, sev 4)",
+                                    "Salesforce config lock-in and exit cost (sev 4)",
+                                    "Salesforce adoption failure among non-sales staff (sev 4)",
+                                    "Salesforce hidden year-1 costs (sev 4)"
+                                ],
+    "risk_register":  [
+                          {"risk": "US CLOUD Act / transfer challenge to EU data", "vendor": "Salesforce, HubSpot", "severity": 3, "mitigation": "EU residency + SCCs + transfer impact assessment; minimise sensitive data in CRM"},
+                          {"risk": "EU region fixed at signup; later change is a re-migration", "vendor": "HubSpot", "severity": 3, "mitigation": "Select EU data centre at portal creation"},
+                          {"risk": "Transfer-risk analysis to India under-scrutinised", "vendor": "Zoho", "severity": 2, "mitigation": "SCCs, TIA, confirm EU DC and EU-only support access in DPA"},
+                          {"risk": "Joint-controller exposure from ad-audience syncs", "vendor": "All", "severity": 4, "mitigation": "Consent/LIA review before enabling Meta/Google audience sync; document in RoPA"},
+                          {"risk": "Config lock-in (Flows/Apex/AppExchange) raises exit cost", "vendor": "Salesforce", "severity": 4, "mitigation": "Keep automations in middleware; quarterly exports; avoid multi-year terms"},
+                          {"risk": "Marketing-asset lock-in and contact-tier price creep", "vendor": "HubSpot", "severity": 3, "mitigation": "Cap synced contacts; archive cold contacts; negotiate tiers at renewal"},
+                          {"risk": "Suite coupling via Zoho One spreads lock-in beyond CRM", "vendor": "Zoho", "severity": 2, "mitigation": "Adopt CRM only; evaluate suite modules individually"},
+                          {"risk": "Adoption failure among non-sales staff", "vendor": "Salesforce", "severity": 4, "mitigation": "Phased rollout, named admin, role-trimmed UI; prefer Pro Suite tier"},
+                          {"risk": "Hidden year-1 costs (admin FTE, support uplift, add-ons)", "vendor": "Salesforce", "severity": 4, "mitigation": "Budget 1.5-2x licence year 1; fixed-price implementation partner"},
+                          {"risk": "Enterprise-tier upgrade pressure for permissions/objects", "vendor": "HubSpot", "severity": 3, "mitigation": "Validate Professional-tier permission model in trial before contract"},
+                          {"risk": "Weak EU support/partner bench delays resolution", "vendor": "Zoho", "severity": 3, "mitigation": "Premium support tier + named EU partner on retainer"},
+                          {"risk": "Dirty source data corrupts migration", "vendor": "All", "severity": 3, "mitigation": "Pre-migration dedup/cleanse sprint; migrate in waves with validation gates"}
+                      ],
+    "risk_steer":  "Risk profile supports market steer: HubSpot risks are mitigable by contract/config; Salesforce risks are structural at 40 seats; Zoho acceptable only with paid support and middleware budget",
+    "risk_assumptions":  "Knowledge-only, Jan 2026 cutoff; Brightline assumed controller migrating from spreadsheets/legacy; residency options and contract norms must be verified in DPA/order form",
+    "final_recommendation":  "HubSpot (Sales Hub Professional + Marketing Hub Professional), EU data centre (Frankfurt) selected at portal creation, annual billing; Zoho rejected as budget hedge (ad-ops and EU support gaps), Salesforce rejected as structurally over-risked at 40 seats (1.5-2.0x hidden costs, adoption, lock-in)",
+    "year1_total_cost_eur":  68000,
+    "year1_cost_breakdown_eur":  {
+                                     "licences_blended_40_seats":  53000,
+                                     "mandatory_onboarding":  4500,
+                                     "data_cleanse_and_migration":  4000,
+                                     "middleware_zapier_make":  2500,
+                                     "training":  2000,
+                                     "contingency_contact_tiers":  2000
+                                 },
+    "rollout_plan":  [
+                         {"phase": 1, "name": "Foundation & pilot", "timeline": "Weeks 1-4", "actions": "EU data centre portal creation (region fixed day one); DPA/SCCs/TIA; validate Pro-tier permissions in trial pre-contract; data dedup/cleanse sprint; wave migration with validation gates; 10-user sales/account pilot; annual-term and tier negotiation"},
+                         {"phase": 2, "name": "Sales rollout & ad-ops integration", "timeline": "Weeks 5-8", "actions": "All client-facing staff onboarded; consent/LIA review + RoPA documentation BEFORE enabling Meta/Google audience sync; lead-ad capture and ad-spend attribution live; middleware for GA4/programmatic kept outside vendor-native automation; cap/archive cold contacts"},
+                         {"phase": 3, "name": "Agency-wide adoption & governance", "timeline": "Weeks 9-12", "actions": "Creatives/ops on lightweight or free seats (realise ~EUR 15-20k seat saving); Marketing Hub campaigns and dashboards; role-based training; quarterly full data exports instituted; renewal calendar for contact tiers; week-12 governance review vs adoption KPIs"}
+                     ],
+    "executive_summary":  "Adopt HubSpot (Sales Hub Pro + Marketing Hub Pro, EU-hosted) at an estimated year-1 total of ~EUR 68,000 (1.28x licence, within the risk analyst's 1.2-1.5x band). HubSpot wins on capability-per-euro for an ad agency: native Meta/Google Ads integration, lowest adoption risk for a 40-person mixed creative/sales team, Dublin EMEA support, and residual risks mitigable by contract/config. Salesforce is disqualified at this headcount (all-in year 1 EUR 120-160k, severity-4 structural risks); Zoho's ~EUR 34k saving is eroded by premium support, middleware, and weak EU partner bench. Rollout in 3 phases over 12 weeks, gating ad-audience syncs behind a documented consent/LIA review (the top cross-vendor GDPR risk). All figures knowledge-based (Jan 2026 cutoff); verify against live quotes and DPA before signature.",
+    "lead_partner_weighing":  "Specialists agreed on direction; tensions resolved as follows: ad-ops integration kept as core selection driver but sequenced behind consent review per risk analyst; costed conservatively on full 40 paid seats with the ~25-seat model held as upside; hidden-cost multipliers weighted over sticker price; Zoho's price advantage judged insufficient against integration fit and support proximity for an agency dependent on campaign ops"
+}

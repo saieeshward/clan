@@ -1,0 +1,187 @@
+---
+structured:
+  document:
+    title: "Brightline CRM Evaluation — Market Research"
+    client: "Brightline (advertising agency, Dublin, Ireland)"
+    seats: 40
+    stage: "1 of 3 — market research (next: risk analysis)"
+    author: "market-researcher"
+    date: "2026-06-10"
+  assumptions:
+    - "No web access: all figures from model knowledge, cutoff January 2026. List prices, EUR, annual billing, ex-VAT. Verify against vendor pricing pages before contracting."
+    - "HubSpot moved to seat-based pricing in 2024; Marketing Hub contact-tier costs are NOT included in the per-seat figures."
+    - "Salesforce applied ~9% list price increases in 2023 and again in 2025; quoted figures may lag current list."
+    - "40 paid seats assumed; in practice an agency may need only 20-25 full seats plus lighter licenses."
+  crm_options:
+    - name: "Salesforce Sales Cloud"
+      tier_modeled: "Enterprise"
+      price_eur_user_month: 165
+      alt_tier: "Pro Suite ~ EUR 100/user/mo"
+      annual_cost_40_seats_eur: 79200
+      implementation_estimate_eur: "15000-40000 (partner-led)"
+      strengths:
+        - "Deepest customisation, reporting, and workflow automation"
+        - "AppExchange ecosystem; mature APIs; Data Cloud for audience activation"
+        - "EU residency via Hyperforce"
+      weaknesses:
+        - "Highest TCO; admin overhead usually needs a dedicated admin or partner retainer"
+        - "Ad-ops features (Account Engagement, Data Cloud) are costly add-ons"
+        - "Overkill risk for a 40-person agency pipeline"
+      adops_fit:
+        meta_google_ads: "Via AppExchange connectors or Marketing Cloud add-ons; not native in Sales Cloud"
+        ga4: "Third-party connectors / ETL; no first-party GA4 sync"
+        programmatic: "Best-in-class IF Data Cloud purchased; otherwise middleware (Hightouch etc.)"
+    - name: "HubSpot (Sales Hub Pro + Marketing Hub Pro)"
+      tier_modeled: "Sales Hub Professional"
+      price_eur_user_month: 90
+      alt_tier: "Sales Hub Enterprise ~ EUR 150/seat/mo"
+      annual_cost_40_seats_eur: 43200
+      marketing_hub_addon_eur_year: "~9500-19000 (contact-tiered, separate)"
+      implementation_estimate_eur: "5000-15000"
+      strengths:
+        - "Native Ads tool: Meta, Google, LinkedIn ad sync, CRM-audience targeting, ad ROI attribution"
+        - "Fastest adoption curve; strong agency mindshare (HubSpot Partner Program)"
+        - "EU data hosting (Frankfurt)"
+      weaknesses:
+        - "Costs scale steeply with marketing contacts and tier upgrades"
+        - "Reporting ceiling below Salesforce; custom objects gated to Enterprise"
+        - "GA4 integration is shallow (event export, not bidirectional)"
+      adops_fit:
+        meta_google_ads: "Native, strongest of the three"
+        ga4: "Basic native integration; deeper sync needs middleware"
+        programmatic: "No native DSP support; reverse-ETL (Hightouch/Census) required"
+    - name: "Zoho CRM"
+      tier_modeled: "Enterprise"
+      price_eur_user_month: 40
+      alt_tier: "Ultimate EUR ~52; Zoho One bundle ~ EUR 37-45/user/mo all-apps"
+      annual_cost_40_seats_eur: 19200
+      implementation_estimate_eur: "3000-10000"
+      strengths:
+        - "Lowest cost by a wide margin; Zoho One bundles email, projects, finance"
+        - "Native Google Ads integration in CRM; EU data centres (Amsterdam/Dublin)"
+        - "Good API limits for the price"
+      weaknesses:
+        - "Weakest ad-ops ecosystem: Meta sync via Zoho Social/Marketing Automation is clunky"
+        - "Smaller partner/talent pool in Ireland; UI polish lags"
+        - "Programmatic integration effectively DIY via API"
+      adops_fit:
+        meta_google_ads: "Google Ads native; Meta indirect via Zoho Social/third party"
+        ga4: "Via Zoho Marketing Automation or third party; limited"
+        programmatic: "None native; custom API work"
+  preliminary_read: "HubSpot offers the best native ad-ops fit and adoption profile at roughly half Salesforce's cost; Zoho is the value play if budget dominates; Salesforce only justified if Brightline expects enterprise-grade pipeline complexity or Data Cloud audience activation."
+decision:
+  agent: market-researcher
+  action: "Added comparative market research (capabilities, EUR pricing for 40 seats, ad-ops integration fit) as structured data + full HTML view"
+  rationale: "Hop 1 of 3. Knowledge-only (cutoff Jan 2026), assumptions stated inline. Handing off to risk-analyst: GDPR posture, vendor lock-in, adoption risk, and price-rise exposure still open."
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Brightline CRM Evaluation — Market Research</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap">
+<style>
+  :root { --bg:#0f1117; --panel:#161a23; --panel2:#1c2130; --ink:#e8eaf2; --mut:#9aa3b8; --acc:#6366f1; --acc2:#22d3ee; --good:#34d399; --warn:#fbbf24; --bad:#f87171; }
+  * { box-sizing:border-box; margin:0; }
+  body { background:var(--bg); color:var(--ink); font-family:'Inter',sans-serif; line-height:1.55; padding:48px 24px; }
+  .wrap { max-width:980px; margin:0 auto; }
+  .kicker { color:var(--acc2); font-size:12px; font-weight:700; letter-spacing:.18em; text-transform:uppercase; }
+  h1 { font-family:'Fraunces',serif; font-size:44px; font-weight:700; line-height:1.1; margin:10px 0 8px; }
+  .sub { color:var(--mut); font-size:15px; max-width:700px; }
+  h2 { font-family:'Fraunces',serif; font-size:26px; margin:48px 0 14px; color:var(--ink); }
+  h3 { font-size:15px; font-weight:700; margin-bottom:6px; }
+  p { font-size:14.5px; color:#c6ccdb; margin-bottom:12px; }
+  .assume { background:var(--panel); border-left:3px solid var(--warn); border-radius:8px; padding:16px 20px; margin-top:24px; font-size:13.5px; color:var(--mut); }
+  .assume strong { color:var(--warn); }
+  .grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-top:18px; }
+  .card { background:var(--panel); border:1px solid #232a3b; border-radius:12px; padding:20px; }
+  .card .price { font-family:'Fraunces',serif; font-size:30px; color:var(--acc2); }
+  .card .per { font-size:12px; color:var(--mut); }
+  .card ul { padding-left:18px; font-size:13px; color:#c6ccdb; margin-top:10px; }
+  .card li { margin-bottom:5px; }
+  .tag { display:inline-block; font-size:11px; font-weight:600; padding:3px 9px; border-radius:99px; background:#262c41; color:var(--acc2); margin-bottom:10px; }
+  table { width:100%; border-collapse:collapse; margin-top:14px; font-size:13.5px; }
+  th { text-align:left; color:var(--mut); font-size:12px; text-transform:uppercase; letter-spacing:.08em; padding:10px 12px; border-bottom:1px solid #2a3148; }
+  td { padding:11px 12px; border-bottom:1px solid #1f2535; color:#d4d9e6; vertical-align:top; }
+  .good { color:var(--good); font-weight:600; } .mid { color:var(--warn); font-weight:600; } .poor { color:var(--bad); font-weight:600; }
+  .chart { background:var(--panel); border:1px solid #232a3b; border-radius:12px; padding:22px; margin-top:18px; }
+  .note { font-size:12px; color:var(--mut); margin-top:10px; }
+  .verdict { background:linear-gradient(135deg,#1b1f33,#161a23); border:1px solid var(--acc); border-radius:12px; padding:24px; margin-top:48px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="kicker" data-adf-id="kicker">Brightline · CRM Evaluation · Stage 1 of 3 — Market Research</div>
+  <h1 data-adf-id="title">Salesforce vs HubSpot vs Zoho CRM for a 40-seat Dublin agency</h1>
+  <p class="sub" data-adf-id="subtitle">Comparative capabilities, EUR pricing, and ad-ops integration fit. Prepared by the market-researcher agent for handoff to risk analysis (GDPR, lock-in, adoption risk).</p>
+
+  <div class="assume" data-adf-id="assumptions">
+    <strong>Assumptions &amp; caveats.</strong> Produced without web access from model knowledge, <strong>cutoff January 2026</strong>. Figures are vendor list prices in EUR, annual billing, ex-VAT, and must be re-verified before contracting. HubSpot's 2024 shift to seat-based pricing and Salesforce's 2023/2025 list-price rises (~9% each) make quotes especially perishable. We model 40 full seats; real deployments often mix full and lighter licenses, cutting cost 20–35%.
+  </div>
+
+  <h2 data-adf-id="h-pricing">Ballpark pricing — 40 seats, software only</h2>
+  <div class="grid">
+    <div class="card">
+      <span class="tag">Salesforce Sales Cloud</span>
+      <div class="price">€165</div><div class="per">per user/month · Enterprise tier</div>
+      <ul data-adf-id="sf-pricing">
+        <li><b>≈ €79,200/yr</b> for 40 seats (Pro Suite tier: ~€100/u/mo → €48k/yr)</li>
+        <li>Implementation: €15–40k partner-led, plus ongoing admin</li>
+        <li>Ad-ops add-ons (Account Engagement, Data Cloud) priced separately and materially</li>
+      </ul>
+    </div>
+    <div class="card">
+      <span class="tag">HubSpot Sales Hub</span>
+      <div class="price">€90</div><div class="per">per seat/month · Professional tier</div>
+      <ul data-adf-id="hs-pricing">
+        <li><b>≈ €43,200/yr</b> for 40 seats (Enterprise: ~€150/seat → €72k/yr)</li>
+        <li>Marketing Hub Pro adds ~€9.5–19k/yr, tiered by contacts — budget it</li>
+        <li>Onboarding €5–15k; mandatory onboarding fee at Pro+</li>
+      </ul>
+    </div>
+    <div class="card">
+      <span class="tag">Zoho CRM</span>
+      <div class="price">€40</div><div class="per">per user/month · Enterprise tier</div>
+      <ul data-adf-id="zh-pricing">
+        <li><b>≈ €19,200/yr</b> for 40 seats (Ultimate ~€52; Zoho One bundle ~€37–45/u/mo)</li>
+        <li>Implementation €3–10k; smallest partner pool in Ireland</li>
+        <li>Zoho One folds in mail, projects, finance — strong bundle economics</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2 data-adf-id="h-cap">Capabilities &amp; feature strengths</h2>
+  <p data-adf-id="cap-1"><b>Salesforce</b> is the depth leader: custom objects, Flow automation, enterprise reporting, and the AppExchange ecosystem are unmatched. For an agency, that depth buys multi-entity pipeline modelling (brands, campaigns, retainers) — but it demands a dedicated admin or a partner retainer, and most of its ad-ops muscle sits in paid add-ons rather than Sales Cloud itself.</p>
+  <p data-adf-id="cap-2"><b>HubSpot</b> is the usability and marketing-native leader. Its built-in Ads tool syncs Meta, Google, and LinkedIn campaigns directly into the CRM, supports CRM-list audience targeting, and attributes ad spend to closed revenue out of the box — uniquely relevant for an ad agency that wants to dogfood client reporting. Custom objects and advanced permissioning are gated to Enterprise, so complex data models get expensive.</p>
+  <p data-adf-id="cap-3"><b>Zoho CRM</b> covers ~80% of HubSpot's functionality at ~45% of the price: solid workflow automation, decent customisation, native Google Ads integration, and EU data centres. The trade-offs are a clunkier UI, a weaker Meta/programmatic story, and a thinner Irish partner and hiring market.</p>
+
+  <h2 data-adf-id="h-int">Integration fit with ad-ops tooling</h2>
+  <table>
+    <tr><th>Integration</th><th>Salesforce</th><th>HubSpot</th><th>Zoho CRM</th></tr>
+    <tr><td>Meta / Google Ads</td><td class="mid">Via AppExchange / Marketing Cloud add-ons</td><td class="good">Native (Ads tool, audience sync, ROI)</td><td class="mid">Google native; Meta indirect</td></tr>
+    <tr><td>GA4</td><td class="mid">Third-party connectors / ETL</td><td class="mid">Basic native; shallow sync</td><td class="poor">Limited, via Marketing Automation</td></tr>
+    <tr><td>Programmatic (DV360, TTD)</td><td class="good">Strong only with Data Cloud (€€€)</td><td class="poor">Reverse-ETL middleware needed</td><td class="poor">DIY via API</td></tr>
+    <tr><td>API / middleware posture</td><td class="good">Excellent APIs; every iPaaS supports it</td><td class="good">Good APIs; Hightouch/Zapier first-class</td><td class="mid">Good APIs; fewer prebuilt recipes</td></tr>
+  </table>
+  <p class="note" data-adf-id="int-note">No mainstream CRM natively activates audiences into programmatic DSPs at this price point; assume a reverse-ETL layer (Hightouch/Census, ~€3–6k/yr) regardless of choice if DSP audience sync is required.</p>
+
+  <div class="chart" data-adf-id="chart-block">
+    <h3>Indicative year-1 cost, 40 seats (software + typical implementation, EUR)</h3>
+    <svg viewBox="0 0 720 190" width="100%" role="img" aria-label="Year-1 cost comparison bar chart">
+      <text x="0" y="38" fill="#9aa3b8" font-size="13" font-family="Inter">Salesforce Ent.</text>
+      <rect x="150" y="22" width="510" height="22" rx="5" fill="#6366f1"/><text x="668" y="38" fill="#e8eaf2" font-size="13" text-anchor="end" font-family="Inter" font-weight="700">~€104k</text>
+      <text x="0" y="98" fill="#9aa3b8" font-size="13" font-family="Inter">HubSpot Pro†</text>
+      <rect x="150" y="82" width="320" height="22" rx="5" fill="#22d3ee"/><text x="480" y="98" fill="#e8eaf2" font-size="13" font-family="Inter" font-weight="700">~€66k</text>
+      <text x="0" y="158" fill="#9aa3b8" font-size="13" font-family="Inter">Zoho CRM Ent.</text>
+      <rect x="150" y="142" width="125" height="22" rx="5" fill="#34d399"/><text x="285" y="158" fill="#e8eaf2" font-size="13" font-family="Inter" font-weight="700">~€26k</text>
+    </svg>
+    <p class="note">† HubSpot figure includes Sales Hub Pro (40 seats), Marketing Hub Pro mid-tier contacts, and onboarding. Salesforce includes mid-range partner implementation, no Data Cloud.</p>
+  </div>
+
+  <div class="verdict">
+    <h3 data-adf-id="verdict-h">Preliminary read (pre-risk-analysis)</h3>
+    <p data-adf-id="verdict-p">HubSpot is the provisional front-runner: the only platform with native Meta/Google ad-spend attribution, roughly half Salesforce's year-1 cost, and the lowest adoption friction for a creative-heavy team. Zoho is the disciplined value alternative if budget dominates and Meta integration can run through middleware. Salesforce is justified only if Brightline anticipates enterprise pipeline complexity or buys Data Cloud for programmatic activation. The risk-analyst should now weigh GDPR posture, contact-tier cost creep (HubSpot), vendor lock-in and price-rise exposure (Salesforce), and ecosystem/talent thinness (Zoho).</p>
+  </div>
+</div>
+</body>
+</html>

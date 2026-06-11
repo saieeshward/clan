@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brightline CRM Evaluation — Final Recommendation</title>
+<style>
+  body { font-family: Georgia, 'Times New Roman', serif; color: #1f2733; background: #f4f5f7; margin: 0; }
+  .page { max-width: 880px; margin: 0 auto; background: #ffffff; padding: 48px 56px 64px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+  header { border-bottom: 4px solid #0b5fa5; padding-bottom: 18px; margin-bottom: 28px; }
+  h1 { font-size: 28px; margin: 0 0 6px; color: #0b3a63; }
+  .meta { font-family: Helvetica, Arial, sans-serif; font-size: 12px; color: #6b7480; text-transform: uppercase; letter-spacing: 1px; }
+  h2 { font-size: 19px; color: #0b5fa5; margin-top: 34px; border-bottom: 1px solid #dde2e8; padding-bottom: 6px; }
+  h3 { font-size: 15px; color: #1f2733; margin-top: 22px; }
+  p, li { font-size: 14.5px; line-height: 1.65; }
+  .callout { background: #eef5fb; border-left: 5px solid #0b5fa5; padding: 16px 20px; margin: 20px 0; }
+  .callout strong { color: #0b3a63; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; font-family: Helvetica, Arial, sans-serif; font-size: 13px; }
+  th { background: #0b3a63; color: #fff; text-align: left; padding: 9px 12px; }
+  td { border-bottom: 1px solid #e3e7ec; padding: 8px 12px; vertical-align: top; }
+  tr:nth-child(even) td { background: #f7f9fb; }
+  .total td { font-weight: bold; background: #eef5fb !important; }
+  .phase { margin: 14px 0; padding: 14px 18px; background: #fafbfc; border: 1px solid #e3e7ec; border-radius: 4px; }
+  .phase h4 { margin: 0 0 6px; font-family: Helvetica, Arial, sans-serif; font-size: 13.5px; color: #0b5fa5; text-transform: uppercase; letter-spacing: 0.5px; }
+  footer { margin-top: 40px; padding-top: 14px; border-top: 1px solid #dde2e8; font-size: 12px; color: #6b7480; font-family: Helvetica, Arial, sans-serif; }
+</style>
+</head>
+<body>
+<div class="page">
+<header>
+  <div class="meta">Client deliverable &middot; Brightline (Dublin) &middot; 10 June 2026 &middot; Prepared by the lead partner</div>
+  <h1>CRM Evaluation: Final Recommendation &amp; Rollout Plan</h1>
+</header>
+
+<h2>Executive summary</h2>
+<div class="callout">
+<p><strong>Recommendation: adopt HubSpot (Sales Hub Professional + Marketing Hub Professional), hosted in the EU data centre (Frankfurt), at an estimated year-1 total cost of approximately &euro;68,000.</strong> HubSpot offers the best capability-per-euro for an advertising agency: native Meta/Google Ads integration, the lowest adoption risk across a 40-person team where many staff are creatives, Dublin-based EMEA support, and residual risks that are all mitigable by contract and configuration rather than structural. We recommend a 12-week, three-phase rollout beginning with an EU-resident portal, a data-cleanse sprint and a 10-user sales pilot, expanding to ad-ops integrations after a documented consent review, and reaching agency-wide use by week 12.</p>
+</div>
+
+<h2>The decision and how it was reached</h2>
+<p>Both specialist workstreams converged on the same direction, which makes the headline decision straightforward: the market analysis rated HubSpot the strongest capability-per-euro fit for agency workflow, and the risk analysis confirmed that HubSpot&rsquo;s residual risks are mitigable while Salesforce&rsquo;s dominant risks (cost blow-out at 1.5&ndash;2.0&times; licence in year 1, adoption failure among non-sales staff, configuration lock-in &mdash; all rated severity 4) are structural at 40 seats. Zoho remains a credible budget hedge at roughly a third of the licence cost, but only with premium support and middleware priced in, and it is weakest exactly where Brightline needs strength: ad-ops integration and EU partner depth.</p>
+<p>Where the specialists were in tension, I weighed them as follows:</p>
+<ul>
+  <li><strong>Ad-ops integration vs. GDPR exposure.</strong> The market researcher praised HubSpot&rsquo;s native audience syncing; the risk analyst flagged the same feature as the single highest cross-vendor risk (joint-controller exposure, severity 4). I sided with the risk analyst on sequencing, not on substance: the integration is a core reason to choose HubSpot, but it is gated to Phase 2 behind a consent/legitimate-interest review and RoPA documentation. The risk attaches to the activity, not the vendor &mdash; it would exist on any platform.</li>
+  <li><strong>Seat count.</strong> The market researcher costed all 40 staff but noted ~25 paid seats plus free/read-only seats is realistic. I costed conservatively on the full 40-seat blended figure (&euro;53,000/year) so the budget holds even if every member of staff needs a paid seat; the ~25-seat model is an identified saving (&euro;15&ndash;20k) to pursue at contract, not a number to bank in advance.</li>
+  <li><strong>Sticker price vs. true cost.</strong> The risk analyst&rsquo;s hidden-cost multipliers (HubSpot 1.2&ndash;1.5&times; licence) outweigh list-price comparisons. My &euro;68,000 estimate sits at ~1.28&times; licence, inside that band, whereas Salesforce at the same multiplier logic lands at &euro;95&ndash;150k+ in year 1 &mdash; disqualifying at this headcount.</li>
+  <li><strong>Zoho&rsquo;s price advantage.</strong> A ~&euro;34k annual saving is real, but the risk register shows it eroded by premium support (~20&ndash;25% of licence), middleware to close ad-ops gaps, and a thin EU partner bench (severity 3) that could strand a stalled rollout. For an agency whose revenue depends on campaign operations, I judged integration fit and support proximity worth the premium.</li>
+</ul>
+
+<h2>Costed recommendation: year-1 total &asymp; &euro;68,000</h2>
+<table>
+  <tr><th>Line item</th><th>Basis</th><th>EUR (year 1)</th></tr>
+  <tr><td>Licences: Sales Hub Pro (40 seats) + Marketing Hub Pro</td><td>Blended ~&euro;110/user/mo, annual billing, ex-VAT</td><td>53,000</td></tr>
+  <tr><td>Mandatory HubSpot Pro onboarding</td><td>Vendor onboarding fee (top of 3&ndash;6k range, less negotiation)</td><td>4,500</td></tr>
+  <tr><td>Data cleanse &amp; migration assistance</td><td>Pre-migration dedup sprint + wave migration with validation gates</td><td>4,000</td></tr>
+  <tr><td>Middleware (Zapier/Make tier) for GA4/programmatic gaps</td><td>~&euro;200/mo; keeps automation logic portable (anti-lock-in)</td><td>2,500</td></tr>
+  <tr><td>Training &amp; internal champion time</td><td>Role-based sessions, weeks 4&ndash;12</td><td>2,000</td></tr>
+  <tr><td>Contingency: contact-tier growth / small add-ons</td><td>Risk register items 6 &amp; 10</td><td>2,000</td></tr>
+  <tr class="total"><td colspan="2">Estimated year-1 total (&asymp;1.28&times; licence, within risk analyst&rsquo;s 1.2&ndash;1.5&times; band)</td><td>68,000</td></tr>
+</table>
+<p>Comparators on the same all-in logic: Salesforce Enterprise &euro;120&ndash;160k (licence &euro;79k &times; 1.5&ndash;2.0, plus &euro;10&ndash;30k implementation); Salesforce Pro Suite &euro;75&ndash;95k with reduced capability; Zoho Enterprise &euro;25&ndash;30k but with materially worse ad-ops fit and support posture.</p>
+
+<h2>Three-phase rollout plan (12 weeks)</h2>
+<div class="phase">
+  <h4>Phase 1 — Foundation &amp; pilot (weeks 1&ndash;4)</h4>
+  <p>Create the portal with the <strong>EU data centre selected on day one</strong> (region is fixed at creation &mdash; risk #2); execute DPA with SCCs and a transfer impact assessment; validate the Professional-tier permission model during trial before signing (risk #10). Run the data dedup/cleanse sprint on existing spreadsheets, then migrate contacts and deals in waves with validation gates. Pilot with ~10 sales and account-management users; configure core pipeline, deal stages and reporting. Negotiate annual (not multi-year) terms and the seat/contact-tier structure.</p>
+</div>
+<div class="phase">
+  <h4>Phase 2 — Sales rollout &amp; ad-ops integration (weeks 5&ndash;8)</h4>
+  <p>Extend to all client-facing staff. Complete the consent/legitimate-interest review and document audience syncing in the RoPA <em>before</em> enabling Meta/Google Ads integrations (risk #4 &mdash; severity 4). Connect lead-ad capture and ad-spend attribution; stand up middleware for GA4/UTM reporting and any programmatic audience flows, keeping that logic outside vendor-native automation to preserve exit options. Cap and archive cold contacts to control Marketing Hub tier creep.</p>
+</div>
+<div class="phase">
+  <h4>Phase 3 — Agency-wide adoption &amp; governance (weeks 9&ndash;12)</h4>
+  <p>Roll out to remaining staff (creatives/ops) with lightweight or free-seat access where viable &mdash; this is where the ~&euro;15&ndash;20k seat-optimisation saving is realised. Launch Marketing Hub campaigns, dashboards and management reporting; deliver role-based training; institute quarterly full data exports and a renewal-negotiation calendar entry for contact tiers. Hold a post-rollout governance review at week 12 against adoption and pipeline-hygiene KPIs.</p>
+</div>
+
+<h2>Assumptions and caveats</h2>
+<p>All figures are knowledge-based estimates (January 2026 cutoff, no live vendor quotes), annual billing, ex-VAT, assuming rough EUR/USD parity. Residency options, certification claims and contract norms must be verified in the DPA and order form before signature. Brightline is assumed to be migrating from spreadsheets/legacy tooling and to act as data controller. Obtain a current HubSpot quote and a Salesforce Pro Suite counter-quote before contract to pressure-test pricing.</p>
+
+<footer>Brightline CRM Evaluation &mdash; synthesised from market research and risk analysis workstreams &middot; flow-03-serial-adhoc-guided &middot; lead partner, hop 3 of 3</footer>
+</div>
+</body>
+</html>

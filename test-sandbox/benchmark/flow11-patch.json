@@ -1,0 +1,32 @@
+{
+  "total_agents": 33,
+  "total_subagent_tokens": 1101878,
+  "flows": [
+    { "id": "01", "topology": "serial", "medium": "clan", "guidance": "guided", "sum_ctx_chars": 35300, "est_tokens": 8800, "layers_score": "4/5", "validates": true, "errors": 1 },
+    { "id": "02", "topology": "serial", "medium": "clan", "guidance": "unguided", "sum_ctx_chars": 50600, "est_tokens": 12700, "layers_score": "4/5", "validates": true, "errors": 0 },
+    { "id": "03", "topology": "serial", "medium": "adhoc", "guidance": "guided", "sum_ctx_chars": 25100, "est_tokens": 6300, "layers_score": "2.5/5", "validates": false, "errors": 1 },
+    { "id": "04", "topology": "serial", "medium": "adhoc", "guidance": "unguided", "sum_ctx_chars": 21000, "est_tokens": 5300, "layers_score": "1/5", "validates": false, "errors": 0 },
+    { "id": "05", "topology": "parallel", "medium": "clan", "guidance": "guided", "sum_ctx_chars": 29200, "est_tokens": 7300, "layers_score": "4/5", "validates": true, "errors": 1, "contested_keys": 1 },
+    { "id": "06", "topology": "parallel", "medium": "clan", "guidance": "unguided", "sum_ctx_chars": 66100, "est_tokens": 16500, "layers_score": "4/5", "validates": true, "errors": 0, "contested_keys": 0 },
+    { "id": "07", "topology": "parallel", "medium": "adhoc", "guidance": "guided", "sum_ctx_chars": 25300, "est_tokens": 6300, "layers_score": "2/5", "validates": false, "errors": 0 },
+    { "id": "08", "topology": "parallel", "medium": "adhoc", "guidance": "unguided", "sum_ctx_chars": 18500, "est_tokens": 4600, "layers_score": "1.5/5", "validates": false, "errors": 0 },
+    { "id": "09", "topology": "parallel", "medium": "clan", "guidance": "guided", "human_in_loop": true, "layers_score": "4/5", "validates": true, "human_attributed": true, "cap_honored": true },
+    { "id": "10", "topology": "parallel", "medium": "adhoc", "guidance": "guided", "human_in_loop": true, "layers_score": "2.5/5", "validates": false, "human_attributed": false, "cap_honored": true },
+    { "id": "11", "topology": "metamorphosis", "medium": "clan", "guidance": "guided", "est_tokens": 33500, "layers_score": "4/5", "validates": true, "errors": 1, "view_identities": 3, "schema_migrations": 3, "brief_survival": "verbatim", "concepts_survival": "verbatim" }
+  ],
+  "metamorphosis_result": "Contract holds: Brief -> Concept Deck -> Client Pitch on one doc.clan; 3 distinct visual identities, 3 schema migrations via pack-html --schema (every generation validates), hop-1 brief and hop-2 concepts verbatim in final data, 3 pinned decisions, unbroken lineage. Rough edges: assets need re-passing through full-html replacement (F10); merge semantics of pack-html frontmatter undocumented so agents re-transcribed prior data (F11).",
+  "findings": [
+    "F1 patch-data auto-appends 'unknown-agent / processed document' chain noise",
+    "F2 stale-view hint suggests clan render even for hand-authored full-html views (destructive)",
+    "F3 patch-data rejects UTF-8 BOM (PowerShell 5.1 Out-File default) with an unhelpful error",
+    "F4 viewer edit bridge persists instrumentation attrs and saves no-op patches",
+    "F5 full-html repack drops human/patches.yaml - fold superseded human patches into the decision chain",
+    "F6 prose keys (assumptions) collide across branches - default append policy or role prefixes",
+    "F7 fork copies parent context.md verbatim - branch agents see conflicting task instructions",
+    "F8 requirements.yaml (layer 5) unused - needs first-class commands",
+    "F9 create bootstraps a {type: object} stub schema - no field guidance, patch-schema never triggers naturally",
+    "F10 full-html replacement drops parent human/assets - auto-carry referenced assets or hint --assets",
+    "F11 pack-html frontmatter merge-patches data.yaml but docs never say so - agents re-transcribe prior data verbatim",
+    "F12 agents guess 'clan read decisions' - add as alias of read chain"
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "role": "creative-director",
+  "flow": "flow-11-metamorphosis",
+  "commands_run": [
+    "clan read agent doc.clan --skip-guide",
+    "clan pack-html doc.clan deck.html --schema deck-schema.json --assets assets --output doc.clan",
+    "clan patch-context doc.clan next-task.md",
+    "clan validate doc.clan",
+    "clan read agent doc.clan --skip-guide | Select-String ... (post-pack verification of decisions/stage)",
+    "Copy-Item work\\doc.clan snapshots\\02-creative-director.clan -Force"
+  ],
+  "files_read": [
+    { "path": "C:\\Users\\syson\\Documents\\Code\\clan\\test-sandbox\\benchmark\\flow-11-metamorphosis\\work\\doc.clan (via clan read agent)", "approx_chars": 11000 },
+    { "path": "C:\\Users\\syson\\Documents\\Code\\clan\\test-sandbox\\benchmark\\flow-11-metamorphosis\\work\\next-task.md (hop-1 version, before overwrite)", "approx_chars": 2700 }
+  ],
+  "files_written": [
+    "C:\\Users\\syson\\Documents\\Code\\clan\\test-sandbox\\benchmark\\flow-11-metamorphosis\\work\\deck-schema.json",
+    "C:\\Users\\syson\\Documents\\Code\\clan\\test-sandbox\\benchmark\\flow-11-metamorphosis\\work\\assets\\concepts-chart.svg",
+    "C:\\Users\\syson\\Documents\\Code\\clan\\test-sandbox\\benchmark\\flow-11-metamorphosis\\work\\deck.html",
+    "C:\\Users\\syson\\Documents\\Code\\clan\\test-sandbox\\benchmark\\flow-11-metamorphosis\\work\\next-task.md",
+    "C:\\Users\\syson\\Documents\\Code\\clan\\test-sandbox\\benchmark\\flow-11-metamorphosis\\work\\doc.clan (repacked + context patched)",
+    "C:\\Users\\syson\\Documents\\Code\\clan\\test-sandbox\\benchmark\\flow-11-metamorphosis\\snapshots\\02-creative-director.clan",
+    "C:\\Users\\syson\\Documents\\Code\\clan\\test-sandbox\\benchmark\\flow-11-metamorphosis\\receipts\\receipt-creative-director.json"
+  ],
+  "errors": [
+    {
+      "what": "Initial Write of next-task.md rejected",
+      "error_message": "File has not been read yet. Read it first before writing to it.",
+      "recovered_by": "Read the existing hop-1 next-task.md first, then overwrote it with the pitch-lead task."
+    }
+  ],
+  "problems_and_friction": "The hop-1 brief is large, so carrying it verbatim inside YAML frontmatter required careful block-scalar formatting to avoid quoting/colon pitfalls; it round-tripped cleanly through pack-html and validate on the first attempt. The only tool error was the write-before-read guard on next-task.md, trivially recovered. Irish-language taglines are knowledge-only drafts and were explicitly flagged in both the deck and the hop-3 task as pending native-speaker/TG4 review.",
+  "context_understood": "As hop 2 I metamorphosed the account-planner's creative brief into a dark, display-typography concept deck with three Velvet Oat campaign routes (recommending 'Creamy Runs in the Family'), under a new schema that nests the full hop-1 brief, with the decision chain grown to 2 and agent context rewritten for the pitch-lead."
+}

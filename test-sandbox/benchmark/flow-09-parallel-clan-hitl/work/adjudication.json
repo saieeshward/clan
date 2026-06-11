@@ -1,0 +1,3 @@
+{
+  "assumptions": "Knowledge-only analysis (no web access), June 2026; vendor postures as known to early 2026. Brightline is a ~40-person Dublin advertising agency (~12 account managers, 8 media buyers, 10 creatives, plus production, finance and leadership), GDPR-bound with client PII (contacts, campaign audiences) in scope. No dedicated CRM admin or RevOps hire; current stack is spreadsheets plus Google Workspace/Slack and ad platforms (Meta, Google Ads, DV360). Budget-sensitive mid-market buyer favouring low ongoing admin cost; staff are CRM novices except 2-3 AMs with prior Salesforce or HubSpot exposure. CEO directive (human edit, binding): year-1 total budget must not exceed EUR 40,000."
+}

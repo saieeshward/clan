@@ -1,0 +1,21 @@
+{
+  "role": "lead-partner",
+  "flow": "flow-01-serial-clan-guided",
+  "commands_run": [
+    "cd C:\\Users\\syson\\Documents\\Code\\clan\\test-sandbox\\benchmark\\flow-01-serial-clan-guided\\work; clan read agent doc.clan --skip-guide",
+    "cd C:\\Users\\syson\\Documents\\Code\\clan\\test-sandbox\\benchmark\\flow-01-serial-clan-guided\\work; clan pack-html doc.clan final.html --output final.clan",
+    "New-Item -ItemType Directory -Force ...\\snapshots | Out-Null; Copy-Item ...\\work\\final.clan ...\\snapshots\\03-lead-partner.clan -Force; New-Item -ItemType Directory -Force ...\\receipts | Out-Null; Get-ChildItem ...\\snapshots"
+  ],
+  "files_read": [
+    {"path": "C:\\Users\\syson\\Documents\\Code\\clan\\test-sandbox\\benchmark\\flow-01-serial-clan-guided\\work\\doc.clan", "approx_chars": 17000}
+  ],
+  "files_written": [
+    "C:\\Users\\syson\\Documents\\Code\\clan\\test-sandbox\\benchmark\\flow-01-serial-clan-guided\\work\\final.html",
+    "C:\\Users\\syson\\Documents\\Code\\clan\\test-sandbox\\benchmark\\flow-01-serial-clan-guided\\work\\final.clan",
+    "C:\\Users\\syson\\Documents\\Code\\clan\\test-sandbox\\benchmark\\flow-01-serial-clan-guided\\snapshots\\03-lead-partner.clan",
+    "C:\\Users\\syson\\Documents\\Code\\clan\\test-sandbox\\benchmark\\flow-01-serial-clan-guided\\receipts\\receipt-lead-partner.json"
+  ],
+  "errors": [],
+  "problems_and_friction": "The pipeline ran cleanly with no command failures. The main cognitive load was reconciling the two specialists' loaded-cost components into one defensible year-1 number; the hop-2 handoff's explicit instructions (15% contingency, ETL in TCO, EU DC day-1) made this straightforward. Minor wasted attention: decision history contains two 'unknown-agent / processed document' entries with empty rationale, which is noise. The frontmatter nesting requirement (data under 'structured:') was clearly stated, avoiding a likely schema error.",
+  "context_understood": "I was the final hop synthesising hop-1 market research and hop-2 risk analysis on Salesforce/HubSpot/Zoho for a 40-person Dublin ad agency into a single costed CRM recommendation (HubSpot mixed-seat, EUR 33,576 year-1), a 3-phase rollout, and an executive summary packed as a polished HTML clan artifact."
+}

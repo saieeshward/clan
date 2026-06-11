@@ -1,0 +1,108 @@
+{
+  "test_suite_v2": {
+    "run_date": "2026-06-11",
+    "clan_version": "1.1.0",
+    "baseline_tests": 142,
+    "new_tests_added": 20,
+    "total_tests": 162,
+    "all_pass": true,
+    "breakdown": {
+      "app": 19,
+      "cli": 35,
+      "sdk": 108
+    },
+    "new_sdk_tests": [
+      "three_agent_all_agree_produces_no_conflict",
+      "three_agent_partial_overlap_yields_one_conflict_and_new_keys",
+      "merge_with_empty_branch_succeeds",
+      "min_policy_picks_numeric_minimum",
+      "agent_priority_always_picks_first_branch",
+      "merge_marks_existing_view_stale",
+      "schema_entry_preserved_through_fork_merge",
+      "five_agent_fork_merge_all_disjoint",
+      "unicode_values_survive_fork_merge",
+      "mixed_per_key_policies_all_applied_correctly",
+      "settle_all_contested_keys_clears_unresolved"
+    ],
+    "new_cli_tests": [
+      "three_agents_fork_merge_roundtrip",
+      "partial_merge_two_of_three_branches",
+      "all_agents_agree_produces_no_conflict",
+      "multi_key_adjudication_decrements_incrementally",
+      "pack_html_on_forked_branch_is_teaching_error",
+      "fork_merge_then_fork_again_works",
+      "merged_file_validates_cleanly",
+      "skip_guide_on_forked_file_still_injects_branch_block",
+      "five_agent_last_write_stress"
+    ],
+    "test_parameters_covered": {
+      "concurrency": [
+        "agent_count_n_2_3_5",
+        "empty_branch_one_agent_writes_nothing",
+        "all_agents_agree_same_value",
+        "all_agents_differ_all_conflict",
+        "partial_agreement_some_keys_overlap"
+      ],
+      "merge_policies": [
+        "last_write_default",
+        "append_arrays_merged_no_conflict",
+        "max_numeric_winner",
+        "min_numeric_loser",
+        "agent_priority_first_branch_wins",
+        "mixed_per_key_policies"
+      ],
+      "namespace_enforcement": [
+        "branch_write_to_shared_rejected",
+        "pack_html_on_branch_rejected",
+        "patch_context_on_branch_rejected",
+        "patch_schema_on_branch_rejected",
+        "after_merge_direct_writes_work_again"
+      ],
+      "adjudication_lifecycle": [
+        "single_key_settlement",
+        "multiple_keys_settled_one_at_a_time",
+        "all_keys_settled_unresolved_zero"
+      ],
+      "pass_through_preservation": [
+        "schema_preserved_through_fork_merge",
+        "view_stale_after_data_touching_merge",
+        "lineage_multi_parent_populated"
+      ],
+      "lineage_integrity": [
+        "multi_parent_parents_array",
+        "merge_flag_true",
+        "decision_chain_fold_ordering",
+        "merge_entry_at_top_of_chain"
+      ],
+      "robustness": [
+        "unicode_keys_and_values",
+        "five_plus_agents",
+        "empty_branch_namespace",
+        "partial_merge_subset_of_branches"
+      ],
+      "post_merge_operations": [
+        "fork_again_after_merge",
+        "pack_html_after_merge",
+        "validate_after_merge"
+      ],
+      "injection": [
+        "branch_mode_block_on_forked_file",
+        "contested_keys_block_on_conflicted_merge",
+        "skip_guide_on_fork_still_injects_branch_block",
+        "contested_keys_clears_after_adjudication"
+      ],
+      "teachable_hints": [
+        "teaching_error_on_namespace_violation",
+        "fork_of_fork_error_names_merge_step",
+        "pack_html_branch_error_names_correct_path"
+      ]
+    },
+    "gaps_not_yet_covered": [
+      "delta_per_hop_injection_skip_guide_token_savings_measured",
+      "merge_of_50_keys_performance",
+      "network_or_io_error_mid_merge",
+      "concurrent_real_agent_subprocess_writes",
+      "mcp_server_tool_round_trip"
+    ]
+  }
+}

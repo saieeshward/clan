@@ -1,0 +1,114 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Creative Brief Document",
+  "description": "Stage 1 of the Velvet Oat pipeline: a structured agency creative brief authored by the account planner.",
+  "type": "object",
+  "required": [
+    "business_objective",
+    "target_audience",
+    "key_insight",
+    "single_minded_proposition",
+    "budget_eur"
+  ],
+  "properties": {
+    "document_stage": {
+      "type": "string",
+      "const": "creative-brief",
+      "description": "Pipeline stage marker."
+    },
+    "client": {
+      "type": "string",
+      "description": "Client company name."
+    },
+    "brand": {
+      "type": "string",
+      "description": "Brand being launched."
+    },
+    "market": {
+      "type": "string",
+      "description": "Geographic market for the launch."
+    },
+    "client_background": {
+      "type": "string",
+      "description": "Who the client is and why they are launching this brand."
+    },
+    "business_objective": {
+      "type": "string",
+      "description": "The commercial outcome the campaign must achieve, with measurable targets."
+    },
+    "target_audience": {
+      "type": "object",
+      "required": ["description", "primary_persona"],
+      "properties": {
+        "description": {
+          "type": "string",
+          "description": "Broad audience definition."
+        },
+        "primary_persona": {
+          "type": "object",
+          "required": ["name", "age", "profile"],
+          "properties": {
+            "name": { "type": "string" },
+            "age": { "type": "integer", "minimum": 0 },
+            "occupation": { "type": "string" },
+            "location": { "type": "string" },
+            "profile": { "type": "string" },
+            "tension": { "type": "string", "description": "The personal tension the brand can resolve." }
+          }
+        }
+      }
+    },
+    "key_insight": {
+      "type": "string",
+      "description": "The human truth the creative work should be built on."
+    },
+    "single_minded_proposition": {
+      "type": "string",
+      "description": "One sentence the creative team must dramatise. Nothing else."
+    },
+    "mandatories": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Non-negotiable executional requirements."
+    },
+    "budget_eur": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Total campaign budget in euro."
+    },
+    "budget_breakdown": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["line", "amount_eur"],
+        "properties": {
+          "line": { "type": "string" },
+          "amount_eur": { "type": "number", "minimum": 0 }
+        }
+      }
+    },
+    "deliverables": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "timeline": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["milestone", "date"],
+        "properties": {
+          "milestone": { "type": "string" },
+          "date": { "type": "string" }
+        }
+      }
+    },
+    "success_metrics": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "origin_task_summary": {
+      "type": "string",
+      "description": "Distilled summary of the original pipeline task this brief was derived from, preserved for downstream hops."
+    }
+  }
+}

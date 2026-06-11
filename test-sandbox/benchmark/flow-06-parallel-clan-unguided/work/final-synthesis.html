@@ -1,0 +1,255 @@
+---
+structured:
+  recommended_vendor: HubSpot
+  confidence_1_5: 4
+  final_recommendation:
+    author_agent: lead-partner
+    vendor: HubSpot
+    plan: Sales Hub Professional, 25 paid seats + free seats for buyers (read/report) and leadership; Marketing Hub Professional deferred to Phase 3 as a gated decision
+    year_1_total_cost_eur: 45500
+    year_1_cost_range_eur:
+      low: 40000
+      high: 52000
+    year_1_cost_breakdown_eur:
+      sales_hub_pro_25_seats_12mo: 27000
+      marketing_hub_pro_6mo_phase3_gated: 5280
+      mandatory_onboarding: 3000
+      programmatic_middleware: 2000
+      training_backfill_and_champion_time: 4000
+      contingency_10pct: 4220
+    decision_basis: Unanimous specialist recommendation (market-researcher 4/5, risk-analyst 4/5, customer-discovery 4/5). Adoption risk weighted as the dominant failure mode; cost and residency tensions resolved explicitly (see disagreements_resolved).
+  disagreements_resolved:
+  - issue: Licence basis / seat count
+    positions: market-researcher costed 25-30 paid seats (~EUR 43.2k incl. Marketing Hub); customer-discovery argued creatives get zero seats and media buyers read-only views
+    resolution: Adopted 25 paid Sales Pro seats (12 AMs, ops/finance/leadership, buffer); creatives excluded, buyers on free seats. Licence line drops to EUR 27k and removes ~a third of the training burden.
+    weighing: customer-discovery's role-level analysis is more granular than the researcher's headline assumption, so it wins on seat design; the researcher's per-seat price (~EUR 90/mo) is retained.
+  - issue: GDPR data residency
+    positions: risk-analyst rated Zoho's default EU residency (own Dublin/Amsterdam DCs) strongest; market-researcher rated HubSpot's GDPR tooling clean
+    resolution: HubSpot retained. The residual risk is Brightline-side configuration, not vendor posture - mitigated by a hard gate in Phase 1 that the EU (Frankfurt) region is selected at account creation and verified before any import.
+    weighing: A defaults advantage does not outweigh HubSpot's decisive adoption and ad-ops integration lead; the risk-analyst's own register marks the Frankfurt gate severity 4 and we encode it as a go/no-go step.
+  - issue: Budget tension with Zoho (~EUR 19.2k vs ~EUR 45.5k year-1)
+    positions: market-researcher flagged Zoho as the value pick if budget dominates; customer-discovery rated Zoho adoption resistance MODERATE with 16-20h training per AM; risk-analyst flagged Zoho support and compliance-documentation friction
+    resolution: HubSpot retained despite ~EUR 26k premium. A stalled CRM (the documented dominant failure mode for agencies) costs more than the saving; Zoho's weaker ads loop also undercuts the core use case of campaign-linked revenue reporting.
+    weighing: Two of three specialists independently identified adoption as the binding constraint; cost was weighted second.
+  - issue: Marketing Hub inclusion and contact-tier cost escalation
+    positions: market-researcher treated Marketing Hub Pro as an optional platform fee; risk-analyst flagged contact-tier pricing escalation as severity-3 risk
+    resolution: Marketing Hub deferred to Phase 3 as a gated decision (only if attribution needs outgrow the Ads tool), budgeted at 6 months in year 1, paired with a monthly contact-count hygiene policy from day one.
+    weighing: Both positions accepted - the capability is real, so is the cost trap; sequencing and hygiene reconcile them.
+  rollout_plan:
+  - phase: 1
+    name: Foundation & Pilot
+    timeline: Weeks 1-6
+    items: Sign 1-year term (no auto-uplift), provision account with EU Frankfurt region (go/no-go gate, verified before import), map GDPR consent/lawful-basis fields, DPIA-lite review, dedupe spreadsheets, wave-1 import (contacts/companies), pilot pod of 1 AM lead + 2 AMs + 1 buyer, connect Gmail/calendar auto-capture, max-7-required-fields policy
+  - phase: 2
+    name: Core Rollout
+    timeline: Weeks 7-14
+    items: All 12 AMs live, wave-2 import (deals/pipeline), Monday pipeline meeting run exclusively from CRM by exec sponsor, HubSpot Academy certs in paid time (~10-14h per AM), connect Meta + Google Ads native integrations, appoint per-discipline champions with 2h/week protected time
+  - phase: 3
+    name: Attribution & Scale
+    timeline: Weeks 15-26
+    items: Media buyers onboarded to read/report views (~4h each), programmatic (DV360/TTD) reporting via middleware, gated Marketing Hub Pro decision, monthly contact-tier hygiene audit, day-90 kill-or-commit review (>=90% live deals in CRM, activity logged <24h, forecast built only from CRM), annual export drill scheduled
+  assumptions_and_caveats:
+  - All pricing is knowledge-only (cutoff early 2026), unverified against current vendor lists; obtain written quotes before contract signature. EUR figures +/-20%.
+  - Headcount mix and current-state (spreadsheets, no incumbent CRM) per customer-discovery assumptions.
+  - No web access was used by any agent in this chain.
+decision:
+  agent: lead-partner
+  action: 'Final synthesis: selected HubSpot (Sales Hub Pro, 25 paid seats), year-1 total ~EUR 45,500 (range 40-52k), 3-phase 26-week rollout; resolved 4 cross-specialist tensions explicitly'
+  rationale: 'Unanimous specialist verdict (3x HubSpot at 4/5 confidence) with non-overlapping evidence: cost/integration (market-researcher), risk/GDPR/lock-in (risk-analyst), adoption/change-management (customer-discovery). Adoption risk weighted first, cost second, residency third. Key resolutions: 25-seat licence basis from role-level analysis; Frankfurt residency gate over Zoho default-residency advantage; Zoho EUR 26k saving rejected against stall risk; Marketing Hub deferred and gated against contact-tier escalation.'
+  pinned: true
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brightline CRM Decision — Final Recommendation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+  :root{
+    --bg:#0f1117; --panel:#161a23; --panel-2:#1c2130; --line:#2a3043;
+    --ink:#e8eaf2; --muted:#9aa3b8; --faint:#6b7491;
+    --accent:#6366f1; --accent-soft:rgba(99,102,241,.14);
+    --good:#34d399; --warn:#fbbf24; --bad:#f87171;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);font-family:'Inter',system-ui,sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1060px;margin:0 auto;padding:56px 40px 96px}
+  .kicker{font-family:'JetBrains Mono',monospace;font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;color:var(--accent);margin-bottom:18px}
+  h1{font-family:'Fraunces',serif;font-weight:700;font-size:3.1rem;line-height:1.08;letter-spacing:-.015em;margin-bottom:14px}
+  h1 .hl{color:var(--accent)}
+  .standfirst{font-size:1.12rem;color:var(--muted);max-width:780px;margin-bottom:36px}
+  h2{font-family:'Fraunces',serif;font-weight:600;font-size:1.65rem;margin:56px 0 8px;letter-spacing:-.01em}
+  h3{font-size:1.02rem;font-weight:600;margin-bottom:6px}
+  .rule{height:2px;width:64px;background:var(--accent);border-radius:2px;margin:0 0 22px}
+  p{color:var(--muted);font-size:.97rem}
+  p+p{margin-top:12px}
+  strong{color:var(--ink)}
+  .hero-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:34px 0 6px}
+  .stat{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px 22px}
+  .stat .lab{font-family:'JetBrains Mono',monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-bottom:8px}
+  .stat .val{font-family:'Fraunces',serif;font-size:1.7rem;font-weight:700;line-height:1.1}
+  .stat .sub{font-size:.78rem;color:var(--muted);margin-top:5px}
+  .stat.accent{background:linear-gradient(160deg,var(--accent-soft),var(--panel));border-color:#3b3f74}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:28px 30px;margin-top:10px}
+  table{width:100%;border-collapse:collapse;font-size:.92rem}
+  th{font-family:'JetBrains Mono',monospace;font-size:.68rem;letter-spacing:.13em;text-transform:uppercase;color:var(--faint);text-align:left;padding:10px 14px;border-bottom:1px solid var(--line)}
+  td{padding:12px 14px;border-bottom:1px solid var(--line);color:var(--muted);vertical-align:top}
+  tr:last-child td{border-bottom:none}
+  td.num{font-family:'JetBrains Mono',monospace;color:var(--ink);text-align:right;white-space:nowrap}
+  tr.total td{color:var(--ink);font-weight:600;background:var(--accent-soft)}
+  .pill{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.66rem;letter-spacing:.1em;padding:3px 10px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
+  .pill.win{border-color:var(--good);color:var(--good)}
+  .pill.lose{border-color:var(--bad);color:var(--bad)}
+  .pill.mid{border-color:var(--warn);color:var(--warn)}
+  .cols{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-top:10px}
+  .vcard{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px}
+  .vcard.win{border-color:#3b3f74;background:linear-gradient(170deg,var(--accent-soft),var(--panel))}
+  .vcard .vname{font-family:'Fraunces',serif;font-size:1.25rem;font-weight:700;margin-bottom:2px}
+  .vcard .vprice{font-family:'JetBrains Mono',monospace;font-size:.8rem;color:var(--accent);margin-bottom:12px}
+  .vcard ul{list-style:none;margin-top:8px}
+  .vcard li{font-size:.85rem;color:var(--muted);padding:5px 0 5px 18px;position:relative}
+  .vcard li::before{content:'';position:absolute;left:0;top:13px;width:7px;height:7px;border-radius:50%;background:var(--accent)}
+  .timeline{position:relative;margin-top:18px;padding-left:34px}
+  .timeline::before{content:'';position:absolute;left:9px;top:6px;bottom:6px;width:2px;background:var(--line)}
+  .phase{position:relative;padding:0 0 30px}
+  .phase:last-child{padding-bottom:0}
+  .phase::before{content:'';position:absolute;left:-31px;top:6px;width:18px;height:18px;border-radius:50%;background:var(--bg);border:3px solid var(--accent)}
+  .phase .when{font-family:'JetBrains Mono',monospace;font-size:.7rem;letter-spacing:.12em;color:var(--accent);text-transform:uppercase}
+  .phase h3{font-family:'Fraunces',serif;font-size:1.25rem;margin:4px 0 8px}
+  .dis{border-left:3px solid var(--accent);background:var(--panel);border-radius:0 14px 14px 0;padding:20px 24px;margin-top:14px}
+  .dis .dtag{font-family:'JetBrains Mono',monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:6px}
+  .dis p{font-size:.9rem}
+  .foot{margin-top:64px;border-top:1px solid var(--line);padding-top:22px;font-size:.78rem;color:var(--faint);font-family:'JetBrains Mono',monospace}
+  .prov{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-top:10px}
+  .prov .pc{background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:16px 18px;font-size:.82rem;color:var(--muted)}
+  .prov .pc b{display:block;color:var(--ink);font-size:.9rem;margin-bottom:4px}
+  @media (max-width:820px){.hero-grid,.cols,.prov{grid-template-columns:1fr}h1{font-size:2.2rem}.wrap{padding:32px 20px 64px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="kicker" data-adf-id="kicker">Brightline &middot; CRM Selection &middot; Final Decision &middot; June 2026</div>
+  <h1 data-adf-id="headline">Choose <span class="hl">HubSpot</span>. Budget &euro;45.5k for year one. Be live in 14 weeks.</h1>
+  <p class="standfirst" data-adf-id="standfirst">Three specialist analyses — market &amp; pricing, risk &amp; GDPR, and team adoption — independently converged on the same vendor at 4/5 confidence each. This document is the lead-partner synthesis: one costed recommendation, a three-phase rollout, and an explicit record of where the specialists pulled in different directions and how each tension was resolved.</p>
+
+  <div class="hero-grid">
+    <div class="stat accent"><div class="lab">Recommendation</div><div class="val">HubSpot</div><div class="sub" data-adf-id="stat-plan">Sales Hub Pro &middot; 25 paid seats</div></div>
+    <div class="stat"><div class="lab">Year-1 total</div><div class="val">&euro;45,500</div><div class="sub">range &euro;40k–52k, all-in</div></div>
+    <div class="stat"><div class="lab">Rollout</div><div class="val">26 weeks</div><div class="sub">3 phases &middot; pilot from week 3</div></div>
+    <div class="stat"><div class="lab">Specialist verdict</div><div class="val">3 / 3</div><div class="sub">unanimous, 4/5 confidence each</div></div>
+  </div>
+
+  <h2 data-adf-id="h-exec">Executive summary</h2>
+  <div class="rule"></div>
+  <div class="panel">
+    <p data-adf-id="exec-1"><strong>Brightline should adopt HubSpot Sales Hub Professional on a 25-paid-seat basis, at an estimated all-in year-one cost of &euro;45,500.</strong> The decisive factor is not features or price — it is that adoption risk is the dominant failure mode for agency CRM rollouts, and HubSpot wins that dimension outright: 1–2 weeks to per-user proficiency versus 4–8 for Salesforce, ~10–14 training hours per account manager versus 24–32, no dedicated admin required, and an EMEA HQ in Dublin that puts local support, user groups, and a hiring pool on Brightline's doorstep.</p>
+    <p data-adf-id="exec-2">HubSpot is also the only one of the three with <strong>first-party Meta/Google ads integrations at mid-tier</strong> — the campaign-to-pipeline attribution loop an ad agency must demonstrate to its own clients. Salesforce (~&euro;79k licences alone, plus &euro;15–40k implementation and a 0.5-FTE admin Brightline does not have) concentrates cost, lock-in, and shelfware risk a 40-person agency cannot absorb; the risk register's only severity-5 entry sits against it. Zoho (~&euro;19k) is the legitimate value pick, but its ~&euro;26k saving is repaid in configuration labour, weaker ads tooling, slower support, and moderate adoption resistance — a poor trade against the cost of a stalled rollout.</p>
+    <p data-adf-id="exec-3">Two conditions are non-negotiable: the <strong>EU (Frankfurt) data region must be selected at account creation</strong> (it cannot be retrofitted — this is a go/no-go gate before any data import), and a <strong>monthly contact-tier hygiene policy</strong> must run from day one to neutralise HubSpot's contact-count pricing escalation. All figures are knowledge-only estimates (model cutoff early 2026, no web verification, &plusmn;20%); written quotes are required before signature.</p>
+  </div>
+
+  <h2 data-adf-id="h-cost">Year-one cost build (EUR)</h2>
+  <div class="rule"></div>
+  <div class="panel">
+    <table>
+      <thead><tr><th>Line item</th><th>Basis</th><th style="text-align:right">EUR</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Sales Hub Professional licences</strong></td><td>25 paid seats &times; ~&euro;90/seat/mo &times; 12 — AMs, ops/finance, leadership; creatives zero seats, media buyers on free read/report seats</td><td class="num">27,000</td></tr>
+        <tr><td>Marketing Hub Professional <span class="pill mid">gated</span></td><td>Platform fee ~&euro;880/mo, 6 months — Phase 3 decision, only if attribution needs outgrow the native Ads tool</td><td class="num">5,280</td></tr>
+        <tr><td>Mandatory onboarding</td><td>HubSpot Professional guided onboarding — a risk mitigant, not overhead</td><td class="num">3,000</td></tr>
+        <tr><td>Programmatic middleware</td><td>Make/Zapier-class glue for DV360 / The Trade Desk reporting (needed under any vendor)</td><td class="num">2,000</td></tr>
+        <tr><td>Training backfill &amp; champion time</td><td>Paid-time Academy certs, 3 discipline champions &times; 2h/week</td><td class="num">4,000</td></tr>
+        <tr><td>Contingency</td><td>~10% on the above</td><td class="num">4,220</td></tr>
+        <tr class="total"><td><strong>Year-1 total</strong></td><td>Range &euro;40,000–52,000 at &plusmn;20% pricing uncertainty</td><td class="num">45,500</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2 data-adf-id="h-field">The field, in one glance</h2>
+  <div class="rule"></div>
+  <div class="cols">
+    <div class="vcard win">
+      <div class="vname">HubSpot <span class="pill win">selected</span></div>
+      <div class="vprice">~&euro;45.5k yr-1 all-in</div>
+      <ul>
+        <li>Fastest adoption: 1–2 wks/user, lowest resistance</li>
+        <li>First-party Meta/Google ads + attribution at mid-tier</li>
+        <li>EU Frankfurt hosting; Dublin EMEA HQ &amp; support</li>
+        <li>Watch: contact-tier pricing; moderate lock-in</li>
+      </ul>
+    </div>
+    <div class="vcard">
+      <div class="vname">Zoho CRM <span class="pill mid">value pick</span></div>
+      <div class="vprice">~&euro;19.2k licences/yr</div>
+      <ul>
+        <li>Lowest TCO and lowest lock-in by far</li>
+        <li>Strongest default EU residency (own Dublin/Amsterdam DCs)</li>
+        <li>But: dated UX, weakest support, ads loop needs glue</li>
+        <li>Savings partly repaid in config labour &amp; soft adoption</li>
+      </ul>
+    </div>
+    <div class="vcard">
+      <div class="vname">Salesforce <span class="pill lose">rejected</span></div>
+      <div class="vprice">~&euro;79k licences + &euro;15–40k impl.</div>
+      <ul>
+        <li>Deepest data model and reporting in class</li>
+        <li>Needs 0.5-FTE admin Brightline lacks — severity-5 shelfware risk</li>
+        <li>Highest lock-in: auto-renewals, 2–3&times; TCO via add-ons</li>
+        <li>No first-party ads loop at Sales Cloud tier</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2 data-adf-id="h-rollout">Three-phase rollout</h2>
+  <div class="rule"></div>
+  <div class="timeline">
+    <div class="phase">
+      <div class="when">Phase 1 &middot; Weeks 1–6</div>
+      <h3 data-adf-id="p1-title">Foundation &amp; pilot</h3>
+      <p data-adf-id="p1-body">Sign a 1-year term (no auto-uplift). <strong>Gate: provision the account in the EU (Frankfurt) region and verify it in settings before any import</strong> — this cannot be retrofitted. Map consent/lawful-basis fields, run a DPIA-lite review, dedupe the spreadsheets, then wave-1 import (contacts &amp; companies only). Pilot with one full account pod — 1 AM lead, 2 AMs, 1 media buyer — for four weeks. Switch on Gmail/calendar auto-capture so the CRM fills itself, and enforce a max-7-required-fields policy on every record.</p>
+    </div>
+    <div class="phase">
+      <div class="when">Phase 2 &middot; Weeks 7–14</div>
+      <h3 data-adf-id="p2-title">Core rollout</h3>
+      <p data-adf-id="p2-body">All 12 account managers go live; wave-2 import brings deals and pipeline. The exec sponsor (MD or Head of Client Services) runs the Monday pipeline meeting <strong>exclusively from the CRM</strong> — the single strongest adoption lever identified. HubSpot Academy certifications happen in paid time (~10–14h per AM). Connect the native Meta and Google Ads integrations, and appoint one champion per discipline with two protected hours per week.</p>
+    </div>
+    <div class="phase">
+      <div class="when">Phase 3 &middot; Weeks 15–26</div>
+      <h3 data-adf-id="p3-title">Attribution &amp; scale</h3>
+      <p data-adf-id="p3-body">Media buyers onboard to read/report views only (~4h each); creatives never enter the CRM — briefs flow to the existing PM tool. Stand up programmatic (DV360/Trade Desk) reporting via middleware. Take the gated Marketing Hub decision. Run the monthly contact-tier hygiene audit, schedule the annual export drill, and hold the <strong>day-90 kill-or-commit review</strong>: &ge;90% of live deals in the CRM, activity logged within 24h, forecasts built only from CRM data.</p>
+    </div>
+  </div>
+
+  <h2 data-adf-id="h-dis">Where the specialists disagreed — and how it was resolved</h2>
+  <div class="rule"></div>
+  <div class="dis">
+    <div class="dtag">Tension 1 &middot; Licence basis</div>
+    <p data-adf-id="dis-1">Market research costed 25–30 paid seats (~&euro;43.2k); customer discovery argued creatives should hold <em>zero</em> seats and buyers read-only views. <strong>Resolution: 25 paid seats.</strong> The role-level adoption analysis is more granular than the headline pricing assumption, so it governs seat design — cutting the licence line to &euro;27k and roughly a third of apparent training burden — while the researcher's per-seat price is retained.</p>
+  </div>
+  <div class="dis">
+    <div class="dtag">Tension 2 &middot; GDPR residency</div>
+    <p data-adf-id="dis-2">The risk analyst rated Zoho's default EU residency (its own Dublin/Amsterdam data centres) strongest, while HubSpot's Frankfurt region must be chosen at signup and cannot be switched later. <strong>Resolution: HubSpot, with residency as a hard Phase-1 gate.</strong> The residual risk is Brightline-side configuration, not vendor posture; a defaults advantage does not outweigh a decisive adoption and ad-ops lead when the mitigation is a one-time verified checkbox.</p>
+  </div>
+  <div class="dis">
+    <div class="dtag">Tension 3 &middot; The Zoho budget case</div>
+    <p data-adf-id="dis-3">Zoho saves ~&euro;26k in year one. <strong>Resolution: rejected.</strong> Two of three specialists independently identified adoption as the binding constraint; a stalled CRM costs far more than the saving, and Zoho's thinner ads integration undercuts the core use case — campaign-linked revenue reporting. Cost was weighted second to adoption throughout.</p>
+  </div>
+  <div class="dis">
+    <div class="dtag">Tension 4 &middot; Marketing Hub vs contact-tier costs</div>
+    <p data-adf-id="dis-4">Market research treated Marketing Hub Pro as a natural add-on; the risk analyst flagged contact-count pricing escalation as a severity-3 trap for an agency holding large audience lists. <strong>Resolution: both accepted — defer and gate.</strong> Marketing Hub is a Phase-3 decision budgeted at six months, paired with monthly contact hygiene (mark non-marketing contacts, archive stale lists quarterly) from day one.</p>
+  </div>
+
+  <h2 data-adf-id="h-prov">Provenance</h2>
+  <div class="rule"></div>
+  <div class="prov">
+    <div class="pc"><b>market-researcher &middot; 4/5</b>Capabilities, EUR pricing (79k / 43k / 19k), ad-ops integration fit. Pick: HubSpot.</div>
+    <div class="pc"><b>risk-analyst &middot; 4/5</b>GDPR &amp; residency, lock-in/exit, 10-entry risk register. Pick: HubSpot (balanced risk).</div>
+    <div class="pc"><b>customer-discovery &middot; 4/5</b>Learning curves, training hours, resistance, change levers. Pick: HubSpot.</div>
+  </div>
+
+  <p class="foot" data-adf-id="footer">Lead-partner synthesis &middot; merged from 3 parallel branches, 0 contested keys &middot; knowledge-only (cutoff early 2026), pricing &plusmn;20%, verify quotes before signature &middot; full structured data in shared/data.yaml</p>
+</div>
+</body>
+</html>

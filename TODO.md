@@ -169,6 +169,13 @@ Priority order: fix blockers first, then correctness, then packaging, then optim
 - [x] **F11** documented `pack-html` frontmatter merge-patch semantics (omit fields to keep them) in agent-guide.md, clan.md, agent-help
 - [x] **F12** `clan read decisions` is an alias of `clan read chain`
 
+### Lite-benchmark findings F13–F15 (research/15 lite pass, 2026-06-11)
+
+- [ ] **F13** `patch-data`/`patch-html`/`patch-state` accept only a file path or stdin `-` — most common first-try agent failure (~6 receipts). Accept an inline JSON string arg (detect: starts with `{`) and/or `--set key=value` for scalars.
+- [ ] **F14** RFC 7396 replaces arrays wholesale → agents re-author entire arrays to append one item (H1 hop-2: 582 chars, cost H1 the ≤50% target). Add `--append <key>` (repeatable) to `patch-data`, reusing `merge.rs`'s `append` policy; document in agent-help. RFC 6902 `--ops` mode is the heavier fallback if index-level surgery is ever needed — don't build yet.
+- [ ] **F15 (provenance — priority)** H1 final chain had 1 entry for 8 mutations: F1 removed auto-entries and nothing requires real ones. Make attribution **required by default** on mutating patch commands: `--agent` + `--action` (optional `--rationale`, `--pinned`) inline on `patch-data`/`patch-html`/`patch-state`/`patch-asset`; error teaches the flags; explicit `--no-decision` opts out. Compute `fields_changed` exactly from merge-patch keys. Update agent-help + agent-guide + spec/clan.md ("A `patch-data`/`pack` with no decision adds no chain entry" wording changes).
+- [ ] **F2b** staleness is too coarse: after a data-update, check changed keys against `{{key}}` bindings in `human/index.html` — all bound → view NOT stale, no hint; some unbound → hint names the orphaned keys ("`x` not reflected in view — patch-html or pack-html"). Kills the false hint 4 H1 receipts flagged.
+
 ### Deferred to v1.2 (do not start)
 
 - [ ] Event-log / append-only delta state (state = fold of deltas)

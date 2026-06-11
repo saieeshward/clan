@@ -1,0 +1,39 @@
+---
+mode: patch-html
+patch_selector: "body"
+patch_action: "append"
+---
+<h2>v2 Test Suite — Multi-Agent Edge Cases (2026-06-11)</h2>
+<p>After implementing F1–F12, the test suite was extended from <strong>142 → 162 tests</strong> with 20 new edge-case tests targeting dimensions the original benchmark left uncovered. All 162 pass on <code>clan v1.1.0</code>.</p>
+
+<table>
+<thead><tr><th>Crate</th><th>Before</th><th>After</th><th>New tests</th></tr></thead>
+<tbody>
+<tr><td>clan-sdk</td><td>97</td><td>108</td><td>+11</td></tr>
+<tr><td>clan-cli</td><td>26</td><td>35</td><td>+9</td></tr>
+<tr><td>clan-app</td><td>19</td><td>19</td><td>—</td></tr>
+</tbody>
+</table>
+
+<h3>Test parameters covered by the new suite</h3>
+<table>
+<thead><tr><th>Dimension</th><th>Cases</th></tr></thead>
+<tbody>
+<tr><td><strong>Concurrency / agent count</strong></td><td>2-agent (existing), 3-agent, 5-agent; partial merge (2-of-3 branches); empty branch (agent writes nothing); all agents agree (same value → 0 conflicts)</td></tr>
+<tr><td><strong>Merge policies — all five</strong></td><td><code>last-write</code> (default), <code>append</code>, <code>max</code>, <code>min</code>, <code>agent-priority</code>; mixed per-key policies in one merge</td></tr>
+<tr><td><strong>Conflict lifecycle</strong></td><td>Incremental adjudication: unresolved counter decrements per key; settling all keys brings unresolved to 0</td></tr>
+<tr><td><strong>Pass-through preservation</strong></td><td>Schema byte-for-byte through fork→merge; <code>view.stale</code> set after data-touching merge</td></tr>
+<tr><td><strong>Namespace enforcement</strong></td><td><code>pack-html</code> on a forked branch rejected with teaching error; branch file untouched</td></tr>
+<tr><td><strong>Post-merge operations</strong></td><td>Fork-after-merge (second parallel pass); <code>validate</code> after merge; direct shared writes work again</td></tr>
+<tr><td><strong>Injection invariants</strong></td><td><code>--skip-guide</code> on a forked file still injects the branch-mode block; contested-keys block clears after full adjudication</td></tr>
+<tr><td><strong>Robustness</strong></td><td>Unicode keys and values (emoji, CJK, Arabic); 5-agent last-write stress; empty branch namespace</td></tr>
+</tbody>
+</table>
+
+<h3>Gaps not yet covered (deferred)</h3>
+<ul>
+<li>Real concurrent subprocess writes (two <code>clan patch-data --namespace</code> processes racing)</li>
+<li>MCP server tool round-trip (<code>clan-mcp</code> not yet implemented)</li>
+<li>50+ key performance benchmark (merge fold time at scale)</li>
+<li>Delta-per-hop token savings measured (<code>--since</code> flag, deferred to v1.2)</li>
+</ul>

@@ -1,0 +1,55 @@
+{
+  "market_research": {
+    "author_agent": "market-researcher",
+    "knowledge_cutoff_caveat": "All pricing and feature claims are from model knowledge (cutoff early 2026), with no web verification. EUR figures assume published EUR list prices or USD list converted at ~0.92 EUR/USD; actual quotes (especially Salesforce) are negotiated and vary +/-20%. Verify against current vendor price lists before budgeting.",
+    "scenario_assumptions": [
+      "40 seats, advertising agency in Dublin, Ireland (EU data residency and GDPR apply)",
+      "Primary use cases: new-business pipeline, client/account management, campaign-linked revenue reporting",
+      "Annual billing on mid-tier plans is the comparison baseline",
+      "Ad-ops stack: Meta Ads, Google Ads, GA4, and programmatic platforms (DV360, The Trade Desk)"
+    ],
+    "vendor_profiles": [
+      {
+        "vendor": "Salesforce",
+        "plan_assumed": "Sales Cloud Professional / Enterprise",
+        "price_eur_per_user_month": {"low": 80, "mid": 165, "high": 330, "note": "Pro ~80, Enterprise ~165, Unlimited ~330; Enterprise is the realistic tier for workflow automation and API access"},
+        "est_annual_cost_40_seats_eur": {"low": 38400, "mid": 79200},
+        "capabilities": "Deepest customisation (Flow automation, custom objects, territory management), strongest enterprise reporting, huge AppExchange ecosystem, Einstein/Agentforce AI add-ons (extra cost).",
+        "strengths": ["Most powerful data model and automation", "Best-in-class enterprise reporting and forecasting", "EU datacentre options and mature DPA/SCC framework for GDPR", "Largest third-party connector marketplace"],
+        "weaknesses": ["Highest TCO: licences plus typical 15-40k EUR implementation partner cost", "Admin overhead usually needs a part-time/full-time admin - heavy for 40 people", "Marketing features (Account Engagement/Marketing Cloud) are costly separate SKUs", "Slowest time-to-value; adoption risk for a non-technical agency team"],
+        "ad_ops_integration": "Native Meta/Google Ads or GA4 connectors are not first-party for offline conversion sync; relies on AppExchange apps, Marketing Cloud, or middleware (Zapier/Make/CData). Strong APIs make custom programmatic-platform reporting feasible but engineering-dependent."
+      },
+      {
+        "vendor": "HubSpot",
+        "plan_assumed": "Sales Hub Professional (+ Marketing Hub optional)",
+        "price_eur_per_user_month": {"low": 20, "mid": 90, "high": 140, "note": "Starter ~20, Sales Pro ~90-100 per seat, Enterprise ~140-150; Marketing Hub Pro adds a platform fee (~800+ EUR/month) rather than per-seat"},
+        "est_annual_cost_40_seats_eur": {"low": 9600, "mid": 43200, "note_mid": "Assumes ~25-30 paid Sales Pro seats plus free/view-only seats for the rest"},
+        "capabilities": "Unified CRM with genuinely free core tier, excellent marketing automation, content/email tools, meeting scheduling, attribution reporting on Pro+.",
+        "strengths": ["Best usability and fastest adoption - key for agency staff", "First-party Meta Ads and Google Ads integration (ads attribution, audience sync, lead-form sync) in the Ads tool", "Native GA4-adjacent web analytics plus revenue attribution", "EU (Frankfurt) data hosting option; clean GDPR tooling (consent, lawful-basis fields)"],
+        "weaknesses": ["Per-seat + hub pricing escalates quickly at Enterprise tier", "Custom objects gated behind Enterprise", "Reporting less deep than Salesforce for complex multi-entity models", "Lock-in: migration out is non-trivial once marketing assets live in HubSpot"],
+        "ad_ops_integration": "Strongest out-of-the-box ad-ops fit: native ads accounts connection (Meta, Google, LinkedIn), offline conversion/lead sync, audience syncing, and campaign ROI attribution without middleware. Programmatic (DV360/TTD) still needs middleware or reverse-ETL, as with all three."
+      },
+      {
+        "vendor": "Zoho CRM",
+        "plan_assumed": "Zoho CRM Enterprise (or Zoho One bundle)",
+        "price_eur_per_user_month": {"low": 14, "mid": 40, "high": 52, "note": "Standard ~14-20, Enterprise ~40, Ultimate ~52; Zoho One bundle ~37-45/user/month covers CRM plus 40+ apps"},
+        "est_annual_cost_40_seats_eur": {"low": 6720, "mid": 19200},
+        "capabilities": "Full-featured CRM (workflows, Blueprint process automation, Zia AI assistant) at aggressive pricing; Zoho One adds books, projects, campaigns, analytics, helpdesk.",
+        "strengths": ["Lowest TCO by a wide margin - roughly a quarter of Salesforce Enterprise", "EU datacentres and solid GDPR compliance posture", "Zoho One bundle could replace several agency point tools", "Good API limits for the price"],
+        "weaknesses": ["UI/UX dated relative to HubSpot; higher day-to-day friction", "Smaller integration marketplace and weaker first-party ads tooling", "Support quality inconsistent; fewer EU implementation partners", "Advanced analytics needs the separate Zoho Analytics product"],
+        "ad_ops_integration": "Google Ads integration exists natively (click-to-deal tracking); Meta lead-form sync via Zoho Social/Marketplace; GA4 and programmatic require Zoho Flow or third-party middleware. Workable but more assembly required than HubSpot."
+      }
+    ],
+    "integration_fit_summary": "For an ad agency whose CRM value hinges on tying pipeline to Meta/Google campaign data and GA4, HubSpot is the only one of the three with first-party, no-middleware ads integrations at the mid tier. Salesforce can exceed it with budget and engineering; Zoho undercuts both on price but needs glue tools. None has native DV360/Trade Desk connectors - assume middleware (Zapier/Make/Supermetrics-style ETL) for programmatic regardless of vendor.",
+    "pricing_comparison_eur_40_seats_annual": {
+      "salesforce_enterprise": 79200,
+      "hubspot_sales_pro_mixed_seats": 43200,
+      "zoho_enterprise": 19200,
+      "caveat": "List-price estimates, annual billing, excluding implementation, add-ons, and negotiated discounts."
+    },
+    "recommended_vendor": "HubSpot",
+    "confidence_1_5": 4,
+    "recommendation_rationale": "HubSpot best matches a 40-seat agency: fastest adoption (lowest change-management risk), first-party Meta/Google Ads + attribution integrations that map directly onto ad-ops workflows, EU hosting for GDPR, and mid-range TCO. Salesforce is overweight in cost and admin burden at this size; Zoho is the value pick if budget dominates, but its weaker ads tooling and UX raise adoption risk. Confidence is 4/5 rather than 5/5 because pricing is unverified against current 2026 lists and the agency's programmatic-heavy reporting needs could tilt the case toward a Salesforce+ETL build."
+  },
+  "market_research_narrative_md": "## Comparative market research: Salesforce vs HubSpot vs Zoho CRM (40-seat Dublin agency)\n\n*Knowledge-only analysis (model cutoff early 2026, no web access). EUR figures are list-price ballparks; Salesforce in particular is quote-driven.*\n\n**Salesforce Sales Cloud** is the enterprise benchmark: the deepest data model (custom objects, territory management), Flow-based automation, and the strongest forecasting/reporting of the three. For a 40-seat agency the realistic tier is Enterprise at roughly EUR 165/user/month (~EUR 79k/year for 40 seats), since Professional caps the automation and API access an agency would want. Add a typical EUR 15-40k partner implementation and ongoing admin effort. GDPR posture is mature (EU datacentres, standard DPA/SCCs). Ad-ops fit is its weak flank at this budget: there is no first-party Meta/Google Ads or GA4 connector at the Sales Cloud tier - you buy AppExchange apps, Marketing Cloud SKUs, or build on its (excellent) APIs. Verdict: most powerful, most expensive, slowest time-to-value, highest adoption risk for non-technical agency staff.\n\n**HubSpot** flips the trade-off: best-in-class usability and the strongest native ad-ops integration. Its Ads tool connects Meta, Google and LinkedIn accounts directly, syncs lead-gen forms, pushes audiences, and attributes pipeline revenue back to campaigns - exactly the loop an agency demonstrates to its own clients. Sales Hub Professional runs about EUR 90-100/seat/month; a realistic mixed deployment (25-30 paid sales seats, free seats for the rest) lands near EUR 43k/year, with Marketing Hub Pro an optional platform fee on top. EU (Frankfurt) hosting and built-in consent/lawful-basis tooling cover GDPR. Weaknesses: Enterprise-tier gating of custom objects, shallower complex reporting than Salesforce, and meaningful lock-in once marketing assets live there.\n\n**Zoho CRM** is the value disruptor: Enterprise at roughly EUR 40/user/month (~EUR 19k/year for 40 seats), or the Zoho One bundle (~EUR 37-45/user/month) which could also replace project, finance and helpdesk point tools. It has EU datacentres and a credible GDPR posture. Functionally it covers workflows, Blueprint process automation and Zia AI, but the UX is dated, the marketplace smaller, and ads integration thinner: native Google Ads tracking exists, Meta lead sync goes via Zoho Social, and GA4/programmatic need Zoho Flow or middleware.\n\n**Integration reality check:** none of the three natively connects to DV360 or The Trade Desk; programmatic reporting will require middleware or a reverse-ETL layer whichever CRM wins. The differentiator is therefore the Meta/Google/GA4 loop, where HubSpot is first-party at mid-tier, Salesforce is pay/build-to-play, and Zoho is partial.\n\n**Pick: HubSpot, confidence 4/5.** It minimises adoption risk (the dominant failure mode for agency CRM rollouts), ships the ad-ops integrations natively, satisfies EU/GDPR hosting, and at ~EUR 43k/year sits comfortably between Zoho (~EUR 19k) and Salesforce (~EUR 79k+ before implementation). Choose Zoho if budget is the binding constraint; choose Salesforce only if Brightline expects to grow past ~100 seats or needs multi-entity reporting that justifies a dedicated admin. Confidence is capped at 4 because pricing is unverified post-cutoff and tier packaging changes frequently."
+}
