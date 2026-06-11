@@ -517,11 +517,24 @@ static SAVE_COUNT: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsi
 
 fn do_save_patch(id: String, content: String, state: &AppState) -> Result<(), String> {
     log(&format!("save_patch: id={id:?} content={:?}…", &content[..content.len().min(80)]));
-    #[cfg(test)]
-    SAVE_COUNT.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
 
     let mut guard = state.current.lock().unwrap();
     let loaded = guard.as_mut().ok_or("no file open")?;
+
+    // No-op guard (F4): if a patch with this id already holds identical
+    // content, skip the rewrite entirely. Backstops the client-side
+    // skip-if-unchanged so a blur with no edit never churns the file.
+    if let Ok(bytes) = loaded.clan.read_entry("human/patches.yaml") {
+        if let Ok(existing) = clan_sdk::Patches::from_yaml(&bytes) {
+            if existing.patches.iter().any(|p| p.id == id && p.content == content) {
+                log(&format!("save_patch: no-op (id={id:?} unchanged), skipped"));
+                return Ok(());
+            }
+        }
+    }
+
+    #[cfg(test)]
+    SAVE_COUNT.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
 
     let new_bytes = apply_patch_and_repack(&loaded.clan, id.clone(), content.clone())
         .map_err(|e| e.to_string())?;
@@ -631,6 +644,7 @@ mod tests {
             brief: "test brief".into(),
             document_type: None,
             no_render: false,
+            schema: None,
         })
         .unwrap();
         std::fs::write(&path, bytes).unwrap();

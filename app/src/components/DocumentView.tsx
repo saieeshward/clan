@@ -42,6 +42,28 @@ const EDIT_BRIDGE = `
     });
   }
 
+  // Return an element's innerHTML with all edit-bridge instrumentation
+  // stripped (contenteditable, data-clan-edit-setup, data-orig-*, and the
+  // highlight outline/cursor inline styles). Operates on a clone so the live
+  // DOM is untouched. Prevents instrumentation leaking into saved patches (F4).
+  function cleanEditableHtml(el) {
+    var clone = el.cloneNode(true);
+    var nodes = [clone].concat(Array.prototype.slice.call(clone.querySelectorAll('*')));
+    nodes.forEach(function(n) {
+      if (!n.removeAttribute) return;
+      n.removeAttribute('contenteditable');
+      n.removeAttribute('data-clan-edit-setup');
+      if (n.style) {
+        n.style.outline = (n.dataset && n.dataset.origOutline) || '';
+        n.style.cursor = (n.dataset && n.dataset.origCursor) || '';
+        if (!n.getAttribute('style')) n.removeAttribute('style');
+      }
+      n.removeAttribute('data-orig-outline');
+      n.removeAttribute('data-orig-cursor');
+    });
+    return clone.innerHTML;
+  }
+
   function activateEditing() {
     document.querySelectorAll('[data-adf-id]').forEach(function(el) {
       if (!el.dataset.clanEditSetup) {
@@ -54,6 +76,9 @@ const EDIT_BRIDGE = `
           if (!window.__clan_edit_mode) return;
           e.preventDefault();
           e.stopPropagation();
+          // Remember the clean content at edit-start so blur can skip no-op
+          // saves (F4).
+          el.__clanOrig = cleanEditableHtml(el);
           el.setAttribute('contenteditable', 'true');
           el.focus();
         });
@@ -62,7 +87,11 @@ const EDIT_BRIDGE = `
           if (!window.__clan_edit_mode) return;
           el.removeAttribute('contenteditable');
           var id = el.getAttribute('data-adf-id');
-          var content = el.innerHTML;
+          // Strip edit-bridge instrumentation (data-clan-edit-setup,
+          // data-orig-*, highlight outline/cursor) before saving so it never
+          // bakes into patches.yaml; skip if nothing actually changed (F4).
+          var content = cleanEditableHtml(el);
+          if (content === el.__clanOrig) return;
           fetch(clanScheme + '/patch', {
             method: 'POST',
             body: JSON.stringify({ id: id, content: content })
