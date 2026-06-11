@@ -154,6 +154,21 @@ Priority order: fix blockers first, then correctness, then packaging, then optim
 - [ ] Viewer: badge bindings whose key is in `merge-report.yaml`; show competing values + agent provenance; pick → `patch-data` + `patch-decision` via existing patch bridge (§25)
 - [x] Folded §22–§27 into `CLAN-SPEC.md` (v1.1); embedded `spec/clan.md` gained Parallel Work + Optional Human View sections
 
+### Benchmark findings F1–F12 (research/14; fixed 2026-06-11)
+
+- [x] **F1** `patch-data`/`pack` no longer append an `unknown-agent / processed document` decision when none is supplied
+- [x] **F2** stale-view hint is view-source-aware (`view.source`); never suggests destructive `render` over a hand-authored view
+- [x] **F3** CLI strips a leading UTF-8 BOM on all text inputs (PowerShell 5.1 `Out-File` default no longer breaks JSON parsing)
+- [x] **F4** viewer edit bridge strips instrumentation before saving + skips no-op patches; SDK-side no-op guard in `do_save_patch` *(app changes UNVERIFIED — clan-app cannot build here without VS Build Tools / windres)*
+- [x] **F5** full-html replacement folds superseded `human/patches.yaml` into the decision chain as an `agent: human` entry before dropping them
+- [x] **F6** prose-key conflicts carry an `append` suggestion in the merge report; branch-mode injection + agent-help warn about prose-key collisions
+- [x] **F7** `clan fork --context-dir` overrides per-branch `context.md`; every branch gets a branch-mode banner so inherited full-html/design instructions don't mislead
+- [x] **F8** `clan patch-requirements` + `clan create --requirements` make `agent/requirements.yaml` (layer 5) writable
+- [x] **F9** `clan create --schema <file>` seeds a real output schema instead of the `{type:object}` stub
+- [x] **F10** full-html replacement carries parent `human/assets/` forward (new payload assets overwrite by path)
+- [x] **F11** documented `pack-html` frontmatter merge-patch semantics (omit fields to keep them) in agent-guide.md, clan.md, agent-help
+- [x] **F12** `clan read decisions` is an alias of `clan read chain`
+
 ### Deferred to v1.2 (do not start)
 
 - [ ] Event-log / append-only delta state (state = fold of deltas)

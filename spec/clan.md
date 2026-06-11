@@ -221,11 +221,11 @@ patch_action: "append"
 
 ### `patch-data` & `patch-state`
 Target: `shared/data.yaml` or `agent/state.yaml`
-Format: JSON payload. Applied using RFC 7396 JSON Merge Patch.
+Format: JSON payload. Applied using RFC 7396 JSON Merge Patch — keys you omit are kept, so send only what changes (set a key to `null` to delete it). The same merge-patch semantics apply to the `structured:` block of `pack-html`/`pack` frontmatter: never re-transcribe carried-forward data, just patch what you change.
 
 ### `patch-decision`
 Target: `agent/decision-chain.yaml`
-Format: CLI flags `--agent`, `--action`, `--rationale` to append cleanly.
+Format: CLI flags `--agent`, `--action`, `--rationale` to append cleanly. A `patch-data`/`pack` with no decision adds **no** chain entry — record decisions explicitly.
 
 ### `patch-context`
 Target: `agent/context.md`
@@ -234,6 +234,10 @@ Format: Markdown payload (overwrites or appends via `--append`).
 ### `patch-asset`
 Target: `human/assets/`
 Format: Binary/text injection natively into the ZIP without touching any other files.
+
+### `patch-requirements`
+Target: `agent/requirements.yaml`
+Format: YAML declaring tool/capability needs. Surfaced in agent context; receiving orchestrators warn (not fail) on unmet requirements.
 
 ---
 
@@ -244,8 +248,11 @@ Multiple agents work on one document by forking: `clan fork <file> --agents a,b,
 - Write data ONLY via `clan patch-data <branch> <json> --namespace` (lands in `agents/<id>/data.yaml`)
 - Record decisions via `clan patch-decision` (auto-routed to `agents/<id>/decisions.yaml`)
 - Writes to `shared/` or `human/` are rejected until the branches are joined
+- Prose/narrative fields that siblings also write (`assumptions`, `summary`, `notes`) collide under the default last-write fold — prefix them with your agent id (`assumptions_<you>`) or expect the merge to flag them as contested
 
-`clan merge <branches...> --output <out>` folds all namespaces into `shared/data.yaml` deterministically using per-key policies (`last-write` default; `append`, `max`, `min`, `agent-priority` via manifest `merge_policies` or `--policy key=policy`). Keys where branches disagreed are recorded in `merge-report.yaml` with winner/loser provenance — read with `clan read report`, settle with `patch-data` + `patch-decision`.
+Per-branch tasking: `clan fork ... --context-dir <dir>` uses `<agent>.md` as that branch's `agent/context.md`, so branches get role-specific tasks instead of inheriting the parent's.
+
+`clan merge <branches...> --output <out>` folds all namespaces into `shared/data.yaml` deterministically using per-key policies (`last-write` default; `append`, `max`, `min`, `agent-priority` via manifest `merge_policies` or `--policy key=policy`). Keys where branches disagreed are recorded in `merge-report.yaml` with winner/loser provenance (and an `append` suggestion when all values are prose) — read with `clan read report`, settle with `patch-data` + `patch-decision`.
 
 ---
 

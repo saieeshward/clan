@@ -77,6 +77,8 @@ You have full design control. Provide a complete `<!DOCTYPE html>` document for 
 
 **Lower-token path**: Instead of JSON-encoding the HTML (which expands it ~5x), write the HTML to a file and let the operator use `clan pack-html`. Add a YAML frontmatter block at the top of the HTML file to supply structured data and your decision entry — see `clan agent-help` for the format. This eliminates the JSON encoding cost entirely.
 
+> **The `structured:` block merge-patches `shared/data.yaml` (RFC 7396).** Fields you OMIT are KEPT from prior hops — only restate the keys you are changing. Do **not** re-transcribe carried-forward data (a prior hop's whole brief, an upstream agent's findings) into your frontmatter: that wastes tokens and risks transcription drift. Nest prior context under a key (e.g. `brief:`) only if you are deliberately re-shaping it; otherwise leave it untouched and it survives automatically. (To delete a key, set it to `null`.)
+
 ---
 
 ## Surgical Patching (Lowest token cost, in-place mutation)

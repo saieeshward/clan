@@ -1110,7 +1110,7 @@ requires:
     min_context_tokens: 64000
 ```
 
-Receiving orchestrators SHOULD warn (not fail) on unmet requirements. When present, the member is injected into agent context (Section 26) and must parse as YAML (Section 18).
+Receiving orchestrators SHOULD warn (not fail) on unmet requirements. When present, the member is injected into agent context (Section 26) and must parse as YAML (Section 18). Written via `clan patch-requirements <file> <yaml>` or seeded at creation with `clan create --requirements <file>`.
 
 ---
 
@@ -1125,11 +1125,14 @@ view:
   present: false        # human/index.html exists in this file
   renderable: true      # a view CAN be produced from current structured members
   stale: false          # present but produced from an older data.yaml generation
+  source: agent         # how it was produced: "render" (default theme, safe to
+                        # re-run) or "agent" (hand-authored, NOT safe to clobber)
 ```
 
 Rules:
 - `present: false, renderable: true` — agent-only file; render on demand.
-- `stale: true` is set automatically by any data-changing operation that does not update the view; view-producing output modes (`full-html`, `patch-html`, `designed`) clear it.
+- `stale: true` is set automatically by any data-changing operation that does not update the view; view-producing output modes (`full-html`, `patch-html`, `designed`) clear it and set `source: agent`. `clan render` sets `source: render`.
+- The stale-view hint (§27) MUST NOT suggest a destructive `clan render` over a `source: agent` view — re-packing with `pack-html` preserves the hand-authored design; `render` replaces it with the default theme.
 - A file with `present: true` MUST render without error from its own members (the Section 25 invariant guarantees `shared/data.yaml` is always single-valued, hence always bindable).
 - The field is absent on v1.0 files: readers treat absence as "present iff `human/index.html` exists".
 
@@ -1222,6 +1225,10 @@ conflicts:
     winner: { value: "needs-review", agent: analyst, policy: last-write }
     losers:
       - { value: "approved", agent: researcher }
+    # Optional: present when the shape suggests a better policy. Prose-valued
+    # keys every branch wrote independently are usually complementary, so the
+    # merge suggests `append` rather than silently dropping the losers.
+    suggestion: "all 2 branches wrote prose for 'status'; re-run with `--policy status=append` to keep every branch's text"
 unresolved: 1   # decremented as adjudications land (Section 25)
 ```
 
