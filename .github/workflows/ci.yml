@@ -1,0 +1,101 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+# Cancel superseded runs on the same ref (e.g. force-pushes to a PR branch).
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+  RUSTFLAGS: "-D warnings"
+
+jobs:
+  rust:
+    name: Rust — fmt · clippy · test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Cache cargo build
+        uses: Swatinem/rust-cache@v2
+
+      # Core library + CLI only. The Tauri app's Rust (app/src-tauri) needs
+      # GTK/WebKit system deps and is compiled in the desktop/release build.
+      - name: Format
+        run: cargo fmt -p clan-sdk -p clan-cli -- --check
+
+      - name: Clippy
+        run: cargo clippy -p clan-sdk -p clan-cli --all-targets
+
+      - name: Test
+        run: cargo test -p clan-sdk -p clan-cli --all-targets
+
+  frontend:
+    name: Frontend — lint · tsc · build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: app/.nvmrc
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      # `npm run build` is `tsc -b && vite build`, so this covers the
+      # TypeScript type-check gate as well as the production build.
+      - name: Type-check & build
+        run: npm run build
+
+  conformance:
+    name: CLI conformance harness
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo build
+        uses: Swatinem/rust-cache@v2
+
+      - name: Install Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Build clan CLI (release)
+        run: cargo build -p clan-cli --release
+
+      # Deterministic black-box assertions against the built binary.
+      # Exits non-zero on the number of hard failures.
+      - name: Run conformance harness
+        run: node test-sandbox/pipeline/conformance.mjs --clan "${{ github.workspace }}/target/release/clan"
+
+      - name: Upload conformance report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: conformance-report
+          path: conformance.json
+          if-no-files-found: warn
