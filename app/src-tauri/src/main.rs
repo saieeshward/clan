@@ -627,6 +627,10 @@ fn main() {
 mod tests {
     use super::*;
 
+    /// Serialises tests that assert on the global SAVE_COUNT, so one test's
+    /// saves never land inside another's before/after delta window.
+    static SAVE_TEST_LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
+
     fn empty_state() -> AppState {
         AppState {
             current: Mutex::new(None),
@@ -677,6 +681,7 @@ mod tests {
     // the edit. The frontend listener must never save again.
     #[test]
     fn patch_request_saves_exactly_once() {
+        let _guard = SAVE_TEST_LOCK.lock().unwrap();
         let (dir, state) = open_temp_clan();
         let path = dir.path().join("test.clan");
 
@@ -701,12 +706,48 @@ mod tests {
 
     #[test]
     fn patch_request_rejects_malformed_bodies() {
+        let _guard = SAVE_TEST_LOCK.lock().unwrap();
         let (_dir, state) = open_temp_clan();
         let before = SAVE_COUNT.load(std::sync::atomic::Ordering::SeqCst);
         assert!(handle_patch_request("not json", &state).is_none());
         assert!(handle_patch_request(r#"{"id":"x"}"#, &state).is_none());
         let after = SAVE_COUNT.load(std::sync::atomic::Ordering::SeqCst);
         assert_eq!(after, before, "malformed bodies must not trigger saves");
+    }
+
+    // F4: re-saving identical content for the same id is a no-op — the blur
+    // bridge can fire on focus-without-change, and that must not churn the file.
+    #[test]
+    fn resaving_identical_content_is_a_noop() {
+        let _guard = SAVE_TEST_LOCK.lock().unwrap();
+        let (dir, state) = open_temp_clan();
+        let path = dir.path().join("test.clan");
+
+        // First save lands.
+        do_save_patch("heading-0".into(), "Same Title".into(), &state).unwrap();
+        let after_first = std::fs::read(&path).unwrap();
+        let count_after_first = SAVE_COUNT.load(std::sync::atomic::Ordering::SeqCst);
+
+        // Identical re-save: no rewrite, no SAVE_COUNT increment, bytes unchanged.
+        do_save_patch("heading-0".into(), "Same Title".into(), &state).unwrap();
+        assert_eq!(
+            SAVE_COUNT.load(std::sync::atomic::Ordering::SeqCst),
+            count_after_first,
+            "identical re-save must be skipped (F4)"
+        );
+        assert_eq!(after_first, std::fs::read(&path).unwrap(), "file must be byte-identical");
+
+        // A genuine change still writes.
+        do_save_patch("heading-0".into(), "Changed Title".into(), &state).unwrap();
+        assert!(
+            SAVE_COUNT.load(std::sync::atomic::Ordering::SeqCst) > count_after_first,
+            "a real edit must still save"
+        );
+        let on_disk = ClanFile::open(&path).unwrap();
+        assert!(on_disk
+            .read_entry_string("human/patches.yaml")
+            .unwrap()
+            .contains("Changed Title"));
     }
 
     // --- #19: resolve_bindings ---
