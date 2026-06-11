@@ -1,0 +1,214 @@
+{
+  "run_id": "2026-06-11T22-02-29",
+  "ran_at": "2026-06-11T22:02:37.449Z",
+  "clan_version": "clan 1.1.0",
+  "cargo": {
+    "exit": 101,
+    "passed": 0,
+    "failed": 0
+  },
+  "conformance": {
+    "passed": 26,
+    "total": 26,
+    "hard_failures": 0,
+    "unexpected_green": [
+      "T20"
+    ]
+  },
+  "agentic": {
+    "h1_output_ratio": 0.652,
+    "h1_clan_chars": 2587,
+    "h1_adhoc_chars": 3966,
+    "h1_chain_entries_vs_hops": 0.125,
+    "h1_validates": true,
+    "h2_crossover_hop": null,
+    "h2_synth_ratio": 0.776,
+    "unrecovered_failures": 0
+  },
+  "claims": [
+    {
+      "id": "C-CORE",
+      "claim": "Core lifecycle works: create, validate, read, info, patch, export",
+      "stage": "conformance",
+      "value": "9 tests green",
+      "threshold": "all pass",
+      "status": "pass"
+    },
+    {
+      "id": "C-PROVENANCE",
+      "claim": "Every mutation is attributable: patch commands require agent/action (or explicit --no-decision); fields_changed computed from the patch",
+      "stage": "conformance",
+      "value": "3 tests green",
+      "threshold": "all pass",
+      "status": "pass"
+    },
+    {
+      "id": "C-FORK-MERGE",
+      "claim": "Parallel fan-out is safe by construction: namespace isolation enforced, conflicts detected with provenance, policies fold deterministically",
+      "stage": "conformance",
+      "value": "5 tests green",
+      "threshold": "all pass",
+      "status": "pass"
+    },
+    {
+      "id": "C-AGENT-ERGONOMICS",
+      "claim": "Agents don't trip on the CLI: inline JSON, --set, --append, BOM tolerance, skip-guide, read aliases",
+      "stage": "conformance",
+      "value": "5 tests green",
+      "threshold": "all pass",
+      "status": "pass"
+    },
+    {
+      "id": "C-HINTS-CORRECT",
+      "claim": "Teaching hints are never wrong: no stale-view hint when patched keys are data-bound in the view",
+      "stage": "conformance",
+      "value": "1 tests green",
+      "threshold": "all pass",
+      "status": "pass"
+    },
+    {
+      "id": "C-TOON",
+      "claim": "TOON encoding saves >=30% vs minified JSON on uniform/tabular data (prose number published as measured, no threshold)",
+      "stage": "conformance",
+      "value": "1 tests green",
+      "threshold": "uniform >= 30% saving",
+      "status": "pass"
+    },
+    {
+      "id": "C-SCAFFOLD",
+      "claim": "CLAN's fixed injection scaffolding is bounded: skip-guide intercept <= 3,000 chars regardless of document size",
+      "stage": "conformance",
+      "value": "1 tests green",
+      "threshold": "intercept a <= 3000 chars",
+      "status": "pass"
+    },
+    {
+      "id": "C-GUIDE-STABLE",
+      "claim": "spec/agent-guide.md is byte-identical across all files and hops (prompt-cache precondition)",
+      "stage": "conformance",
+      "value": "1 tests green",
+      "threshold": "1 unique hash across corpus",
+      "status": "pass"
+    },
+    {
+      "id": "C-CHAIN-COMPRESS",
+      "claim": "Decision-chain two-tier compression: verbatim window intact, tail rationales compressed, pinned never compressed, all other fields verbatim",
+      "stage": "conformance",
+      "value": "1 tests green",
+      "threshold": "all pass",
+      "status": "pass"
+    },
+    {
+      "id": "C-LAYERS",
+      "claim": "Final artifacts carry the five handoff layers (spec §22): L1-L4 by construction; L5 once flows declare requirements",
+      "stage": "agentic",
+      "value": "",
+      "threshold": ">= 4 of 5, L1-L4 all green",
+      "status": "missing"
+    },
+    {
+      "id": "C-DELTA",
+      "claim": "Delta-per-hop injection keeps per-hop injected size ~flat on sequential chains",
+      "stage": "planned",
+      "value": "",
+      "threshold": "",
+      "status": "planned"
+    },
+    {
+      "id": "C-CACHE",
+      "claim": "The byte-stable guide produces real provider prompt-cache hits across agent invocations",
+      "stage": "planned",
+      "value": "",
+      "threshold": "",
+      "status": "planned"
+    },
+    {
+      "id": "C-REVISION-TOKENS",
+      "claim": "Revision-loop pipelines: CLAN patch path authors materially fewer output chars than ad-hoc file editing at equal fidelity",
+      "stage": "agentic",
+      "value": "0.652",
+      "threshold": "<= 0.65",
+      "status": "fail"
+    },
+    {
+      "id": "C-PROV-E2E",
+      "claim": "A revision pipeline's final chain attributes every mutating hop",
+      "stage": "agentic",
+      "value": "0.125",
+      "threshold": ">= 1.0",
+      "status": "known-red"
+    },
+    {
+      "id": "C-CROSSOVER",
+      "claim": "Sequential chains: CLAN distilled re-injection beats ad-hoc accumulating re-reads as chains lengthen (crossover by ~hop 10)",
+      "stage": "agentic",
+      "value": "",
+      "threshold": "<= 10",
+      "status": "missing"
+    },
+    {
+      "id": "C-SYNTH-WIN",
+      "claim": "At the synthesis hop, CLAN's merged injection beats ad-hoc re-reading all inputs",
+      "stage": "agentic",
+      "value": "0.776",
+      "threshold": "< 1.0",
+      "status": "pass"
+    },
+    {
+      "id": "C-FIDELITY",
+      "claim": "Nothing is silently lost: all requested edits present in final, untouched fields byte-stable, file validates",
+      "stage": "agentic",
+      "value": "1",
+      "threshold": "== 1.0",
+      "status": "pass"
+    },
+    {
+      "id": "C-RELIABILITY",
+      "claim": "Agents recover from every CLI error without orchestrator help",
+      "stage": "agentic",
+      "value": "0",
+      "threshold": "== 0",
+      "status": "pass"
+    },
+    {
+      "id": "C-TEACHABLE",
+      "claim": "Unguided agents reach protocol competence from agent-help alone",
+      "stage": "manual",
+      "value": "",
+      "threshold": "",
+      "status": "manual"
+    },
+    {
+      "id": "C-HITL",
+      "claim": "Human involvement is provable in the artifact (edited_by, patch fold-in)",
+      "stage": "manual",
+      "value": "",
+      "threshold": "",
+      "status": "manual"
+    },
+    {
+      "id": "C-METAMORPHOSIS",
+      "claim": "One document can transform radically per hop (view + schema) with zero context loss",
+      "stage": "manual",
+      "value": "",
+      "threshold": "",
+      "status": "manual"
+    },
+    {
+      "id": "C-RESUME",
+      "claim": "Cold resume from a single file beats resuming from a directory",
+      "stage": "planned",
+      "value": "",
+      "threshold": "",
+      "status": "planned"
+    },
+    {
+      "id": "C-XVENDOR",
+      "claim": "The artifact survives a vendor/model boundary; conventions don't",
+      "stage": "planned",
+      "value": "",
+      "threshold": "",
+      "status": "planned"
+    }
+  ]
+}

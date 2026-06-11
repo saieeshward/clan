@@ -1,29 +1,33 @@
 {
   "role": "chart-update",
   "hop": 6,
-  "arm": "ad-hoc",
-  "flow": "read report.html + decisions.log; surgical Edit of #bar-zoho rect (y=52->78, height=108->82); append decisions.log line; snapshot work files to snapshots/hop-06-chart-update/",
+  "arm": "adhoc",
+  "flow": "happy/lite",
   "commands_run": [
-    "printf ... >> work/decisions.log",
-    "mkdir -p snapshots/hop-06-chart-update receipts/hop06-output",
-    "cp work/report.html work/data.json work/decisions.log snapshots/hop-06-chart-update/",
-    "wc -c patch-html-fragment.html decision.txt"
+    "grep -n 'bar-zoho' work/report.html",
+    "cat work/decisions.log",
+    "Edit report.html (bar-zoho rect y/height)",
+    "echo >> work/decisions.log",
+    "mkdir -p snapshots/hop-06-chart-update",
+    "cp work/report.html snapshots/hop-06-chart-update/",
+    "cp work/data.json snapshots/hop-06-chart-update/",
+    "cp work/decisions.log snapshots/hop-06-chart-update/"
   ],
   "files_read": [
-    { "file": "work/report.html", "approx_chars": 4937 },
-    { "file": "work/decisions.log", "approx_chars": 866 }
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/report.html", "approx_chars": 4998},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/decisions.log", "approx_chars": 1012}
   ],
   "files_written": [
-    { "file": "work/report.html", "chars": 4937 },
-    { "file": "work/decisions.log", "chars": 994 },
-    { "file": "snapshots/hop-06-chart-update/report.html", "chars": 4937 },
-    { "file": "snapshots/hop-06-chart-update/data.json", "chars": 2007 },
-    { "file": "snapshots/hop-06-chart-update/decisions.log", "chars": 994 },
-    { "file": "receipts/hop06-output/patch-html-fragment.html", "chars": 82 },
-    { "file": "receipts/hop06-output/decision.txt", "chars": 135 }
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/report.html", "chars": 4998},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/decisions.log", "chars": 1012},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-06-chart-update/report.html", "chars": 4998},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-06-chart-update/data.json", "chars": 2007},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-06-chart-update/decisions.log", "chars": 1012},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/receipts/hop06-output/patch-html.txt", "chars": 80},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/receipts/hop06-output/decision.txt", "chars": 137}
   ],
-  "output_chars": 216,
+  "output_chars": 217,
   "errors": [],
-  "problems_and_friction": "None. The single bar-zoho rect line was unique, so the surgical Edit applied cleanly; only two attribute values changed.",
-  "context_understood": "Zoho became cheapest, so its SVG bar must shrink by setting #bar-zoho to y=78 height=82 to reflect the lower cost in the chart."
+  "problems_and_friction": "No friction. The bar-zoho rect was found in one grep and edited with a single surgical splice. Ad-hoc arm worked cleanly for this minimal SVG attribute change.",
+  "context_understood": "Zoho is now the cheapest vendor, so its cost bar shrinks (lower height, higher y-offset) to reflect the reduced price relative to competitors."
 }

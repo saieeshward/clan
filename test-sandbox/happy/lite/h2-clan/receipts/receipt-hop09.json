@@ -1,30 +1,34 @@
 {
   "role": "09-rollout-planner",
   "hop": 9,
-  "arm": "lite",
-  "flow": "h2-clan",
+  "arm": "h2",
+  "flow": "happy/lite",
   "commands_run": [
     "clan read agent test-sandbox/happy/lite/h2-clan/work/doc.clan --skip-guide",
-    "clan patch-data test-sandbox/happy/lite/h2-clan/work/doc.clan test-sandbox/happy/lite/_inputs/h2-supplied/09-rollout-planner.json",
-    "clan patch-decision --agent 09-rollout-planner --action \"added 09-rollout-planner findings\" --rationale \"<handoff>\" test-sandbox/happy/lite/h2-clan/work/doc.clan",
+    "clan patch-data --agent 09-rollout-planner --action \"added 09-rollout-planner findings\" test-sandbox/happy/lite/h2-clan/work/doc.clan test-sandbox/happy/lite/_inputs/h2-supplied/09-rollout-planner.json",
+    "clan patch-decision --agent 09-rollout-planner --action \"added 09-rollout-planner findings\" --rationale \"Three phases land core CRM before the October peak with phase-2 marketing on 2026-09-15. Next: lead partner assembles the recommendation.\" test-sandbox/happy/lite/h2-clan/work/doc.clan",
     "clan validate test-sandbox/happy/lite/h2-clan/work/doc.clan",
-    "cp work/doc.clan snapshots/hop-09-09-rollout-planner.clan"
+    "cp test-sandbox/happy/lite/h2-clan/work/doc.clan test-sandbox/happy/lite/h2-clan/snapshots/hop-09-09-rollout-planner.clan"
   ],
   "files_read": [
-    { "file": "test-sandbox/happy/lite/h2-clan/work/doc.clan", "approx_chars": 4200 },
-    { "file": "test-sandbox/happy/lite/_inputs/h2-supplied/09-rollout-planner.json", "approx_chars": 210 },
-    { "file": "test-sandbox/happy/lite/_inputs/h2-supplied/09-rollout-planner.handoff.txt", "approx_chars": 138 }
+    {"file": "test-sandbox/happy/lite/h2-clan/work/doc.clan", "approx_chars": 3800},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/09-rollout-planner.json", "approx_chars": 180},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/09-rollout-planner.handoff.txt", "approx_chars": 140}
   ],
   "files_written": [
-    { "file": "test-sandbox/happy/lite/h2-clan/work/doc.clan", "chars": 4550 },
-    { "file": "test-sandbox/happy/lite/h2-clan/snapshots/hop-09-09-rollout-planner.clan", "chars": 4550 },
-    { "file": "test-sandbox/happy/lite/h2-clan/receipts/hop09-output/decision.txt", "chars": 138 },
-    { "file": "test-sandbox/happy/lite/h2-clan/receipts/receipt-hop09.json", "chars": 1500 }
+    {"file": "test-sandbox/happy/lite/h2-clan/work/doc.clan", "chars": 220},
+    {"file": "test-sandbox/happy/lite/h2-clan/snapshots/hop-09-09-rollout-planner.clan", "chars": 220},
+    {"file": "test-sandbox/happy/lite/h2-clan/receipts/hop09-output/patch-data.json", "chars": 175},
+    {"file": "test-sandbox/happy/lite/h2-clan/receipts/hop09-output/decision.txt", "chars": 140},
+    {"file": "test-sandbox/happy/lite/h2-clan/receipts/receipt-hop09.json", "chars": 1500}
   ],
-  "output_chars": 138,
+  "output_chars": 315,
   "errors": [
-    { "what": "cp via 'copy' failed (Bash tool uses bash, not cmd)", "recovered_by": "reran with bash 'cp'" }
+    {
+      "what": "patch-data without attribution flags failed",
+      "recovered_by": "re-ran with --agent and --action flags; patch-decision recorded separately"
+    }
   ],
-  "problems_and_friction": "Smooth hop; only friction was using cmd 'copy' in the bash tool, fixed by switching to 'cp'. Patch-first protocol meant I read only the agent view plus my two small supplied inputs.",
-  "context_understood": "I appended 6 rollout_* fields (3-phase plan landing core CRM before October peak) and a handoff decision to the CRM-recommendation chain doc, then validated and snapshotted."
+  "problems_and_friction": "The patch-data command required attribution flags not mentioned in the protocol step; a second attempt with --agent and --action succeeded. The separate patch-decision step then duplicated the decision record, but validate passed cleanly. No data loss.",
+  "context_understood": "Rollout planner hop adds a 3-phase go-live schedule (Jul, Sep, Nov) ensuring the CRM is live before October peak; handoff passes to the lead partner for final recommendation assembly."
 }

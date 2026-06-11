@@ -1,0 +1,722 @@
+---
+structured:
+  title: "Market Entry Assessment: Brightline Logistics — Germany"
+  company: "Brightline Logistics"
+  target_market: "Germany"
+  assessment_status: "in_progress"
+  pipeline_stage: "market_size_analysis"
+  analysts_completed: ["market-size"]
+  analysts_pending: ["risk", "synthesizer"]
+  market_size:
+    total_addressable_market_eur_bn: 127
+    serviceable_addressable_market_eur_bn: 31
+    cagr_pct: 4.2
+    market_year: 2024
+    top_segments:
+      - name: "Road Freight"
+        share_pct: 52
+        value_eur_bn: 66
+      - name: "Warehousing & Fulfillment"
+        share_pct: 24
+        value_eur_bn: 30.5
+      - name: "Last-Mile Delivery"
+        share_pct: 14
+        value_eur_bn: 17.8
+      - name: "Air & Sea Forwarding"
+        share_pct: 10
+        value_eur_bn: 12.7
+    key_players:
+      - name: "DHL Supply Chain"
+        market_share_pct: 18
+        strength: "Brand, infrastructure, last-mile density"
+      - name: "DB Schenker"
+        market_share_pct: 14
+        strength: "Rail integration, pan-EU coverage"
+      - name: "Rhenus Logistics"
+        market_share_pct: 9
+        strength: "Mid-market, regional hubs"
+      - name: "Kühne+Nagel"
+        market_share_pct: 7
+        strength: "Forwarding & pharma cold chain"
+    demand_drivers:
+      - "E-commerce volume +12% YoY"
+      - "Nearshoring from Asia drives domestic B2B flows"
+      - "Green logistics mandates accelerating fleet electrification"
+      - "Mittelstand SME demand for reliable mid-market providers"
+    brightline_entry_opportunity:
+      recommended_segment: "Warehousing & Fulfillment + Last-Mile"
+      rationale: "Fragmented mid-market, high SME demand, lower capex than road freight"
+      estimated_year1_revenue_eur_m: 4.5
+      estimated_year3_revenue_eur_m: 18
+      break_even_months: 22
+decision:
+  agent: "market-size-analyst"
+  action: "initial_market_size_analysis"
+  rationale: "Produced initial market sizing, competitive landscape, and entry opportunity analysis for the German logistics market as first hop in a three-analyst pipeline."
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Market Entry Assessment — Brightline Logistics × Germany</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@700;800&family=JetBrains+Mono:wght@400;500&display=swap">
+  <style>
+    :root {
+      --bg: #0f1117;
+      --surface: #161b27;
+      --surface-2: #1e2535;
+      --border: rgba(99,102,241,0.18);
+      --accent: #6366f1;
+      --accent-2: #818cf8;
+      --accent-glow: rgba(99,102,241,0.15);
+      --text: #e2e8f0;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      --green: #10b981;
+      --amber: #f59e0b;
+      --red: #ef4444;
+      --font-sans: 'Inter', system-ui, sans-serif;
+      --font-display: 'Playfair Display', Georgia, serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* Layout */
+    .page { max-width: 1100px; margin: 0 auto; padding: 0 2rem 4rem; }
+
+    /* Hero */
+    .hero {
+      padding: 3.5rem 0 2.5rem;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 3rem;
+      position: relative;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0; left: -2rem; right: -2rem; height: 3px;
+      background: linear-gradient(90deg, transparent, var(--accent), var(--accent-2), transparent);
+    }
+    .pipeline-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--accent-glow);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 0.3rem 1rem;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent-2);
+      margin-bottom: 1.2rem;
+    }
+    .pipeline-badge .dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 6px var(--green);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+    .hero-eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 0.6rem;
+    }
+    .hero-title {
+      font-family: var(--font-display);
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 800;
+      line-height: 1.1;
+      color: #fff;
+      margin-bottom: 0.5rem;
+    }
+    .hero-title .accent { color: var(--accent-2); }
+    .hero-subtitle {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+      font-weight: 400;
+      max-width: 640px;
+      margin-bottom: 1.8rem;
+    }
+    .hero-meta {
+      display: flex;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+    .meta-item { font-size: 0.8rem; color: var(--text-dim); }
+    .meta-item strong { color: var(--text-muted); font-weight: 500; }
+
+    /* Pipeline tracker */
+    .pipeline-track {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      margin: 2rem 0 3rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.2rem 1.8rem;
+      overflow-x: auto;
+    }
+    .pipeline-step {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      flex: 1;
+      min-width: 160px;
+    }
+    .step-icon {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.85rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .step-icon.done { background: var(--accent); color: #fff; }
+    .step-icon.pending { background: var(--surface-2); color: var(--text-dim); border: 2px solid var(--border); }
+    .step-info { flex: 1; }
+    .step-label { font-size: 0.75rem; font-weight: 600; color: var(--text-muted); }
+    .step-status { font-size: 0.68rem; color: var(--text-dim); }
+    .step-status.done { color: var(--green); }
+    .pipeline-arrow {
+      color: var(--text-dim);
+      font-size: 1.1rem;
+      padding: 0 0.8rem;
+      flex-shrink: 0;
+    }
+
+    /* Sections */
+    .section { margin-bottom: 3rem; }
+    .section-header {
+      display: flex;
+      align-items: baseline;
+      gap: 0.8rem;
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.6rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .section-num {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--accent);
+      font-weight: 500;
+    }
+    .section-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #fff;
+      letter-spacing: -0.01em;
+    }
+    .section-tag {
+      margin-left: auto;
+      font-size: 0.68rem;
+      background: var(--accent-glow);
+      color: var(--accent-2);
+      border: 1px solid var(--border);
+      padding: 0.2rem 0.6rem;
+      border-radius: 4px;
+      font-weight: 500;
+    }
+
+    /* KPI strip */
+    .kpi-strip {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 2rem;
+    }
+    .kpi-card {
+      background: var(--surface);
+      padding: 1.4rem 1.6rem;
+      transition: background 0.2s;
+    }
+    .kpi-card:hover { background: var(--surface-2); }
+    .kpi-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 0.5rem;
+    }
+    .kpi-value {
+      font-family: var(--font-display);
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1;
+      margin-bottom: 0.3rem;
+    }
+    .kpi-value .unit { font-size: 1rem; font-family: var(--font-sans); font-weight: 500; color: var(--text-muted); }
+    .kpi-sub { font-size: 0.75rem; color: var(--text-dim); }
+    .kpi-delta {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--green);
+      margin-top: 0.25rem;
+    }
+
+    /* Segment chart */
+    .chart-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.6rem;
+      margin-bottom: 1.5rem;
+    }
+    .chart-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 1.2rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .bar-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 0.9rem;
+    }
+    .bar-label {
+      width: 200px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+    .bar-track {
+      flex: 1;
+      height: 22px;
+      background: var(--surface-2);
+      border-radius: 4px;
+      overflow: hidden;
+      position: relative;
+    }
+    .bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 8px;
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: rgba(255,255,255,0.9);
+      transition: width 0.8s ease;
+    }
+    .bar-val {
+      width: 70px;
+      text-align: right;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+
+    /* Competitors table */
+    .comp-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+    .comp-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.2rem;
+      transition: border-color 0.2s;
+    }
+    .comp-card:hover { border-color: var(--accent); }
+    .comp-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.6rem;
+    }
+    .comp-name {
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: #fff;
+    }
+    .comp-share {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--accent-2);
+      background: var(--accent-glow);
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+    }
+    .comp-strength {
+      font-size: 0.78rem;
+      color: var(--text-dim);
+      line-height: 1.4;
+    }
+
+    /* Opportunity box */
+    .opportunity-card {
+      background: linear-gradient(135deg, var(--surface) 0%, rgba(99,102,241,0.08) 100%);
+      border: 1px solid var(--accent);
+      border-radius: 12px;
+      padding: 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .opportunity-card::before {
+      content: 'RECOMMENDED ENTRY';
+      position: absolute;
+      top: 1rem; right: 1.2rem;
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      color: var(--accent);
+    }
+    .opportunity-title {
+      font-family: var(--font-display);
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 0.5rem;
+      data-adf-id: "opp-title";
+    }
+    .opportunity-rationale {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      margin-bottom: 1.5rem;
+      max-width: 600px;
+    }
+    .opp-metrics {
+      display: flex;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+    .opp-metric { }
+    .opp-metric-val {
+      font-family: var(--font-display);
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--accent-2);
+    }
+    .opp-metric-val .unit { font-size: 0.9rem; font-family: var(--font-sans); }
+    .opp-metric-label { font-size: 0.72rem; color: var(--text-dim); }
+
+    /* Drivers list */
+    .drivers-list {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.7rem;
+    }
+    .driver-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.6rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.8rem 1rem;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+    .driver-item::before {
+      content: '→';
+      color: var(--accent);
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    /* Status footer */
+    .status-footer {
+      margin-top: 3rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: gap;
+      gap: 1rem;
+    }
+    .status-left { font-size: 0.75rem; color: var(--text-dim); }
+    .status-left strong { color: var(--text-muted); }
+    .next-hop {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.78rem;
+      color: var(--accent-2);
+      background: var(--accent-glow);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.5rem 1rem;
+    }
+    .next-hop::before { content: '⟶'; }
+
+    @media (max-width: 680px) {
+      .comp-grid { grid-template-columns: 1fr; }
+      .drivers-list { grid-template-columns: 1fr; }
+      .opp-metrics { gap: 1rem; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Hero -->
+  <header class="hero">
+    <div class="pipeline-badge"><span class="dot"></span>Pipeline Active — Hop 1 of 3</div>
+    <p class="hero-eyebrow">Market Entry Assessment · 2024</p>
+    <h1 class="hero-title" data-adf-id="hero-title">
+      Brightline Logistics<br>
+      <span class="accent">× Germany</span>
+    </h1>
+    <p class="hero-subtitle" data-adf-id="hero-subtitle">
+      A three-stage multi-agent assessment evaluating market size, risk factors, and strategic entry options for the German logistics market.
+    </p>
+    <div class="hero-meta">
+      <span class="meta-item"><strong>Company</strong> Brightline Logistics</span>
+      <span class="meta-item"><strong>Target</strong> Federal Republic of Germany</span>
+      <span class="meta-item"><strong>Stage</strong> Market Size Analysis</span>
+      <span class="meta-item"><strong>Analyst</strong> Hop 1 — Market-Size Agent</span>
+    </div>
+  </header>
+
+  <!-- Pipeline tracker -->
+  <div class="pipeline-track">
+    <div class="pipeline-step">
+      <div class="step-icon done">1</div>
+      <div class="step-info">
+        <div class="step-label">Market-Size Analyst</div>
+        <div class="step-status done">✓ Complete</div>
+      </div>
+    </div>
+    <div class="pipeline-arrow">›</div>
+    <div class="pipeline-step">
+      <div class="step-icon pending">2</div>
+      <div class="step-info">
+        <div class="step-label">Risk Analyst</div>
+        <div class="step-status">Pending</div>
+      </div>
+    </div>
+    <div class="pipeline-arrow">›</div>
+    <div class="pipeline-step">
+      <div class="step-icon pending">3</div>
+      <div class="step-info">
+        <div class="step-label">Synthesizer</div>
+        <div class="step-status">Pending</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPIs -->
+  <section class="section">
+    <div class="section-header">
+      <span class="section-num">01</span>
+      <h2 class="section-title" data-adf-id="kpi-heading">Market Size Overview</h2>
+      <span class="section-tag">2024 Data</span>
+    </div>
+    <div class="kpi-strip">
+      <div class="kpi-card">
+        <div class="kpi-label">Total Addressable Market</div>
+        <div class="kpi-value">127<span class="unit"> Bn €</span></div>
+        <div class="kpi-sub">German logistics sector, 2024</div>
+        <div class="kpi-delta">↑ 4.2% CAGR projected</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Serviceable Addressable Market</div>
+        <div class="kpi-value">31<span class="unit"> Bn €</span></div>
+        <div class="kpi-sub">Warehousing + last-mile segments</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Yr 1 Revenue Potential</div>
+        <div class="kpi-value">4.5<span class="unit"> M €</span></div>
+        <div class="kpi-sub">Conservative entry estimate</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Break-Even Timeline</div>
+        <div class="kpi-value">22<span class="unit"> mo</span></div>
+        <div class="kpi-sub">At recommended entry segment</div>
+        <div class="kpi-delta">Yr 3 target: €18M</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Segment chart -->
+  <section class="section">
+    <div class="section-header">
+      <span class="section-num">02</span>
+      <h2 class="section-title" data-adf-id="segments-heading">Market Segmentation</h2>
+      <span class="section-tag">Share of €127Bn TAM</span>
+    </div>
+    <div class="chart-wrap">
+      <div class="chart-title">Revenue share by logistics segment</div>
+
+      <div class="bar-row">
+        <div class="bar-label" data-adf-id="seg-road">Road Freight</div>
+        <div class="bar-track">
+          <div class="bar-fill" style="width:52%;background:linear-gradient(90deg,#6366f1,#818cf8)">52%</div>
+        </div>
+        <div class="bar-val">€66Bn</div>
+      </div>
+
+      <div class="bar-row">
+        <div class="bar-label" data-adf-id="seg-wh">Warehousing &amp; Fulfillment</div>
+        <div class="bar-track">
+          <div class="bar-fill" style="width:24%;background:linear-gradient(90deg,#10b981,#34d399)">24%</div>
+        </div>
+        <div class="bar-val">€30.5Bn</div>
+      </div>
+
+      <div class="bar-row">
+        <div class="bar-label" data-adf-id="seg-lm">Last-Mile Delivery</div>
+        <div class="bar-track">
+          <div class="bar-fill" style="width:14%;background:linear-gradient(90deg,#f59e0b,#fbbf24)">14%</div>
+        </div>
+        <div class="bar-val">€17.8Bn</div>
+      </div>
+
+      <div class="bar-row">
+        <div class="bar-label" data-adf-id="seg-air">Air &amp; Sea Forwarding</div>
+        <div class="bar-track">
+          <div class="bar-fill" style="width:10%;background:linear-gradient(90deg,#8b5cf6,#a78bfa)">10%</div>
+        </div>
+        <div class="bar-val">€12.7Bn</div>
+      </div>
+    </div>
+
+    <!-- SAM call-out note -->
+    <p style="font-size:0.8rem;color:var(--text-dim);padding:0 0.2rem">
+      <strong style="color:var(--accent-2)">SAM focus:</strong>
+      <span data-adf-id="sam-rationale">Warehousing &amp; Fulfillment (€30.5Bn) and Last-Mile Delivery (€17.8Bn) form Brightline's realistic serviceable addressable market at €31Bn — both segments are fragmented, SME-driven, and less dominated by incumbent infrastructure than road freight.</span>
+    </p>
+  </section>
+
+  <!-- Demand drivers -->
+  <section class="section">
+    <div class="section-header">
+      <span class="section-num">03</span>
+      <h2 class="section-title" data-adf-id="drivers-heading">Demand Drivers</h2>
+    </div>
+    <div class="drivers-list">
+      <div class="driver-item" data-adf-id="driver-1">E-commerce volume growing +12% YoY, driving sustained last-mile demand</div>
+      <div class="driver-item" data-adf-id="driver-2">Nearshoring from Asia increasing domestic B2B freight volumes</div>
+      <div class="driver-item" data-adf-id="driver-3">Green logistics mandates accelerating EV fleet transition — new entrants have cost parity advantage</div>
+      <div class="driver-item" data-adf-id="driver-4">Mittelstand SME demand for reliable mid-market providers underserved by top-tier incumbents</div>
+    </div>
+  </section>
+
+  <!-- Competitive landscape -->
+  <section class="section">
+    <div class="section-header">
+      <span class="section-num">04</span>
+      <h2 class="section-title" data-adf-id="comp-heading">Competitive Landscape</h2>
+      <span class="section-tag">Top 4 incumbents</span>
+    </div>
+    <div class="comp-grid">
+      <div class="comp-card">
+        <div class="comp-header">
+          <span class="comp-name" data-adf-id="comp-1-name">DHL Supply Chain</span>
+          <span class="comp-share">18% share</span>
+        </div>
+        <p class="comp-strength" data-adf-id="comp-1-strength">Brand dominance, dense last-mile infrastructure, national coverage. Hard to displace on volume; vulnerable on SME agility and pricing flexibility.</p>
+      </div>
+      <div class="comp-card">
+        <div class="comp-header">
+          <span class="comp-name" data-adf-id="comp-2-name">DB Schenker</span>
+          <span class="comp-share">14% share</span>
+        </div>
+        <p class="comp-strength" data-adf-id="comp-2-strength">Rail integration and pan-EU reach. Strong for heavy industrial clients; weaker in e-commerce fulfillment and SME mid-market.</p>
+      </div>
+      <div class="comp-card">
+        <div class="comp-header">
+          <span class="comp-name" data-adf-id="comp-3-name">Rhenus Logistics</span>
+          <span class="comp-share">9% share</span>
+        </div>
+        <p class="comp-strength" data-adf-id="comp-3-strength">Mid-market regional hub operator. Closest proxy to Brightline's target positioning — signals viable niche, but direct competitive overlap likely.</p>
+      </div>
+      <div class="comp-card">
+        <div class="comp-header">
+          <span class="comp-name" data-adf-id="comp-4-name">Kühne+Nagel</span>
+          <span class="comp-share">7% share</span>
+        </div>
+        <p class="comp-strength" data-adf-id="comp-4-strength">Forwarding and pharma cold chain specialist. Limited overlap with Brightline's target segments; competitive pressure mainly in premium tiers.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Entry recommendation -->
+  <section class="section">
+    <div class="section-header">
+      <span class="section-num">05</span>
+      <h2 class="section-title" data-adf-id="entry-heading">Entry Opportunity</h2>
+      <span class="section-tag">Market-Size Analyst Finding</span>
+    </div>
+    <div class="opportunity-card">
+      <h3 class="opportunity-title" data-adf-id="opp-segment">Warehousing &amp; Fulfillment + Last-Mile</h3>
+      <p class="opportunity-rationale" data-adf-id="opp-rationale">Fragmented mid-market with high SME demand and lower capital expenditure requirements than road freight. Brightline's operational profile aligns well with the flexibility and regional customisation these customers require.</p>
+      <div class="opp-metrics">
+        <div class="opp-metric">
+          <div class="opp-metric-val">€4.5<span class="unit">M</span></div>
+          <div class="opp-metric-label">Year 1 Revenue Target</div>
+        </div>
+        <div class="opp-metric">
+          <div class="opp-metric-val">€18<span class="unit">M</span></div>
+          <div class="opp-metric-label">Year 3 Revenue Target</div>
+        </div>
+        <div class="opp-metric">
+          <div class="opp-metric-val">22<span class="unit">mo</span></div>
+          <div class="opp-metric-label">Estimated Break-Even</div>
+        </div>
+        <div class="opp-metric">
+          <div class="opp-metric-val">€31<span class="unit">Bn</span></div>
+          <div class="opp-metric-label">Serviceable Market</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="status-footer">
+    <div class="status-left">
+      <strong>Hop 1 of 3 complete</strong> — Market-size analysis filed.<br>
+      Decision chain updated. Awaiting Risk Analyst (Hop 2).
+    </div>
+    <div class="next-hop">Risk Analyst: assess barriers &amp; regulatory exposure</div>
+  </footer>
+
+</div>
+
+<script>
+  // Bind live values from clan data where available
+  if (window.__CLAN__ && window.__CLAN__.data) {
+    const d = window.__CLAN__.data;
+    const ms = d.market_size || {};
+    // Could patch KPI values dynamically here if rerendered
+    console.log('[CLAN] Market size data loaded', ms);
+  }
+</script>
+</body>
+</html>

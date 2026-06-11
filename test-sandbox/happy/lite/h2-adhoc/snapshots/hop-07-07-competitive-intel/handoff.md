@@ -1,7 +1,3 @@
-# Handoff Notes
-
-(each analyst leaves a short note for the next)
-
 ## 01-market-researcher
 
 Market favours fast EU-resident go-lives. HubSpot leads mindshare but Zoho is gaining in mid-market on price. Next: get hard per-seat pricing.
@@ -28,4 +24,4 @@ Reps want fast lead response and minimal clicks. Split preference: cost-consciou
 
 ## 07-competitive-intel
 
-Zoho's quarterly export clause keeps switching cost low - a hedge against its maturity risk. Next: finance model.
+Zoho's quarterly export clause keeps switching cost low — a hedge against its maturity risk. Next: finance model.

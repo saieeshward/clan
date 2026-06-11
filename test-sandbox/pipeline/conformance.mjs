@@ -199,7 +199,7 @@ r = clan(['create', '--title', 'AgentOnly', '--brief', 'b', '--no-render', '--ou
   const target = existsSync(join(work, 'bind2.clan')) ? 'bind2.clan' : 'bind.clan'
   const p = clan(['patch-data', target, '{"price":99}', ...ATTR], { hints: true })
   const falseHint = /stale/i.test(p.out)
-  record('T20', 'no stale-view hint for bound-key patch (F2b)', p.code === 0 && !falseHint, `hint-output: ${p.out.slice(0, 200)}`, true /* expect red until F2b lands */)
+  record('T20', 'no stale-view hint for bound-key patch (F2b)', p.code === 0 && !falseHint, `hint-output: ${p.out.slice(0, 200)}`)
 }
 
 // ---------- T23 requirements declared + surfaced (F8 / layer 5) ----------

@@ -1,28 +1,29 @@
 {
   "role": "chart-update",
   "hop": 6,
-  "arm": "clan",
-  "flow": "guided-patch-first",
+  "arm": "guided",
+  "flow": "patch-html",
   "commands_run": [
     "clan read agent test-sandbox/happy/lite/h1-clan/work/doc.clan --skip-guide",
-    "clan patch-html --help",
-    "clan agent-help",
-    "clan patch-html test-sandbox/happy/lite/h1-clan/work/doc.clan test-sandbox/happy/lite/h1-clan/receipts/hop06-output/patch-html.txt",
+    "clan patch-html test-sandbox/happy/lite/h1-clan/work/doc.clan /tmp/bar-zoho-patch.html --selector \"#bar-zoho\" --patch-action replace --agent \"hop-06-chart-update\" --action \"Zoho bar shrink: y=78 height=82\"",
     "clan validate test-sandbox/happy/lite/h1-clan/work/doc.clan",
-    "cp work/doc.clan snapshots/hop-06-chart-update.clan"
+    "cp test-sandbox/happy/lite/h1-clan/work/doc.clan test-sandbox/happy/lite/h1-clan/snapshots/hop-06-chart-update.clan"
   ],
   "files_read": [
-    { "file": "test-sandbox/happy/lite/h1-clan/work/doc.clan", "approx_chars": 5200 }
+    { "file": "test-sandbox/happy/lite/h1-clan/work/doc.clan", "approx_chars": 1200 }
   ],
   "files_written": [
-    { "file": "test-sandbox/happy/lite/h1-clan/receipts/hop06-output/patch-html.txt", "chars": 158 },
-    { "file": "test-sandbox/happy/lite/h1-clan/work/doc.clan", "chars": 14080 },
-    { "file": "test-sandbox/happy/lite/h1-clan/snapshots/hop-06-chart-update.clan", "chars": 14080 }
+    { "file": "test-sandbox/happy/lite/h1-clan/work/doc.clan", "chars": 82 },
+    { "file": "test-sandbox/happy/lite/h1-clan/snapshots/hop-06-chart-update.clan", "chars": 82 },
+    { "file": "test-sandbox/happy/lite/h1-clan/receipts/hop06-output/patch-fragment.html", "chars": 82 }
   ],
-  "output_chars": 158,
+  "output_chars": 82,
   "errors": [
-    { "what": "First patch-html attempt used flag-style args (--action/--selector/--fragment); CLI rejected them", "recovered_by": "Read patch-html --help and agent-help; authored a patch file with YAML frontmatter (mode/patch_selector/patch_action) and passed it as HTML_FILE arg" }
+    {
+      "what": "clan patch-html does not accept --fragment flag; first invocation failed with exit code 2",
+      "recovered_by": "Checked --help, used HTML file argument instead of --fragment flag"
+    }
   ],
-  "problems_and_friction": "patch-html takes a frontmatter patch file, not inline flags, so the first invocation failed; agent-help clarified the exact schema and the retry succeeded. Validation printed OK and the snapshot was taken cleanly.",
-  "context_understood": "Zoho is now cheapest, so its chart bar must shrink to y=78 height=82 via a single patch-html replace of the #bar-zoho rect."
+  "problems_and_friction": "The patch-html CLI does not support a --fragment inline flag despite the protocol describing it that way; the fragment must be passed as a file or stdin. One extra help lookup was needed. No other issues.",
+  "context_understood": "Zoho is now cheapest so its bar shrinks: rect#bar-zoho updated to y=78 height=82 via guided patch-html replace."
 }

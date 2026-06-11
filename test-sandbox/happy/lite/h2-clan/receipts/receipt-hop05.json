@@ -1,30 +1,33 @@
 {
   "role": "05-integrations-assessor",
   "hop": 5,
-  "arm": "lite",
-  "flow": "guided-patch-first --skip-guide",
+  "arm": "h2",
+  "flow": "happy/lite",
   "commands_run": [
     "clan read agent test-sandbox/happy/lite/h2-clan/work/doc.clan --skip-guide",
-    "clan patch-data test-sandbox/happy/lite/h2-clan/work/doc.clan test-sandbox/happy/lite/_inputs/h2-supplied/05-integrations-assessor.json",
-    "clan patch-decision --agent 05-integrations-assessor --action \"added 05-integrations-assessor findings\" --rationale \"<handoff>\" test-sandbox/happy/lite/h2-clan/work/doc.clan",
+    "clan patch-data --agent 05-integrations-assessor --action \"added 05-integrations-assessor findings\" test-sandbox/happy/lite/h2-clan/work/doc.clan test-sandbox/happy/lite/_inputs/h2-supplied/05-integrations-assessor.json",
+    "clan patch-decision --agent 05-integrations-assessor --action \"added 05-integrations-assessor findings\" --rationale \"HubSpot has one more native connector; Zoho needs a NetSuite connector but it is supported. ~9 wk effort either way. Next: customer discovery.\" test-sandbox/happy/lite/h2-clan/work/doc.clan",
     "clan validate test-sandbox/happy/lite/h2-clan/work/doc.clan",
-    "Copy-Item work/doc.clan snapshots/hop-05-05-integrations-assessor.clan"
+    "cp test-sandbox/happy/lite/h2-clan/work/doc.clan test-sandbox/happy/lite/h2-clan/snapshots/hop-05-05-integrations-assessor.clan"
   ],
   "files_read": [
-    { "file": "test-sandbox/happy/lite/h2-clan/work/doc.clan", "approx_chars": 2600 },
+    { "file": "test-sandbox/happy/lite/h2-clan/work/doc.clan", "approx_chars": 2800 },
     { "file": "test-sandbox/happy/lite/_inputs/h2-supplied/05-integrations-assessor.json", "approx_chars": 230 },
-    { "file": "test-sandbox/happy/lite/_inputs/h2-supplied/05-integrations-assessor.handoff.txt", "approx_chars": 150 }
+    { "file": "test-sandbox/happy/lite/_inputs/h2-supplied/05-integrations-assessor.handoff.txt", "approx_chars": 140 }
   ],
   "files_written": [
-    { "file": "test-sandbox/happy/lite/h2-clan/work/doc.clan", "chars": 181 },
-    { "file": "test-sandbox/happy/lite/h2-clan/snapshots/hop-05-05-integrations-assessor.clan", "chars": 2780 },
-    { "file": "test-sandbox/happy/lite/h2-clan/receipts/hop05-output/decision.txt", "chars": 181 },
-    { "file": "test-sandbox/happy/lite/h2-clan/receipts/receipt-hop05.json", "chars": 1500 }
+    { "file": "test-sandbox/happy/lite/h2-clan/snapshots/hop-05-05-integrations-assessor.clan", "chars": 13200 },
+    { "file": "test-sandbox/happy/lite/h2-clan/receipts/hop05-output/patch-data.json", "chars": 230 },
+    { "file": "test-sandbox/happy/lite/h2-clan/receipts/hop05-output/decision.txt", "chars": 143 },
+    { "file": "test-sandbox/happy/lite/h2-clan/receipts/receipt-hop05.json", "chars": 1350 }
   ],
-  "output_chars": 181,
+  "output_chars": 373,
   "errors": [
-    { "what": "Copy-Item run via Bash tool failed (routed to bash, command not found)", "recovered_by": "re-ran the copy via the PowerShell tool" }
+    {
+      "what": "patch-data rejected without attribution flags",
+      "recovered_by": "re-ran with --agent and --action flags"
+    }
   ],
-  "problems_and_friction": "The patch-first --skip-guide flow was efficient: a single agent read plus two supplied files gave full context without re-reading prior analysts' data. Only friction was the Bash tool routing a PowerShell Copy-Item to /usr/bin/bash.",
-  "context_understood": "Hop 5 adds integrations findings (HubSpot 5 vs Zoho 4 native connectors, Zoho needs a supported NetSuite connector, ~9 wk effort either way) and hands off to customer discovery; no view is produced until the final hop."
+  "problems_and_friction": "clan patch-data requires attribution flags (--agent, --action) that are not mentioned in the protocol steps — the first attempt failed with an error. The fix was straightforward once the error message was read. No other friction.",
+  "context_understood": "Hop 5 of a CRM-recommendation multi-agent chain; role adds integration depth findings (native connector counts, gap for Zoho/NetSuite, 9-week effort) before handing off to customer discovery."
 }

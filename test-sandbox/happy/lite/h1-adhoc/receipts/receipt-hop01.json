@@ -1,30 +1,39 @@
 {
   "role": "pricing-update",
   "hop": 1,
-  "arm": "ad-hoc",
-  "flow": "guided-best-case",
+  "arm": "h1-adhoc",
+  "flow": "happy/lite",
   "commands_run": [
-    "append decisions.log + mkdir snapshots/receipts + cp work/* into snapshot dir",
-    "wc -c on authored output fragments"
+    "Read test-sandbox/happy/lite/h1-adhoc/work/data.json",
+    "Read test-sandbox/happy/lite/h1-adhoc/work/report.html",
+    "Read test-sandbox/happy/lite/h1-adhoc/work/decisions.log",
+    "Edit data.json: zoho_price_per_seat 45→38",
+    "Edit data.json: zoho_annual_total 21600→18240",
+    "Append to decisions.log",
+    "mkdir snapshots/hop-01-pricing-update",
+    "cp work/* snapshots/hop-01-pricing-update/",
+    "mkdir receipts/hop01-output",
+    "Write receipts/hop01-output/patch-data.txt",
+    "Write receipts/hop01-output/decision.txt"
   ],
   "files_read": [
-    { "file": "test-sandbox/happy/lite/h1-adhoc/work/data.json", "approx_chars": 1868 },
-    { "file": "test-sandbox/happy/lite/h1-adhoc/work/report.html", "approx_chars": 3905 },
-    { "file": "test-sandbox/happy/lite/h1-adhoc/work/decisions.log", "approx_chars": 110 }
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/data.json", "approx_chars": 1868},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/report.html", "approx_chars": 3690},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/decisions.log", "approx_chars": 0}
   ],
   "files_written": [
-    { "file": "test-sandbox/happy/lite/h1-adhoc/work/data.json", "chars": 1868 },
-    { "file": "test-sandbox/happy/lite/h1-adhoc/work/report.html", "chars": 3898 },
-    { "file": "test-sandbox/happy/lite/h1-adhoc/work/decisions.log", "chars": 258 },
-    { "file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-01-pricing-update/data.json", "chars": 1868 },
-    { "file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-01-pricing-update/report.html", "chars": 3898 },
-    { "file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-01-pricing-update/decisions.log", "chars": 258 },
-    { "file": "test-sandbox/happy/lite/h1-adhoc/receipts/hop01-output/patch-data.txt", "chars": 56 },
-    { "file": "test-sandbox/happy/lite/h1-adhoc/receipts/hop01-output/patch-html.txt", "chars": 76 },
-    { "file": "test-sandbox/happy/lite/h1-adhoc/receipts/hop01-output/decision.txt", "chars": 148 }
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/data.json", "chars": 1868},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/decisions.log", "chars": 170},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/receipts/hop01-output/patch-data.txt", "chars": 59},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/receipts/hop01-output/decision.txt", "chars": 170}
   ],
-  "output_chars": 280,
-  "errors": [],
-  "problems_and_friction": "No friction; guided ad-hoc protocol with explicit edit targets meant three surgical splices plus one log line. Old values (45/$45/21600/$21600) were unique strings so Edit matched cleanly.",
-  "context_understood": "Drop Zoho CRM per-seat price from 45 to 38 and annual total from 21600 to 18240 across data.json and the report.html cost table, log it, and snapshot the work files."
+  "output_chars": 229,
+  "errors": [
+    {
+      "what": "report.html has no literal '$45' or '$21600' — uses template placeholders {{zoho_price_per_seat}} / {{zoho_annual_total}}",
+      "recovered_by": "Updated only data.json; HTML will render correct values via template at render time"
+    }
+  ],
+  "problems_and_friction": "The protocol specifies editing literal '$45'/'$21600' in report.html, but the file uses Mustache-style template placeholders that reference data.json values — there are no literal dollar amounts to replace. The data.json edits are sufficient for the values to be correct when rendered. No other friction encountered.",
+  "context_understood": "Zoho CRM per-seat price drops from 45 to 38, annual total from 21600 to 18240, applied surgically to data.json with snapshot and receipt created."
 }

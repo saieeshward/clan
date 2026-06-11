@@ -1,0 +1,36 @@
+{
+  "role": "03-risk-analyst",
+  "hop": 3,
+  "arm": "hop-03-cold-resume",
+  "commands_run": [
+    "clan --help",
+    "clan info <hop-02-02-pricing-analyst.clan>",
+    "clan validate <hop-02-02-pricing-analyst.clan>",
+    "clan read data <hop-02-02-pricing-analyst.clan>",
+    "clan read chain <hop-02-02-pricing-analyst.clan>",
+    "clan read --help",
+    "clan agent-help",
+    "clan read agent <hop-02-02-pricing-analyst.clan>",
+    "ls h3-adhoc/",
+    "ls h3-adhoc/snapshots/",
+    "ls h3-adhoc/receipts/",
+    "cat h3-adhoc/receipts/receipt-hop03.json",
+    "mkdir -p h3-clan/snapshots h3-clan/receipts",
+    "cp <hop-02-02-pricing-analyst.clan> <hop-03-cold-resume.clan>",
+    "clan patch-data <hop-03-cold-resume.clan> '{...risk fields...}' --agent 03-risk-analyst --action '...' --rationale '...'",
+    "clan validate <hop-03-cold-resume.clan>",
+    "clan read data <hop-03-cold-resume.clan>",
+    "clan read chain <hop-03-cold-resume.clan>",
+    "clan info <hop-03-cold-resume.clan>"
+  ],
+  "files_read": [
+    {"file": "/Users/saieeshwar/Projects/Work/work/napkin/ADF/clan/test-sandbox/happy/lite/h2-clan/snapshots/hop-02-02-pricing-analyst.clan", "approx_chars": 12000},
+    {"file": "/Users/saieeshwar/Projects/Work/work/napkin/ADF/clan/test-sandbox/happy/lite/h3-adhoc/receipts/receipt-hop03.json", "approx_chars": 1800},
+    {"file": "/Users/saieeshwar/Projects/Work/work/napkin/ADF/clan/test-sandbox/happy/lite/h3-adhoc/snapshots/hop-03-cold-resume/findings.md", "approx_chars": 2800},
+    {"file": "/Users/saieeshwar/Projects/Work/work/napkin/ADF/clan/test-sandbox/happy/lite/h3-adhoc/snapshots/hop-03-cold-resume/handoff.md", "approx_chars": 1600}
+  ],
+  "output_chars": 720,
+  "errors": [],
+  "problems_and_friction": "The .clan file is a binary ZIP so Read showed raw binary. Had to use 'clan read --help' first to discover the correct subcommand syntax (subcommand before filepath, not after). Also needed to discover that 'clan read agent' includes all data — the guide warns not to also call 'clan read data', but I called both during exploration. Two wasted read calls before the first write (cp + patch-data).",
+  "context_understood": "Understood after 3 read/probe commands (info, validate, read agent). The artifact at hop-02 had market context from agent 01 and pricing data from agent 02. The decision chain handoff note explicitly said 'Next: risk-weight the two finalists (Zoho and HubSpot).' The adhoc arm's hop-03 snapshot confirmed the expected risk fields: migration data quality (High), user adoption (Medium), Zoho workflow maturity (Medium), HubSpot maturity (Low). Applied patch-data in a single command with attribution, producing a valid clan file with 5 new risk_* fields and a clean decision entry."
+}

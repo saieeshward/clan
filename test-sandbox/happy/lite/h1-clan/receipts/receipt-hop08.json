@@ -1,25 +1,23 @@
 {
   "role": "signoff",
   "hop": 8,
-  "arm": "clan",
-  "flow": "guided patch-first",
+  "arm": "guided",
+  "flow": "patch-decision",
   "commands_run": [
     "clan read agent test-sandbox/happy/lite/h1-clan/work/doc.clan --skip-guide",
     "clan patch-decision --agent steering-committee --action \"approved Zoho CRM recommendation\" --rationale \"Re-scored cost vs time-to-value; Zoho wins on 40-seat cost with EU residency included.\" --pinned test-sandbox/happy/lite/h1-clan/work/doc.clan",
     "clan validate test-sandbox/happy/lite/h1-clan/work/doc.clan",
-    "cp work/doc.clan snapshots/hop-08-signoff.clan"
+    "cp test-sandbox/happy/lite/h1-clan/work/doc.clan test-sandbox/happy/lite/h1-clan/snapshots/hop-08-signoff.clan"
   ],
   "files_read": [
-    { "file": "test-sandbox/happy/lite/h1-clan/work/doc.clan", "approx_chars": 3300 }
+    {"file": "test-sandbox/happy/lite/h1-clan/work/doc.clan", "approx_chars": 3800}
   ],
   "files_written": [
-    { "file": "test-sandbox/happy/lite/h1-clan/snapshots/hop-08-signoff.clan", "chars": 14319 },
-    { "file": "test-sandbox/happy/lite/h1-clan/receipts/hop08-output/decision.txt", "chars": 171 }
+    {"file": "test-sandbox/happy/lite/h1-clan/snapshots/hop-08-signoff.clan", "chars": 14745},
+    {"file": "test-sandbox/happy/lite/h1-clan/receipts/hop08-output/decision.yaml", "chars": 178}
   ],
-  "output_chars": 171,
-  "errors": [
-    { "what": "Bash tool ran POSIX bash not PowerShell; 'copy' command not found on first snapshot attempt", "recovered_by": "re-ran using 'cp' with forward-slash paths" }
-  ],
-  "problems_and_friction": "The guided patch-decision command did the entire change in one shot; the only friction was the shell mismatch on the file-copy step. Authored output was just the decision action and rationale strings.",
-  "context_understood": "Hop 8 records the steering committee's final sign-off approving the Zoho CRM recommendation via a single guided patch-decision, then validates and snapshots."
+  "output_chars": 178,
+  "errors": [],
+  "problems_and_friction": "The doc.clan binary format is not UTF-8 readable directly, so tail/grep commands failed; used clan read decisions to verify the appended entry. No functional issues encountered.",
+  "context_understood": "Hop 8 records the steering committee's final sign-off approving the Zoho CRM recommendation for Brightline Logistics on 2026-06-11, as a pinned decision entry."
 }

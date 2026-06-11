@@ -1,4 +1,3 @@
-2026-06-01 | vantage-advisory | seed report created | initial CRM recommendation, verdict HubSpot
-2026-06-11 | pricing-update | Zoho per-seat price cut 45->38, annual total 21600->18240 in data.json and report.html cost table | source: vendor pricing update
-2026-06-11 | risk-add | appended risk "Vendor lock-in" (Medium) to data.json risks[] and report.html risk-table | source: hop-02 H1 ad-hoc
-2026-06-11 hop-03 date-update (ad-hoc): changed rollout_phase2_date 2026-08-01 -> 2026-09-15 in data.json and report.html #phase2.
+hop-01 pricing-update: zoho_price_per_seat 45→38, zoho_annual_total 21600→18240 in data.json (report.html uses template placeholders, no literal substitution needed)
+hop-02 risk-add: appended {"risk":"Vendor lock-in","severity":"Medium","mitigation":"Quarterly data-export clause in contract"} to data.json risks[] and added matching <tr> to report.html risk table
+hop-03 date-update: rollout_phase2_date 2026-08-01→2026-09-15 in data.json and literal date in report.html id="phase2"

@@ -2,28 +2,30 @@
   "role": "summary-rewrite",
   "hop": 4,
   "arm": "clan",
-  "flow": "guided patch-first: read agent -> patch-data (exec_summary) -> validate -> snapshot",
+  "flow": "patch-data",
   "commands_run": [
     "clan read agent test-sandbox/happy/lite/h1-clan/work/doc.clan --skip-guide",
-    "clan patch-data --help",
-    "clan patch-data test-sandbox/happy/lite/h1-clan/work/doc.clan test-sandbox/happy/lite/h1-clan/receipts/hop04-output/patch-data.json --quiet",
+    "clan read data test-sandbox/happy/lite/h1-clan/work/doc.clan",
+    "clan patch-data test-sandbox/happy/lite/h1-clan/work/doc.clan --set exec_summary=... --agent hop-04-summary-rewrite --action 'Replace exec_summary with supplied text'",
     "clan validate test-sandbox/happy/lite/h1-clan/work/doc.clan",
-    "clan read data test-sandbox/happy/lite/h1-clan/work/doc.clan"
+    "cp test-sandbox/happy/lite/h1-clan/work/doc.clan test-sandbox/happy/lite/h1-clan/snapshots/hop-04-summary-rewrite.clan"
   ],
   "files_read": [
-    { "file": "test-sandbox/happy/lite/_inputs/h1-supplied/exec-summary.txt", "approx_chars": 324 },
-    { "file": "test-sandbox/happy/lite/h1-clan/work/doc.clan", "approx_chars": 2600 }
+    {"file": "test-sandbox/happy/lite/_inputs/h1-supplied/exec-summary.txt", "approx_chars": 283},
+    {"file": "test-sandbox/happy/lite/h1-clan/work/doc.clan", "approx_chars": 2200}
   ],
   "files_written": [
-    { "file": "test-sandbox/happy/lite/h1-clan/receipts/hop04-output/patch-data.json", "chars": 348 },
-    { "file": "test-sandbox/happy/lite/h1-clan/work/doc.clan", "chars": 348 },
-    { "file": "test-sandbox/happy/lite/h1-clan/snapshots/hop-04-summary-rewrite.clan", "chars": 348 }
+    {"file": "test-sandbox/happy/lite/h1-clan/work/doc.clan", "chars": 14251},
+    {"file": "test-sandbox/happy/lite/h1-clan/snapshots/hop-04-summary-rewrite.clan", "chars": 14251},
+    {"file": "test-sandbox/happy/lite/h1-clan/receipts/hop04-output/patch-data.json", "chars": 343}
   ],
-  "output_chars": 348,
+  "output_chars": 343,
   "errors": [
-    { "what": "first patch-data attempt used a nonexistent --set flag", "recovered_by": "checked --help; patch-data uses a JSON Merge Patch file, authored a minimal {exec_summary} patch" },
-    { "what": "Get-Content/PowerShell command initially routed through bash", "recovered_by": "re-ran with the PowerShell tool" }
+    {
+      "what": "First patch-data attempt used --attribution flag which does not exist",
+      "recovered_by": "Ran clan patch-data --help and used correct --agent/--action flags"
+    }
   ],
-  "problems_and_friction": "patch-data needs a JSON file (no inline --set), so I authored a one-key RFC 7396 merge patch; the apostrophe serialized as \\u0027 but decodes correctly. validate emitted a pack-html 'next' hint that is forbidden for this data-bound field, so I ignored it.",
-  "context_understood": "exec_summary is a data-bound {{key}} field, so patching shared data alone updates the rendered HTML without touching the human view."
+  "problems_and_friction": "The --attribution flag does not exist; one help lookup needed to identify correct flags (--agent, --action). Otherwise the flow was direct: exec_summary is data-bound, patch-data alone suffices, validate returned OK immediately.",
+  "context_understood": "Hop 4 replaces exec_summary verbatim with the supplied text from exec-summary.txt via patch-data only (pack-html forbidden for data-bound fields)."
 }

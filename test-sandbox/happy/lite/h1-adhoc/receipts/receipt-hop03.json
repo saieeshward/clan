@@ -1,33 +1,35 @@
 {
   "role": "date-update",
   "hop": 3,
-  "arm": "ad-hoc",
-  "flow": "read data.json + report.html; surgical Edit on rollout_phase2_date in data.json and #phase2 cell in report.html; append decision.log; snapshot to snapshots/hop-03-date-update/",
+  "arm": "adhoc",
+  "flow": "h1-adhoc",
   "commands_run": [
-    "printf >> work/decisions.log",
-    "mkdir -p snapshots/hop-03-date-update receipts/hop03-output",
-    "cp work/report.html work/data.json work/decisions.log snapshots/hop-03-date-update/",
-    "ls -la snapshots/hop-03-date-update/"
+    "Edit data.json: rollout_phase2_date 2026-08-01→2026-09-15",
+    "Edit report.html: id=phase2 literal date 2026-08-01→2026-09-15",
+    "Append to decisions.log",
+    "mkdir snapshots/hop-03-date-update",
+    "cp work/* snapshots/hop-03-date-update/",
+    "mkdir receipts/hop03-output",
+    "Write patch-data.txt, patch-html.txt, decision.txt"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/lite/h1-adhoc/work/data.json", "approx_chars": 1980},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/work/report.html", "approx_chars": 3996}
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/data.json", "approx_chars": 1180},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/report.html", "approx_chars": 2350},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/decisions.log", "approx_chars": 230}
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/lite/h1-adhoc/work/data.json", "chars": 1980},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/work/report.html", "chars": 3996},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/work/decisions.log", "chars": 528},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-03-date-update/data.json", "chars": 1980},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-03-date-update/report.html", "chars": 3996},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-03-date-update/decisions.log", "chars": 528},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/receipts/hop03-output/patch-data.json.txt", "chars": 37},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/receipts/hop03-output/patch-html.txt", "chars": 31},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/receipts/hop03-output/decision.txt", "chars": 122}
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/data.json", "chars": 35},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/report.html", "chars": 76},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/decisions.log", "chars": 120},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-03-date-update/data.json", "chars": 1180},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-03-date-update/report.html", "chars": 2350},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-03-date-update/decisions.log", "chars": 350},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/receipts/hop03-output/patch-data.txt", "chars": 35},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/receipts/hop03-output/patch-html.txt", "chars": 76},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/receipts/hop03-output/decision.txt", "chars": 120}
   ],
-  "output_chars": 190,
-  "errors": [
-    {"what": "First Edit on report.html failed: file not read yet (Grep does not satisfy the read requirement)", "recovered_by": "Read the relevant lines of report.html, then re-ran the identical Edit"}
-  ],
-  "problems_and_friction": "Minor friction: the HTML edit required a prior Read even though I had grepped the exact line, costing one extra Read call. Otherwise the surgical edits were trivial one-line splices.",
-  "context_understood": "Bump rollout_phase2_date from 2026-08-01 to 2026-09-15 in both data.json and the #phase2 cell of report.html, log it, and snapshot the work files."
+  "output_chars": 231,
+  "errors": [],
+  "problems_and_friction": "report.html uses template placeholders ({{rollout_phase2_date}}) everywhere except this hop required a literal date substitution in the phase2 element — the template was never rendered, so the literal value had to be injected directly rather than updating the placeholder token. No blocking issues.",
+  "context_understood": "Change rollout_phase2_date from 2026-08-01 to 2026-09-15 in both data.json and the literal text of report.html id=phase2, then snapshot and receipt."
 }

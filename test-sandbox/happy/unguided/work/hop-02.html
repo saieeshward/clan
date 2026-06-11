@@ -1,0 +1,922 @@
+---
+structured:
+  analysts_completed:
+    - market-size
+    - risk
+  analysts_pending:
+    - synthesizer
+  pipeline_stage: risk_analysis
+  risk_assessment:
+    overall_risk_rating: MEDIUM-HIGH
+    risk_rating_rationale: "Entry is viable but faces meaningful execution and regulatory headwinds. Risks are manageable with phased approach."
+    categories:
+      - id: regulatory
+        name: Regulatory & Compliance
+        rating: HIGH
+        score: 4
+        risks:
+          - title: German Works Council Requirements
+            detail: "Mitbestimmung (co-determination) law mandates works councils at 5+ employees. Any workforce restructuring requires council approval, significantly slowing operational pivots."
+            likelihood: HIGH
+            impact: HIGH
+            mitigation: "Hire specialist German labor-law counsel pre-entry. Budget 6–9 month runway for council negotiations."
+          - title: EU Road Cabotage Rules
+            detail: "Post-Brexit equivalents and EU Mobility Package I restrict non-EU-domiciled carriers on German domestic routes. Brightline must establish a German legal entity."
+            likelihood: HIGH
+            impact: MEDIUM
+            mitigation: "Incorporate a German GmbH or partner with a licensed EU carrier from day one."
+          - title: Truck Toll (LKW-Maut) & Green Zone Compliance
+            detail: "Germany operates distance-based HGV toll (A-roads + motorways). Expanding Euro 7 emissions zones in Munich, Stuttgart, and Frankfurt add fleet compliance costs."
+            likelihood: HIGH
+            impact: MEDIUM
+            mitigation: "Factor Maut into unit economics models. Prioritise Euro 6d/7 or electric fleet acquisition."
+      - id: competitive
+        name: Competitive Intensity
+        rating: HIGH
+        score: 4
+        risks:
+          - title: Entrenched National Champions
+            detail: "DHL, DB Schenker, and Rhenus collectively hold 41% market share with multi-decade customer relationships, proprietary IT systems, and nationwide depot networks."
+            likelihood: HIGH
+            impact: HIGH
+            mitigation: "Differentiate on digital transparency, SME-tailored SLAs, and flexible warehousing contracts rather than competing on price."
+          - title: Price War Risk in Road Freight
+            detail: "Road Freight (52% of market) is commoditised with 1–3% EBIT margins. Incumbents can cross-subsidise to defend accounts."
+            likelihood: MEDIUM
+            impact: HIGH
+            mitigation: "Avoid Road Freight as primary entry vector. Focus on Warehousing & Fulfillment where margins are 6–10%."
+          - title: Startup Disruption from Tech-Forward Players
+            detail: "Flink, Sennder, and Forto are VC-backed digital freight platforms gaining share among Millennial procurement managers."
+            likelihood: MEDIUM
+            impact: MEDIUM
+            mitigation: "Invest in API-first booking and real-time track-and-trace to match digital expectations."
+      - id: operational
+        name: Operational & Supply Chain
+        rating: MEDIUM
+        score: 3
+        risks:
+          - title: Warehouse Real Estate Scarcity
+            detail: "Grade A logistics real estate vacancy in Rhine-Ruhr and Rhine-Main corridors is below 1.5%. Rents have risen 28% since 2021."
+            likelihood: HIGH
+            impact: HIGH
+            mitigation: "Secure 3–5 year lease commitments early. Consider build-to-suit in secondary locations (Kassel, Erfurt)."
+          - title: Driver Shortage
+            detail: "Germany faces a structural deficit of ~80,000 HGV drivers (BGL 2024). Wage inflation running at 7–9% annually."
+            likelihood: HIGH
+            impact: MEDIUM
+            mitigation: "Partner with driver-training schools; explore autonomous last-mile pilots to reduce driver dependency in urban zones."
+          - title: IT Integration Complexity
+            detail: "German logistics buyers expect EDI, SAP S/4HANA, and DATEV integrations. A missing connector can block enterprise deals."
+            likelihood: MEDIUM
+            impact: MEDIUM
+            mitigation: "Build or license a certified SAP integration layer in Year 1. Budget €300–500k."
+      - id: financial
+        name: Financial & FX
+        rating: MEDIUM
+        score: 3
+        risks:
+          - title: Break-Even Runway Risk
+            detail: "22-month projected break-even assumes 85% warehouse utilisation by Month 10. Market downturns or ramp delays could extend runway to 30+ months."
+            likelihood: MEDIUM
+            impact: HIGH
+            mitigation: "Maintain 12-month cash reserve above operating burn. Model a 30-month scenario in board financial pack."
+          - title: EUR/GBP Currency Exposure
+            detail: "If Brightline's home-currency costs are GBP-denominated, EUR revenue is exposed to sterling appreciation. A 10% GBP rise erodes 10% of reported revenue."
+            likelihood: MEDIUM
+            impact: MEDIUM
+            mitigation: "Hedge 12 months of projected EUR receipts via forward contracts. Denominate German entity costs in EUR."
+          - title: Customer Concentration in Early Phase
+            detail: "Year 1 revenue model likely depends on 3–5 anchor clients. Loss of one could drop revenue 20–30%."
+            likelihood: MEDIUM
+            impact: HIGH
+            mitigation: "Require 24-month minimum-volume contracts with anchor clients. Diversify to 10+ clients by end of Year 2."
+      - id: macro
+        name: Macroeconomic & Geopolitical
+        rating: MEDIUM
+        score: 3
+        risks:
+          - title: German Economic Slowdown
+            detail: "Germany has experienced two consecutive years of GDP contraction (-0.3% 2023, -0.2% 2024). Manufacturing output is 9% below 2019 peak."
+            likelihood: MEDIUM
+            impact: MEDIUM
+            mitigation: "Target e-commerce and healthcare supply chains which are counter-cyclical to manufacturing."
+          - title: Energy Price Volatility
+            detail: "German industrial electricity prices remain elevated post-energy-crisis. Cold storage and automated warehouse operations are energy-intensive."
+            likelihood: MEDIUM
+            impact: MEDIUM
+            mitigation: "Include energy price escalation clauses in customer contracts. Evaluate solar PV on owned/leased warehouses."
+          - title: Nearshoring Reversal Risk
+            detail: "If global supply chain normalisation reduces nearshoring urgency, a key demand driver (B2B domestic flows from Asia reshoring) may weaken."
+            likelihood: LOW
+            impact: MEDIUM
+            mitigation: "Diversify addressable customer segments; do not build financial model solely on nearshoring thesis."
+    risk_matrix:
+      - category: Regulatory & Compliance
+        likelihood: HIGH
+        impact: HIGH
+        score: 4
+      - category: Competitive Intensity
+        likelihood: HIGH
+        impact: HIGH
+        score: 4
+      - category: Operational & Supply Chain
+        likelihood: HIGH
+        impact: MEDIUM
+        score: 3
+      - category: Financial & FX
+        likelihood: MEDIUM
+        impact: HIGH
+        score: 3
+      - category: Macroeconomic & Geopolitical
+        likelihood: MEDIUM
+        impact: MEDIUM
+        score: 3
+    key_mitigations_summary:
+      - "Establish German GmbH legal entity before first commercial operations"
+      - "Avoid Road Freight as primary entry segment — pursue Warehousing & Fulfillment"
+      - "Secure anchor client contracts with 24-month minimum-volume commitments"
+      - "Hedge EUR/GBP exposure via 12-month forward contracts"
+      - "Maintain 12-month cash reserve above operating burn rate"
+      - "Invest in SAP/EDI integration layer in Year 1 (budget €300–500k)"
+decision:
+  agent: risk-analyst
+  action: risk_assessment_analysis
+  rationale: "Completed comprehensive five-category risk assessment for Brightline Logistics German market entry. Identified HIGH-risk areas in regulatory compliance and competitive intensity; MEDIUM risk in operations, finance, and macro. Produced risk matrix, 15 discrete risk items with mitigations, and key mitigations summary for synthesizer."
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Market Entry Assessment — Brightline Logistics Germany</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:       #0c0e18;
+    --surface:  #111320;
+    --surface2: #161928;
+    --border:   #1e2235;
+    --accent:   #6366f1;
+    --accent2:  #818cf8;
+    --accent3:  #c7d2fe;
+    --text:     #e2e4f0;
+    --muted:    #7c82a0;
+    --high:     #ef4444;
+    --high-bg:  #2d1515;
+    --med:      #f59e0b;
+    --med-bg:   #2a1f0a;
+    --low:      #22c55e;
+    --low-bg:   #0f2318;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+    padding: 0;
+    min-height: 100vh;
+  }
+
+  /* ── Cover band ── */
+  .cover {
+    background: linear-gradient(135deg, #0d0f1e 0%, #141728 50%, #0c1230 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 3.5rem 2rem 3rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .cover::before {
+    content: '';
+    position: absolute;
+    top: -80px; right: -80px;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(99,102,241,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .cover-inner { max-width: 860px; margin: 0 auto; }
+  .cover-eyebrow {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent2);
+    margin-bottom: 0.9rem;
+  }
+  .cover-title {
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-size: clamp(2rem, 4vw, 2.8rem);
+    font-weight: 400;
+    line-height: 1.18;
+    color: #fff;
+    margin-bottom: 0.6rem;
+  }
+  .cover-title em {
+    font-style: italic;
+    color: var(--accent3);
+  }
+  .cover-sub {
+    font-size: 0.9rem;
+    color: var(--muted);
+    max-width: 560px;
+    margin-bottom: 2rem;
+  }
+  .pipeline-track {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    flex-wrap: wrap;
+  }
+  .pip-step {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.78rem;
+    font-weight: 500;
+    padding: 0.4rem 0.85rem;
+    border-radius: 99px;
+  }
+  .pip-step.done {
+    background: rgba(99,102,241,0.18);
+    color: var(--accent3);
+    border: 1px solid rgba(99,102,241,0.3);
+  }
+  .pip-step.current {
+    background: var(--accent);
+    color: #fff;
+    border: 1px solid var(--accent);
+  }
+  .pip-step.pending {
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--border);
+  }
+  .pip-arrow {
+    color: var(--border);
+    font-size: 1.1rem;
+    margin: 0 0.25rem;
+    flex-shrink: 0;
+  }
+  .pip-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+
+  /* ── Main layout ── */
+  .main { max-width: 860px; margin: 0 auto; padding: 2.5rem 2rem 4rem; }
+
+  /* ── Section headers ── */
+  .section-label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent2);
+    margin-bottom: 1.2rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* ── Overall rating card ── */
+  .rating-banner {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--med);
+    border-radius: 10px;
+    padding: 1.4rem 1.6rem;
+    margin-bottom: 2.5rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 1.4rem;
+  }
+  .rating-badge {
+    background: var(--med-bg);
+    color: var(--med);
+    border: 1px solid rgba(245,158,11,0.3);
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+  }
+  .rating-text h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 0.3rem;
+  }
+  .rating-text p {
+    font-size: 0.88rem;
+    color: var(--muted);
+  }
+
+  /* ── Risk matrix ── */
+  .matrix-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    margin-bottom: 2.5rem;
+  }
+  @media (max-width: 580px) { .matrix-grid { grid-template-columns: 1fr; } }
+  .matrix-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .matrix-score {
+    width: 42px; height: 42px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem; font-weight: 700;
+    flex-shrink: 0;
+  }
+  .score-4 { background: rgba(239,68,68,0.15); color: var(--high); border: 2px solid rgba(239,68,68,0.3); }
+  .score-3 { background: rgba(245,158,11,0.15); color: var(--med); border: 2px solid rgba(245,158,11,0.3); }
+  .score-2 { background: rgba(34,197,94,0.12); color: var(--low); border: 2px solid rgba(34,197,94,0.25); }
+  .matrix-info { flex: 1; min-width: 0; }
+  .matrix-cat { font-size: 0.88rem; font-weight: 600; color: var(--text); line-height: 1.3; }
+  .matrix-tags { display: flex; gap: 0.4rem; margin-top: 0.3rem; flex-wrap: wrap; }
+  .tag {
+    font-size: 0.67rem; font-weight: 600; letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+  }
+  .tag-high { background: var(--high-bg); color: var(--high); border: 1px solid rgba(239,68,68,0.25); }
+  .tag-med  { background: var(--med-bg);  color: var(--med);  border: 1px solid rgba(245,158,11,0.25); }
+  .tag-low  { background: var(--low-bg);  color: var(--low);  border: 1px solid rgba(34,197,94,0.2); }
+
+  /* ── Risk categories ── */
+  .risk-category { margin-bottom: 2.2rem; }
+  .cat-header {
+    display: flex; align-items: center; gap: 1rem;
+    margin-bottom: 1rem;
+  }
+  .cat-title { font-size: 1rem; font-weight: 600; color: #fff; }
+  .risk-items { display: flex; flex-direction: column; gap: 0.65rem; }
+  .risk-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    padding: 1rem 1.2rem 1rem 1.1rem;
+    display: grid;
+    grid-template-columns: 3px 1fr;
+    gap: 0 1rem;
+  }
+  .risk-stripe { border-radius: 2px; }
+  .stripe-high { background: var(--high); }
+  .stripe-med  { background: var(--med); }
+  .stripe-low  { background: var(--low); }
+  .risk-body {}
+  .risk-title { font-size: 0.92rem; font-weight: 600; color: var(--text); margin-bottom: 0.3rem; }
+  .risk-detail { font-size: 0.84rem; color: var(--muted); margin-bottom: 0.55rem; line-height: 1.6; }
+  .risk-meta { display: flex; align-items: flex-start; gap: 0.5rem; flex-wrap: wrap; }
+  .risk-mitigation {
+    font-size: 0.8rem;
+    color: var(--accent3);
+    background: rgba(99,102,241,0.08);
+    border: 1px solid rgba(99,102,241,0.18);
+    border-radius: 6px;
+    padding: 0.35rem 0.65rem;
+    flex: 1;
+    min-width: 200px;
+  }
+  .risk-mitigation::before { content: '→ '; opacity: 0.6; }
+
+  /* ── Mitigations summary ── */
+  .mitigations-list {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.2rem 1.5rem;
+    margin-bottom: 2.5rem;
+  }
+  .mit-item {
+    display: flex; align-items: flex-start; gap: 0.75rem;
+    padding: 0.55rem 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.86rem;
+    color: var(--text);
+  }
+  .mit-item:last-child { border-bottom: none; }
+  .mit-num {
+    font-size: 0.7rem; font-weight: 700;
+    color: var(--accent2);
+    background: rgba(99,102,241,0.12);
+    border-radius: 4px;
+    padding: 0.15rem 0.4rem;
+    flex-shrink: 0;
+    margin-top: 0.15rem;
+  }
+
+  /* ── Market context carry-forward ── */
+  .context-band {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.2rem 1.5rem;
+    margin-bottom: 2.5rem;
+  }
+  .context-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-top: 0.8rem;
+  }
+  @media (max-width: 540px) { .context-grid { grid-template-columns: 1fr 1fr; } }
+  .ctx-stat {}
+  .ctx-val { font-size: 1.4rem; font-weight: 700; color: var(--accent3); }
+  .ctx-label { font-size: 0.75rem; color: var(--muted); margin-top: 0.1rem; }
+
+  /* ── Handoff note ── */
+  .handoff {
+    border: 1px dashed rgba(99,102,241,0.35);
+    border-radius: 10px;
+    padding: 1.2rem 1.5rem;
+    background: rgba(99,102,241,0.04);
+  }
+  .handoff-title { font-size: 0.82rem; font-weight: 600; color: var(--accent2); margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.06em; }
+  .handoff-body { font-size: 0.85rem; color: var(--muted); line-height: 1.7; }
+  .handoff-body strong { color: var(--text); }
+
+  /* ── SVG chart ── */
+  .chart-wrap { margin-bottom: 2.5rem; }
+  .chart-svg { width: 100%; height: auto; display: block; }
+</style>
+</head>
+<body>
+
+<!-- Cover -->
+<div class="cover">
+  <div class="cover-inner">
+    <div class="cover-eyebrow" data-adf-id="cover-eyebrow">Market Entry Assessment · Brightline Logistics · Germany</div>
+    <h1 class="cover-title" data-adf-id="cover-title">
+      Entry Risk Analysis:<br>
+      <em>German Logistics Market</em>
+    </h1>
+    <p class="cover-sub" data-adf-id="cover-sub">Hop 2 of 3 — Risk Analyst. Five risk categories assessed across regulatory, competitive, operational, financial, and macroeconomic dimensions.</p>
+    <div class="pipeline-track">
+      <div class="pip-step done"><span class="pip-dot"></span>Market Size</div>
+      <span class="pip-arrow">›</span>
+      <div class="pip-step current"><span class="pip-dot"></span>Risk Analysis</div>
+      <span class="pip-arrow">›</span>
+      <div class="pip-step pending"><span class="pip-dot"></span>Synthesizer</div>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- Overall rating -->
+  <div class="section-label">Overall Risk Verdict</div>
+  <div class="rating-banner">
+    <div class="rating-badge" data-adf-id="rating-badge">MEDIUM-HIGH</div>
+    <div class="rating-text">
+      <h3 data-adf-id="rating-headline">Entry is viable — risks are manageable with disciplined execution</h3>
+      <p data-adf-id="rating-rationale">Regulatory and competitive pressures are material but well-understood. The recommended Warehousing &amp; Fulfillment entry segment sidesteps the most commoditised price war. Critical path: establish a German GmbH, secure Grade A warehouse space, and land anchor contracts before committing full capital.</p>
+    </div>
+  </div>
+
+  <!-- Risk matrix heat map (SVG) -->
+  <div class="section-label">Risk Matrix</div>
+  <div class="chart-wrap">
+    <svg class="chart-svg" viewBox="0 0 640 220" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Risk likelihood vs impact matrix">
+      <defs>
+        <linearGradient id="cellHH" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#2d1515"/>
+          <stop offset="100%" stop-color="#3a1a1a"/>
+        </linearGradient>
+        <linearGradient id="cellHL" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#2a1f0a"/>
+          <stop offset="100%" stop-color="#2f2310"/>
+        </linearGradient>
+        <linearGradient id="cellLL" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#0f2318"/>
+          <stop offset="100%" stop-color="#132b1e"/>
+        </linearGradient>
+      </defs>
+      <!-- Grid background cells -->
+      <!-- Row HIGH likelihood -->
+      <rect x="100" y="20" width="260" height="80" fill="url(#cellHH)" rx="4"/>
+      <rect x="370" y="20" width="260" height="80" fill="url(#cellHH)" rx="4"/>
+      <!-- Row MED likelihood -->
+      <rect x="100" y="110" width="260" height="80" fill="url(#cellHL)" rx="4"/>
+      <rect x="370" y="110" width="260" height="80" fill="url(#cellHL)" rx="4"/>
+
+      <!-- Axis labels -->
+      <text x="50" y="65"  text-anchor="middle" fill="#7c82a0" font-size="11" font-family="Inter,sans-serif" font-weight="600">HIGH</text>
+      <text x="50" y="155" text-anchor="middle" fill="#7c82a0" font-size="11" font-family="Inter,sans-serif" font-weight="600">MED</text>
+      <text x="50" y="200" text-anchor="middle" fill="#7c82a0" font-size="11" font-family="Inter,sans-serif" font-weight="600" transform="rotate(0)">LIKELIHOOD</text>
+
+      <text x="230" y="210" text-anchor="middle" fill="#7c82a0" font-size="11" font-family="Inter,sans-serif" font-weight="600">MED IMPACT</text>
+      <text x="500" y="210" text-anchor="middle" fill="#7c82a0" font-size="11" font-family="Inter,sans-serif" font-weight="600">HIGH IMPACT</text>
+
+      <!-- Dots: Regulatory & Compliance (HIGH / HIGH) -->
+      <circle cx="480" cy="55" r="22" fill="rgba(239,68,68,0.25)" stroke="#ef4444" stroke-width="1.5"/>
+      <text x="480" y="49" text-anchor="middle" fill="#ef4444" font-size="9" font-family="Inter,sans-serif" font-weight="700">REG</text>
+      <text x="480" y="61" text-anchor="middle" fill="#ef4444" font-size="9" font-family="Inter,sans-serif" font-weight="700">COMP</text>
+
+      <!-- Dot: Competitive (HIGH / HIGH) → slightly offset -->
+      <circle cx="530" cy="65" r="20" fill="rgba(239,68,68,0.18)" stroke="#ef4444" stroke-width="1.5"/>
+      <text x="530" y="68" text-anchor="middle" fill="#ef4444" font-size="8.5" font-family="Inter,sans-serif" font-weight="700">COMPET</text>
+
+      <!-- Dot: Operational (HIGH likelihood / MED impact) -->
+      <circle cx="220" cy="55" r="20" fill="rgba(245,158,11,0.2)" stroke="#f59e0b" stroke-width="1.5"/>
+      <text x="220" y="58" text-anchor="middle" fill="#f59e0b" font-size="8.5" font-family="Inter,sans-serif" font-weight="700">OPS</text>
+
+      <!-- Dot: Financial (MED / HIGH) -->
+      <circle cx="470" cy="150" r="20" fill="rgba(245,158,11,0.2)" stroke="#f59e0b" stroke-width="1.5"/>
+      <text x="470" y="153" text-anchor="middle" fill="#f59e0b" font-size="8.5" font-family="Inter,sans-serif" font-weight="700">FIN</text>
+
+      <!-- Dot: Macro (MED / MED) -->
+      <circle cx="210" cy="150" r="18" fill="rgba(245,158,11,0.15)" stroke="#f59e0b" stroke-width="1.5"/>
+      <text x="210" y="153" text-anchor="middle" fill="#f59e0b" font-size="8.5" font-family="Inter,sans-serif" font-weight="700">MACRO</text>
+    </svg>
+  </div>
+
+  <!-- Matrix summary cards -->
+  <div class="matrix-grid" id="matrix-cards">
+    <div class="matrix-card">
+      <div class="matrix-score score-4">4</div>
+      <div class="matrix-info">
+        <div class="matrix-cat">Regulatory &amp; Compliance</div>
+        <div class="matrix-tags">
+          <span class="tag tag-high">Likelihood: High</span>
+          <span class="tag tag-high">Impact: High</span>
+        </div>
+      </div>
+    </div>
+    <div class="matrix-card">
+      <div class="matrix-score score-4">4</div>
+      <div class="matrix-info">
+        <div class="matrix-cat">Competitive Intensity</div>
+        <div class="matrix-tags">
+          <span class="tag tag-high">Likelihood: High</span>
+          <span class="tag tag-high">Impact: High</span>
+        </div>
+      </div>
+    </div>
+    <div class="matrix-card">
+      <div class="matrix-score score-3">3</div>
+      <div class="matrix-info">
+        <div class="matrix-cat">Operational &amp; Supply Chain</div>
+        <div class="matrix-tags">
+          <span class="tag tag-high">Likelihood: High</span>
+          <span class="tag tag-med">Impact: Med</span>
+        </div>
+      </div>
+    </div>
+    <div class="matrix-card">
+      <div class="matrix-score score-3">3</div>
+      <div class="matrix-info">
+        <div class="matrix-cat">Financial &amp; FX</div>
+        <div class="matrix-tags">
+          <span class="tag tag-med">Likelihood: Med</span>
+          <span class="tag tag-high">Impact: High</span>
+        </div>
+      </div>
+    </div>
+    <div class="matrix-card">
+      <div class="matrix-score score-3">3</div>
+      <div class="matrix-info">
+        <div class="matrix-cat">Macroeconomic &amp; Geopolitical</div>
+        <div class="matrix-tags">
+          <span class="tag tag-med">Likelihood: Med</span>
+          <span class="tag tag-med">Impact: Med</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Market context carry-forward -->
+  <div class="section-label">Market Context (from Hop 1)</div>
+  <div class="context-band">
+    <div class="context-grid">
+      <div class="ctx-stat">
+        <div class="ctx-val" data-adf-id="ctx-tam">€127bn</div>
+        <div class="ctx-label">Total Addressable Market</div>
+      </div>
+      <div class="ctx-stat">
+        <div class="ctx-val" data-adf-id="ctx-sam">€31bn</div>
+        <div class="ctx-label">Serviceable Addressable Market</div>
+      </div>
+      <div class="ctx-stat">
+        <div class="ctx-val" data-adf-id="ctx-cagr">4.2%</div>
+        <div class="ctx-label">Market CAGR</div>
+      </div>
+      <div class="ctx-stat">
+        <div class="ctx-val" data-adf-id="ctx-y1">€4.5m</div>
+        <div class="ctx-label">Projected Year 1 Revenue</div>
+      </div>
+      <div class="ctx-stat">
+        <div class="ctx-val" data-adf-id="ctx-breakeven">22 mo</div>
+        <div class="ctx-label">Break-Even Timeline</div>
+      </div>
+      <div class="ctx-stat">
+        <div class="ctx-val" data-adf-id="ctx-segment">W&amp;F + Last-Mile</div>
+        <div class="ctx-label">Recommended Entry Segment</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detailed risk categories -->
+  <div class="section-label">Risk Detail by Category</div>
+
+  <!-- Regulatory -->
+  <div class="risk-category">
+    <div class="cat-header">
+      <span class="tag tag-high" style="font-size:0.72rem;">HIGH RISK</span>
+      <span class="cat-title" data-adf-id="cat-regulatory">Regulatory &amp; Compliance</span>
+    </div>
+    <div class="risk-items" id="risk-regulatory">
+      <div class="risk-item">
+        <div class="risk-stripe stripe-high"></div>
+        <div class="risk-body">
+          <div class="risk-title" data-adf-id="risk-r1-title">German Works Council Requirements (Mitbestimmung)</div>
+          <div class="risk-detail" data-adf-id="risk-r1-detail">Co-determination law mandates works councils at 5+ employees. Any workforce restructuring requires council approval, significantly slowing operational pivots and headcount decisions.</div>
+          <div class="risk-meta">
+            <span class="tag tag-high">Likelihood: High</span>
+            <span class="tag tag-high">Impact: High</span>
+            <span class="risk-mitigation" data-adf-id="risk-r1-mit">Hire specialist German labor-law counsel pre-entry. Budget 6–9 month runway for council negotiations.</span>
+          </div>
+        </div>
+      </div>
+      <div class="risk-item">
+        <div class="risk-stripe stripe-high"></div>
+        <div class="risk-body">
+          <div class="risk-title" data-adf-id="risk-r2-title">EU Road Cabotage Rules &amp; Legal Entity Requirement</div>
+          <div class="risk-detail" data-adf-id="risk-r2-detail">EU Mobility Package I restricts non-EU-domiciled carriers on German domestic routes. Brightline must establish a German legal entity to operate commercially.</div>
+          <div class="risk-meta">
+            <span class="tag tag-high">Likelihood: High</span>
+            <span class="tag tag-med">Impact: Med</span>
+            <span class="risk-mitigation" data-adf-id="risk-r2-mit">Incorporate a German GmbH or partner with a licensed EU carrier from day one.</span>
+          </div>
+        </div>
+      </div>
+      <div class="risk-item">
+        <div class="risk-stripe stripe-high"></div>
+        <div class="risk-body">
+          <div class="risk-title" data-adf-id="risk-r3-title">HGV Toll (LKW-Maut) &amp; Expanding Emissions Zones</div>
+          <div class="risk-detail" data-adf-id="risk-r3-detail">Germany's distance-based HGV toll covers A-roads and motorways. Expanding Euro 7 low-emission zones in Munich, Stuttgart, and Frankfurt add fleet compliance costs on top.</div>
+          <div class="risk-meta">
+            <span class="tag tag-high">Likelihood: High</span>
+            <span class="tag tag-med">Impact: Med</span>
+            <span class="risk-mitigation" data-adf-id="risk-r3-mit">Factor Maut into unit economics. Prioritise Euro 6d/7 or electric fleet acquisition for urban legs.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Competitive -->
+  <div class="risk-category">
+    <div class="cat-header">
+      <span class="tag tag-high" style="font-size:0.72rem;">HIGH RISK</span>
+      <span class="cat-title" data-adf-id="cat-competitive">Competitive Intensity</span>
+    </div>
+    <div class="risk-items" id="risk-competitive">
+      <div class="risk-item">
+        <div class="risk-stripe stripe-high"></div>
+        <div class="risk-body">
+          <div class="risk-title" data-adf-id="risk-c1-title">Entrenched National Champions (DHL, DB Schenker, Rhenus)</div>
+          <div class="risk-detail" data-adf-id="risk-c1-detail">Top three players hold 41% combined market share with multi-decade customer relationships, proprietary IT systems, and nationwide depot networks that would take years and hundreds of millions to replicate.</div>
+          <div class="risk-meta">
+            <span class="tag tag-high">Likelihood: High</span>
+            <span class="tag tag-high">Impact: High</span>
+            <span class="risk-mitigation" data-adf-id="risk-c1-mit">Differentiate on digital transparency, SME-tailored SLAs, and flexible warehousing contracts rather than competing on price or scale.</span>
+          </div>
+        </div>
+      </div>
+      <div class="risk-item">
+        <div class="risk-stripe stripe-high"></div>
+        <div class="risk-body">
+          <div class="risk-title" data-adf-id="risk-c2-title">Price War Risk in Road Freight</div>
+          <div class="risk-detail" data-adf-id="risk-c2-detail">Road Freight (52% of market) is commoditised with 1–3% EBIT margins. Incumbents can cross-subsidise to defend accounts against new entrants, making profitability nearly impossible without scale.</div>
+          <div class="risk-meta">
+            <span class="tag tag-med">Likelihood: Med</span>
+            <span class="tag tag-high">Impact: High</span>
+            <span class="risk-mitigation" data-adf-id="risk-c2-mit">Avoid Road Freight as primary entry vector. Target Warehousing &amp; Fulfillment where margins are 6–10%.</span>
+          </div>
+        </div>
+      </div>
+      <div class="risk-item">
+        <div class="risk-stripe stripe-med"></div>
+        <div class="risk-body">
+          <div class="risk-title" data-adf-id="risk-c3-title">Tech-Forward Digital Freight Disruptors</div>
+          <div class="risk-detail" data-adf-id="risk-c3-detail">Sennder, Forto, and similar VC-backed platforms are gaining share with digital procurement interfaces and real-time visibility. This is particularly prevalent among younger procurement managers.</div>
+          <div class="risk-meta">
+            <span class="tag tag-med">Likelihood: Med</span>
+            <span class="tag tag-med">Impact: Med</span>
+            <span class="risk-mitigation" data-adf-id="risk-c3-mit">Invest in API-first booking and real-time track-and-trace from launch to match and exceed digital expectations.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Operational -->
+  <div class="risk-category">
+    <div class="cat-header">
+      <span class="tag tag-med" style="font-size:0.72rem;">MEDIUM RISK</span>
+      <span class="cat-title" data-adf-id="cat-operational">Operational &amp; Supply Chain</span>
+    </div>
+    <div class="risk-items" id="risk-operational">
+      <div class="risk-item">
+        <div class="risk-stripe stripe-high"></div>
+        <div class="risk-body">
+          <div class="risk-title" data-adf-id="risk-o1-title">Grade A Warehouse Real Estate Scarcity</div>
+          <div class="risk-detail" data-adf-id="risk-o1-detail">Vacancy rates in Rhine-Ruhr and Rhine-Main corridors are below 1.5%. Rents have risen 28% since 2021. Competition for prime logistics parks is intense, with long waitlists at established hubs.</div>
+          <div class="risk-meta">
+            <span class="tag tag-high">Likelihood: High</span>
+            <span class="tag tag-high">Impact: High</span>
+            <span class="risk-mitigation" data-adf-id="risk-o1-mit">Secure 3–5 year lease commitments early. Consider build-to-suit in secondary locations (Kassel, Erfurt) for cost advantage.</span>
+          </div>
+        </div>
+      </div>
+      <div class="risk-item">
+        <div class="risk-stripe stripe-high"></div>
+        <div class="risk-body">
+          <div class="risk-title" data-adf-id="risk-o2-title">Structural HGV Driver Shortage</div>
+          <div class="risk-detail" data-adf-id="risk-o2-detail">Germany faces a structural deficit of ~80,000 HGV drivers (BGL 2024). Wage inflation is running at 7–9% annually, compressing per-delivery unit economics for any road-dependent operation.</div>
+          <div class="risk-meta">
+            <span class="tag tag-high">Likelihood: High</span>
+            <span class="tag tag-med">Impact: Med</span>
+            <span class="risk-mitigation" data-adf-id="risk-o2-mit">Partner with driver-training schools; explore autonomous last-mile pilots in urban zones to reduce structural driver dependency.</span>
+          </div>
+        </div>
+      </div>
+      <div class="risk-item">
+        <div class="risk-stripe stripe-med"></div>
+        <div class="risk-body">
+          <div class="risk-title" data-adf-id="risk-o3-title">Enterprise IT Integration Complexity</div>
+          <div class="risk-detail" data-adf-id="risk-o3-detail">German enterprise logistics buyers expect native EDI, SAP S/4HANA, and DATEV integrations. A missing certified connector can block deals at the procurement stage regardless of service quality.</div>
+          <div class="risk-meta">
+            <span class="tag tag-med">Likelihood: Med</span>
+            <span class="tag tag-med">Impact: Med</span>
+            <span class="risk-mitigation" data-adf-id="risk-o3-mit">Build or license a certified SAP integration layer in Year 1. Budget €300–500k for integration development and certification.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Financial -->
+  <div class="risk-category">
+    <div class="cat-header">
+      <span class="tag tag-med" style="font-size:0.72rem;">MEDIUM RISK</span>
+      <span class="cat-title" data-adf-id="cat-financial">Financial &amp; FX</span>
+    </div>
+    <div class="risk-items" id="risk-financial">
+      <div class="risk-item">
+        <div class="risk-stripe stripe-med"></div>
+        <div class="risk-body">
+          <div class="risk-title" data-adf-id="risk-f1-title">Break-Even Runway Extension Risk</div>
+          <div class="risk-detail" data-adf-id="risk-f1-detail">The 22-month break-even projection assumes 85% warehouse utilisation by Month 10. Market downturns, slow client ramp, or warehouse procurement delays could extend the runway to 30+ months.</div>
+          <div class="risk-meta">
+            <span class="tag tag-med">Likelihood: Med</span>
+            <span class="tag tag-high">Impact: High</span>
+            <span class="risk-mitigation" data-adf-id="risk-f1-mit">Maintain 12-month cash reserve above operating burn. Model a 30-month scenario explicitly in board financial pack.</span>
+          </div>
+        </div>
+      </div>
+      <div class="risk-item">
+        <div class="risk-stripe stripe-med"></div>
+        <div class="risk-body">
+          <div class="risk-title" data-adf-id="risk-f2-title">EUR/GBP Currency Exposure</div>
+          <div class="risk-detail" data-adf-id="risk-f2-detail">If Brightline's home-currency cost base is GBP-denominated, EUR revenue is exposed to sterling appreciation. A 10% GBP rise erodes 10% of reported group revenue from German operations.</div>
+          <div class="risk-meta">
+            <span class="tag tag-med">Likelihood: Med</span>
+            <span class="tag tag-med">Impact: Med</span>
+            <span class="risk-mitigation" data-adf-id="risk-f2-mit">Hedge 12 months of projected EUR receipts via forward contracts. Denominate German entity costs in EUR where possible.</span>
+          </div>
+        </div>
+      </div>
+      <div class="risk-item">
+        <div class="risk-stripe stripe-med"></div>
+        <div class="risk-body">
+          <div class="risk-title" data-adf-id="risk-f3-title">Early-Phase Customer Concentration</div>
+          <div class="risk-detail" data-adf-id="risk-f3-detail">Year 1 revenue likely depends on 3–5 anchor clients. Loss of any single client could drop revenue by 20–30%, triggering a capital call or forcing operational retrenchment.</div>
+          <div class="risk-meta">
+            <span class="tag tag-med">Likelihood: Med</span>
+            <span class="tag tag-high">Impact: High</span>
+            <span class="risk-mitigation" data-adf-id="risk-f3-mit">Require 24-month minimum-volume contracts with anchor clients. Target diversification to 10+ active clients by end of Year 2.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Macro -->
+  <div class="risk-category">
+    <div class="cat-header">
+      <span class="tag tag-med" style="font-size:0.72rem;">MEDIUM RISK</span>
+      <span class="cat-title" data-adf-id="cat-macro">Macroeconomic &amp; Geopolitical</span>
+    </div>
+    <div class="risk-items" id="risk-macro">
+      <div class="risk-item">
+        <div class="risk-stripe stripe-med"></div>
+        <div class="risk-body">
+          <div class="risk-title" data-adf-id="risk-m1-title">German Economic Contraction</div>
+          <div class="risk-detail" data-adf-id="risk-m1-detail">Germany has experienced two consecutive years of GDP contraction (-0.3% in 2023, -0.2% in 2024). Manufacturing output is 9% below the 2019 peak, reducing industrial freight volumes.</div>
+          <div class="risk-meta">
+            <span class="tag tag-med">Likelihood: Med</span>
+            <span class="tag tag-med">Impact: Med</span>
+            <span class="risk-mitigation" data-adf-id="risk-m1-mit">Target e-commerce and healthcare supply chains which are counter-cyclical to manufacturing downturns.</span>
+          </div>
+        </div>
+      </div>
+      <div class="risk-item">
+        <div class="risk-stripe stripe-med"></div>
+        <div class="risk-body">
+          <div class="risk-title" data-adf-id="risk-m2-title">Energy Price Volatility</div>
+          <div class="risk-detail" data-adf-id="risk-m2-detail">German industrial electricity prices remain elevated post-energy-crisis. Cold storage and automated warehouse operations are energy-intensive; margin compression is material if prices spike.</div>
+          <div class="risk-meta">
+            <span class="tag tag-med">Likelihood: Med</span>
+            <span class="tag tag-med">Impact: Med</span>
+            <span class="risk-mitigation" data-adf-id="risk-m2-mit">Include energy price escalation clauses in customer contracts. Evaluate solar PV on owned or long-leased warehouses.</span>
+          </div>
+        </div>
+      </div>
+      <div class="risk-item">
+        <div class="risk-stripe stripe-low"></div>
+        <div class="risk-body">
+          <div class="risk-title" data-adf-id="risk-m3-title">Nearshoring Reversal Risk</div>
+          <div class="risk-detail" data-adf-id="risk-m3-detail">Global supply chain normalisation could reduce nearshoring urgency, weakening a key demand driver — B2B domestic flows from Asia reshoring — that underpins part of the market sizing thesis.</div>
+          <div class="risk-meta">
+            <span class="tag tag-low">Likelihood: Low</span>
+            <span class="tag tag-med">Impact: Med</span>
+            <span class="risk-mitigation" data-adf-id="risk-m3-mit">Diversify addressable customer segments. Do not build financial model solely on the nearshoring thesis.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Key mitigations summary -->
+  <div class="section-label">Priority Mitigations for Synthesizer</div>
+  <div class="mitigations-list" id="mitigations-summary">
+    <div class="mit-item">
+      <span class="mit-num">01</span>
+      <span data-adf-id="mit-01">Establish a German GmbH legal entity before first commercial operations — prerequisite for EU cabotage compliance.</span>
+    </div>
+    <div class="mit-item">
+      <span class="mit-num">02</span>
+      <span data-adf-id="mit-02">Avoid Road Freight as the primary entry segment — pursue Warehousing &amp; Fulfillment where margins are 6–10% vs 1–3%.</span>
+    </div>
+    <div class="mit-item">
+      <span class="mit-num">03</span>
+      <span data-adf-id="mit-03">Secure anchor client contracts with 24-month minimum-volume commitments to protect Year 1–2 revenue stability.</span>
+    </div>
+    <div class="mit-item">
+      <span class="mit-num">04</span>
+      <span data-adf-id="mit-04">Hedge EUR/GBP exposure via 12-month forward contracts; denominate German entity costs in EUR.</span>
+    </div>
+    <div class="mit-item">
+      <span class="mit-num">05</span>
+      <span data-adf-id="mit-05">Maintain 12-month cash reserve above operating burn rate; model a 30-month break-even scenario for the board.</span>
+    </div>
+    <div class="mit-item">
+      <span class="mit-num">06</span>
+      <span data-adf-id="mit-06">Invest in SAP/EDI integration layer in Year 1 (budget €300–500k) — gate-opener for enterprise logistics clients.</span>
+    </div>
+  </div>
+
+  <!-- Handoff note for synthesizer -->
+  <div class="handoff">
+    <div class="handoff-title">Handoff to Synthesizer (Hop 3)</div>
+    <div class="handoff-body" data-adf-id="handoff-body">
+      <strong>Risk verdict:</strong> MEDIUM-HIGH overall. Entry is viable. The recommended entry vector (Warehousing &amp; Fulfillment + Last-Mile) is correctly risk-calibrated — it avoids the worst competitive dynamics of Road Freight while sitting in a segment with growing SME demand and healthier margins.<br><br>
+      <strong>Hard blockers identified:</strong> GmbH incorporation and Grade A warehouse space must be secured before any commercial commitments. These are on the critical path.<br><br>
+      <strong>For synthesis:</strong> Weigh the HIGH competitive and regulatory risks against the market-size opportunity (€31bn SAM, 4.2% CAGR). Produce a go/no-go recommendation with phased entry conditions.
+    </div>
+  </div>
+
+</div>
+
+<script>
+// Enrich the context stats from live CLAN data if available
+(function() {
+  try {
+    const d = window.__CLAN__ && window.__CLAN__.data;
+    if (!d) return;
+    const ms = d.market_size || {};
+    const opp = ms.brightline_entry_opportunity || {};
+    const setTxt = (id, val) => { const el = document.querySelector('[data-adf-id="' + id + '"]'); if (el && val !== undefined) el.textContent = val; };
+    setTxt('ctx-tam', '€' + (ms.total_addressable_market_eur_bn || 127) + 'bn');
+    setTxt('ctx-sam', '€' + (ms.serviceable_addressable_market_eur_bn || 31) + 'bn');
+    setTxt('ctx-cagr', (ms.cagr_pct || 4.2) + '%');
+    setTxt('ctx-y1', '€' + (opp.estimated_year1_revenue_eur_m || 4.5) + 'm');
+    setTxt('ctx-breakeven', (opp.break_even_months || 22) + ' mo');
+    setTxt('ctx-segment', opp.recommended_segment || 'W&F + Last-Mile');
+  } catch(e) {}
+})();
+</script>
+</body>
+</html>

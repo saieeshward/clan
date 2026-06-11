@@ -1,544 +1,532 @@
 ﻿{
-    "h1_clan_final":  {
-                          "data_chars":  1951,
-                          "human_chars":  4767,
-                          "bytes":  14319,
-                          "n_decisions":  1,
-                          "validates":  true
-                      },
-    "h1_adhoc_final":  {
-                           "data_chars":  2113,
-                           "log_lines":  10,
-                           "report_chars":  5043
-                       },
-    "h1":  {
-               "clan":  [
-                            {
-                                "authored_chars":  52,
-                                "reported_output_chars":  52,
-                                "hop":  1,
-                                "role":  "pricing-update"
-                            },
-                            {
-                                "authored_chars":  582,
-                                "reported_output_chars":  582,
-                                "hop":  2,
-                                "role":  "risk-add"
-                            },
-                            {
-                                "authored_chars":  36,
-                                "reported_output_chars":  36,
-                                "hop":  3,
-                                "role":  "date-update"
-                            },
-                            {
-                                "authored_chars":  348,
-                                "reported_output_chars":  348,
-                                "hop":  4,
-                                "role":  "summary-rewrite"
-                            },
-                            {
-                                "authored_chars":  980,
-                                "reported_output_chars":  78,
-                                "hop":  5,
-                                "role":  "residency-section"
-                            },
-                            {
-                                "authored_chars":  158,
-                                "reported_output_chars":  158,
-                                "hop":  6,
-                                "role":  "chart-update"
-                            },
-                            {
-                                "authored_chars":  260,
-                                "reported_output_chars":  47,
-                                "hop":  7,
-                                "role":  "verdict-flip"
-                            },
-                            {
-                                "authored_chars":  171,
-                                "reported_output_chars":  171,
-                                "hop":  8,
-                                "role":  "signoff"
-                            }
-                        ],
-               "adhoc":  [
-                             {
-                                 "authored_chars":  294,
-                                 "reported_output_chars":  280,
-                                 "hop":  1,
-                                 "role":  "pricing-update"
-                             },
-                             {
-                                 "authored_chars":  346,
-                                 "reported_output_chars":  346,
-                                 "hop":  2,
-                                 "role":  "risk-add"
-                             },
-                             {
-                                 "authored_chars":  199,
-                                 "reported_output_chars":  190,
-                                 "hop":  3,
-                                 "role":  "date-update"
-                             },
-                             {
-                                 "authored_chars":  819,
-                                 "reported_output_chars":  786,
-                                 "hop":  4,
-                                 "role":  "summary-rewrite"
-                             },
-                             {
-                                 "authored_chars":  1095,
-                                 "reported_output_chars":  185,
-                                 "hop":  5,
-                                 "role":  "residency-section"
-                             },
-                             {
-                                 "authored_chars":  217,
-                                 "reported_output_chars":  216,
-                                 "hop":  6,
-                                 "role":  "chart-update"
-                             },
-                             {
-                                 "authored_chars":  748,
-                                 "reported_output_chars":  748,
-                                 "hop":  7,
-                                 "role":  "verdict-flip"
-                             },
-                             {
-                                 "authored_chars":  248,
-                                 "reported_output_chars":  231,
-                                 "hop":  8,
-                                 "role":  "signoff"
-                             }
-                         ]
-           },
-    "h2":  {
-               "clan":  [
-                            {
-                                "injected_skipguide":  2476,
-                                "data_chars":  46,
-                                "artifact_bytes":  10991,
-                                "injected_full":  10424,
-                                "hop":  "hop-00-seed"
-                            },
-                            {
-                                "injected_skipguide":  3005,
-                                "data_chars":  286,
-                                "artifact_bytes":  11479,
-                                "injected_full":  10953,
-                                "hop":  "hop-01-01-market-researcher"
-                            },
-                            {
-                                "injected_skipguide":  3486,
-                                "data_chars":  500,
-                                "artifact_bytes":  11654,
-                                "injected_full":  11434,
-                                "hop":  "hop-02-02-pricing-analyst"
-                            },
-                            {
-                                "injected_skipguide":  3953,
-                                "data_chars":  694,
-                                "artifact_bytes":  11833,
-                                "injected_full":  11901,
-                                "hop":  "hop-03-03-risk-analyst"
-                            },
-                            {
-                                "injected_skipguide":  4374,
-                                "data_chars":  856,
-                                "artifact_bytes":  12012,
-                                "injected_full":  12322,
-                                "hop":  "hop-04-04-gdpr-reviewer"
-                            },
-                            {
-                                "injected_skipguide":  4867,
-                                "data_chars":  1053,
-                                "artifact_bytes":  12212,
-                                "injected_full":  12815,
-                                "hop":  "hop-05-05-integrations-assessor"
-                            },
-                            {
-                                "injected_skipguide":  5312,
-                                "data_chars":  1232,
-                                "artifact_bytes":  12399,
-                                "injected_full":  13260,
-                                "hop":  "hop-06-06-customer-discovery"
-                            },
-                            {
-                                "injected_skipguide":  5756,
-                                "data_chars":  1420,
-                                "artifact_bytes":  12574,
-                                "injected_full":  13704,
-                                "hop":  "hop-07-07-competitive-intel"
-                            },
-                            {
-                                "injected_skipguide":  6171,
-                                "data_chars":  1598,
-                                "artifact_bytes":  12728,
-                                "injected_full":  14119,
-                                "hop":  "hop-08-08-finance-modeler"
-                            },
-                            {
-                                "injected_skipguide":  6631,
-                                "data_chars":  1782,
-                                "artifact_bytes":  12892,
-                                "injected_full":  14579,
-                                "hop":  "hop-09-09-rollout-planner"
-                            },
-                            {
-                                "injected_skipguide":  6915,
-                                "data_chars":  2059,
-                                "artifact_bytes":  16497,
-                                "injected_full":  14863,
-                                "hop":  "hop-10-lead-partner"
-                            }
-                        ],
-               "adhoc":  [
-                             {
-                                 "artifact_bytes":  873,
-                                 "injected_full":  1619,
-                                 "hop":  "hop-00-seed"
-                             },
-                             {
-                                 "artifact_bytes":  555,
-                                 "injected_full":  1301,
-                                 "hop":  "hop-01-01-market-researcher"
-                             },
-                             {
-                                 "artifact_bytes":  954,
-                                 "injected_full":  1700,
-                                 "hop":  "hop-02-02-pricing-analyst"
-                             },
-                             {
-                                 "artifact_bytes":  1326,
-                                 "injected_full":  2072,
-                                 "hop":  "hop-03-03-risk-analyst"
-                             },
-                             {
-                                 "artifact_bytes":  1662,
-                                 "injected_full":  2408,
-                                 "hop":  "hop-04-04-gdpr-reviewer"
-                             },
-                             {
-                                 "artifact_bytes":  2051,
-                                 "injected_full":  2797,
-                                 "hop":  "hop-05-05-integrations-assessor"
-                             },
-                             {
-                                 "artifact_bytes":  2412,
-                                 "injected_full":  3158,
-                                 "hop":  "hop-06-06-customer-discovery"
-                             },
-                             {
-                                 "artifact_bytes":  2771,
-                                 "injected_full":  3517,
-                                 "hop":  "hop-07-07-competitive-intel"
-                             },
-                             {
-                                 "artifact_bytes":  3103,
-                                 "injected_full":  3849,
-                                 "hop":  "hop-08-08-finance-modeler"
-                             },
-                             {
-                                 "artifact_bytes":  3479,
-                                 "injected_full":  4225,
-                                 "hop":  "hop-09-09-rollout-planner"
-                             },
-                             {
-                                 "artifact_bytes":  8162,
-                                 "injected_full":  8908,
-                                 "hop":  "hop-10-lead-partner"
-                             }
-                         ]
-           },
-    "receipts":  [
-                     {
-                         "friction":  "The CLI repeatedly nudged toward pack-html/render to refresh a \u0027stale hand-authored human view\u0027, but protocol forbids pack-html and the two fields are data-bound, so the patch-data alone correctly updated both data and bound view. No actual failure.",
-                         "n_files_read":  1,
-                         "arm":  "h1-clan",
-                         "hop":  1,
-                         "n_errors":  0,
-                         "role":  "pricing-update"
-                     },
-                     {
-                         "friction":  "patch-data merge-patch replaces arrays, so I had to read the existing risks, re-author all 3 prior entries plus the new one, and resend the full array â€” that re-authoring is the bulk of the output bytes. Discovering the HTML selector required \u0027clan read human\u0027 since there is no read-html subcommand.",
-                         "n_files_read":  3,
-                         "arm":  "h1-clan",
-                         "hop":  2,
-                         "n_errors":  1,
-                         "role":  "risk-add"
-                     },
-                     {
-                         "friction":  "patch-data takes a JSON file path (or stdin \u0027-\u0027), not an inline JSON string, so the first attempt failed; resolved via stdin. The CLI\u0027s next: hints repeatedly pushed pack-html to refresh the stale human view, but the protocol forbids it for a data-bound field.",
-                         "n_files_read":  1,
-                         "arm":  "h1-clan",
-                         "hop":  3,
-                         "n_errors":  1,
-                         "role":  "date-update"
-                     },
-                     {
-                         "friction":  "patch-data needs a JSON file (no inline --set), so I authored a one-key RFC 7396 merge patch; the apostrophe serialized as \\u0027 but decodes correctly. validate emitted a pack-html \u0027next\u0027 hint that is forbidden for this data-bound field, so I ignored it.",
-                         "n_files_read":  2,
-                         "arm":  "h1-clan",
-                         "hop":  4,
-                         "n_errors":  2,
-                         "role":  "summary-rewrite"
-                     },
-                     {
-                         "friction":  "No friction. The supplied fragment is pure view content with no {{key}} bindings, so patch-html append to the body selector was the correct path; mirrored the frontmatter format from the prior hop-02 frag.",
-                         "n_files_read":  3,
-                         "arm":  "h1-clan",
-                         "hop":  5,
-                         "n_errors":  0,
-                         "role":  "residency-section"
-                     },
-                     {
-                         "friction":  "patch-html takes a frontmatter patch file, not inline flags, so the first invocation failed; agent-help clarified the exact schema and the retry succeeded. Validation printed OK and the snapshot was taken cleanly.",
-                         "n_files_read":  1,
-                         "arm":  "h1-clan",
-                         "hop":  6,
-                         "n_errors":  1,
-                         "role":  "chart-update"
-                     },
-                     {
-                         "friction":  "patch-data takes a JSON_FILE arg, not inline JSON, so the first invocation failed; piping through stdin with `-` worked. Both target fields were data-bound, so patch-data alone effected the change with no pack-html.",
-                         "n_files_read":  2,
-                         "arm":  "h1-clan",
-                         "hop":  7,
-                         "n_errors":  1,
-                         "role":  "verdict-flip"
-                     },
-                     {
-                         "friction":  "The guided patch-decision command did the entire change in one shot; the only friction was the shell mismatch on the file-copy step. Authored output was just the decision action and rationale strings.",
-                         "n_files_read":  1,
-                         "arm":  "h1-clan",
-                         "hop":  8,
-                         "n_errors":  1,
-                         "role":  "signoff"
-                     },
-                     {
-                         "friction":  "No friction; guided ad-hoc protocol with explicit edit targets meant three surgical splices plus one log line. Old values (45/$45/21600/$21600) were unique strings so Edit matched cleanly.",
-                         "n_files_read":  3,
-                         "arm":  "h1-adhoc",
-                         "hop":  1,
-                         "n_errors":  0,
-                         "role":  "pricing-update"
-                     },
-                     {
-                         "friction":  "No friction. Both target spots had a unique anchor line, so two minimal Edit splices plus one appended log line sufficed; JSON re-validated clean after the insert.",
-                         "n_files_read":  3,
-                         "arm":  "h1-adhoc",
-                         "hop":  2,
-                         "n_errors":  0,
-                         "role":  "risk-add"
-                     },
-                     {
-                         "friction":  "Minor friction: the HTML edit required a prior Read even though I had grepped the exact line, costing one extra Read call. Otherwise the surgical edits were trivial one-line splices.",
-                         "n_files_read":  2,
-                         "arm":  "h1-adhoc",
-                         "hop":  3,
-                         "n_errors":  1,
-                         "role":  "date-update"
-                     },
-                     {
-                         "friction":  "None â€” guided ad-hoc splice was straightforward; the supplied summary text matched cleanly into both the JSON string value and the HTML \u003cp\u003e via two minimal Edit operations.",
-                         "n_files_read":  4,
-                         "arm":  "h1-adhoc",
-                         "hop":  4,
-                         "n_errors":  0,
-                         "role":  "summary-rewrite"
-                     },
-                     {
-                         "friction":  "No friction. The supplied fragment dropped cleanly after the Data governance section with a single surgical Edit; the only original prose authored was the one-line decision-log entry. The 910-char residency fragment was supplied content (typed but reused), so it is excluded from output_chars.",
-                         "n_files_read":  3,
-                         "arm":  "h1-adhoc",
-                         "hop":  5,
-                         "n_errors":  0,
-                         "role":  "residency-section"
-                     },
-                     {
-                         "friction":  "None. The single bar-zoho rect line was unique, so the surgical Edit applied cleanly; only two attribute values changed.",
-                         "n_files_read":  2,
-                         "arm":  "h1-adhoc",
-                         "hop":  6,
-                         "n_errors":  0,
-                         "role":  "chart-update"
-                     },
-                     {
-                         "friction":  "Minor: report.html had to be Read before editing since reading only verdict-rationale.txt/data.json/decisions.log up front did not satisfy the Edit read-gate; one quick targeted Read resolved it.",
-                         "n_files_read":  4,
-                         "arm":  "h1-adhoc",
-                         "hop":  7,
-                         "n_errors":  1,
-                         "role":  "verdict-flip"
-                     },
-                     {
-                         "friction":  "Sign-off is append-only to decisions.log, so the change is trivial; the only friction was the line-number prefix tripping the first Edit, fixed on retry.",
-                         "n_files_read":  3,
-                         "arm":  "h1-adhoc",
-                         "hop":  8,
-                         "n_errors":  1,
-                         "role":  "signoff"
-                     },
-                     {
-                         "friction":  "The agent read with --skip-guide showed an empty data/decision section so no prior transcription was needed. Only friction was running PowerShell cmdlets through the Bash tool, fixed by switching tools.",
-                         "n_files_read":  2,
-                         "arm":  "h2-clan",
-                         "hop":  1,
-                         "n_errors":  1,
-                         "role":  "01-market-researcher"
-                     },
-                     {
-                         "friction":  "Smooth hop; the --skip-guide agent read surfaced only prior market data so no re-transcription was needed. Only friction was a shell mismatch when creating dirs/snapshot.",
-                         "n_files_read":  3,
-                         "arm":  "h2-clan",
-                         "hop":  2,
-                         "n_errors":  1,
-                         "role":  "02-pricing-analyst"
-                     },
-                     {
-                         "friction":  "None. The guide was correctly elided as a digest on re-read, so orientation was a single small read. patch-data merge-patch meant I never re-transcribed prior analysts\u0027 data.",
-                         "n_files_read":  3,
-                         "arm":  "h2-clan",
-                         "hop":  3,
-                         "n_errors":  0,
-                         "role":  "03-risk-analyst"
-                     },
-                     {
-                         "friction":  "Validate\u0027s first invocation emitted its OK on a line mixed with the next-step hint, so I re-ran it with an explicit exit code to confirm. mkdir\u0027s PowerShell-style 2\u003e$null failed under bash but the directories were still created.",
-                         "n_files_read":  3,
-                         "arm":  "h2-clan",
-                         "hop":  4,
-                         "n_errors":  0,
-                         "role":  "04-gdpr-reviewer"
-                     },
-                     {
-                         "friction":  "The patch-first --skip-guide flow was efficient: a single agent read plus two supplied files gave full context without re-reading prior analysts\u0027 data. Only friction was the Bash tool routing a PowerShell Copy-Item to /usr/bin/bash.",
-                         "n_files_read":  3,
-                         "arm":  "h2-clan",
-                         "hop":  5,
-                         "n_errors":  1,
-                         "role":  "05-integrations-assessor"
-                     },
-                     {
-                         "friction":  "None. Patch-first flow worked cleanly; the --skip-guide agent read kept context minimal and the supplied JSON merged without re-transcription.",
-                         "n_files_read":  3,
-                         "arm":  "h2-clan",
-                         "hop":  6,
-                         "n_errors":  0,
-                         "role":  "06-customer-discovery"
-                     },
-                     {
-                         "friction":  "Path/encoding friction on Windows (bash builtins choke on backslashes and CP1252 em-dash), resolved by using PowerShell and a literal em-dash. The --skip-guide agent read was compact and merge-patch kept prior findings intact with no re-transcription.",
-                         "n_files_read":  3,
-                         "arm":  "h2-clan",
-                         "hop":  7,
-                         "n_errors":  2,
-                         "role":  "07-competitive-intel"
-                     },
-                     {
-                         "friction":  "The snapshot copy was issued through the Bash tool, where Copy-Item does not exist; re-running it in PowerShell succeeded. Otherwise the patch-first guided flow was frictionless.",
-                         "n_files_read":  3,
-                         "arm":  "h2-clan",
-                         "hop":  8,
-                         "n_errors":  1,
-                         "role":  "08-finance-modeler"
-                     },
-                     {
-                         "friction":  "Smooth hop; only friction was using cmd \u0027copy\u0027 in the bash tool, fixed by switching to \u0027cp\u0027. Patch-first protocol meant I read only the agent view plus my two small supplied inputs.",
-                         "n_files_read":  3,
-                         "arm":  "h2-clan",
-                         "hop":  9,
-                         "n_errors":  1,
-                         "role":  "09-rollout-planner"
-                     },
-                     {
-                         "friction":  "No friction; all commands succeeded on first attempt. Render is DESIGNED-mode auto-generation, so I authored only the patch-data JSON and the decision action/rationale strings, not the HTML.",
-                         "n_files_read":  1,
-                         "arm":  "h2-clan",
-                         "hop":  10,
-                         "n_errors":  0,
-                         "role":  "lead-partner"
-                     },
-                     {
-                         "friction":  "The Write tool\u0027s report-file heuristic blocked writing the findings markdown fragments; I recovered by using Edit for the in-place append and a Bash heredoc for the payload file. No data loss.",
-                         "n_files_read":  5,
-                         "arm":  "h2-adhoc",
-                         "hop":  1,
-                         "n_errors":  1,
-                         "role":  "01-market-researcher"
-                     },
-                     {
-                         "friction":  "The Write guard misclassified a required protocol output fragment as a report file; rerouted through Bash. Otherwise the accumulated-state read/append/snapshot flow was straightforward.",
-                         "n_files_read":  5,
-                         "arm":  "h2-adhoc",
-                         "hop":  2,
-                         "n_errors":  1,
-                         "role":  "02-pricing-analyst"
-                     },
-                     {
-                         "friction":  "A subagent guard blocked the Write tool for one output-payload fragment, treating it as a report file; recovered by writing it through Bash. Otherwise the append-and-snapshot protocol was straightforward.",
-                         "n_files_read":  5,
-                         "arm":  "h2-adhoc",
-                         "hop":  3,
-                         "n_errors":  1,
-                         "role":  "03-risk-analyst"
-                     },
-                     {
-                         "friction":  "The Write tool\u0027s subagent report-file guard blocked one required receipt payload; recovered by using Bash. State files (brief/findings/handoff) were clear and easy to build on.",
-                         "n_files_read":  5,
-                         "arm":  "h2-adhoc",
-                         "hop":  4,
-                         "n_errors":  1,
-                         "role":  "04-gdpr-reviewer"
-                     },
-                     {
-                         "friction":  "The Write tool\u0027s report-file guard blocked one required receipt payload artifact; recovered via Bash. State was clearly carried in the three work files, so orientation was straightforward.",
-                         "n_files_read":  5,
-                         "arm":  "h2-adhoc",
-                         "hop":  5,
-                         "n_errors":  1,
-                         "role":  "05-integrations-assessor"
-                     },
-                     {
-                         "friction":  "The Write tool\u0027s report-file guard blocked one required payload fragment; rerouted through Bash. Otherwise the accumulated state was clear and append-only.",
-                         "n_files_read":  5,
-                         "arm":  "h2-adhoc",
-                         "hop":  6,
-                         "n_errors":  1,
-                         "role":  "06-customer-discovery"
-                     },
-                     {
-                         "friction":  "The Write guard misclassified a required receipt payload (.md fragment) as a report file; routed around it with Bash. State files were small and easy to extend by appending under role headings.",
-                         "n_files_read":  5,
-                         "arm":  "h2-adhoc",
-                         "hop":  7,
-                         "n_errors":  1,
-                         "role":  "07-competitive-intel"
-                     },
-                     {
-                         "friction":  "A subagent report-file guard blocked the Write of the required receipt payload fragment; recovered by writing it through Bash. State files grow cleanly via append, no other friction.",
-                         "n_files_read":  5,
-                         "arm":  "h2-adhoc",
-                         "hop":  8,
-                         "n_errors":  1,
-                         "role":  "08-finance-modeler"
-                     },
-                     {
-                         "friction":  "The Write tool guard rejected one required payload file as a report; used Bash to author it. Otherwise the accumulated state was clear and easy to build on.",
-                         "n_files_read":  5,
-                         "arm":  "h2-adhoc",
-                         "hop":  9,
-                         "n_errors":  1,
-                         "role":  "09-rollout-planner"
-                     },
-                     {
-                         "friction":  "Straightforward synthesis hop; all 9 analyst inputs were consistent in pointing to Zoho, so no conflicting signals needed reconciliation. Snapshot copies reuse already-authored content, so only report.html and the decision line count as newly authored output.",
-                         "n_files_read":  3,
-                         "arm":  "h2-adhoc",
-                         "hop":  10,
-                         "n_errors":  0,
-                         "role":  "lead-partner"
-                     }
-                 ]
+  "h1": {
+    "clan": [
+      {
+        "hop": 1,
+        "role": "pricing-update",
+        "authored_chars": 53,
+        "reported_output_chars": 51
+      },
+      {
+        "hop": 2,
+        "role": "risk-add",
+        "authored_chars": 506,
+        "reported_output_chars": 506
+      },
+      {
+        "hop": 3,
+        "role": "date-update",
+        "authored_chars": 36,
+        "reported_output_chars": 37
+      },
+      {
+        "hop": 4,
+        "role": "summary-rewrite",
+        "authored_chars": 343,
+        "reported_output_chars": 343
+      },
+      {
+        "hop": 5,
+        "role": "residency-section",
+        "authored_chars": 910,
+        "reported_output_chars": 910
+      },
+      {
+        "hop": 6,
+        "role": "chart-update",
+        "authored_chars": 80,
+        "reported_output_chars": 82
+      },
+      {
+        "hop": 7,
+        "role": "verdict-flip",
+        "authored_chars": 258,
+        "reported_output_chars": 260
+      },
+      {
+        "hop": 8,
+        "role": "signoff",
+        "authored_chars": 178,
+        "reported_output_chars": 178
+      }
+    ],
+    "adhoc": [
+      {
+        "hop": 1,
+        "role": "pricing-update",
+        "authored_chars": 225,
+        "reported_output_chars": 229
+      },
+      {
+        "hop": 2,
+        "role": "risk-add",
+        "authored_chars": 407,
+        "reported_output_chars": 407
+      },
+      {
+        "hop": 3,
+        "role": "date-update",
+        "authored_chars": 227,
+        "reported_output_chars": 231
+      },
+      {
+        "hop": 4,
+        "role": "summary-rewrite",
+        "authored_chars": 885,
+        "reported_output_chars": 885
+      },
+      {
+        "hop": 5,
+        "role": "residency-section",
+        "authored_chars": 1108,
+        "reported_output_chars": 1108
+      },
+      {
+        "hop": 6,
+        "role": "chart-update",
+        "authored_chars": 217,
+        "reported_output_chars": 217
+      },
+      {
+        "hop": 7,
+        "role": "verdict-flip",
+        "authored_chars": 788,
+        "reported_output_chars": 794
+      },
+      {
+        "hop": 8,
+        "role": "signoff",
+        "authored_chars": 250,
+        "reported_output_chars": 250
+      }
+    ]
+  },
+  "h2": {
+    "clan": [
+      {
+        "hop": "hop-01-01-market-researcher",
+        "injected_skipguide": 3184,
+        "injected_full": 11668,
+        "data_chars": 274,
+        "artifact_bytes": 12253
+      },
+      {
+        "hop": "hop-02-02-pricing-analyst",
+        "injected_skipguide": 3998,
+        "injected_full": 12482,
+        "data_chars": 480,
+        "artifact_bytes": 12491
+      },
+      {
+        "hop": "hop-03-03-risk-analyst",
+        "injected_skipguide": 4586,
+        "injected_full": 13070,
+        "data_chars": 666,
+        "artifact_bytes": 12844
+      },
+      {
+        "hop": "hop-04-04-gdpr-reviewer",
+        "injected_skipguide": 5143,
+        "injected_full": 13627,
+        "data_chars": 823,
+        "artifact_bytes": 12945
+      },
+      {
+        "hop": "hop-05-05-integrations-assessor",
+        "injected_skipguide": 5677,
+        "injected_full": 14161,
+        "data_chars": 1008,
+        "artifact_bytes": 13191
+      },
+      {
+        "hop": "hop-06-06-customer-discovery",
+        "injected_skipguide": 6129,
+        "injected_full": 14613,
+        "data_chars": 1181,
+        "artifact_bytes": 13728
+      },
+      {
+        "hop": "hop-07-07-competitive-intel",
+        "injected_skipguide": 6563,
+        "injected_full": 15047,
+        "data_chars": 1364,
+        "artifact_bytes": 13990
+      },
+      {
+        "hop": "hop-08-08-finance-modeler",
+        "injected_skipguide": 7140,
+        "injected_full": 15624,
+        "data_chars": 1535,
+        "artifact_bytes": 14240
+      },
+      {
+        "hop": "hop-09-09-rollout-planner",
+        "injected_skipguide": 7762,
+        "injected_full": 16246,
+        "data_chars": 1713,
+        "artifact_bytes": 14072
+      },
+      {
+        "hop": "hop-10-lead-partner",
+        "injected_skipguide": 8028,
+        "injected_full": 16512,
+        "data_chars": 1983,
+        "artifact_bytes": 17616
+      }
+    ],
+    "adhoc": [
+      {
+        "hop": "hop-01-01-market-researcher",
+        "injected_full": 1249,
+        "artifact_bytes": 509
+      },
+      {
+        "hop": "hop-02-02-pricing-analyst",
+        "injected_full": 1632,
+        "artifact_bytes": 892
+      },
+      {
+        "hop": "hop-03-03-risk-analyst",
+        "injected_full": 1994,
+        "artifact_bytes": 1254
+      },
+      {
+        "hop": "hop-04-04-gdpr-reviewer",
+        "injected_full": 2320,
+        "artifact_bytes": 1580
+      },
+      {
+        "hop": "hop-05-05-integrations-assessor",
+        "injected_full": 2699,
+        "artifact_bytes": 1959
+      },
+      {
+        "hop": "hop-06-06-customer-discovery",
+        "injected_full": 3048,
+        "artifact_bytes": 2308
+      },
+      {
+        "hop": "hop-07-07-competitive-intel",
+        "injected_full": 3397,
+        "artifact_bytes": 2657
+      },
+      {
+        "hop": "hop-08-08-finance-modeler",
+        "injected_full": 3715,
+        "artifact_bytes": 2975
+      },
+      {
+        "hop": "hop-09-09-rollout-planner",
+        "injected_full": 4079,
+        "artifact_bytes": 3339
+      },
+      {
+        "hop": "hop-10-lead-partner",
+        "injected_full": 14418,
+        "artifact_bytes": 13678
+      }
+    ]
+  },
+  "receipts": [
+    {
+      "arm": "h1-clan",
+      "role": "pricing-update",
+      "hop": 1,
+      "n_errors": 1,
+      "friction": "The patch-data command required --agent and --action attribution flags that were not mentioned in the protocol; this caused one failed attempt before recovery. Otherwise the guided arm worked cleanly with a single patch-data call updating both fields atomically. pack-html was correctly avoided as both fields are data-bound {{}} placeholders.",
+      "n_files_read": 1
+    },
+    {
+      "arm": "h1-clan",
+      "role": "risk-add",
+      "hop": 2,
+      "n_errors": 1,
+      "friction": "patch-data does not accept --attribution; the correct flags are --agent and --action, discovered via --help. Otherwise the guided arm worked cleanly: read current array, appended entry, patched data then HTML, validated OK.",
+      "n_files_read": 1
+    },
+    {
+      "arm": "h1-clan",
+      "role": "date-update",
+      "hop": 3,
+      "n_errors": 1,
+      "friction": "The patch-data attribution flag name was not --attribution but --agent/--action; one help lookup was needed to recover. Otherwise the flow was smooth: data-bound field, patch-data only, validate returned OK immediately.",
+      "n_files_read": 1
+    },
+    {
+      "arm": "h1-clan",
+      "role": "summary-rewrite",
+      "hop": 4,
+      "n_errors": 1,
+      "friction": "The --attribution flag does not exist; one help lookup needed to identify correct flags (--agent, --action). Otherwise the flow was direct: exec_summary is data-bound, patch-data alone suffices, validate returned OK immediately.",
+      "n_files_read": 2
+    },
+    {
+      "arm": "h1-clan",
+      "role": "residency-section",
+      "hop": 5,
+      "n_errors": 1,
+      "friction": "The --position flag used initially was not valid; --patch-action is the correct flag for controlling append/prepend behaviour. One --help lookup resolved it immediately. No other friction.",
+      "n_files_read": 2
+    },
+    {
+      "arm": "h1-clan",
+      "role": "chart-update",
+      "hop": 6,
+      "n_errors": 1,
+      "friction": "The patch-html CLI does not support a --fragment inline flag despite the protocol describing it that way; the fragment must be passed as a file or stdin. One extra help lookup was needed. No other issues.",
+      "n_files_read": 1
+    },
+    {
+      "arm": "h1-clan",
+      "role": "verdict-flip",
+      "hop": 7,
+      "n_errors": 2,
+      "friction": "patch-data requires explicit attribution flags (--agent, --action) which were not immediately obvious; an initial attempt with --attribution failed. The validate output warns that the human view is stale but pack-html is forbidden per protocol, so this is expected and acceptable.",
+      "n_files_read": 2
+    },
+    {
+      "arm": "h1-clan",
+      "role": "signoff",
+      "hop": 8,
+      "n_errors": 0,
+      "friction": "The doc.clan binary format is not UTF-8 readable directly, so tail/grep commands failed; used clan read decisions to verify the appended entry. No functional issues encountered.",
+      "n_files_read": 1
+    },
+    {
+      "arm": "h1-adhoc",
+      "role": "pricing-update",
+      "hop": 1,
+      "n_errors": 1,
+      "friction": "The protocol specifies editing literal '$45'/'$21600' in report.html, but the file uses Mustache-style template placeholders that reference data.json values — there are no literal dollar amounts to replace. The data.json edits are sufficient for the values to be correct when rendered. No other friction encountered.",
+      "n_files_read": 3
+    },
+    {
+      "arm": "h1-adhoc",
+      "role": "risk-add",
+      "hop": 2,
+      "n_errors": 0,
+      "friction": "No friction. The risks array had a trailing item without a comma so a splice was needed to add a comma after the last existing item and append the new object. The HTML tbody had a clear insertion point before the closing tag. Both edits were minimal and surgical.",
+      "n_files_read": 3
+    },
+    {
+      "arm": "h1-adhoc",
+      "role": "date-update",
+      "hop": 3,
+      "n_errors": 0,
+      "friction": "report.html uses template placeholders ({{rollout_phase2_date}}) everywhere except this hop required a literal date substitution in the phase2 element — the template was never rendered, so the literal value had to be injected directly rather than updating the placeholder token. No blocking issues.",
+      "n_files_read": 3
+    },
+    {
+      "arm": "h1-adhoc",
+      "role": "summary-rewrite",
+      "hop": 4,
+      "n_errors": 0,
+      "friction": "None. The report.html uses a template placeholder {{exec_summary}} in the original, but the supplied text needed to be inlined literally since no template engine is run at snapshot time. The apostrophe in 'Brightline's' was HTML-escaped as &#x27; in the HTML fragment to be safe.",
+      "n_files_read": 4
+    },
+    {
+      "arm": "h1-adhoc",
+      "role": "residency-section",
+      "hop": 5,
+      "n_errors": 0,
+      "friction": "No friction — the insertion point (after Data governance h2 block) was unambiguous in report.html, and the supplied HTML fragment required no modification. Surgical single Edit call sufficed.",
+      "n_files_read": 3
+    },
+    {
+      "arm": "h1-adhoc",
+      "role": "chart-update",
+      "hop": 6,
+      "n_errors": 0,
+      "friction": "No friction. The bar-zoho rect was found in one grep and edited with a single surgical splice. Ad-hoc arm worked cleanly for this minimal SVG attribute change.",
+      "n_files_read": 2
+    },
+    {
+      "arm": "h1-adhoc",
+      "role": "verdict-flip",
+      "hop": 7,
+      "n_errors": 0,
+      "friction": "The report.html uses template placeholders ({{verdict}}, {{verdict_rationale}}) that were never pre-rendered, so the edit target was the raw placeholder text rather than a previously rendered value. This is consistent with all prior hops in this arm. No friction beyond the expected surgical splice approach.",
+      "n_files_read": 4
+    },
+    {
+      "arm": "h1-adhoc",
+      "role": "signoff",
+      "hop": 8,
+      "n_errors": 0,
+      "friction": "No friction. The task was a straightforward append to decisions.log with a structured sign-off line and a self-describing meta-log line. Snapshot copy and receipt creation were routine.",
+      "n_files_read": 3
+    },
+    {
+      "arm": "h2-clan",
+      "role": "01-market-researcher",
+      "hop": 1,
+      "n_errors": 1,
+      "friction": "The patch-data command required attribution flags (--agent, --action) not mentioned in the protocol steps, causing one failed attempt before recovery. Protocol step 2 says to call patch-data first then step 3 to record decision separately, but the tool enforced attribution at patch-data time — resolved by adding flags to the patch-data call and still running patch-decision for the explicit handoff decision.",
+      "n_files_read": 3
+    },
+    {
+      "arm": "h2-clan",
+      "role": "02-pricing-analyst",
+      "hop": 2,
+      "n_errors": 1,
+      "friction": "patch-data requires attribution flags but the error message was clear and recovery was immediate. The decision was appended twice by protocol (once implicitly via patch-data --agent, once via patch-decision) — both are valid entries. No other friction.",
+      "n_files_read": 3
+    },
+    {
+      "arm": "h2-clan",
+      "role": "03-risk-analyst",
+      "hop": 3,
+      "n_errors": 1,
+      "friction": "The patch-data command required attribution flags inline (--agent, --action, --rationale) rather than as a separate patch-decision step; the protocol description implied two separate commands but only the combined form was accepted. No other friction.",
+      "n_files_read": 3
+    },
+    {
+      "arm": "h2-clan",
+      "role": "04-gdpr-reviewer",
+      "hop": 4,
+      "n_errors": 1,
+      "friction": "The patch-data command requires attribution flags (--agent, --action) that are not mentioned in the protocol; the first attempt failed. The protocol also says to call patch-decision separately, but patch-data already records a decision when attribution flags are provided — this results in a duplicate decision entry, which is benign but slightly redundant.",
+      "n_files_read": 3
+    },
+    {
+      "arm": "h2-clan",
+      "role": "05-integrations-assessor",
+      "hop": 5,
+      "n_errors": 1,
+      "friction": "clan patch-data requires attribution flags (--agent, --action) that are not mentioned in the protocol steps — the first attempt failed with an error. The fix was straightforward once the error message was read. No other friction.",
+      "n_files_read": 3
+    },
+    {
+      "arm": "h2-clan",
+      "role": "06-customer-discovery",
+      "hop": 6,
+      "n_errors": 1,
+      "friction": "patch-data requires attribution flags but the initial invocation omitted them; a single retry with the flags resolved it. No other friction.",
+      "n_files_read": 3
+    },
+    {
+      "arm": "h2-clan",
+      "role": "07-competitive-intel",
+      "hop": 7,
+      "n_errors": 1,
+      "friction": "The patch-data command requires attribution flags but the protocol describes them as a separate patch-decision step; combining them into a single command was necessary and worked cleanly. No other friction.",
+      "n_files_read": 3
+    },
+    {
+      "arm": "h2-clan",
+      "role": "08-finance-modeler",
+      "hop": 8,
+      "n_errors": 1,
+      "friction": "patch-data requires attribution flags (--agent, --action) even when planning to record a separate decision; the first call failed with an error. Recovered immediately by adding the required flags. No other friction.",
+      "n_files_read": 3
+    },
+    {
+      "arm": "h2-clan",
+      "role": "09-rollout-planner",
+      "hop": 9,
+      "n_errors": 1,
+      "friction": "The patch-data command required attribution flags not mentioned in the protocol step; a second attempt with --agent and --action succeeded. The separate patch-decision step then duplicated the decision record, but validate passed cleanly. No data loss.",
+      "n_files_read": 3
+    },
+    {
+      "arm": "h2-clan",
+      "role": "lead-partner",
+      "hop": 10,
+      "n_errors": 2,
+      "friction": "The patch-data command required --action in addition to --agent; the first attempt without it errored and was retried with full attribution flags. The clan snapshot subcommand does not exist; cp was used instead. Both were minor and resolved immediately.",
+      "n_files_read": 2
+    },
+    {
+      "arm": "h2-adhoc",
+      "role": "01-market-researcher",
+      "hop": 1,
+      "n_errors": 1,
+      "friction": "The Write tool refused to write findings.md citing a subagent report-file restriction, requiring a fallback to Bash append. Both accumulated state files (findings.md, handoff.md) were empty at hop start, which is expected for hop 1.",
+      "n_files_read": 5
+    },
+    {
+      "arm": "h2-adhoc",
+      "role": "02-pricing-analyst",
+      "hop": 2,
+      "n_errors": 0,
+      "friction": "No friction encountered. Supplied JSON and handoff text matched perfectly with the brief requirements. State accumulation via findings.md/handoff.md worked cleanly.",
+      "n_files_read": 5
+    },
+    {
+      "arm": "h2-adhoc",
+      "role": "03-risk-analyst",
+      "hop": 3,
+      "n_errors": 1,
+      "friction": "The supplied handoff.txt content was not yet present in handoff.md (as expected for hop 3), so the first Edit attempt failed because I tried to match the supplied text as if it were already there. Recovered by re-reading the file and appending correctly. No other friction.",
+      "n_files_read": 5
+    },
+    {
+      "arm": "h2-adhoc",
+      "role": "04-gdpr-reviewer",
+      "hop": 4,
+      "n_errors": 0,
+      "friction": "No friction encountered. Supplied JSON and handoff matched expected format perfectly. The Write tool rejected direct file writes for output fragments but Bash workaround succeeded.",
+      "n_files_read": 5
+    },
+    {
+      "arm": "h2-adhoc",
+      "role": "05-integrations-assessor",
+      "hop": 5,
+      "n_errors": 0,
+      "friction": "No friction encountered. Supplied JSON and handoff text mapped cleanly onto the findings.md format used by prior hops. Snapshot directory creation was straightforward.",
+      "n_files_read": 5
+    },
+    {
+      "arm": "h2-adhoc",
+      "role": "06-customer-discovery",
+      "hop": 6,
+      "n_errors": 0,
+      "friction": "No friction encountered. State was cleanly accumulated across prior hops and the supplied JSON mapped directly to the findings format used by earlier analysts.",
+      "n_files_read": 5
+    },
+    {
+      "arm": "h2-adhoc",
+      "role": "07-competitive-intel",
+      "hop": 7,
+      "n_errors": 0,
+      "friction": "No friction encountered. Supplied JSON and handoff note were concise and directly usable. The emoji in the supplied handoff.txt was replaced with an em-dash for clean text output.",
+      "n_files_read": 5
+    },
+    {
+      "arm": "h2-adhoc",
+      "role": "08-finance-modeler",
+      "hop": 8,
+      "n_errors": 0,
+      "friction": "No friction encountered. Supplied JSON mapped directly to findings format. Chain state was clear and well-structured from prior hops.",
+      "n_files_read": 5
+    },
+    {
+      "arm": "h2-adhoc",
+      "role": "09-rollout-planner",
+      "hop": 9,
+      "n_errors": 0,
+      "friction": "No friction encountered. Supplied JSON and handoff text matched expected format exactly, making the append straightforward. Snapshot and receipt directories needed creation but that was routine.",
+      "n_files_read": 5
+    },
+    {
+      "arm": "h2-adhoc",
+      "role": "lead-partner",
+      "hop": 10,
+      "n_errors": 0,
+      "friction": "No errors encountered. All nine analyst inputs were consistent and pointed clearly to Zoho CRM; no conflicting data required adjudication. Snapshot and receipt directories were created fresh with no collisions.",
+      "n_files_read": 3
+    }
+  ],
+  "h1_clan_final": {
+    "validates": true,
+    "data_chars": 1896,
+    "human_chars": 4683,
+    "n_decisions": 9,
+    "bytes": 14728
+  },
+  "h1_adhoc_final": {
+    "report_chars": 5174,
+    "data_chars": 2111,
+    "log_lines": 9
+  }
 }

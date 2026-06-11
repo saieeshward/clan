@@ -1,30 +1,33 @@
 {
   "role": "02-pricing-analyst",
   "hop": 2,
-  "arm": "lite",
-  "flow": "guided patch-first --skip-guide",
+  "arm": "h2",
+  "flow": "happy/lite",
   "commands_run": [
     "clan read agent test-sandbox/happy/lite/h2-clan/work/doc.clan --skip-guide",
-    "clan patch-data test-sandbox/happy/lite/h2-clan/work/doc.clan test-sandbox/happy/lite/_inputs/h2-supplied/02-pricing-analyst.json",
-    "clan patch-decision --agent 02-pricing-analyst --action \"added 02-pricing-analyst findings\" --rationale \"...\" test-sandbox/happy/lite/h2-clan/work/doc.clan",
+    "clan patch-data --agent 02-pricing-analyst --action \"added 02-pricing-analyst findings\" test-sandbox/happy/lite/h2-clan/work/doc.clan test-sandbox/happy/lite/_inputs/h2-supplied/02-pricing-analyst.json",
+    "clan patch-decision --agent 02-pricing-analyst --action \"added 02-pricing-analyst findings\" --rationale \"Zoho is cheapest at EUR18,240/yr for 40 seats vs HubSpot 24,000. Salesforce is out on cost. Next: risk-weight the two finalists.\" test-sandbox/happy/lite/h2-clan/work/doc.clan",
     "clan validate test-sandbox/happy/lite/h2-clan/work/doc.clan",
-    "Copy-Item work/doc.clan -> snapshots/hop-02-02-pricing-analyst.clan"
+    "cp test-sandbox/happy/lite/h2-clan/work/doc.clan test-sandbox/happy/lite/h2-clan/snapshots/hop-02-02-pricing-analyst.clan"
   ],
   "files_read": [
-    { "file": "test-sandbox/happy/lite/h2-clan/work/doc.clan (via clan read agent)", "approx_chars": 1900 },
-    { "file": "test-sandbox/happy/lite/_inputs/h2-supplied/02-pricing-analyst.json", "approx_chars": 230 },
-    { "file": "test-sandbox/happy/lite/_inputs/h2-supplied/02-pricing-analyst.handoff.txt", "approx_chars": 130 }
+    {"file": "test-sandbox/happy/lite/h2-clan/work/doc.clan", "approx_chars": 1800},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/02-pricing-analyst.json", "approx_chars": 250},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/02-pricing-analyst.handoff.txt", "approx_chars": 128}
   ],
   "files_written": [
-    { "file": "test-sandbox/happy/lite/h2-clan/work/doc.clan", "chars": 230 },
-    { "file": "test-sandbox/happy/lite/h2-clan/snapshots/hop-02-02-pricing-analyst.clan", "chars": 0 },
-    { "file": "test-sandbox/happy/lite/h2-clan/receipts/hop02-output/patch-data.json", "chars": 230 },
-    { "file": "test-sandbox/happy/lite/h2-clan/receipts/hop02-output/decision.txt", "chars": 128 }
+    {"file": "test-sandbox/happy/lite/h2-clan/work/doc.clan", "chars": 12491},
+    {"file": "test-sandbox/happy/lite/h2-clan/snapshots/hop-02-02-pricing-analyst.clan", "chars": 12491},
+    {"file": "test-sandbox/happy/lite/h2-clan/receipts/hop02-output/patch-data.json", "chars": 250},
+    {"file": "test-sandbox/happy/lite/h2-clan/receipts/hop02-output/decision.txt", "chars": 128}
   ],
-  "output_chars": 358,
+  "output_chars": 378,
   "errors": [
-    { "what": "PowerShell snapshot cmd ran in bash shell (New-Item not found)", "recovered_by": "re-ran via PowerShell tool" }
+    {
+      "what": "patch-data rejected without attribution flags",
+      "recovered_by": "re-ran with --agent and --action flags; decision folded into patch-data call so separate patch-decision still appended for explicit handoff record"
+    }
   ],
-  "problems_and_friction": "Smooth hop; the --skip-guide agent read surfaced only prior market data so no re-transcription was needed. Only friction was a shell mismatch when creating dirs/snapshot.",
-  "context_understood": "Add pricing findings (per-seat and year-1 annual costs for the 3 vendors, cheapest=Zoho) as data and hand off to the risk analyst, without restating hop-01's market data."
+  "problems_and_friction": "patch-data requires attribution flags but the error message was clear and recovery was immediate. The decision was appended twice by protocol (once implicitly via patch-data --agent, once via patch-decision) — both are valid entries. No other friction.",
+  "context_understood": "Pricing analyst hop adds per-seat and annual cost data for three CRM vendors (40 seats, EU), concluding Zoho is cheapest and Salesforce is eliminated, leaving Zoho and HubSpot for risk analysis."
 }

@@ -1,0 +1,1 @@
+You are analyst-c. Your assessment: BUY. Write recommendation=Buy, budget_eur=310000, top_risks=[scope creep, resource contention, regulatory compliance gaps], assumptions=Vendor achieves GDPR compliance; EU data residency available.

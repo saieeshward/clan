@@ -1,0 +1,42 @@
+{
+  "hop": 2,
+  "name": "concept-deck",
+  "date": "2026-06-11",
+  "validate": "OK",
+  "asset_carried_forward": true,
+  "asset_path_in_archive": "human/assets/logo-mark.svg",
+  "archive_bytes": 13072,
+  "files_in_archive": 10,
+  "steps": [
+    {
+      "step": "patch-data",
+      "status": "OK",
+      "fields_added": ["concept_names", "concept_rationales", "selected_concept", "concept_hero_color"],
+      "agent": "concept-strategist",
+      "action": "added 3 concepts; selected Precision Thread"
+    },
+    {
+      "step": "pack-html",
+      "status": "OK",
+      "schema_replaced": true,
+      "schema_file": "/tmp/concept-schema.json",
+      "delta": "hop 2: concept deck, new schema",
+      "attribution_method": "YAML frontmatter (agent:/action: in HTML file)",
+      "assets_flag": "/tmp/empty-assets (empty dir — asset carried from parent archive)"
+    }
+  ],
+  "friction": [
+    {
+      "issue": "pack-html does not accept --agent/--action flags",
+      "fix": "Embedded attribution via YAML frontmatter at top of HTML file"
+    },
+    {
+      "issue": "pack-html --assets expects a directory path, not omittable when schema is new",
+      "fix": "Passed empty temp directory /tmp/empty-assets so existing asset carried forward from parent without re-embedding"
+    }
+  ],
+  "snapshots": {
+    "hop_02": "test-sandbox/happy/meta/snapshots/hop-02-concept-deck.clan"
+  },
+  "output_file": "test-sandbox/happy/meta/work/doc.clan"
+}

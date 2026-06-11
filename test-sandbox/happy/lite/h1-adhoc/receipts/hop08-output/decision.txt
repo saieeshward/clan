@@ -1,2 +1,0 @@
-2026-06-11 | steering-committee | approved Zoho CRM recommendation | final sign-off recorded at hop-08
-2026-06-11 hop-08 signoff (ad-hoc): appended steering-committee sign-off line to decisions.log recording approval of the Zoho CRM recommendation.

@@ -100,8 +100,7 @@ claims:
     stage: agentic
     metric: h1_chain_entries_vs_hops   # n_decisions / n_mutating_hops
     threshold: ">= 1.0"
-    expect: red->green             # was 1/8 pre-F15; F15 should fix — first post-fix run flips it
-    note: "The lite pass's F15 discovery. THE provenance regression check."
+    note: "Flipped green 2026-06-11-C: 1.125 (9 decisions / 8 hops). Was 0.125 pre-F15."
 
   - id: C-CROSSOVER
     claim: "Sequential chains: CLAN distilled re-injection beats ad-hoc accumulating re-reads as chains lengthen (crossover by ~hop 10)"
@@ -115,7 +114,7 @@ claims:
     stage: agentic
     metric: h2_synth_ratio         # clan synth injected / adhoc synth injected
     threshold: "< 1.0"
-    baseline: 0.776                # lite run 2026-06-11
+    baseline: 0.557                # lite run 2026-06-11-C (was 0.776 stale metrics)
 
   - id: C-FIDELITY
     claim: "Nothing is silently lost: all requested edits present in final, untouched fields byte-stable, file validates"

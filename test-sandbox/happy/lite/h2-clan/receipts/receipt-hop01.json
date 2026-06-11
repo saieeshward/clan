@@ -1,28 +1,33 @@
 {
   "role": "01-market-researcher",
   "hop": 1,
-  "arm": "lite",
-  "flow": "h2",
+  "arm": "h2",
+  "flow": "happy/lite",
   "commands_run": [
     "clan read agent test-sandbox/happy/lite/h2-clan/work/doc.clan --skip-guide",
-    "clan patch-data test-sandbox/happy/lite/h2-clan/work/doc.clan test-sandbox/happy/lite/_inputs/h2-supplied/01-market-researcher.json",
-    "clan patch-decision --agent 01-market-researcher --action \"added 01-market-researcher findings\" --rationale \"<handoff note>\" test-sandbox/happy/lite/h2-clan/work/doc.clan",
+    "clan patch-data --agent 01-market-researcher --action \"added 01-market-researcher findings\" test-sandbox/happy/lite/h2-clan/work/doc.clan test-sandbox/happy/lite/_inputs/h2-supplied/01-market-researcher.json",
+    "clan patch-decision --agent 01-market-researcher --action \"added 01-market-researcher findings\" --rationale \"Market favours fast EU-resident go-lives. HubSpot leads mindshare but Zoho is gaining in mid-market on price. Next: get hard per-seat pricing.\" test-sandbox/happy/lite/h2-clan/work/doc.clan",
     "clan validate test-sandbox/happy/lite/h2-clan/work/doc.clan",
-    "copy work/doc.clan -> snapshots/hop-01-01-market-researcher.clan"
+    "cp test-sandbox/happy/lite/h2-clan/work/doc.clan test-sandbox/happy/lite/h2-clan/snapshots/hop-01-01-market-researcher.clan"
   ],
   "files_read": [
-    { "file": "test-sandbox/happy/lite/_inputs/h2-supplied/01-market-researcher.json", "approx_chars": 320 },
-    { "file": "test-sandbox/happy/lite/_inputs/h2-supplied/01-market-researcher.handoff.txt", "approx_chars": 145 }
+    {"file": "test-sandbox/happy/lite/h2-clan/work/doc.clan", "approx_chars": 900},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/01-market-researcher.json", "approx_chars": 300},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/01-market-researcher.handoff.txt", "approx_chars": 142}
   ],
   "files_written": [
-    { "file": "test-sandbox/happy/lite/h2-clan/work/doc.clan", "chars": 0 },
-    { "file": "test-sandbox/happy/lite/h2-clan/snapshots/hop-01-01-market-researcher.clan", "chars": 0 },
-    { "file": "test-sandbox/happy/lite/h2-clan/receipts/hop01-output/decision.txt", "chars": 217 }
+    {"file": "test-sandbox/happy/lite/h2-clan/work/doc.clan", "chars": 12288},
+    {"file": "test-sandbox/happy/lite/h2-clan/snapshots/hop-01-01-market-researcher.clan", "chars": 12288},
+    {"file": "test-sandbox/happy/lite/h2-clan/receipts/hop01-output/patch-data.json", "chars": 300},
+    {"file": "test-sandbox/happy/lite/h2-clan/receipts/hop01-output/decision.txt", "chars": 142}
   ],
-  "output_chars": 179,
+  "output_chars": 442,
   "errors": [
-    { "what": "PowerShell cmdlets failed under Bash tool (bash shell, exit 127)", "recovered_by": "re-ran snapshot/mkdir via the PowerShell tool" }
+    {
+      "what": "patch-data rejected without attribution flags",
+      "recovered_by": "re-ran with --agent and --action flags; patch-decision called separately as protocol step 3"
+    }
   ],
-  "problems_and_friction": "The agent read with --skip-guide showed an empty data/decision section so no prior transcription was needed. Only friction was running PowerShell cmdlets through the Bash tool, fixed by switching tools.",
-  "context_understood": "Hop 1 of an agent-only CLAN chain: merge-patch my market-research findings (data-only) and a handoff decision into doc.clan for downstream pricing/risk analysts and the final lead-partner view."
+  "problems_and_friction": "The patch-data command required attribution flags (--agent, --action) not mentioned in the protocol steps, causing one failed attempt before recovery. Protocol step 2 says to call patch-data first then step 3 to record decision separately, but the tool enforced attribution at patch-data time — resolved by adding flags to the patch-data call and still running patch-decision for the explicit handoff decision.",
+  "context_understood": "Role 01-market-researcher adds EU mid-market CRM market data (TAM, growth, incumbent shares, buyer priorities) to a nascent CLAN doc for a 5-hop chain building toward a CRM recommendation for Brightline Logistics."
 }

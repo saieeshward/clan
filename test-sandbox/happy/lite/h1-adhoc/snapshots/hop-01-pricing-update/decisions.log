@@ -1,2 +1,1 @@
-2026-06-01 | vantage-advisory | seed report created | initial CRM recommendation, verdict HubSpot
-2026-06-11 | pricing-update | Zoho per-seat price cut 45->38, annual total 21600->18240 in data.json and report.html cost table | source: vendor pricing update
+hop-01 pricing-update: zoho_price_per_seat 45→38, zoho_annual_total 21600→18240 in data.json (report.html uses template placeholders, no literal substitution needed)

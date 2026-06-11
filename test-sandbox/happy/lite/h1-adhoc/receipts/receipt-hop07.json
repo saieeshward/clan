@@ -1,36 +1,35 @@
 {
   "role": "verdict-flip",
   "hop": 7,
-  "arm": "adhoc",
-  "flow": "guided-edit-in-place",
+  "arm": "h1-adhoc",
+  "flow": "happy/lite",
   "commands_run": [
-    "printf ... >> work/decisions.log",
+    "cat test-sandbox/happy/lite/_inputs/h1-supplied/verdict-rationale.txt",
+    "grep -n verdict|HubSpot test-sandbox/happy/lite/h1-adhoc/work/report.html",
     "mkdir -p snapshots/hop-07-verdict-flip",
     "cp work/report.html work/data.json work/decisions.log snapshots/hop-07-verdict-flip/",
     "mkdir -p receipts/hop07-output",
-    "wc -m (authored output files)"
+    "wc -c receipts/hop07-output/*"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/lite/_inputs/h1-supplied/verdict-rationale.txt", "approx_chars": 230},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/work/data.json", "approx_chars": 1830},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/work/decisions.log", "approx_chars": 1000},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/work/report.html", "approx_chars": 5040}
+    {"file": "test-sandbox/happy/lite/_inputs/h1-supplied/verdict-rationale.txt", "approx_chars": 196},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/data.json", "approx_chars": 1180},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/report.html", "approx_chars": 2950},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/decisions.log", "approx_chars": 680}
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/lite/h1-adhoc/work/data.json", "chars": 2113},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/work/report.html", "chars": 5043},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/work/decisions.log", "chars": 1185},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-07-verdict-flip/data.json", "chars": 2113},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-07-verdict-flip/report.html", "chars": 5043},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-07-verdict-flip/decisions.log", "chars": 1185},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/receipts/hop07-output/patch-data.txt", "chars": 266},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/receipts/hop07-output/patch-html.txt", "chars": 292},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/receipts/hop07-output/decision.txt", "chars": 190}
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/data.json", "chars": 266},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/report.html", "chars": 333},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/decisions.log", "chars": 195},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-07-verdict-flip/report.html", "chars": 2950},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-07-verdict-flip/data.json", "chars": 1220},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-07-verdict-flip/decisions.log", "chars": 875},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/receipts/hop07-output/patch-data.json", "chars": 266},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/receipts/hop07-output/patch-html.fragment", "chars": 333},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/receipts/hop07-output/decision.txt", "chars": 195}
   ],
-  "output_chars": 748,
-  "errors": [
-    {"what": "First report.html Edit attempts failed: file not read yet in this session", "recovered_by": "Read the verdict-box span region, then re-issued the two Edits successfully"}
-  ],
-  "problems_and_friction": "Minor: report.html had to be Read before editing since reading only verdict-rationale.txt/data.json/decisions.log up front did not satisfy the Edit read-gate; one quick targeted Read resolved it.",
-  "context_understood": "Flip the CRM verdict from HubSpot to Zoho CRM and swap in the supplied rationale across data.json and the report.html verdict spans, then log and snapshot."
+  "output_chars": 794,
+  "errors": [],
+  "problems_and_friction": "The report.html uses template placeholders ({{verdict}}, {{verdict_rationale}}) that were never pre-rendered, so the edit target was the raw placeholder text rather than a previously rendered value. This is consistent with all prior hops in this arm. No friction beyond the expected surgical splice approach.",
+  "context_understood": "Flip verdict from HubSpot to Zoho CRM in both data.json and the verdict spans in report.html, using the supplied rationale text, then snapshot and receipt."
 }

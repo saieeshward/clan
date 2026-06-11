@@ -1,28 +1,29 @@
 {
   "role": "verdict-flip",
   "hop": 7,
-  "arm": "clan",
+  "arm": "guided",
   "flow": "patch-data",
   "commands_run": [
     "clan read agent test-sandbox/happy/lite/h1-clan/work/doc.clan --skip-guide",
-    "clan patch-data --help",
-    "printf ... | clan patch-data test-sandbox/happy/lite/h1-clan/work/doc.clan -",
+    "clan read data test-sandbox/happy/lite/h1-clan/work/doc.clan",
+    "clan patch-data test-sandbox/happy/lite/h1-clan/work/doc.clan --set verdict=Zoho CRM --set verdict_rationale=<supplied> --agent hop-07-verdict-flip --action 'Flip verdict from HubSpot to Zoho CRM with supplied rationale'",
     "clan validate test-sandbox/happy/lite/h1-clan/work/doc.clan",
-    "cp work/doc.clan snapshots/hop-07-verdict-flip.clan"
+    "cp test-sandbox/happy/lite/h1-clan/work/doc.clan test-sandbox/happy/lite/h1-clan/snapshots/hop-07-verdict-flip.clan"
   ],
   "files_read": [
-    { "file": "test-sandbox/happy/lite/h1-clan/work/doc.clan", "approx_chars": 3200 },
-    { "file": "test-sandbox/happy/lite/_inputs/h1-supplied/verdict-rationale.txt", "approx_chars": 286 }
+    {"file": "test-sandbox/happy/lite/_inputs/h1-supplied/verdict-rationale.txt", "approx_chars": 210},
+    {"file": "test-sandbox/happy/lite/h1-clan/work/doc.clan", "approx_chars": 18000}
   ],
   "files_written": [
-    { "file": "test-sandbox/happy/lite/h1-clan/work/doc.clan", "chars": 286 },
-    { "file": "test-sandbox/happy/lite/h1-clan/snapshots/hop-07-verdict-flip.clan", "chars": 0 },
-    { "file": "test-sandbox/happy/lite/h1-clan/receipts/hop07-output/patch-data.json", "chars": 333 }
+    {"file": "test-sandbox/happy/lite/h1-clan/work/doc.clan", "chars": 18000},
+    {"file": "test-sandbox/happy/lite/h1-clan/snapshots/hop-07-verdict-flip.clan", "chars": 18000},
+    {"file": "test-sandbox/happy/lite/h1-clan/receipts/hop07-output/patch-data.json", "chars": 260}
   ],
-  "output_chars": 47,
+  "output_chars": 260,
   "errors": [
-    { "what": "patch-data rejected inline JSON arg (expects a file path / `-` for stdin); os error 123", "recovered_by": "re-ran piping the JSON via stdin with `-` as the JSON_FILE arg" }
+    {"what": "--attribution flag not valid for patch-data", "recovered_by": "used --agent / --action flags instead"},
+    {"what": "patch-data requires attribution flags", "recovered_by": "added --agent and --action flags"}
   ],
-  "problems_and_friction": "patch-data takes a JSON_FILE arg, not inline JSON, so the first invocation failed; piping through stdin with `-` worked. Both target fields were data-bound, so patch-data alone effected the change with no pack-html.",
-  "context_understood": "Flip a data-bound verdict from HubSpot to Zoho CRM and replace verdict_rationale with supplied text via a single patch-data merge, then validate and snapshot."
+  "problems_and_friction": "patch-data requires explicit attribution flags (--agent, --action) which were not immediately obvious; an initial attempt with --attribution failed. The validate output warns that the human view is stale but pack-html is forbidden per protocol, so this is expected and acceptable.",
+  "context_understood": "Flip the verdict data field from HubSpot to Zoho CRM and update verdict_rationale using patch-data only, validate, and snapshot."
 }

@@ -1,0 +1,1 @@
+You are analyst-b. Your assessment: BUY. Write recommendation=Buy, budget_eur=280000, top_risks=[vendor lock-in, customization limits, data migration], assumptions=Off-the-shelf covers 90% of requirements in 6 months.

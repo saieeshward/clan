@@ -1,24 +1,30 @@
 {
   "role": "pricing-update",
   "hop": 1,
-  "arm": "clan",
-  "flow": "guided-patch-first",
+  "arm": "guided/patch-first",
+  "flow": "patch-data only (both fields are data-bound {{}} — no pack-html needed)",
   "commands_run": [
     "clan read agent test-sandbox/happy/lite/h1-clan/work/doc.clan --skip-guide",
-    "clan patch-data test-sandbox/happy/lite/h1-clan/work/doc.clan test-sandbox/happy/lite/h1-clan/work/patch.json",
+    "clan read data test-sandbox/happy/lite/h1-clan/work/doc.clan",
+    "clan patch-data test-sandbox/happy/lite/h1-clan/work/doc.clan /tmp/zoho-patch.json --agent pricing-update --action \"Zoho CRM per-seat price drops to 38 (from 45); zoho_annual_total updated to 18240 (=38*40*12)\"",
     "clan validate test-sandbox/happy/lite/h1-clan/work/doc.clan",
-    "clan read data test-sandbox/happy/lite/h1-clan/work/doc.clan"
+    "cp test-sandbox/happy/lite/h1-clan/work/doc.clan test-sandbox/happy/lite/h1-clan/snapshots/hop-01-pricing-update.clan"
   ],
   "files_read": [
-    { "file": "test-sandbox/happy/lite/h1-clan/work/doc.clan", "approx_chars": 4200 }
+    {"file": "test-sandbox/happy/lite/h1-clan/work/doc.clan", "approx_chars": 13996}
   ],
   "files_written": [
-    { "file": "test-sandbox/happy/lite/h1-clan/work/patch.json", "chars": 52 },
-    { "file": "test-sandbox/happy/lite/h1-clan/snapshots/hop-01-pricing-update.clan", "chars": 13818 },
-    { "file": "test-sandbox/happy/lite/h1-clan/receipts/hop01-output/patch-data.json", "chars": 52 }
+    {"file": "test-sandbox/happy/lite/h1-clan/work/doc.clan", "chars": 13996},
+    {"file": "test-sandbox/happy/lite/h1-clan/snapshots/hop-01-pricing-update.clan", "chars": 13996},
+    {"file": "test-sandbox/happy/lite/h1-clan/receipts/hop01-output/patch-data.json", "chars": 51}
   ],
-  "output_chars": 52,
-  "errors": [],
-  "problems_and_friction": "The CLI repeatedly nudged toward pack-html/render to refresh a 'stale hand-authored human view', but protocol forbids pack-html and the two fields are data-bound, so the patch-data alone correctly updated both data and bound view. No actual failure.",
-  "context_understood": "Drop Zoho CRM per-seat price to 38 and zoho_annual_total to 18240 via a single data-bound patch-data, since both are {{}}-bound fields requiring no HTML edit."
+  "output_chars": 51,
+  "errors": [
+    {
+      "what": "clan patch-data rejected without attribution",
+      "recovered_by": "Re-ran with --agent and --action flags as required by v1.1.0 attribution enforcement"
+    }
+  ],
+  "problems_and_friction": "The patch-data command required --agent and --action attribution flags that were not mentioned in the protocol; this caused one failed attempt before recovery. Otherwise the guided arm worked cleanly with a single patch-data call updating both fields atomically. pack-html was correctly avoided as both fields are data-bound {{}} placeholders.",
+  "context_understood": "Zoho CRM per-seat price dropped from 45 to 38 and annual total recalculated to 18240 (38*40*12); both are data-bound fields so patch-data alone suffices."
 }
