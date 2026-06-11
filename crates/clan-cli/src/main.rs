@@ -23,7 +23,7 @@ use std::path::PathBuf;
 use anyhow::{Context, Result};
 use clap::{Parser, Subcommand};
 use clan_sdk::{
-    assemble, create, export_static, fork_with_contexts, merge, pack, pack_html, patch_data,
+    assemble, create, export_static, fork_with_contexts, merge, pack, pack_html,
     patch_data_namespaced, patch_decision, patch_requirements, patch_state, patch_context,
     patch_asset, render, validate, AgentOutput, ClanFile, CreateOptions, InjectOptions,
     MergeOptions, MergePolicies, PackOptions, DecisionEntry, MERGE_REPORT_PATH,
@@ -171,12 +171,39 @@ enum Commands {
     PatchData {
         /// The .clan file to edit in-place.
         file: PathBuf,
-        /// JSON patch file (or `-` for stdin).
-        json_file: String,
+        /// JSON patch: a file path, `-` for stdin, or an inline JSON string
+        /// (anything starting with `{` or `[`). Optional when `--set` is given.
+        json_file: Option<String>,
         /// On a forked branch file: write into your `agents/<id>/` namespace
         /// instead of the (locked) shared data (spec §24.1).
         #[arg(long)]
         namespace: bool,
+        /// Set a single scalar key inline: `--set key=value` (repeatable).
+        /// Values parse as JSON when possible (numbers/bools/null), else as a
+        /// string. Merged on top of any JSON patch.
+        #[arg(long = "set", value_name = "KEY=VALUE")]
+        set: Vec<String>,
+        /// Append to an array key instead of replacing it (repeatable). RFC 7396
+        /// replaces arrays wholesale; this concatenates the patch's array onto
+        /// the existing one for the named key (spec §24.3 `append`).
+        #[arg(long = "append", value_name = "KEY")]
+        append: Vec<String>,
+        /// Agent recording this change (required unless `--no-decision`).
+        #[arg(long)]
+        agent: Option<String>,
+        /// Short description of the change (required unless `--no-decision`).
+        #[arg(long)]
+        action: Option<String>,
+        /// Detailed rationale for the change (optional).
+        #[arg(long)]
+        rationale: Option<String>,
+        /// Pin the recorded decision so it stays highly visible.
+        #[arg(long)]
+        pinned: bool,
+        /// Skip recording a decision entry for this change (opts out of the
+        /// default attribution requirement).
+        #[arg(long = "no-decision")]
+        no_decision: bool,
     },
     /// Surgically patch `agent/output-schema.json` inside a .clan file.
     PatchSchema {
@@ -206,8 +233,12 @@ enum Commands {
     PatchState {
         /// The .clan file to edit in-place.
         file: PathBuf,
-        /// JSON patch file (or `-` for stdin).
-        json_file: String,
+        /// JSON patch: a file path, `-` for stdin, or an inline JSON string
+        /// (anything starting with `{` or `[`). Optional when `--set` is given.
+        json_file: Option<String>,
+        /// Set a single scalar key inline: `--set key=value` (repeatable).
+        #[arg(long = "set", value_name = "KEY=VALUE")]
+        set: Vec<String>,
     },
     /// Overwrite or append to `agent/context.md` inside a .clan file.
     PatchContext {
@@ -386,10 +417,11 @@ fn main() -> Result<()> {
         } => cmd_pack(parent, output_json, output, schema, delta, &hints),
         Commands::Edit { file } => cmd_edit(file),
         Commands::PatchHtml { file, html_file, delta } => cmd_patch_html(file, html_file, delta),
-        Commands::PatchData { file, json_file, namespace } => cmd_patch_data(file, json_file, namespace, &hints),
+        Commands::PatchData { file, json_file, namespace, set, append, agent, action, rationale, pinned, no_decision } =>
+            cmd_patch_data(file, json_file, namespace, set, append, agent, action, rationale, pinned, no_decision, &hints),
         Commands::PatchSchema { file, schema_file } => cmd_patch_schema(file, schema_file),
         Commands::PatchDecision { file, agent, action, rationale, pinned } => cmd_patch_decision(file, agent, action, rationale, pinned, &hints),
-        Commands::PatchState { file, json_file } => cmd_patch_state(file, json_file),
+        Commands::PatchState { file, json_file, set } => cmd_patch_state(file, json_file, set),
         Commands::PatchContext { file, markdown_file, append } => cmd_patch_context(file, markdown_file, append),
         Commands::PatchAsset { file, internal_path, local_file } => cmd_patch_asset(file, internal_path, local_file),
         Commands::PatchRequirements { file, requirements_file } => cmd_patch_requirements(file, requirements_file),
@@ -608,7 +640,7 @@ fn cmd_merge(
                 outcome.report.unresolved,
                 output.display()
             ),
-            "adjudicate each: clan patch-data <file> <json> (settles the key), then clan patch-decision --agent <you> --action \"adjudicated <key>\" --rationale \"...\"".to_string(),
+            "adjudicate each in one step: clan patch-data <file> <json> --agent <you> --action \"adjudicated <key>\" (settles the key AND records the decision)".to_string(),
         ]);
     } else {
         hints.emit(&[format!(
@@ -885,8 +917,12 @@ patch_action: "append" | "replace" | "prepend"
 ---
 <div>New</div>
 
-2. Data: clan patch-data <file> <json>       (RFC7396 Merge Patch shared/data.yaml; MUST conform to output-schema.json)
-3. State: clan patch-state <file> <json>     (RFC7396 Merge Patch agent/state.yaml)
+2. Data: clan patch-data <file> <json-or-inline> --agent X --action Y [--rationale Z] [--pinned]
+      <json> may be a file, `-` (stdin), or an inline JSON string. Or set scalars: --set key=value (repeatable).
+      RFC7396 Merge Patch of shared/data.yaml (MUST conform to output-schema.json); keys you omit are KEPT.
+      Arrays REPLACE by default — to add an item use --append <key> (repeatable; concatenates instead).
+      Attribution is REQUIRED: --agent + --action record the change with exact fields_changed. Use --no-decision to skip.
+3. State: clan patch-state <file> <json|-|inline> [--set key=value]   (RFC7396 Merge Patch agent/state.yaml)
 4. Notes: clan patch-context <file> <md> [--append]
 5. History: clan patch-decision <file> --agent X --action Y --rationale Z
 6. Asset: clan patch-asset <file> <path/in/zip> <local_file>
@@ -898,7 +934,7 @@ On a BRANCH file: write ONLY your namespace agents/<you>/ :
   clan patch-data <branch> <json> --namespace        (your data)
   clan patch-decision <branch> --agent <you> ...     (auto-routed)
 clan merge <branches...> --output <out> [--policy key=append|max|min|last-write|agent-priority]
-clan read report <file>   => contested keys (adjudicate: patch-data + patch-decision)
+clan read report <file>   => contested keys (adjudicate in one step: patch-data <file> <json> --agent <you> --action "adjudicated <key>")
 (Tip: prose fields siblings also write — assumptions/summary/notes — collide under last-write. Prefix with your agent id, or merge with --policy <key>=append.)
 clan fork ... --context-dir <dir>   => per-branch task: <agent>.md becomes that branch's context
 
@@ -935,12 +971,111 @@ fn read_source(arg: &str) -> Result<String> {
     Ok(raw.strip_prefix('\u{feff}').map(str::to_string).unwrap_or(raw))
 }
 
-fn cmd_patch_data(file: PathBuf, json_file: String, namespace: bool, hints: &Hints) -> Result<()> {
-    let clan = open(&file)?;
-    let raw_json = read_source(&json_file)?;
+/// Read a JSON patch from an inline literal, a file path, or stdin (`-`).
+/// Inline detection (F13): an argument whose first non-space byte is `{` or `[`
+/// is treated as the JSON itself, not a path — removing the most common
+/// first-try agent failure (passing JSON where a path was expected).
+fn read_json_arg(arg: &str) -> Result<String> {
+    let trimmed = arg.trim_start_matches('\u{feff}');
+    let head = trimmed.trim_start();
+    if head.starts_with('{') || head.starts_with('[') {
+        return Ok(trimmed.to_string());
+    }
+    read_source(arg)
+}
 
-    let patch: serde_json::Value = serde_json::from_str(&raw_json)
-        .context("invalid JSON patch provided")?;
+/// Build a JSON object from `--set key=value` pairs (F13). Each value parses as
+/// JSON when it can (numbers, bools, null, quoted strings, arrays/objects),
+/// otherwise it is taken as a bare string.
+fn patch_from_set(pairs: &[String]) -> Result<serde_json::Value> {
+    let mut map = serde_json::Map::new();
+    for p in pairs {
+        let (k, v) = p
+            .split_once('=')
+            .ok_or_else(|| anyhow::anyhow!("--set expects key=value, got {p:?}"))?;
+        let val = serde_json::from_str(v)
+            .unwrap_or_else(|_| serde_json::Value::String(v.to_string()));
+        map.insert(k.to_string(), val);
+    }
+    Ok(serde_json::Value::Object(map))
+}
+
+/// Resolve a JSON patch from an optional positional arg (file/stdin/inline) and
+/// any `--set` pairs, merging the latter on top. Errors if neither is given.
+fn resolve_json_patch(json_file: &Option<String>, set: &[String]) -> Result<serde_json::Value> {
+    let mut patch = match json_file {
+        Some(arg) => serde_json::from_str(&read_json_arg(arg)?).context("invalid JSON patch provided")?,
+        None => serde_json::Value::Object(Default::default()),
+    };
+    if !set.is_empty() {
+        let overlay = patch_from_set(set)?;
+        match (patch.as_object_mut(), overlay.as_object()) {
+            (Some(base), Some(extra)) => {
+                for (k, v) in extra {
+                    base.insert(k.clone(), v.clone());
+                }
+            }
+            _ => patch = overlay,
+        }
+    }
+    if json_file.is_none() && set.is_empty() {
+        anyhow::bail!(
+            "no patch given — pass a JSON file, `-` for stdin, an inline JSON string ({{…}}), or --set key=value"
+        );
+    }
+    Ok(patch)
+}
+
+/// Build the optional decision for a mutating patch, enforcing the F15
+/// attribution requirement unless `--no-decision` is set. `fields_changed` is
+/// the exact set of merge-patch keys.
+fn decision_for_patch(
+    agent: Option<String>,
+    action: Option<String>,
+    rationale: Option<String>,
+    pinned: bool,
+    no_decision: bool,
+    patch: &serde_json::Value,
+) -> Result<Option<DecisionEntry>> {
+    if no_decision {
+        return Ok(None);
+    }
+    match (agent, action) {
+        (Some(agent_name), Some(action)) => Ok(Some(DecisionEntry {
+            agent_name,
+            action,
+            rationale: rationale.unwrap_or_default(),
+            pinned,
+            fields_changed: Some(
+                patch
+                    .as_object()
+                    .map(|o| o.keys().cloned().collect())
+                    .unwrap_or_default(),
+            ),
+        })),
+        _ => anyhow::bail!(
+            "this change needs attribution: pass --agent <name> --action \"<what changed>\" \
+             (optional --rationale, --pinned), or --no-decision to skip recording it"
+        ),
+    }
+}
+
+#[allow(clippy::too_many_arguments)]
+fn cmd_patch_data(
+    file: PathBuf,
+    json_file: Option<String>,
+    namespace: bool,
+    set: Vec<String>,
+    append: Vec<String>,
+    agent: Option<String>,
+    action: Option<String>,
+    rationale: Option<String>,
+    pinned: bool,
+    no_decision: bool,
+    hints: &Hints,
+) -> Result<()> {
+    let clan = open(&file)?;
+    let patch = resolve_json_patch(&json_file, &set)?;
 
     // Track which contested keys this write settles, for the adjudication hint.
     let contested_before: Vec<String> = clan
@@ -950,10 +1085,23 @@ fn cmd_patch_data(file: PathBuf, json_file: String, namespace: bool, hints: &Hin
         .map(|r| r.conflicts.iter().map(|c| c.key.clone()).collect())
         .unwrap_or_default();
 
+    let mut decision_recorded = false;
     let bytes = if namespace {
+        // Branch writes are provenance-tracked by the merge fold, not a shared
+        // decision; attribution flags don't apply here.
         patch_data_namespaced(&clan, &patch)?
     } else {
-        patch_data(&clan, &patch, None)?
+        // A forked file rejects shared writes outright (teaching error). Don't
+        // demand attribution for a write that can't land — let the SDK guard
+        // speak first.
+        let decision = if clan.manifest().fork.is_some() {
+            None
+        } else {
+            decision_for_patch(agent, action, rationale, pinned, no_decision, &patch)?
+        };
+        decision_recorded = decision.is_some();
+        let opts = clan_sdk::pack::PatchDataOptions { append_keys: append, decision };
+        clan_sdk::pack::patch_data_with(&clan, &patch, opts, None)?
     };
     std::fs::write(&file, &bytes)?;
     eprintln!("Patched data in-place: {}", file.display());
@@ -966,16 +1114,19 @@ fn cmd_patch_data(file: PathBuf, json_file: String, namespace: bool, hints: &Hin
             .filter(|k| patch.get(k.as_str()).is_some())
             .collect();
         if !settled.is_empty() {
-            lines.push(format!(
-                "{} contested key(s) settled — record the adjudication: clan patch-decision {} --agent <you> --action \"adjudicated {}\" --rationale \"...\"",
-                settled.len(),
-                file.display(),
-                settled
-                    .iter()
-                    .map(|s| s.as_str())
-                    .collect::<Vec<_>>()
-                    .join(", ")
-            ));
+            let keys = settled.iter().map(|s| s.as_str()).collect::<Vec<_>>().join(", ");
+            // With attribution given (F15), the adjudication is already in the
+            // chain — confirm it. Without it (`--no-decision`), point to the
+            // separate patch-decision step.
+            if decision_recorded {
+                lines.push(format!("{} contested key(s) settled and recorded under your attribution ({keys})", settled.len()));
+            } else {
+                lines.push(format!(
+                    "{} contested key(s) settled — record the adjudication: clan patch-decision {} --agent <you> --action \"adjudicated {keys}\" --rationale \"...\"",
+                    settled.len(),
+                    file.display(),
+                ));
+            }
         }
     }
     lines.extend(file_state_hints(&next, &file));
@@ -1002,6 +1153,7 @@ fn cmd_patch_decision(file: PathBuf, agent: String, action: String, rationale: S
         action,
         rationale,
         pinned,
+        fields_changed: None,
     };
 
     let bytes = patch_decision(&clan, entry, None)?;
@@ -1015,12 +1167,9 @@ fn cmd_patch_decision(file: PathBuf, agent: String, action: String, rationale: S
     Ok(())
 }
 
-fn cmd_patch_state(file: PathBuf, json_file: String) -> Result<()> {
+fn cmd_patch_state(file: PathBuf, json_file: Option<String>, set: Vec<String>) -> Result<()> {
     let clan = open(&file)?;
-    let raw_json = read_source(&json_file)?;
-
-    let patch: serde_json::Value = serde_json::from_str(&raw_json)
-        .context("invalid JSON patch provided")?;
+    let patch = resolve_json_patch(&json_file, &set)?;
 
     let bytes = patch_state(&clan, &patch)?;
     std::fs::write(&file, &bytes)?;

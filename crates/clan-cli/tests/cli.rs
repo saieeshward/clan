@@ -414,11 +414,15 @@ fn adjudication_settles_contested_keys() {
 
     let adj = dir.path().join("adj.json");
     std::fs::write(&adj, r#"{"status": "approved"}"#).unwrap();
-    let out = clan(&["patch-data", merged.to_str().unwrap(), adj.to_str().unwrap()]);
+    // F15: settle WITH attribution — the adjudication is recorded in one step.
+    let out = clan(&[
+        "patch-data", merged.to_str().unwrap(), adj.to_str().unwrap(),
+        "--agent", "synthesizer", "--action", "adjudicated status",
+    ]);
     assert!(out.status.success(), "{}", stderr(&out));
     assert!(
-        stderr(&out).contains("patch-decision"),
-        "settling a contested key must hint the decision record: {}",
+        stderr(&out).contains("recorded under your attribution"),
+        "an attributed settle is self-recording: {}",
         stderr(&out)
     );
 
@@ -426,6 +430,9 @@ fn adjudication_settles_contested_keys() {
     assert!(report.contains("unresolved: 0"), "{report}");
     let data = stdout(&clan(&["read", "data", merged.to_str().unwrap()]));
     assert!(data.contains("approved"), "{data}");
+    // The adjudication landed in the chain with exact fields_changed.
+    let chain = stdout(&clan(&["read", "chain", merged.to_str().unwrap()]));
+    assert!(chain.contains("synthesizer") && chain.contains("adjudicated status"), "{chain}");
 }
 
 #[test]
@@ -480,7 +487,8 @@ fn read_agent_on_conflicted_merge_injects_contested_keys() {
     // After adjudication the block disappears — injection is state-gated.
     let adj = dir.path().join("adj.json");
     std::fs::write(&adj, r#"{"status": "approved"}"#).unwrap();
-    clan(&["patch-data", merged.to_str().unwrap(), adj.to_str().unwrap()]);
+    clan(&["patch-data", merged.to_str().unwrap(), adj.to_str().unwrap(),
+           "--agent", "synthesizer", "--action", "adjudicated status"]);
     let ctx = stdout(&clan(&["read", "agent", merged.to_str().unwrap()]));
     assert!(!ctx.contains("# Contested Keys"), "{ctx}");
 }
@@ -544,7 +552,7 @@ fn patch_data_tolerates_utf8_bom() {
     bytes.extend_from_slice(br#"{"vendor": "Acme"}"#);
     std::fs::write(&patch, bytes).unwrap();
 
-    let out = clan(&["patch-data", parent.to_str().unwrap(), patch.to_str().unwrap()]);
+    let out = clan(&["patch-data", parent.to_str().unwrap(), patch.to_str().unwrap(), "--no-decision"]);
     assert!(out.status.success(), "BOM JSON must parse: {}", stderr(&out));
     let data = stdout(&clan(&["read", "data", parent.to_str().unwrap()]));
     assert!(data.contains("Acme"), "{data}");
@@ -618,14 +626,89 @@ fn fork_context_dir_overrides_branch_task() {
 
 #[test]
 fn patch_data_no_decision_leaves_chain_empty() {
-    // F1 at the CLI: a plain patch-data must not add an unknown-agent entry.
+    // F1 + F15 at the CLI: an explicit --no-decision write adds NO chain entry
+    // (and certainly no unknown-agent placeholder).
     let dir = tempfile::tempdir().unwrap();
     let parent = create_parent(dir.path());
     let patch = dir.path().join("p.json");
     std::fs::write(&patch, r#"{"x": 1}"#).unwrap();
-    clan(&["patch-data", parent.to_str().unwrap(), patch.to_str().unwrap()]);
+    let before = stdout(&clan(&["read", "chain", parent.to_str().unwrap()]));
+    let out = clan(&["patch-data", parent.to_str().unwrap(), patch.to_str().unwrap(), "--no-decision"]);
+    assert!(out.status.success(), "{}", stderr(&out));
     let chain = stdout(&clan(&["read", "chain", parent.to_str().unwrap()]));
     assert!(!chain.contains("unknown-agent"), "F1: no placeholder decision: {chain}");
+    assert_eq!(before, chain, "F15: --no-decision must not touch the chain");
+}
+
+#[test]
+fn patch_data_requires_attribution_by_default() {
+    // F15: a shared patch-data without --agent/--action (and without
+    // --no-decision) is a teaching error that names the flags.
+    let dir = tempfile::tempdir().unwrap();
+    let parent = create_parent(dir.path());
+    let before = std::fs::read(&parent).unwrap();
+    let out = clan(&["patch-data", parent.to_str().unwrap(), r#"{"x":1}"#]);
+    assert!(!out.status.success(), "missing attribution must fail");
+    let err = stderr(&out);
+    assert!(err.contains("--agent") && err.contains("--action"), "error must teach the flags: {err}");
+    assert!(err.contains("--no-decision"), "error must name the opt-out: {err}");
+    assert_eq!(before, std::fs::read(&parent).unwrap(), "rejected write must not touch the file");
+
+    // With attribution: succeeds and records the decision with exact fields_changed.
+    let out = clan(&[
+        "patch-data", parent.to_str().unwrap(), r#"{"vendor":"Acme","total":5}"#,
+        "--agent", "pricing", "--action", "set vendor and total",
+    ]);
+    assert!(out.status.success(), "{}", stderr(&out));
+    let chain = stdout(&clan(&["read", "chain", parent.to_str().unwrap()]));
+    assert!(chain.contains("pricing") && chain.contains("set vendor and total"), "{chain}");
+    // fields_changed lists exactly the patched keys, not the whole document.
+    assert!(chain.contains("total") && chain.contains("vendor"), "{chain}");
+    assert!(!chain.contains("client_name"), "fields_changed must be only the patched keys: {chain}");
+}
+
+#[test]
+fn patch_data_inline_json_and_set() {
+    // F13: inline JSON string (no temp file) and --set scalars.
+    let dir = tempfile::tempdir().unwrap();
+    let parent = create_parent(dir.path());
+
+    // Inline JSON.
+    let out = clan(&["patch-data", parent.to_str().unwrap(), r#"{"vendor":"Acme"}"#, "--no-decision"]);
+    assert!(out.status.success(), "inline JSON must work: {}", stderr(&out));
+    // --set scalars (typed: number stays a number, bare word a string).
+    let out = clan(&["patch-data", parent.to_str().unwrap(),
+                     "--set", "seats=40", "--set", "tier=pro", "--no-decision"]);
+    assert!(out.status.success(), "--set must work: {}", stderr(&out));
+    let data = stdout(&clan(&["read", "data", parent.to_str().unwrap()]));
+    assert!(data.contains("Acme"), "{data}");
+    assert!(data.contains("seats: 40"), "numeric --set must stay numeric: {data}");
+    assert!(data.contains("pro"), "{data}");
+
+    // Neither a patch nor --set → teaching error.
+    let out = clan(&["patch-data", parent.to_str().unwrap(), "--no-decision"]);
+    assert!(!out.status.success(), "no patch source must fail");
+    assert!(stderr(&out).contains("--set") || stderr(&out).contains("inline"), "{}", stderr(&out));
+}
+
+#[test]
+fn patch_data_append_concatenates_array() {
+    // F14: --append <key> concatenates instead of RFC-7396 replace.
+    let dir = tempfile::tempdir().unwrap();
+    let parent = create_parent(dir.path());
+    // Seed an array.
+    clan(&["patch-data", parent.to_str().unwrap(), r#"{"tags":["a","b"]}"#, "--no-decision"]);
+    // Append (would replace without --append).
+    let out = clan(&["patch-data", parent.to_str().unwrap(), r#"{"tags":["c"]}"#,
+                     "--append", "tags", "--no-decision"]);
+    assert!(out.status.success(), "{}", stderr(&out));
+    let data = stdout(&clan(&["read", "data", parent.to_str().unwrap()]));
+    assert!(data.contains('a') && data.contains('b') && data.contains('c'), "all three kept: {data}");
+
+    // Control: without --append the array is replaced.
+    clan(&["patch-data", parent.to_str().unwrap(), r#"{"tags":["only"]}"#, "--no-decision"]);
+    let data = stdout(&clan(&["read", "data", parent.to_str().unwrap()]));
+    assert!(data.contains("only") && !data.contains("\"c\""), "replace is still the default: {data}");
 }
 
 #[test]
@@ -782,17 +865,15 @@ fn multi_key_adjudication_decrements_incrementally() {
     let report = stdout(&clan(&["read", "report", m.to_str().unwrap()]));
     assert!(report.contains("unresolved: 2"), "expect 2 conflicts: {report}");
 
-    // Settle k1.
-    let adj = dir.path().join("adj1.json");
-    std::fs::write(&adj, r#"{"k1": "settled"}"#).unwrap();
-    clan(&["patch-data", m.to_str().unwrap(), adj.to_str().unwrap()]);
+    // Settle k1 (with attribution — F15).
+    clan(&["patch-data", m.to_str().unwrap(), r#"{"k1": "settled"}"#,
+           "--agent", "synth", "--action", "adjudicated k1"]);
     let report = stdout(&clan(&["read", "report", m.to_str().unwrap()]));
     assert!(report.contains("unresolved: 1"), "after 1st settle: {report}");
 
     // Settle k2.
-    let adj2 = dir.path().join("adj2.json");
-    std::fs::write(&adj2, r#"{"k2": "done"}"#).unwrap();
-    clan(&["patch-data", m.to_str().unwrap(), adj2.to_str().unwrap()]);
+    clan(&["patch-data", m.to_str().unwrap(), r#"{"k2": "done"}"#,
+           "--agent", "synth", "--action", "adjudicated k2"]);
     let report = stdout(&clan(&["read", "report", m.to_str().unwrap()]));
     assert!(report.contains("unresolved: 0"), "all settled: {report}");
 }
@@ -830,7 +911,8 @@ fn fork_merge_then_fork_again_works() {
     // Settle the conflict first so merged is clean.
     let adj = dir.path().join("adj.json");
     std::fs::write(&adj, r#"{"status": "final"}"#).unwrap();
-    clan(&["patch-data", merged.to_str().unwrap(), adj.to_str().unwrap()]);
+    clan(&["patch-data", merged.to_str().unwrap(), adj.to_str().unwrap(),
+           "--agent", "synth", "--action", "finalised status"]);
 
     // Fork the merged result for a second parallel pass.
     let round2 = dir.path().join("round2");

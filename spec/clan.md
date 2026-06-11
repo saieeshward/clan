@@ -221,11 +221,15 @@ patch_action: "append"
 
 ### `patch-data` & `patch-state`
 Target: `shared/data.yaml` or `agent/state.yaml`
-Format: JSON payload. Applied using RFC 7396 JSON Merge Patch — keys you omit are kept, so send only what changes (set a key to `null` to delete it). The same merge-patch semantics apply to the `structured:` block of `pack-html`/`pack` frontmatter: never re-transcribe carried-forward data, just patch what you change.
+Format: a JSON payload, supplied as a file path, `-` for stdin, or an **inline JSON string** (anything starting with `{`/`[`). For single scalars use `--set key=value` (repeatable; values parse as JSON when possible, else as a string). Applied using RFC 7396 JSON Merge Patch — keys you omit are kept, so send only what changes (set a key to `null` to delete it). The same merge-patch semantics apply to the `structured:` block of `pack-html`/`pack` frontmatter: never re-transcribe carried-forward data, just patch what you change.
+
+**Arrays replace by default** (RFC 7396). To *add* an item to an array key without restating the whole array, pass `--append <key>` (repeatable) — the patch's array is concatenated onto the existing one (the `append` merge policy).
+
+**Attribution is required by default** on `patch-data`: pass `--agent <name> --action "<what changed>"` (optional `--rationale`, `--pinned`). This records one decision whose `fields_changed` is **exactly** the keys you patched. Pass `--no-decision` to opt out (e.g. a private scratch write); a `--no-decision` write adds **no** chain entry. Settling a contested key with attribution records the adjudication in the same step — no separate `patch-decision` needed.
 
 ### `patch-decision`
 Target: `agent/decision-chain.yaml`
-Format: CLI flags `--agent`, `--action`, `--rationale` to append cleanly. A `patch-data`/`pack` with no decision adds **no** chain entry — record decisions explicitly.
+Format: CLI flags `--agent`, `--action`, `--rationale` to append cleanly. Use this for a decision that isn't tied to a specific data change; data changes are better recorded inline on `patch-data` (above).
 
 ### `patch-context`
 Target: `agent/context.md`

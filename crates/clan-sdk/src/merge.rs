@@ -620,6 +620,7 @@ mod tests {
                 action: "researched".into(),
                 rationale: "found things".into(),
                 pinned: false,
+                fields_changed: None,
             },
             None,
         )
@@ -728,6 +729,7 @@ mod tests {
             action: action.into(),
             rationale: "r".into(),
             pinned: false,
+            fields_changed: None,
         };
         let a = ClanFile::from_bytes(
             crate::pack::patch_decision(&a, entry("alpha", "researched"), None).unwrap(),

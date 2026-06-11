@@ -47,6 +47,10 @@ pub struct DecisionEntry {
     pub action: String,
     pub rationale: String,
     pub pinned: bool,
+    /// Exact keys this decision changed. `Some` records them verbatim (F15:
+    /// the merge-patch keys); `None` lets `pack` derive them from the
+    /// structured payload (used by `pack_html`, whose payload IS the delta).
+    pub fields_changed: Option<Vec<String>>,
 }
 
 impl AgentOutput {
@@ -108,6 +112,7 @@ impl AgentOutput {
                     .unwrap_or("")
                     .to_string(),
                 pinned: v["decision"]["pinned"].as_bool().unwrap_or(false),
+                fields_changed: None,
             })
         } else {
             None
@@ -224,16 +229,22 @@ pub fn pack(
     // processed document" placeholder — that was pure provenance noise (F1).
     // `clan patch-decision` is the path for recording a decision.
     if let Some(d) = output.decision {
+        // F15: honour an explicit fields_changed (the exact merge-patch keys);
+        // otherwise derive from the structured payload, which for pack_html is
+        // itself the delta.
+        let fields_changed = d.fields_changed.unwrap_or_else(|| {
+            output.structured
+                .as_object()
+                .map(|o| o.keys().cloned().collect())
+                .unwrap_or_default()
+        });
         chain.prepend(Decision {
             agent: d.agent_name,
             version: None,
             action: d.action,
             rationale: d.rationale,
             timestamp: now.clone(),
-            fields_changed: output.structured
-                .as_object()
-                .map(|o| o.keys().cloned().collect())
-                .unwrap_or_default(),
+            fields_changed,
             pinned: d.pinned,
             trace_ref: None,
         });
@@ -534,6 +545,7 @@ fn parse_html_frontmatter(input: &str) -> (Option<String>, Value, Option<Decisio
             action: d["action"].as_str().unwrap_or("").to_string(),
             rationale: d["rationale"].as_str().unwrap_or("").to_string(),
             pinned: d["pinned"].as_bool().unwrap_or(false),
+            fields_changed: None,
         })
     });
 
@@ -691,7 +703,79 @@ fn merge_json(a: &mut Value, b: &Value) {
 /// Patch `shared/data.yaml` inside the archive with a JSON Merge Patch (RFC 7396).
 /// This merges the patch over the existing data, preserving all other files,
 /// and increments the generation.
+/// Options for [`patch_data_with`].
+#[derive(Debug, Default)]
+pub struct PatchDataOptions {
+    /// Keys whose array value should be appended to the existing array rather
+    /// than replaced (F14). RFC 7396 replaces arrays wholesale; for these keys
+    /// the patch's array is concatenated onto the existing one (mirrors the
+    /// `append` merge policy, spec §24.3).
+    pub append_keys: Vec<String>,
+    /// Decision to record for this change (F15). When present, its
+    /// `fields_changed` is set to the exact merge-patch keys by the caller.
+    pub decision: Option<DecisionEntry>,
+}
+
+/// Append `new_val` onto the array at `slot`, coercing a non-array slot into a
+/// single-element array first (so a first-time append still works).
+fn append_into(slot: &mut Value, new_val: &Value) {
+    if !slot.is_array() {
+        let cur = std::mem::replace(slot, Value::Null);
+        *slot = Value::Array(if cur.is_null() { Vec::new() } else { vec![cur] });
+    }
+    let arr = slot.as_array_mut().expect("coerced to array above");
+    match new_val {
+        Value::Array(items) => arr.extend(items.iter().cloned()),
+        other => arr.push(other.clone()),
+    }
+}
+
+/// Apply `patch` to `data` with RFC 7396 merge semantics, except keys named in
+/// `append_keys` are array-appended rather than replaced (F14).
+fn apply_patch_with_append(data: &mut Value, patch: &Value, append_keys: &[String]) {
+    let append_set: std::collections::BTreeSet<&str> =
+        append_keys.iter().map(String::as_str).collect();
+    let patch_obj = match patch.as_object() {
+        Some(o) if !append_set.is_empty() => o,
+        _ => {
+            merge_json(data, patch);
+            return;
+        }
+    };
+    // 1) merge every non-append key with normal merge-patch semantics.
+    let merge_part: serde_json::Map<String, Value> = patch_obj
+        .iter()
+        .filter(|(k, _)| !append_set.contains(k.as_str()))
+        .map(|(k, v)| (k.clone(), v.clone()))
+        .collect();
+    if !merge_part.is_empty() {
+        merge_json(data, &Value::Object(merge_part));
+    }
+    // 2) concatenate the append keys onto whatever is already there.
+    if !data.is_object() {
+        *data = Value::Object(Default::default());
+    }
+    let data_obj = data.as_object_mut().expect("forced to object above");
+    for key in append_keys {
+        if let Some(new_val) = patch_obj.get(key) {
+            let slot = data_obj.entry(key.clone()).or_insert_with(|| Value::Array(Vec::new()));
+            append_into(slot, new_val);
+        }
+    }
+}
+
 pub fn patch_data(parent: &ClanFile, patch: &Value, compressor: Option<&Compressor>) -> Result<Vec<u8>> {
+    patch_data_with(parent, patch, PatchDataOptions::default(), compressor)
+}
+
+/// Like [`patch_data`] but with array-append keys (F14) and an optional
+/// attributed decision (F15).
+pub fn patch_data_with(
+    parent: &ClanFile,
+    patch: &Value,
+    pd_opts: PatchDataOptions,
+    compressor: Option<&Compressor>,
+) -> Result<Vec<u8>> {
     reject_if_forked(parent, "a direct write to shared/data.yaml")?;
     let existing_str = parent.read_entry_string("shared/data.yaml").unwrap_or_default();
     let mut data: Value = if existing_str.is_empty() {
@@ -700,7 +784,7 @@ pub fn patch_data(parent: &ClanFile, patch: &Value, compressor: Option<&Compress
         serde_yaml::from_str(&existing_str).map_err(|e| Error::OutputRejected(format!("existing data.yaml is invalid: {}", e)))?
     };
 
-    merge_json(&mut data, patch);
+    apply_patch_with_append(&mut data, patch, &pd_opts.append_keys);
 
     // To preserve lineage, we formulate an AgentOutput just like pack_html does,
     // where we only set structured data, and let `pack` handle generating the new ZIP.
@@ -709,7 +793,7 @@ pub fn patch_data(parent: &ClanFile, patch: &Value, compressor: Option<&Compress
         structured: data,
         design: None,
         human: None,
-        decision: None, // No decision entry unless the caller explicitly wants one
+        decision: pd_opts.decision,
     };
 
     let mut opts = PackOptions { delta: None, ..Default::default() };
@@ -1024,6 +1108,7 @@ mod tests {
                 action: "reviewed".into(),
                 rationale: "looks good".into(),
                 pinned: true,
+                fields_changed: None,
             },
             None,
         )
@@ -1220,12 +1305,88 @@ mod tests {
                 action: "set total".into(),
                 rationale: "from invoice".into(),
                 pinned: false,
+                fields_changed: None,
             }),
         };
         let next = ClanFile::from_bytes(pack(&parent, out, PackOptions::default(), None).unwrap()).unwrap();
         let chain = chain_of(&next);
         assert_eq!(chain.decisions.len(), 1);
         assert_eq!(chain.decisions[0].agent, "agent1");
+    }
+
+    // F14: --append concatenates an array key instead of replacing it.
+    #[test]
+    fn patch_data_append_concatenates_arrays() {
+        let parent = test_clan("tags:\n  - a\n  - b\n", PERMISSIVE_SCHEMA);
+        let opts = PatchDataOptions { append_keys: vec!["tags".into()], decision: None };
+        let next = ClanFile::from_bytes(
+            patch_data_with(&parent, &serde_json::json!({"tags": ["c"]}), opts, None).unwrap(),
+        )
+        .unwrap();
+        let data: Value = serde_yaml::from_str(&next.read_entry_string("shared/data.yaml").unwrap()).unwrap();
+        let tags = data["tags"].as_array().unwrap();
+        assert_eq!(tags.len(), 3, "append must keep all three: {tags:?}");
+
+        // A non-append key on the same patch still replaces (RFC 7396 default).
+        let opts = PatchDataOptions { append_keys: vec!["tags".into()], decision: None };
+        let next2 = ClanFile::from_bytes(
+            patch_data_with(&next, &serde_json::json!({"tags": ["d"], "vendor": "X"}), opts, None).unwrap(),
+        )
+        .unwrap();
+        let data2: Value = serde_yaml::from_str(&next2.read_entry_string("shared/data.yaml").unwrap()).unwrap();
+        assert_eq!(data2["tags"].as_array().unwrap().len(), 4, "tags appended");
+        assert_eq!(data2["vendor"], serde_json::json!("X"), "non-append key set normally");
+    }
+
+    // F14: appending to a missing key creates the array.
+    #[test]
+    fn patch_data_append_creates_missing_array() {
+        let parent = test_clan("vendor: Acme\n", PERMISSIVE_SCHEMA);
+        let opts = PatchDataOptions { append_keys: vec!["notes".into()], decision: None };
+        let next = ClanFile::from_bytes(
+            patch_data_with(&parent, &serde_json::json!({"notes": ["first"]}), opts, None).unwrap(),
+        )
+        .unwrap();
+        let data: Value = serde_yaml::from_str(&next.read_entry_string("shared/data.yaml").unwrap()).unwrap();
+        assert_eq!(data["notes"].as_array().unwrap().len(), 1);
+    }
+
+    // F15: an attributed patch_data records a decision whose fields_changed is
+    // EXACTLY the patch keys, not the whole merged document.
+    #[test]
+    fn patch_data_decision_fields_changed_are_patch_keys_only() {
+        let parent = test_clan("vendor: Acme\nexisting: keep\n", PERMISSIVE_SCHEMA);
+        let decision = Some(DecisionEntry {
+            agent_name: "pricing".into(),
+            action: "set total".into(),
+            rationale: String::new(),
+            pinned: false,
+            fields_changed: Some(vec!["total".into()]),
+        });
+        let opts = PatchDataOptions { append_keys: vec![], decision };
+        let next = ClanFile::from_bytes(
+            patch_data_with(&parent, &serde_json::json!({"total": 5}), opts, None).unwrap(),
+        )
+        .unwrap();
+        let chain = chain_of(&next);
+        assert_eq!(chain.decisions.len(), 1);
+        assert_eq!(chain.decisions[0].fields_changed, vec!["total".to_string()]);
+        // The untouched key survives (pass-through) but is NOT in fields_changed.
+        let data: Value = serde_yaml::from_str(&next.read_entry_string("shared/data.yaml").unwrap()).unwrap();
+        assert_eq!(data["existing"], serde_json::json!("keep"));
+    }
+
+    // F15: the default patch_data (no options) still records no decision, so a
+    // bare data update adds no chain entry (F1 preserved).
+    #[test]
+    fn patch_data_without_options_records_no_decision() {
+        let parent = test_clan("vendor: Acme\n", PERMISSIVE_SCHEMA);
+        let before = chain_of(&parent).decisions.len();
+        let next = ClanFile::from_bytes(
+            patch_data(&parent, &serde_json::json!({"total": 5}), None).unwrap(),
+        )
+        .unwrap();
+        assert_eq!(chain_of(&next).decisions.len(), before, "bare patch_data adds no entry");
     }
 
     // F2: full-html marks the view agent-authored; data-update leaves no source.
