@@ -833,4 +833,274 @@ mod tests {
         // append keeps both → not a conflict at all.
         assert!(outcome.report.conflicts.iter().all(|c| c.key != "notes"));
     }
+
+    // --- New multi-agent edge-case tests ---
+
+    // Three agents all write the same value for a shared key: no conflict, one entry.
+    #[test]
+    fn three_agent_all_agree_produces_no_conflict() {
+        let parent = root();
+        let branches = fork(&parent, &["a".into(), "b".into(), "c".into()]).unwrap();
+        let branches: Vec<ClanFile> = branches
+            .into_iter()
+            .map(|(_, bytes)| {
+                let b = ClanFile::from_bytes(bytes).unwrap();
+                with_namespace_data(&b, serde_json::json!({"verdict": "approved"}))
+            })
+            .collect();
+        let outcome = merge(&branches, MergeOptions::default()).unwrap();
+        // All agree → last-write picks the same value, no losers → no conflict.
+        assert_eq!(outcome.report.unresolved, 0, "all-agree must produce 0 conflicts");
+        let merged = ClanFile::from_bytes(outcome.bytes).unwrap();
+        let data = merged.read_entry_string("shared/data.yaml").unwrap();
+        assert!(data.contains("approved"), "{data}");
+    }
+
+    // Three agents: partial overlap — two write same key differently, third writes unique key.
+    #[test]
+    fn three_agent_partial_overlap_yields_one_conflict_and_new_keys() {
+        let parent = root();
+        let branches = fork(&parent, &["a".into(), "b".into(), "c".into()]).unwrap();
+        let mut itr = branches.into_iter();
+        let a = with_namespace_data(
+            &ClanFile::from_bytes(itr.next().unwrap().1).unwrap(),
+            serde_json::json!({"status": "good", "a_only": "unique-a"}),
+        );
+        let b = with_namespace_data(
+            &ClanFile::from_bytes(itr.next().unwrap().1).unwrap(),
+            serde_json::json!({"status": "bad"}),
+        );
+        let c = with_namespace_data(
+            &ClanFile::from_bytes(itr.next().unwrap().1).unwrap(),
+            serde_json::json!({"c_only": "unique-c"}),
+        );
+        let outcome = merge(&[a, b, c], MergeOptions::default()).unwrap();
+        assert_eq!(outcome.report.unresolved, 1, "one conflicted key: status");
+        let merged = ClanFile::from_bytes(outcome.bytes).unwrap();
+        let data = merged.read_entry_string("shared/data.yaml").unwrap();
+        assert!(data.contains("unique-a"), "{data}");
+        assert!(data.contains("unique-c"), "{data}");
+        // last-write: c wins for status (c wrote "bad" last... wait, only b wrote "bad" and a wrote "good")
+        // Actually: a writes "good", b writes "bad", c writes nothing for "status"
+        // writers: [(a, "good"), (b, "bad")] → last-write picks b ("bad") at idx 1
+        assert!(data.contains("bad"), "{data}");
+    }
+
+    // One branch writes nothing: merge still succeeds with only the active branch's data.
+    #[test]
+    fn merge_with_empty_branch_succeeds() {
+        let (a, b) = forked_pair();
+        let a = with_namespace_data(&a, serde_json::json!({"finding": "important"}));
+        // b writes nothing; its namespace data.yaml is `{}\n` from fork.
+        let outcome = merge(&[a, b], MergeOptions::default()).unwrap();
+        assert_eq!(outcome.report.unresolved, 0);
+        let merged = ClanFile::from_bytes(outcome.bytes).unwrap();
+        let data = merged.read_entry_string("shared/data.yaml").unwrap();
+        assert!(data.contains("important"), "{data}");
+    }
+
+    // min policy picks the numeric minimum.
+    #[test]
+    fn min_policy_picks_numeric_minimum() {
+        let (a, b) = forked_pair();
+        let a = with_namespace_data(&a, serde_json::json!({"confidence": 9}));
+        let b = with_namespace_data(&b, serde_json::json!({"confidence": 3}));
+        let opts = MergeOptions {
+            policies: Some(MergePolicies {
+                default: None,
+                keys: [("confidence".to_string(), "min".to_string())].into(),
+            }),
+            ..Default::default()
+        };
+        let outcome = merge(&[a, b], opts).unwrap();
+        assert_eq!(
+            outcome.report.conflicts[0].winner.value,
+            serde_json::json!(3)
+        );
+        assert_eq!(outcome.report.conflicts[0].winner.agent, "beta");
+    }
+
+    // agent-priority policy always picks the first branch regardless of value.
+    #[test]
+    fn agent_priority_always_picks_first_branch() {
+        let (a, b) = forked_pair();
+        let a = with_namespace_data(&a, serde_json::json!({"decision": "reject"}));
+        let b = with_namespace_data(&b, serde_json::json!({"decision": "accept"}));
+        let opts = MergeOptions {
+            policies: Some(MergePolicies {
+                default: None,
+                keys: [("decision".to_string(), "agent-priority".to_string())].into(),
+            }),
+            ..Default::default()
+        };
+        let outcome = merge(&[a, b], opts).unwrap();
+        assert_eq!(outcome.report.conflicts[0].winner.agent, "alpha");
+        assert_eq!(outcome.report.conflicts[0].winner.value, serde_json::json!("reject"));
+    }
+
+    // view.stale must be set to true on the merged file when there was an existing view.
+    #[test]
+    fn merge_marks_existing_view_stale() {
+        // Create a parent that has a rendered view (default).
+        let bytes = crate::create::create(crate::create::CreateOptions {
+            title: "Stale Test".into(),
+            brief: "brief".into(),
+            document_type: None,
+            no_render: false, // has a view
+            schema: None,
+        })
+        .unwrap();
+        let parent = ClanFile::from_bytes(bytes).unwrap();
+        assert!(parent.manifest().view.as_ref().map_or(false, |v| v.present));
+
+        let branches = fork(&parent, &["x".into(), "y".into()]).unwrap();
+        let x = ClanFile::from_bytes(branches[0].1.clone()).unwrap();
+        let x = with_namespace_data(&x, serde_json::json!({"data": "something"}));
+        let y = ClanFile::from_bytes(branches[1].1.clone()).unwrap();
+
+        let outcome = merge(&[x, y], MergeOptions::default()).unwrap();
+        let merged = ClanFile::from_bytes(outcome.bytes).unwrap();
+        let view = merged.manifest().view.as_ref().unwrap();
+        assert!(view.stale, "view must be stale after a data-touching merge");
+    }
+
+    // Schema entry is preserved byte-for-byte through fork → merge.
+    #[test]
+    fn schema_entry_preserved_through_fork_merge() {
+        let schema_json = r#"{"type":"object","required":["verdict"],"properties":{"verdict":{"type":"string"}}}"#;
+        let bytes = crate::create::create(crate::create::CreateOptions {
+            title: "Schema Test".into(),
+            brief: "brief".into(),
+            document_type: None,
+            no_render: true,
+            schema: Some(schema_json.to_string()),
+        })
+        .unwrap();
+        let parent = ClanFile::from_bytes(bytes).unwrap();
+        let original_schema = parent.read_entry("agent/output-schema.json").unwrap();
+
+        let branches = fork(&parent, &["p".into(), "q".into()]).unwrap();
+        let p = ClanFile::from_bytes(branches[0].1.clone()).unwrap();
+        let q = ClanFile::from_bytes(branches[1].1.clone()).unwrap();
+
+        let outcome = merge(&[p, q], MergeOptions::default()).unwrap();
+        let merged = ClanFile::from_bytes(outcome.bytes).unwrap();
+        let schema_after = merged.read_entry("agent/output-schema.json").unwrap();
+        assert_eq!(original_schema, schema_after, "schema must survive fork/merge unchanged");
+    }
+
+    // Five agents, all writing disjoint keys: 0 conflicts, all keys present in merged data.
+    #[test]
+    fn five_agent_fork_merge_all_disjoint() {
+        let parent = root();
+        let agent_ids: Vec<String> = (0..5).map(|i| format!("agent{i}")).collect();
+        let branches = fork(&parent, &agent_ids).unwrap();
+        let branches: Vec<ClanFile> = branches
+            .into_iter()
+            .enumerate()
+            .map(|(i, (_, bytes))| {
+                let b = ClanFile::from_bytes(bytes).unwrap();
+                with_namespace_data(&b, serde_json::json!({format!("key{i}"): format!("val{i}")}))
+            })
+            .collect();
+        let outcome = merge(&branches, MergeOptions::default()).unwrap();
+        assert_eq!(outcome.report.unresolved, 0);
+        let merged = ClanFile::from_bytes(outcome.bytes).unwrap();
+        let data = merged.read_entry_string("shared/data.yaml").unwrap();
+        for i in 0..5 {
+            assert!(data.contains(&format!("key{i}")), "key{i} missing: {data}");
+            assert!(data.contains(&format!("val{i}")), "val{i} missing: {data}");
+        }
+        // All 5 parents listed in lineage.
+        assert_eq!(merged.manifest().lineage.as_ref().unwrap().parents.len(), 5);
+    }
+
+    // Unicode values round-trip through fork/merge without corruption.
+    #[test]
+    fn unicode_values_survive_fork_merge() {
+        let (a, b) = forked_pair();
+        let a = with_namespace_data(&a, serde_json::json!({
+            "emoji_key": "🎯 target",
+            "cjk": "日本語テスト",
+        }));
+        let b = with_namespace_data(&b, serde_json::json!({
+            "arabic": "مرحبا بالعالم",
+        }));
+        let outcome = merge(&[a, b], MergeOptions::default()).unwrap();
+        assert_eq!(outcome.report.unresolved, 0);
+        let merged = ClanFile::from_bytes(outcome.bytes).unwrap();
+        let data = merged.read_entry_string("shared/data.yaml").unwrap();
+        assert!(data.contains("🎯"), "emoji lost: {data}");
+        assert!(data.contains("日本語"), "CJK lost: {data}");
+        assert!(data.contains("مرحبا"), "Arabic lost: {data}");
+    }
+
+    // Mixed-policy merge: some keys append, one is max, one is last-write.
+    #[test]
+    fn mixed_per_key_policies_all_applied_correctly() {
+        let (a, b) = forked_pair();
+        let a = with_namespace_data(&a, serde_json::json!({
+            "tags": ["alpha"],
+            "score": 8,
+            "status": "pending",
+        }));
+        let b = with_namespace_data(&b, serde_json::json!({
+            "tags": ["beta"],
+            "score": 5,
+            "status": "done",
+        }));
+        let opts = MergeOptions {
+            policies: Some(MergePolicies {
+                default: Some("last-write".into()),
+                keys: [
+                    ("tags".to_string(), "append".to_string()),
+                    ("score".to_string(), "max".to_string()),
+                ]
+                .into(),
+            }),
+            ..Default::default()
+        };
+        let outcome = merge(&[a, b], opts).unwrap();
+        let merged = ClanFile::from_bytes(outcome.bytes).unwrap();
+        let data: serde_json::Value = serde_yaml::from_str(
+            &merged.read_entry_string("shared/data.yaml").unwrap(),
+        )
+        .unwrap();
+        // tags → append: both present
+        let tags = data["tags"].as_array().unwrap();
+        assert_eq!(tags.len(), 2);
+        // score → max: 8 wins
+        assert_eq!(data["score"], serde_json::json!(8));
+        // status → last-write: "done" (beta is last)
+        assert_eq!(data["status"], serde_json::json!("done"));
+        // tags used append so no conflict; score and status are conflicts
+        assert_eq!(outcome.report.unresolved, 2);
+    }
+
+    // After settling all contested keys, unresolved drops to 0.
+    #[test]
+    fn settle_all_contested_keys_clears_unresolved() {
+        let (a, b) = forked_pair();
+        let a = with_namespace_data(&a, serde_json::json!({"x": 1, "y": "alpha"}));
+        let b = with_namespace_data(&b, serde_json::json!({"x": 2, "y": "beta"}));
+        let outcome = merge(&[a, b], MergeOptions::default()).unwrap();
+        assert_eq!(outcome.report.unresolved, 2);
+
+        let mut merged = ClanFile::from_bytes(outcome.bytes).unwrap();
+        // Settle x.
+        let after_x = crate::pack::patch_data(&merged, &serde_json::json!({"x": 99}), None).unwrap();
+        merged = ClanFile::from_bytes(after_x).unwrap();
+        let report: MergeReport = MergeReport::from_yaml(
+            &merged.read_entry(MERGE_REPORT_PATH).unwrap(),
+        ).unwrap();
+        assert_eq!(report.unresolved, 1);
+
+        // Settle y.
+        let after_y = crate::pack::patch_data(&merged, &serde_json::json!({"y": "final"}), None).unwrap();
+        merged = ClanFile::from_bytes(after_y).unwrap();
+        let report: MergeReport = MergeReport::from_yaml(
+            &merged.read_entry(MERGE_REPORT_PATH).unwrap(),
+        ).unwrap();
+        assert_eq!(report.unresolved, 0, "all keys settled");
+    }
 }

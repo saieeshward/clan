@@ -646,3 +646,270 @@ fn patch_html_matching_selector_succeeds() {
     let read = clan(&["read", "human", parent.to_str().unwrap()]);
     assert!(String::from_utf8_lossy(&read.stdout).contains("id=\"added\""));
 }
+
+// --- Multi-agent edge-case CLI tests ---
+
+/// Three agents fork from same parent, each write unique keys, merge → 0 conflicts.
+#[test]
+fn three_agents_fork_merge_roundtrip() {
+    let dir = tempfile::tempdir().unwrap();
+    let root = dir.path().join("root.clan");
+    clan(&["create", "--title", "3-Agent", "--brief", "b", "--no-render",
+           "--output", root.to_str().unwrap()]);
+    let branches = dir.path().join("branches");
+    let out = clan(&[
+        "fork", root.to_str().unwrap(),
+        "--agents", "alpha,beta,gamma",
+        "--output-dir", branches.to_str().unwrap(),
+    ]);
+    assert!(out.status.success(), "fork 3 agents: {}", stderr(&out));
+
+    for (agent, key, val) in [("alpha", "a_key", "a_val"), ("beta", "b_key", "b_val"), ("gamma", "c_key", "c_val")] {
+        let patch = dir.path().join(format!("{agent}.json"));
+        std::fs::write(&patch, format!(r#"{{"{key}": "{val}"}}"#)).unwrap();
+        let branch = branches.join(format!("{agent}.clan"));
+        let out = clan(&["patch-data", branch.to_str().unwrap(), patch.to_str().unwrap(), "--namespace"]);
+        assert!(out.status.success(), "{agent} write: {}", stderr(&out));
+    }
+
+    let merged = dir.path().join("merged.clan");
+    let out = clan(&[
+        "merge",
+        branches.join("alpha.clan").to_str().unwrap(),
+        branches.join("beta.clan").to_str().unwrap(),
+        branches.join("gamma.clan").to_str().unwrap(),
+        "--output", merged.to_str().unwrap(),
+    ]);
+    assert!(out.status.success(), "3-agent merge: {}", stderr(&out));
+
+    let report = stdout(&clan(&["read", "report", merged.to_str().unwrap()]));
+    assert!(report.contains("unresolved: 0"), "no conflicts expected: {report}");
+
+    let data = stdout(&clan(&["read", "data", merged.to_str().unwrap()]));
+    assert!(data.contains("a_val") && data.contains("b_val") && data.contains("c_val"), "{data}");
+
+    assert!(clan(&["validate", merged.to_str().unwrap()]).status.success());
+}
+
+/// Fork 3 branches, merge only 2: the third is left unmerged.
+#[test]
+fn partial_merge_two_of_three_branches() {
+    let dir = tempfile::tempdir().unwrap();
+    let root = dir.path().join("root.clan");
+    clan(&["create", "--title", "Partial", "--brief", "b", "--no-render",
+           "--output", root.to_str().unwrap()]);
+    let branches = dir.path().join("branches");
+    clan(&["fork", root.to_str().unwrap(),
+           "--agents", "r1,r2,r3",
+           "--output-dir", branches.to_str().unwrap()]);
+
+    for (agent, val) in [("r1", "rv1"), ("r2", "rv2")] {
+        let patch = dir.path().join(format!("{agent}.json"));
+        std::fs::write(&patch, format!(r#"{{"{agent}_key": "{val}"}}"#)).unwrap();
+        clan(&["patch-data", branches.join(format!("{agent}.clan")).to_str().unwrap(),
+               patch.to_str().unwrap(), "--namespace"]);
+    }
+
+    // Merge only r1 + r2, intentionally omitting r3.
+    let merged = dir.path().join("partial.clan");
+    let out = clan(&[
+        "merge",
+        branches.join("r1.clan").to_str().unwrap(),
+        branches.join("r2.clan").to_str().unwrap(),
+        "--output", merged.to_str().unwrap(),
+    ]);
+    assert!(out.status.success(), "partial merge: {}", stderr(&out));
+    let data = stdout(&clan(&["read", "data", merged.to_str().unwrap()]));
+    assert!(data.contains("rv1") && data.contains("rv2"), "{data}");
+    assert!(!data.contains("r3_key"), "r3 not merged: {data}");
+}
+
+/// All agents write the same value for the same key: no conflict produced.
+#[test]
+fn all_agents_agree_produces_no_conflict() {
+    let dir = tempfile::tempdir().unwrap();
+    let root = dir.path().join("root.clan");
+    clan(&["create", "--title", "Agree", "--brief", "b", "--no-render",
+           "--output", root.to_str().unwrap()]);
+    let branches = dir.path().join("branches");
+    clan(&["fork", root.to_str().unwrap(), "--agents", "a,b,c",
+           "--output-dir", branches.to_str().unwrap()]);
+
+    for agent in ["a", "b", "c"] {
+        let patch = dir.path().join(format!("{agent}.json"));
+        std::fs::write(&patch, r#"{"verdict": "approved"}"#).unwrap();
+        clan(&["patch-data", branches.join(format!("{agent}.clan")).to_str().unwrap(),
+               patch.to_str().unwrap(), "--namespace"]);
+    }
+
+    let merged = dir.path().join("agreed.clan");
+    clan(&["merge",
+           branches.join("a.clan").to_str().unwrap(),
+           branches.join("b.clan").to_str().unwrap(),
+           branches.join("c.clan").to_str().unwrap(),
+           "--output", merged.to_str().unwrap()]);
+
+    let report = stdout(&clan(&["read", "report", merged.to_str().unwrap()]));
+    assert!(report.contains("unresolved: 0"), "all-agree must yield 0 conflicts: {report}");
+}
+
+/// Settle two contested keys one at a time; unresolved decrements correctly.
+#[test]
+fn multi_key_adjudication_decrements_incrementally() {
+    let dir = tempfile::tempdir().unwrap();
+    let merged = forked_merged(dir.path()); // findings=append, status=last-write → 1 conflict
+
+    // Add a second contested key via a fresh fork/merge with two keys conflicting.
+    // Instead, create a separate merge with 2 contested keys.
+    let root = dir.path().join("root2.clan");
+    clan(&["create", "--title", "Multi", "--brief", "b", "--no-render",
+           "--output", root.to_str().unwrap()]);
+    let br = dir.path().join("br");
+    clan(&["fork", root.to_str().unwrap(), "--agents", "p,q", "--output-dir", br.to_str().unwrap()]);
+
+    let p_patch = dir.path().join("p.json");
+    std::fs::write(&p_patch, r#"{"k1": "p1", "k2": "p2"}"#).unwrap();
+    clan(&["patch-data", br.join("p.clan").to_str().unwrap(), p_patch.to_str().unwrap(), "--namespace"]);
+
+    let q_patch = dir.path().join("q.json");
+    std::fs::write(&q_patch, r#"{"k1": "q1", "k2": "q2"}"#).unwrap();
+    clan(&["patch-data", br.join("q.clan").to_str().unwrap(), q_patch.to_str().unwrap(), "--namespace"]);
+
+    let m = dir.path().join("m2.clan");
+    clan(&["merge", br.join("p.clan").to_str().unwrap(), br.join("q.clan").to_str().unwrap(),
+           "--output", m.to_str().unwrap()]);
+
+    let report = stdout(&clan(&["read", "report", m.to_str().unwrap()]));
+    assert!(report.contains("unresolved: 2"), "expect 2 conflicts: {report}");
+
+    // Settle k1.
+    let adj = dir.path().join("adj1.json");
+    std::fs::write(&adj, r#"{"k1": "settled"}"#).unwrap();
+    clan(&["patch-data", m.to_str().unwrap(), adj.to_str().unwrap()]);
+    let report = stdout(&clan(&["read", "report", m.to_str().unwrap()]));
+    assert!(report.contains("unresolved: 1"), "after 1st settle: {report}");
+
+    // Settle k2.
+    let adj2 = dir.path().join("adj2.json");
+    std::fs::write(&adj2, r#"{"k2": "done"}"#).unwrap();
+    clan(&["patch-data", m.to_str().unwrap(), adj2.to_str().unwrap()]);
+    let report = stdout(&clan(&["read", "report", m.to_str().unwrap()]));
+    assert!(report.contains("unresolved: 0"), "all settled: {report}");
+}
+
+/// pack-html on a forked branch file is rejected with a teaching error.
+#[test]
+fn pack_html_on_forked_branch_is_teaching_error() {
+    let dir = tempfile::tempdir().unwrap();
+    let root = dir.path().join("root.clan");
+    clan(&["create", "--title", "T", "--brief", "b", "--output", root.to_str().unwrap()]);
+    let branches = dir.path().join("branches");
+    clan(&["fork", root.to_str().unwrap(), "--agents", "a,b",
+           "--output-dir", branches.to_str().unwrap()]);
+
+    let html = dir.path().join("view.html");
+    std::fs::write(&html, "<!DOCTYPE html><html><body><p>hi</p></body></html>").unwrap();
+    let branch = branches.join("a.clan");
+    let before = std::fs::read(&branch).unwrap();
+
+    let out = clan(&["pack-html", branch.to_str().unwrap(), html.to_str().unwrap(),
+                     "--output", dir.path().join("out.clan").to_str().unwrap()]);
+    assert!(!out.status.success(), "pack-html on branch must fail");
+    let err = stderr(&out);
+    assert!(err.contains("--namespace") || err.contains("forked") || err.contains("merge"),
+            "error must teach the correct path: {err}");
+    assert_eq!(before, std::fs::read(&branch).unwrap(), "branch file must be untouched");
+}
+
+/// After merging, the resulting file can be forked again for a second parallel pass.
+#[test]
+fn fork_merge_then_fork_again_works() {
+    let dir = tempfile::tempdir().unwrap();
+    let merged = forked_merged(dir.path());
+
+    // Settle the conflict first so merged is clean.
+    let adj = dir.path().join("adj.json");
+    std::fs::write(&adj, r#"{"status": "final"}"#).unwrap();
+    clan(&["patch-data", merged.to_str().unwrap(), adj.to_str().unwrap()]);
+
+    // Fork the merged result for a second parallel pass.
+    let round2 = dir.path().join("round2");
+    let out = clan(&[
+        "fork", merged.to_str().unwrap(),
+        "--agents", "writer,reviewer",
+        "--output-dir", round2.to_str().unwrap(),
+    ]);
+    assert!(out.status.success(), "re-fork after merge must work: {}", stderr(&out));
+    assert!(round2.join("writer.clan").exists());
+    assert!(round2.join("reviewer.clan").exists());
+
+    // Both are valid forks.
+    assert!(clan(&["validate", round2.join("writer.clan").to_str().unwrap()]).status.success());
+}
+
+/// Merged file passes full validation.
+#[test]
+fn merged_file_validates_cleanly() {
+    let dir = tempfile::tempdir().unwrap();
+    let merged = forked_merged(dir.path());
+    let out = clan(&["validate", merged.to_str().unwrap()]);
+    assert!(out.status.success(), "merged file must validate: {}", stderr(&out));
+}
+
+/// --skip-guide on a forked branch: branch mode block still injected despite guide being omitted.
+#[test]
+fn skip_guide_on_forked_file_still_injects_branch_block() {
+    let dir = tempfile::tempdir().unwrap();
+    let root = dir.path().join("root.clan");
+    clan(&["create", "--title", "T", "--brief", "b", "--output", root.to_str().unwrap()]);
+    let branches = dir.path().join("branches");
+    clan(&["fork", root.to_str().unwrap(), "--agents", "a,b",
+           "--output-dir", branches.to_str().unwrap()]);
+
+    let out = clan(&["read", "agent", branches.join("a.clan").to_str().unwrap(), "--skip-guide"]);
+    assert!(out.status.success(), "{}", stderr(&out));
+    let ctx = stdout(&out);
+    assert!(ctx.contains("guide body skipped"), "guide must be skipped: {ctx}");
+    assert!(ctx.contains("# Branch Mode"), "branch block must still inject: {ctx}");
+    assert!(ctx.contains("agents/a/"), "{ctx}");
+}
+
+/// Five-agent fork/merge stress: all 5 branches write to the same key, last-write wins.
+#[test]
+fn five_agent_last_write_stress() {
+    let dir = tempfile::tempdir().unwrap();
+    let root = dir.path().join("root.clan");
+    clan(&["create", "--title", "5Agent", "--brief", "b", "--no-render",
+           "--output", root.to_str().unwrap()]);
+    let branches = dir.path().join("branches");
+    clan(&["fork", root.to_str().unwrap(),
+           "--agents", "a0,a1,a2,a3,a4",
+           "--output-dir", branches.to_str().unwrap()]);
+
+    for i in 0..5usize {
+        let patch = dir.path().join(format!("p{i}.json"));
+        std::fs::write(&patch, format!(r#"{{"shared_key": "from_agent_{i}"}}"#)).unwrap();
+        let b = branches.join(format!("a{i}.clan"));
+        clan(&["patch-data", b.to_str().unwrap(), patch.to_str().unwrap(), "--namespace"]);
+    }
+
+    let merged = dir.path().join("merged5.clan");
+    let out = clan(&[
+        "merge",
+        branches.join("a0.clan").to_str().unwrap(),
+        branches.join("a1.clan").to_str().unwrap(),
+        branches.join("a2.clan").to_str().unwrap(),
+        branches.join("a3.clan").to_str().unwrap(),
+        branches.join("a4.clan").to_str().unwrap(),
+        "--output", merged.to_str().unwrap(),
+    ]);
+    assert!(out.status.success(), "5-agent merge: {}", stderr(&out));
+
+    // last-write: the last listed agent (a4) wins.
+    let data = stdout(&clan(&["read", "data", merged.to_str().unwrap()]));
+    assert!(data.contains("from_agent_4"), "last-write winner must be a4: {data}");
+
+    let report = stdout(&clan(&["read", "report", merged.to_str().unwrap()]));
+    assert!(report.contains("unresolved: 1"), "one conflict (shared_key): {report}");
+    assert!(clan(&["validate", merged.to_str().unwrap()]).status.success());
+}
