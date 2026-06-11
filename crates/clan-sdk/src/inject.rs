@@ -78,7 +78,11 @@ pub fn assemble(clan: &ClanFile, opts: &InjectOptions) -> Result<AgentContext> {
                  - data: `clan patch-data <file> <json> --namespace` (routes to {ns}data.yaml)\n\
                  - decisions: `clan patch-decision` (auto-routed to {ns}decisions.yaml)\n\
                  Writes to shared/ are rejected until the branches are joined with `clan merge`.\n\
-                 Your namespace folds into shared/data.yaml via the manifest merge policies.",
+                 Your namespace folds into shared/data.yaml via the manifest merge policies.\n\
+                 Naming: pick distinct, specific keys. If you write a prose/narrative field a \
+                 sibling is also likely to write (e.g. `assumptions`, `summary`, `notes`), the \
+                 default last-write-wins fold will keep only one — prefix it with your agent id \
+                 (e.g. `assumptions_{agent}`) or expect the merge to flag it as contested.",
                 agent = fork.agent_id,
                 ns = fork.namespace,
             ),

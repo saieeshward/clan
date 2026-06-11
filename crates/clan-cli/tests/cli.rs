@@ -532,6 +532,102 @@ fn hints_are_precondition_gated() {
     assert!(!err.contains("merge"), "{err}");
 }
 
+// --- v1.1 finding fixes (F3, F7, F8, F9, F12) ---
+
+#[test]
+fn patch_data_tolerates_utf8_bom() {
+    // PowerShell 5.1 Out-File writes a UTF-8 BOM by default (F3).
+    let dir = tempfile::tempdir().unwrap();
+    let parent = create_parent(dir.path());
+    let patch = dir.path().join("bom.json");
+    let mut bytes = vec![0xEF, 0xBB, 0xBF]; // UTF-8 BOM
+    bytes.extend_from_slice(br#"{"vendor": "Acme"}"#);
+    std::fs::write(&patch, bytes).unwrap();
+
+    let out = clan(&["patch-data", parent.to_str().unwrap(), patch.to_str().unwrap()]);
+    assert!(out.status.success(), "BOM JSON must parse: {}", stderr(&out));
+    let data = stdout(&clan(&["read", "data", parent.to_str().unwrap()]));
+    assert!(data.contains("Acme"), "{data}");
+}
+
+#[test]
+fn read_decisions_aliases_read_chain() {
+    let dir = tempfile::tempdir().unwrap();
+    let parent = create_parent(dir.path());
+    let chain = clan(&["read", "chain", parent.to_str().unwrap()]);
+    let decisions = clan(&["read", "decisions", parent.to_str().unwrap()]);
+    assert!(decisions.status.success(), "alias must work: {}", stderr(&decisions));
+    assert_eq!(stdout(&chain), stdout(&decisions));
+}
+
+#[test]
+fn create_seeds_schema_and_requirements() {
+    let dir = tempfile::tempdir().unwrap();
+    let schema = dir.path().join("s.json");
+    std::fs::write(&schema, r#"{"type":"object","required":["verdict"],"properties":{"verdict":{"type":"string"}}}"#).unwrap();
+    let reqs = dir.path().join("r.yaml");
+    std::fs::write(&reqs, "requires:\n  tools:\n    - name: web_search\n").unwrap();
+    let path = dir.path().join("seeded.clan");
+
+    let out = clan(&[
+        "create", "--title", "T", "--brief", "b",
+        "--schema", schema.to_str().unwrap(),
+        "--requirements", reqs.to_str().unwrap(),
+        "--output", path.to_str().unwrap(),
+    ]);
+    assert!(out.status.success(), "{}", stderr(&out));
+
+    // Schema seeded: a non-conforming pack is rejected by validation.
+    let ctx = stdout(&clan(&["read", "agent", path.to_str().unwrap()]));
+    assert!(ctx.contains("verdict"), "seeded schema fields must appear in context: {ctx}");
+    assert!(ctx.contains("# Capability Requirements"), "requirements block must inject: {ctx}");
+    assert!(ctx.contains("web_search"), "{ctx}");
+
+    // A bad seed schema is rejected up front.
+    let bad = dir.path().join("bad.clan");
+    let badschema = dir.path().join("bad.json");
+    std::fs::write(&badschema, "{not json").unwrap();
+    let out = clan(&["create", "--title", "T", "--brief", "b", "--schema", badschema.to_str().unwrap(), "--output", bad.to_str().unwrap()]);
+    assert!(!out.status.success(), "invalid seed schema must fail");
+}
+
+#[test]
+fn fork_context_dir_overrides_branch_task() {
+    let dir = tempfile::tempdir().unwrap();
+    let root = dir.path().join("root.clan");
+    clan(&["create", "--title", "T", "--brief", "parent brief", "--output", root.to_str().unwrap()]);
+
+    let ctxdir = dir.path().join("ctx");
+    std::fs::create_dir_all(&ctxdir).unwrap();
+    std::fs::write(ctxdir.join("alpha.md"), "ALPHA TASK ONLY").unwrap();
+
+    let branches = dir.path().join("br");
+    let out = clan(&[
+        "fork", root.to_str().unwrap(), "--agents", "alpha,beta",
+        "--output-dir", branches.to_str().unwrap(),
+        "--context-dir", ctxdir.to_str().unwrap(),
+    ]);
+    assert!(out.status.success(), "{}", stderr(&out));
+
+    let alpha_ctx = stdout(&clan(&["read", "agent", branches.join("alpha.clan").to_str().unwrap()]));
+    assert!(alpha_ctx.contains("ALPHA TASK ONLY"), "override applied: {alpha_ctx}");
+    let beta_ctx = stdout(&clan(&["read", "agent", branches.join("beta.clan").to_str().unwrap()]));
+    assert!(beta_ctx.contains("parent brief"), "beta keeps parent task");
+    assert!(beta_ctx.contains("# Branch Mode"), "branch banner present");
+}
+
+#[test]
+fn patch_data_no_decision_leaves_chain_empty() {
+    // F1 at the CLI: a plain patch-data must not add an unknown-agent entry.
+    let dir = tempfile::tempdir().unwrap();
+    let parent = create_parent(dir.path());
+    let patch = dir.path().join("p.json");
+    std::fs::write(&patch, r#"{"x": 1}"#).unwrap();
+    clan(&["patch-data", parent.to_str().unwrap(), patch.to_str().unwrap()]);
+    let chain = stdout(&clan(&["read", "chain", parent.to_str().unwrap()]));
+    assert!(!chain.contains("unknown-agent"), "F1: no placeholder decision: {chain}");
+}
+
 #[test]
 fn patch_html_matching_selector_succeeds() {
     let dir = tempfile::tempdir().unwrap();

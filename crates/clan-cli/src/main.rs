@@ -23,10 +23,10 @@ use std::path::PathBuf;
 use anyhow::{Context, Result};
 use clap::{Parser, Subcommand};
 use clan_sdk::{
-    assemble, create, export_static, fork, merge, pack, pack_html, patch_data,
-    patch_data_namespaced, patch_decision, patch_state, patch_context, patch_asset, render,
-    validate, AgentOutput, ClanFile, CreateOptions, InjectOptions, MergeOptions, MergePolicies,
-    PackOptions, DecisionEntry, MERGE_REPORT_PATH,
+    assemble, create, export_static, fork_with_contexts, merge, pack, pack_html, patch_data,
+    patch_data_namespaced, patch_decision, patch_requirements, patch_state, patch_context,
+    patch_asset, render, validate, AgentOutput, ClanFile, CreateOptions, InjectOptions,
+    MergeOptions, MergePolicies, PackOptions, DecisionEntry, MERGE_REPORT_PATH,
 };
 
 #[derive(Parser)]
@@ -64,6 +64,14 @@ enum Commands {
         /// materialise it with `clan render`.
         #[arg(long)]
         no_render: bool,
+        /// Seed `agent/output-schema.json` with this JSON Schema instead of the
+        /// permissive `{type:object}` stub — gives the first agent real field
+        /// guidance (F9).
+        #[arg(long, value_name = "PATH")]
+        schema: Option<PathBuf>,
+        /// Seed `agent/requirements.yaml` with declared tool/capability needs.
+        #[arg(long, value_name = "PATH")]
+        requirements: Option<PathBuf>,
         /// Deprecated: positional output path. Use --output instead.
         #[arg(value_name = "OUTPUT", conflicts_with = "output", hide = true)]
         positional_output: Option<PathBuf>,
@@ -79,6 +87,11 @@ enum Commands {
         /// Directory to write `<agent>.clan` branch files into.
         #[arg(long, value_name = "DIR")]
         output_dir: PathBuf,
+        /// Optional directory of per-branch tasks: a file `<agent>.md` becomes
+        /// that branch's agent/context.md, so branches get role-specific tasks
+        /// instead of inheriting the parent's (F7).
+        #[arg(long, value_name = "DIR")]
+        context_dir: Option<PathBuf>,
     },
     /// Join fork branches into one merged file (spec §24.3): a deterministic
     /// per-key fold — conflicts land in merge-report.yaml, not failures.
@@ -215,6 +228,15 @@ enum Commands {
         /// Local file containing the asset.
         local_file: PathBuf,
     },
+    /// Write or replace `agent/requirements.yaml` — declared tool/capability
+    /// needs (spec §22 layer 5). Surfaced in agent context and warned (not
+    /// failed) on by receiving orchestrators.
+    PatchRequirements {
+        /// The .clan file to edit in-place.
+        file: PathBuf,
+        /// YAML requirements file (or `-` for stdin).
+        requirements_file: String,
+    },
 
     /// Export a .clan as a single JSON blob for SDK-less agents.
     ExportStatic {
@@ -265,7 +287,8 @@ enum ReadSection {
     Human { file: PathBuf },
     /// Print shared/data.yaml.
     Data { file: PathBuf },
-    /// Print agent/decision-chain.yaml.
+    /// Print agent/decision-chain.yaml. (Alias: `decisions`.)
+    #[command(alias = "decisions")]
     Chain { file: PathBuf },
     /// Print merge-report.yaml (contested keys from the last merge), TOON-encoded.
     Report { file: PathBuf },
@@ -330,6 +353,8 @@ fn main() -> Result<()> {
             doc_type,
             output,
             no_render,
+            schema,
+            requirements,
             positional_output,
         } => {
             let output = match (output, positional_output) {
@@ -342,9 +367,9 @@ fn main() -> Result<()> {
                 }
                 (None, None) => anyhow::bail!("missing output path: pass --output <PATH>"),
             };
-            cmd_create(title, brief, doc_type, output, no_render, &hints)
+            cmd_create(title, brief, doc_type, output, no_render, schema, requirements, &hints)
         }
-        Commands::Fork { parent, agents, output_dir } => cmd_fork(parent, agents, output_dir, &hints),
+        Commands::Fork { parent, agents, output_dir, context_dir } => cmd_fork(parent, agents, output_dir, context_dir, &hints),
         Commands::Merge { branches, output, policies, prune_namespaces, delta } => {
             cmd_merge(branches, output, policies, prune_namespaces, delta, &hints)
         }
@@ -367,6 +392,7 @@ fn main() -> Result<()> {
         Commands::PatchState { file, json_file } => cmd_patch_state(file, json_file),
         Commands::PatchContext { file, markdown_file, append } => cmd_patch_context(file, markdown_file, append),
         Commands::PatchAsset { file, internal_path, local_file } => cmd_patch_asset(file, internal_path, local_file),
+        Commands::PatchRequirements { file, requirements_file } => cmd_patch_requirements(file, requirements_file),
         Commands::ExportStatic { file, output } => cmd_export_static(file, output),
         Commands::PackHtml { parent, html_file, output, assets, schema, delta } => {
             cmd_pack_html(parent, html_file, output, assets, schema, delta, &hints)
@@ -432,7 +458,14 @@ fn file_state_hints(clan: &ClanFile, path: &std::path::Path) -> Vec<String> {
                 "file is agent-only; `clan render {p}` materialises the human view when needed"
             ));
         } else if view.present && view.stale {
-            hints.push(format!("human view is stale — `clan render {p}` to refresh"));
+            // Don't suggest a destructive `render` over a hand-authored view (F2).
+            if view.source.as_deref() == Some("agent") {
+                hints.push(format!(
+                    "human view is stale and hand-authored — re-run `clan pack-html` to refresh it (or `clan render {p}` to REPLACE it with the default theme, discarding the custom design)"
+                ));
+            } else {
+                hints.push(format!("human view is stale — `clan render {p}` to refresh"));
+            }
         }
     }
     hints
@@ -444,15 +477,32 @@ fn cmd_create(
     doc_type: Option<String>,
     output: PathBuf,
     no_render: bool,
+    schema_path: Option<PathBuf>,
+    requirements_path: Option<PathBuf>,
     hints: &Hints,
 ) -> Result<()> {
+    let schema = match schema_path {
+        Some(p) => Some(std::fs::read_to_string(&p).with_context(|| format!("could not read schema {}", p.display()))?),
+        None => None,
+    };
     let bytes = create(CreateOptions {
         title: title.clone(),
         brief,
         document_type: doc_type,
         no_render,
+        schema,
     })
     .context("failed to create .clan file")?;
+
+    // Seed requirements.yaml if supplied (F8) — one extra generation.
+    let bytes = if let Some(p) = requirements_path {
+        let req = std::fs::read_to_string(&p).with_context(|| format!("could not read {}", p.display()))?;
+        let clan = ClanFile::from_bytes(bytes)?;
+        patch_requirements(&clan, &req).context("failed to seed requirements.yaml")?
+    } else {
+        bytes
+    };
+
     std::fs::write(&output, &bytes)
         .with_context(|| format!("could not write {}", output.display()))?;
     let clan = ClanFile::from_bytes(bytes.clone())?;
@@ -468,9 +518,29 @@ fn cmd_create(
     Ok(())
 }
 
-fn cmd_fork(parent_path: PathBuf, agents: Vec<String>, output_dir: PathBuf, hints: &Hints) -> Result<()> {
+fn cmd_fork(
+    parent_path: PathBuf,
+    agents: Vec<String>,
+    output_dir: PathBuf,
+    context_dir: Option<PathBuf>,
+    hints: &Hints,
+) -> Result<()> {
     let parent = open(&parent_path)?;
-    let branches = fork(&parent, &agents).context("fork failed")?;
+    // Per-branch task overrides: <agent>.md in --context-dir (F7).
+    let contexts = match &context_dir {
+        Some(dir) => {
+            let mut map = std::collections::BTreeMap::new();
+            for agent in &agents {
+                let p = dir.join(format!("{}.md", agent.trim()));
+                if p.is_file() {
+                    map.insert(agent.trim().to_string(), std::fs::read_to_string(&p).with_context(|| format!("could not read {}", p.display()))?);
+                }
+            }
+            Some(map)
+        }
+        None => None,
+    };
+    let branches = fork_with_contexts(&parent, &agents, contexts.as_ref()).context("fork failed")?;
     std::fs::create_dir_all(&output_dir)
         .with_context(|| format!("could not create {}", output_dir.display()))?;
     for (agent_id, bytes) in &branches {
@@ -649,15 +719,7 @@ fn cmd_pack(
 ) -> Result<()> {
     let parent = open(&parent_path)?;
 
-    let json = if output_json == "-" {
-        use std::io::Read;
-        let mut s = String::new();
-        std::io::stdin().read_to_string(&mut s)?;
-        s
-    } else {
-        std::fs::read_to_string(&output_json)
-            .with_context(|| format!("could not read {output_json}"))?
-    };
+    let json = read_source(&output_json)?;
 
     let agent_output = AgentOutput::from_json(&json).context("failed to parse agent output")?;
     let schema_override = if let Some(sp) = schema_path {
@@ -708,15 +770,7 @@ fn cmd_pack_html(
 ) -> Result<()> {
     let parent = open(&parent_path)?;
 
-    let raw_html = if html_file == "-" {
-        use std::io::Read;
-        let mut s = String::new();
-        std::io::stdin().read_to_string(&mut s)?;
-        s
-    } else {
-        std::fs::read_to_string(&html_file)
-            .with_context(|| format!("could not read {html_file}"))?
-    };
+    let raw_html = read_source(&html_file)?;
 
     let mut assets_map = std::collections::HashMap::new();
     if let Some(dir) = assets_dir {
@@ -748,15 +802,8 @@ fn cmd_pack_html(
 
 fn cmd_patch_html(file: PathBuf, html_file: String, delta: Option<String>) -> Result<()> {
     let clan = open(&file)?;
-    let raw_html = if html_file == "-" {
-        use std::io::Read;
-        let mut s = String::new();
-        std::io::stdin().read_to_string(&mut s)?;
-        s
-    } else {
-        std::fs::read_to_string(&html_file).with_context(|| format!("could not read {html_file}"))?
-    };
-    
+    let raw_html = read_source(&html_file)?;
+
     let bytes = pack_html(&clan, &raw_html, None, None, delta, None)?;
     std::fs::write(&file, &bytes)?;
     eprintln!("Patched {} in-place", file.display());
@@ -826,6 +873,7 @@ decision: {{agent: X, action: Y, rationale: Z}}
 ---
 <!DOCTYPE html><html>...
 (Hint: Use {{{{key}}}} for templating, or window.__CLAN__.data in JS)
+(Hint: frontmatter `structured:` MERGE-PATCHES shared/data.yaml — fields you OMIT are KEPT from prior hops. Only restate what you change; do NOT re-transcribe carried data.)
 
 # PATCH (In-place, Lowest Token Cost, Preferred)
 1. DOM: clan patch-html <file> <patch_file>
@@ -851,10 +899,14 @@ On a BRANCH file: write ONLY your namespace agents/<you>/ :
   clan patch-decision <branch> --agent <you> ...     (auto-routed)
 clan merge <branches...> --output <out> [--policy key=append|max|min|last-write|agent-priority]
 clan read report <file>   => contested keys (adjudicate: patch-data + patch-decision)
+(Tip: prose fields siblings also write — assumptions/summary/notes — collide under last-write. Prefix with your agent id, or merge with --policy <key>=append.)
+clan fork ... --context-dir <dir>   => per-branch task: <agent>.md becomes that branch's context
 
 # VIEW (optional, spec S23)
 clan create/pack --no-render  => agent-only file (no HTML at each hop)
+clan create --schema <file>   => seed a real output schema (field guidance for agents)
 clan render <file>            => materialise the human view on demand
+clan patch-requirements <file> <yaml>  => declare tool/capability needs (agent/requirements.yaml)
 
 # VERIFY
 clan validate <file>
@@ -867,16 +919,25 @@ fn open(path: &PathBuf) -> Result<ClanFile> {
     ClanFile::open(path).with_context(|| format!("could not open {}", path.display()))
 }
 
-fn cmd_patch_data(file: PathBuf, json_file: String, namespace: bool, hints: &Hints) -> Result<()> {
-    let clan = open(&file)?;
-    let raw_json = if json_file == "-" {
+/// Read a file argument, or stdin when it is `-`, stripping a leading UTF-8
+/// BOM. PowerShell 5.1's `Out-File` writes a BOM by default, which otherwise
+/// makes `serde_json` reject the very first byte with an opaque "expected
+/// value at line 1 column 1" (F3).
+fn read_source(arg: &str) -> Result<String> {
+    let raw = if arg == "-" {
         use std::io::Read;
         let mut s = String::new();
         std::io::stdin().read_to_string(&mut s)?;
         s
     } else {
-        std::fs::read_to_string(&json_file).with_context(|| format!("could not read {json_file}"))?
+        std::fs::read_to_string(arg).with_context(|| format!("could not read {arg}"))?
     };
+    Ok(raw.strip_prefix('\u{feff}').map(str::to_string).unwrap_or(raw))
+}
+
+fn cmd_patch_data(file: PathBuf, json_file: String, namespace: bool, hints: &Hints) -> Result<()> {
+    let clan = open(&file)?;
+    let raw_json = read_source(&json_file)?;
 
     let patch: serde_json::Value = serde_json::from_str(&raw_json)
         .context("invalid JSON patch provided")?;
@@ -924,14 +985,7 @@ fn cmd_patch_data(file: PathBuf, json_file: String, namespace: bool, hints: &Hin
 
 fn cmd_patch_schema(file: PathBuf, schema_file: String) -> Result<()> {
     let clan = open(&file)?;
-    let raw_schema = if schema_file == "-" {
-        use std::io::Read;
-        let mut s = String::new();
-        std::io::stdin().read_to_string(&mut s)?;
-        s
-    } else {
-        std::fs::read_to_string(&schema_file).with_context(|| format!("could not read {schema_file}"))?
-    };
+    let raw_schema = read_source(&schema_file)?;
 
     let bytes = clan_sdk::pack::patch_schema(&clan, &raw_schema, None)?;
     std::fs::write(&file, &bytes)?;
@@ -963,14 +1017,7 @@ fn cmd_patch_decision(file: PathBuf, agent: String, action: String, rationale: S
 
 fn cmd_patch_state(file: PathBuf, json_file: String) -> Result<()> {
     let clan = open(&file)?;
-    let raw_json = if json_file == "-" {
-        use std::io::Read;
-        let mut s = String::new();
-        std::io::stdin().read_to_string(&mut s)?;
-        s
-    } else {
-        std::fs::read_to_string(&json_file).with_context(|| format!("could not read {json_file}"))?
-    };
+    let raw_json = read_source(&json_file)?;
 
     let patch: serde_json::Value = serde_json::from_str(&raw_json)
         .context("invalid JSON patch provided")?;
@@ -983,14 +1030,7 @@ fn cmd_patch_state(file: PathBuf, json_file: String) -> Result<()> {
 
 fn cmd_patch_context(file: PathBuf, markdown_file: String, append: bool) -> Result<()> {
     let clan = open(&file)?;
-    let text = if markdown_file == "-" {
-        use std::io::Read;
-        let mut s = String::new();
-        std::io::stdin().read_to_string(&mut s)?;
-        s
-    } else {
-        std::fs::read_to_string(&markdown_file).with_context(|| format!("could not read {markdown_file}"))?
-    };
+    let text = read_source(&markdown_file)?;
 
     let bytes = patch_context(&clan, &text, append)?;
     std::fs::write(&file, &bytes)?;
@@ -1005,5 +1045,14 @@ fn cmd_patch_asset(file: PathBuf, internal_path: String, local_file: PathBuf) ->
     let out_bytes = patch_asset(&clan, &internal_path, bytes)?;
     std::fs::write(&file, &out_bytes)?;
     eprintln!("Patched asset in-place: {}", file.display());
+    Ok(())
+}
+
+fn cmd_patch_requirements(file: PathBuf, requirements_file: String) -> Result<()> {
+    let clan = open(&file)?;
+    let yaml = read_source(&requirements_file)?;
+    let bytes = patch_requirements(&clan, &yaml)?;
+    std::fs::write(&file, &bytes)?;
+    eprintln!("Wrote requirements in-place: {}", file.display());
     Ok(())
 }

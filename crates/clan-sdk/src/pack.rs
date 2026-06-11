@@ -219,8 +219,12 @@ pub fn pack(
     let chain_bytes = parent.read_entry("agent/decision-chain.yaml")?;
     let mut chain = DecisionChain::from_yaml(&chain_bytes)?;
 
-    let decision = match output.decision {
-        Some(d) => Decision {
+    // Only record a decision when the agent actually supplied one. A bare
+    // data/HTML update with no decision must NOT spawn an "unknown-agent /
+    // processed document" placeholder — that was pure provenance noise (F1).
+    // `clan patch-decision` is the path for recording a decision.
+    if let Some(d) = output.decision {
+        chain.prepend(Decision {
             agent: d.agent_name,
             version: None,
             action: d.action,
@@ -232,10 +236,41 @@ pub fn pack(
                 .unwrap_or_default(),
             pinned: d.pinned,
             trace_ref: None,
-        },
-        None => Decision::new("unknown-agent", "processed document", "", &now),
-    };
-    chain.prepend(decision);
+        });
+    }
+
+    // Fold any superseded human edits into the chain before they are dropped
+    // (F5). full-html replacement discards human/ (its data-adf-id targets no
+    // longer exist), but the human's intent is provenance and must survive
+    // per the §22 preservation rule. Recorded as one attributed entry.
+    if output.mode == "full-html" {
+        if let Ok(patch_bytes) = parent.read_entry("human/patches.yaml") {
+            if let Ok(patches) = crate::patch::Patches::from_yaml(&patch_bytes) {
+                if !patches.patches.is_empty() {
+                    let summary = patches
+                        .patches
+                        .iter()
+                        .map(|p| format!("{}: {}", p.id, p.content.trim()))
+                        .collect::<Vec<_>>()
+                        .join(" | ");
+                    chain.prepend(Decision {
+                        agent: "human".into(),
+                        version: None,
+                        action: format!(
+                            "{} human edit(s) superseded by full-html replacement",
+                            patches.patches.len()
+                        ),
+                        rationale: summary,
+                        timestamp: now.clone(),
+                        fields_changed: Vec::new(),
+                        pinned: true,
+                        trace_ref: None,
+                    });
+                }
+            }
+        }
+    }
+
     compress_chain(&mut chain, &opts.compression, compressor);
     let new_chain_yaml = chain.to_yaml()?;
 
@@ -270,13 +305,15 @@ pub fn pack(
         merge: false,
     });
 
-    // View bookkeeping (spec §23): view-producing modes refresh the view;
-    // a data-only update leaves an existing view stale.
+    // View bookkeeping (spec §23): view-producing modes refresh the view and
+    // mark it agent-authored (NOT safe to clobber with `clan render`); a
+    // data-only update leaves an existing view stale (F2).
     match output.mode.as_str() {
         "full-html" | "patch-html" | "designed" => {
             if let Some(view) = &mut new_manifest.view {
                 view.present = true;
                 view.stale = false;
+                view.source = Some("agent".into());
             }
         }
         _ => {
@@ -289,12 +326,13 @@ pub fn pack(
     }
 
     // Rebuild the files registry, keeping everything from the parent.
-    // New/updated entries will have their sha256 recomputed by ClanBuilder.
-    // Remove stale human entries if the agent is replacing them.
+    // full-html replaces the *view* files (index.html/.txt/styles.css) but
+    // KEEPS human/assets/ — assets the new HTML references must survive the
+    // replacement (F10); new payload assets overwrite by path below.
     if output.mode == "full-html" {
         new_manifest
             .files
-            .retain(|f| !f.role.starts_with("human-"));
+            .retain(|f| !(f.role.starts_with("human-") && f.role != "human-asset"));
     }
 
     // --- Assemble builder ---
@@ -307,7 +345,14 @@ pub fn pack(
         if path == "shared/data.yaml" { continue; }
         if path == "agent/decision-chain.yaml" { continue; }
         if opts.schema_override.is_some() && path == "agent/output-schema.json" { continue; }
-        if output.mode == "full-html" && path.starts_with("human/") { continue; }
+        // full-html drops the prior view + patches, but carries human/assets/
+        // forward (F5 folded the patches into the chain above; F10 keeps assets).
+        if output.mode == "full-html"
+            && path.starts_with("human/")
+            && !path.starts_with("human/assets/")
+        {
+            continue;
+        }
         // For patch-html, we keep existing human assets and index.html, we'll rewrite index.html below
         builder.add_entry(path, bytes);
     }
@@ -329,7 +374,21 @@ pub fn pack(
                     builder.add_entry("human/styles.css", css.into_bytes());
                 }
                 for (name, content) in h.assets {
-                    builder.add_entry(format!("human/assets/{name}"), content);
+                    let path = format!("human/assets/{name}");
+                    builder.add_entry(path.clone(), content);
+                    // Register new assets so they carry sha256 + survive the
+                    // next full-html replacement (F10).
+                    let m = builder.manifest_mut();
+                    if !m.files.iter().any(|f| f.path == path) {
+                        m.files.push(FileEntry {
+                            id: format!("human-asset-{}", name.replace(['/', '.'], "-")),
+                            path,
+                            role: "human-asset".into(),
+                            content_type: "application/octet-stream".into(),
+                            priority: None,
+                            sha256: None,
+                        });
+                    }
                 }
                 let m = builder.manifest_mut();
                 if !m.files.iter().any(|f| f.role == "human-view") {
@@ -795,6 +854,8 @@ fn repack_with_entry(parent: &ClanFile, target_path: &str, new_bytes: Vec<u8>, d
         "agent-context"
     } else if target_path.starts_with("human/assets/") {
         "human-asset"
+    } else if target_path == "agent/requirements.yaml" {
+        "agent-requirements"
     } else if target_path.starts_with("agents/") && target_path.ends_with("/data.yaml") {
         "branch-data"
     } else if target_path.starts_with("agents/") && target_path.ends_with("/decisions.yaml") {
@@ -851,6 +912,21 @@ pub fn patch_context(parent: &ClanFile, text: &str, append: bool) -> Result<Vec<
         existing = text.to_string();
     }
     repack_with_entry(parent, "agent/context.md", existing.into_bytes(), Some("patched agent/context.md".into()))
+}
+
+/// Write or replace `agent/requirements.yaml` — declared tool/capability needs
+/// (spec §22 layer 5). Validated as YAML; surfaced in agent context (§26) and
+/// the static export. This makes layer 5 first-class instead of dead weight (F8).
+pub fn patch_requirements(parent: &ClanFile, yaml_text: &str) -> Result<Vec<u8>> {
+    reject_if_forked(parent, "writing the shared agent/requirements.yaml")?;
+    serde_yaml::from_str::<serde_yaml::Value>(yaml_text)
+        .map_err(|e| Error::OutputRejected(format!("requirements.yaml is not valid YAML: {e}")))?;
+    repack_with_entry(
+        parent,
+        "agent/requirements.yaml",
+        yaml_text.as_bytes().to_vec(),
+        Some("declared capability requirements".into()),
+    )
 }
 
 /// Inject or replace an asset in `human/assets/`.
@@ -1107,5 +1183,160 @@ mod tests {
         let out = strip_scripts(r#"<img alt='x>y' onerror='boom()'>"#);
         assert!(!out.contains("onerror"), "onerror survived: {out}");
         assert!(out.contains("alt='x>y'"), "quoted attr mangled: {out}");
+    }
+
+    fn chain_of(clan: &ClanFile) -> DecisionChain {
+        DecisionChain::from_yaml(&clan.read_entry("agent/decision-chain.yaml").unwrap()).unwrap()
+    }
+
+    // F1: a data update with no decision must NOT spawn an unknown-agent entry.
+    #[test]
+    fn pack_without_decision_adds_no_chain_entry() {
+        let parent = test_clan("vendor: Acme\n", PERMISSIVE_SCHEMA);
+        assert_eq!(chain_of(&parent).decisions.len(), 0);
+
+        let next = ClanFile::from_bytes(
+            patch_data(&parent, &serde_json::json!({"total": 10}), None).unwrap(),
+        )
+        .unwrap();
+        let chain = chain_of(&next);
+        assert_eq!(chain.decisions.len(), 0, "no decision supplied → no chain entry (F1)");
+        assert!(
+            !next.read_entry_string("agent/decision-chain.yaml").unwrap().contains("unknown-agent"),
+            "the unknown-agent placeholder must be gone"
+        );
+    }
+
+    #[test]
+    fn pack_with_decision_still_records_it() {
+        let parent = test_clan("vendor: Acme\n", PERMISSIVE_SCHEMA);
+        let out = AgentOutput {
+            mode: "data-update".into(),
+            structured: serde_json::json!({"vendor": "Acme", "total": 5}),
+            design: None,
+            human: None,
+            decision: Some(DecisionEntry {
+                agent_name: "agent1".into(),
+                action: "set total".into(),
+                rationale: "from invoice".into(),
+                pinned: false,
+            }),
+        };
+        let next = ClanFile::from_bytes(pack(&parent, out, PackOptions::default(), None).unwrap()).unwrap();
+        let chain = chain_of(&next);
+        assert_eq!(chain.decisions.len(), 1);
+        assert_eq!(chain.decisions[0].agent, "agent1");
+    }
+
+    // F2: full-html marks the view agent-authored; data-update leaves no source.
+    #[test]
+    fn full_html_marks_view_source_agent() {
+        let parent = test_clan("vendor: Acme\n", PERMISSIVE_SCHEMA);
+        let out = AgentOutput {
+            mode: "full-html".into(),
+            structured: serde_json::json!({}),
+            design: None,
+            human: Some(HumanPayload {
+                html: "<!DOCTYPE html><html><body><p>hi</p></body></html>".into(),
+                css: None,
+                assets: HashMap::new(),
+                patch_selector: None,
+                patch_action: None,
+            }),
+            decision: None,
+        };
+        let next = ClanFile::from_bytes(pack(&parent, out, PackOptions::default(), None).unwrap()).unwrap();
+        // test_clan's manifest has no view block, so nothing to assert there;
+        // build one that does.
+        let mut m = parent.manifest().clone();
+        m.view = Some(crate::manifest::ViewState { present: true, renderable: true, stale: false, source: None });
+        // Rebuild parent carrying the view, then full-html pack it.
+        let mut b = ClanBuilder::new(m);
+        for (p, by) in parent.read_all_entries().unwrap() { if p != "manifest.yaml" { b.add_entry(p, by); } }
+        let parent2 = ClanFile::from_bytes(b.build().unwrap()).unwrap();
+        let out2 = AgentOutput {
+            mode: "full-html".into(),
+            structured: serde_json::json!({}),
+            design: None,
+            human: Some(HumanPayload { html: "<p>x</p>".into(), css: None, assets: HashMap::new(), patch_selector: None, patch_action: None }),
+            decision: None,
+        };
+        let n2 = ClanFile::from_bytes(pack(&parent2, out2, PackOptions::default(), None).unwrap()).unwrap();
+        assert_eq!(n2.manifest().view.as_ref().unwrap().source.as_deref(), Some("agent"));
+        let _ = next;
+    }
+
+    // F5: full-html replacement folds superseded human patches into the chain.
+    #[test]
+    fn full_html_folds_human_patches_into_chain() {
+        let parent = test_clan("vendor: Acme\n", PERMISSIVE_SCHEMA);
+        // Add a human patch via the patch model.
+        let parent = ClanFile::from_bytes(
+            crate::patch::apply_patch_and_repack(&parent, "heading-0".into(), "Amended Title".into()).unwrap(),
+        )
+        .unwrap();
+        assert!(parent.has_entry("human/patches.yaml"));
+
+        let out = AgentOutput {
+            mode: "full-html".into(),
+            structured: serde_json::json!({}),
+            design: None,
+            human: Some(HumanPayload {
+                html: "<!DOCTYPE html><html><body><p>brand new doc</p></body></html>".into(),
+                css: None, assets: HashMap::new(), patch_selector: None, patch_action: None,
+            }),
+            decision: None,
+        };
+        let next = ClanFile::from_bytes(pack(&parent, out, PackOptions::default(), None).unwrap()).unwrap();
+        let chain = chain_of(&next);
+        let human = chain.decisions.iter().find(|d| d.agent == "human");
+        assert!(human.is_some(), "human edit must be folded into the chain (F5)");
+        assert!(human.unwrap().rationale.contains("Amended Title"), "the edit content survives as provenance");
+        // The stale DOM patches were dropped from the new view.
+        assert!(!next.has_entry("human/patches.yaml"));
+    }
+
+    // F8: requirements.yaml is writable and validated.
+    #[test]
+    fn patch_requirements_writes_and_validates() {
+        let parent = test_clan("vendor: Acme\n", PERMISSIVE_SCHEMA);
+        let next = ClanFile::from_bytes(
+            patch_requirements(&parent, "requires:\n  tools:\n    - name: web_search\n").unwrap(),
+        )
+        .unwrap();
+        assert!(next.has_entry("agent/requirements.yaml"));
+        assert!(next.read_entry_string("agent/requirements.yaml").unwrap().contains("web_search"));
+        // Invalid YAML is rejected.
+        assert!(patch_requirements(&parent, "requires: [unclosed\n").is_err());
+    }
+
+    // F10: full-html replacement keeps parent human/assets that the new view references.
+    #[test]
+    fn full_html_carries_parent_assets() {
+        let parent = test_clan("vendor: Acme\n", PERMISSIVE_SCHEMA);
+        // Seed an asset on the parent.
+        let parent = ClanFile::from_bytes(
+            patch_asset(&parent, "logo.svg", b"<svg/>".to_vec()).unwrap(),
+        )
+        .unwrap();
+        assert!(parent.has_entry("human/assets/logo.svg"));
+
+        let out = AgentOutput {
+            mode: "full-html".into(),
+            structured: serde_json::json!({}),
+            design: None,
+            human: Some(HumanPayload {
+                html: "<!DOCTYPE html><html><body><img src=\"./assets/logo.svg\"></body></html>".into(),
+                css: None, assets: HashMap::new(), patch_selector: None, patch_action: None,
+            }),
+            decision: None,
+        };
+        let next = ClanFile::from_bytes(pack(&parent, out, PackOptions::default(), None).unwrap()).unwrap();
+        assert!(
+            next.has_entry("human/assets/logo.svg"),
+            "parent asset must survive full-html replacement (F10)"
+        );
+        // The new view replaced the old index.html.
+        assert!(next.read_entry_string("human/index.html").unwrap().contains("logo.svg"));
     }
 }

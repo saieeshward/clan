@@ -37,10 +37,10 @@ pub use manifest::{
     CLAN_VERSION, CLAN_VERSION_MINOR,
 };
 pub use merge::{
-    fork, merge, ConflictValue, MergeConflict, MergeOptions, MergeOutcome, MergeReport,
-    MERGE_REPORT_PATH,
+    fork, fork_with_contexts, merge, ConflictValue, MergeConflict, MergeOptions, MergeOutcome,
+    MergeReport, MERGE_REPORT_PATH,
 };
-pub use pack::{pack, pack_html, patch_data, patch_data_namespaced, patch_decision, patch_state, patch_context, patch_asset, AgentOutput, DecisionEntry, HumanPayload, PackOptions};
+pub use pack::{pack, pack_html, patch_data, patch_data_namespaced, patch_decision, patch_requirements, patch_state, patch_context, patch_asset, AgentOutput, DecisionEntry, HumanPayload, PackOptions};
 pub use patch::{apply_patch_and_repack, Patch, Patches};
 pub use render::render;
 pub use toon::{to_toon, yaml_to_toon};

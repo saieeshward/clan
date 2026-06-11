@@ -95,6 +95,13 @@ pub struct ViewState {
     /// The view exists but predates the current `shared/data.yaml`.
     #[serde(default, skip_serializing_if = "is_false")]
     pub stale: bool,
+    /// How the current view was produced (spec §23): `"render"` (the
+    /// deterministic default-theme renderer, safe to re-run) or `"agent"`
+    /// (hand-authored via `pack-html`/full-html, NOT safe to clobber with
+    /// `clan render`). Absent on v1.0/early-v1.1 files. Drives the stale-view
+    /// hint so it never suggests a destructive refresh (F2).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub source: Option<String>,
 }
 
 /// Fork block (spec §24.1).

@@ -54,6 +54,8 @@ pub fn render(clan: &ClanFile) -> Result<Vec<u8>> {
         present: true,
         renderable: true,
         stale: false,
+        // Default-theme view: safe to re-run `clan render` over it (F2).
+        source: Some("render".into()),
     });
     for (id, path, role, ct) in [
         ("human-view", "human/index.html", "human-view", "text/html"),
@@ -167,6 +169,7 @@ mod tests {
             brief: "brief".into(),
             document_type: None,
             no_render: true,
+            schema: None,
         })
         .unwrap();
         ClanFile::from_bytes(bytes).unwrap()
@@ -227,6 +230,7 @@ mod tests {
             brief: "b".into(),
             document_type: None,
             no_render: false,
+            schema: None,
         })
         .unwrap();
         let clan = ClanFile::from_bytes(bytes).unwrap();

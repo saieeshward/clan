@@ -24,6 +24,11 @@ pub struct CreateOptions {
     /// Agent-only file (spec §23): skip the human view placeholder. The view
     /// stays derivable — any later hop can materialise it with `clan render`.
     pub no_render: bool,
+    /// Optional seed JSON Schema for `agent/output-schema.json`. Without it the
+    /// document starts with a permissive `{type: object}` stub, which gives
+    /// downstream agents no field guidance (F9). Provide a real schema to
+    /// constrain the first agent and make field names predictable.
+    pub schema: Option<String>,
 }
 
 /// Create a new `.clan` archive from scratch and return its raw bytes.
@@ -49,6 +54,8 @@ pub fn create(opts: CreateOptions) -> Result<Vec<u8>> {
             present: !opts.no_render,
             renderable: true,
             stale: false,
+            // The bootstrap placeholder is a generated stub, safe to replace.
+            source: if opts.no_render { None } else { Some("render".into()) },
         }),
         fork: None,
         merge_policies: None,
@@ -96,15 +103,22 @@ pub fn create(opts: CreateOptions) -> Result<Vec<u8>> {
     );
     builder.add_entry("agent/context.md", context.into_bytes());
 
-    // output-schema.json — permissive schema for the data payload.
-    let schema = serde_json::json!({
-        "$schema": "http://json-schema.org/draft-07/schema#",
-        "type": "object"
-    });
-    builder.add_entry(
-        "agent/output-schema.json",
-        serde_json::to_vec_pretty(&schema)?,
-    );
+    // output-schema.json — caller-supplied seed schema (F9) or a permissive stub.
+    let schema_bytes = match &opts.schema {
+        Some(s) => {
+            // Validate it parses + compiles before sealing it into the file.
+            let v: serde_json::Value = serde_json::from_str(s)
+                .map_err(|e| crate::error::Error::Schema(format!("seed schema is not valid JSON: {e}")))?;
+            jsonschema::validator_for(&v)
+                .map_err(|e| crate::error::Error::Schema(format!("seed schema does not compile: {e}")))?;
+            s.clone().into_bytes()
+        }
+        None => serde_json::to_vec_pretty(&serde_json::json!({
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "type": "object"
+        }))?,
+    };
+    builder.add_entry("agent/output-schema.json", schema_bytes);
 
     // agent/state.yaml — initial empty state.
     builder.add_entry(

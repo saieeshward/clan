@@ -46,6 +46,11 @@ pub struct MergeConflict {
     pub winner: ConflictValue,
     #[serde(default)]
     pub losers: Vec<ConflictValue>,
+    /// Optional hint when the conflict shape suggests a better policy — e.g.
+    /// prose-valued keys every branch wrote independently are usually
+    /// complementary, not contradictory, and `append` keeps them all (F6).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub suggestion: Option<String>,
 }
 
 /// A value one branch wrote for a contested key.
@@ -90,6 +95,19 @@ pub struct MergeOutcome {
 /// carries the full parent content (pass-through rule, spec §22) plus an
 /// empty private namespace the named agent writes into.
 pub fn fork(parent: &ClanFile, agent_ids: &[String]) -> Result<Vec<(String, Vec<u8>)>> {
+    fork_with_contexts(parent, agent_ids, None)
+}
+
+/// Like [`fork`], but each branch's `agent/context.md` can be replaced with a
+/// per-agent task (keyed by agent id). This stops branch agents inheriting the
+/// parent's full-html/design instructions that don't apply during a parallel
+/// data-only interval (F7). When no override is given for an agent, its branch
+/// keeps the parent context with a short branch-mode banner prepended.
+pub fn fork_with_contexts(
+    parent: &ClanFile,
+    agent_ids: &[String],
+    contexts: Option<&std::collections::BTreeMap<String, String>>,
+) -> Result<Vec<(String, Vec<u8>)>> {
     if parent.manifest().fork.is_some() {
         return Err(Error::NamespaceViolation(
             "this file is already a fork branch — forking a branch is not supported.\n\
@@ -120,11 +138,29 @@ pub fn fork(parent: &ClanFile, agent_ids: &[String]) -> Result<Vec<(String, Vec<
     let parent_manifest = parent.manifest();
     let parent_entries = parent.read_all_entries()?;
     let parent_sha = parent.sha256();
+    let parent_context = parent.read_entry_string("agent/context.md").unwrap_or_default();
 
     let mut branches = Vec::with_capacity(agent_ids.len());
     for agent_id in agent_ids {
         let agent_id = agent_id.trim().to_string();
         let namespace = format!("agents/{agent_id}/");
+
+        // Per-branch task: an explicit override, else the parent context with
+        // a branch-mode banner so inherited full-html/design instructions
+        // don't mislead a data-only branch agent (F7).
+        let base_task = contexts
+            .and_then(|c| c.get(&agent_id))
+            .cloned()
+            .unwrap_or_else(|| parent_context.clone());
+        let branch_context = format!(
+            "# Branch Mode — you are agent `{agent_id}`\n\n\
+             You are one of several agents working this document in parallel. Write ONLY \
+             inside `{namespace}`: data via `clan patch-data <file> <json> --namespace`, \
+             decisions via `clan patch-decision` (auto-routed). Writes to shared/ or human/ \
+             are rejected until the branches are joined with `clan merge`. Any output-mode or \
+             design instructions below apply AFTER the merge, not to your branch — contribute \
+             structured data now; rendering happens later.\n\n---\n\n{base_task}"
+        );
 
         let mut manifest = parent_manifest.clone();
         manifest.id = Uuid::new_v4().to_string();
@@ -161,11 +197,12 @@ pub fn fork(parent: &ClanFile, agent_ids: &[String]) -> Result<Vec<(String, Vec<
 
         let mut builder = ClanBuilder::new(manifest);
         for (path, bytes) in &parent_entries {
-            if path == crate::container::MANIFEST_PATH {
+            if path == crate::container::MANIFEST_PATH || path == "agent/context.md" {
                 continue;
             }
             builder.add_entry(path.clone(), bytes.clone());
         }
+        builder.add_entry("agent/context.md", branch_context.into_bytes());
         builder.add_entry(format!("{namespace}data.yaml"), b"{}\n".to_vec());
         builder.add_entry(format!("{namespace}decisions.yaml"), b"decisions: []\n".to_vec());
         branches.push((agent_id, builder.build()?));
@@ -306,6 +343,19 @@ pub fn merge(branches: &[ClanFile], opts: MergeOptions) -> Result<MergeOutcome> 
         if let Some(widx) = winner_idx {
             if distinct.len() > 1 {
                 let winner = &writers[widx];
+                // Prose-valued keys (every writer wrote a non-empty string)
+                // are usually complementary notes, not contradictions — a
+                // winner-takes-all policy silently drops the others, so
+                // suggest `append` (F6).
+                let all_prose = writers
+                    .iter()
+                    .all(|(_, v)| v.as_str().map_or(false, |s| !s.trim().is_empty()));
+                let suggestion = (all_prose && policy != "append").then(|| {
+                    format!(
+                        "all {} branches wrote prose for '{key}'; they may be complementary — re-run with `--policy {key}=append` to keep every branch's text",
+                        writers.len()
+                    )
+                });
                 conflicts.push(MergeConflict {
                     key: key.clone(),
                     winner: ConflictValue {
@@ -323,6 +373,7 @@ pub fn merge(branches: &[ClanFile], opts: MergeOptions) -> Result<MergeOutcome> 
                             policy: None,
                         })
                         .collect(),
+                    suggestion,
                 });
             }
         }
@@ -475,6 +526,7 @@ mod tests {
             brief: "test brief".into(),
             document_type: None,
             no_render: false,
+            schema: None,
         })
         .unwrap();
         ClanFile::from_bytes(bytes).unwrap()
@@ -733,5 +785,52 @@ mod tests {
         assert!(!merged.has_entry("agents/alpha/data.yaml"));
         assert!(!merged.has_entry("agents/beta/data.yaml"));
         assert!(!merged.manifest().files.iter().any(|f| f.path.starts_with("agents/")));
+    }
+
+    // F7: branches get a branch-mode banner, and --context-dir overrides the task.
+    #[test]
+    fn fork_branches_carry_branch_banner_and_context_override() {
+        let parent = root();
+        let mut ctx = std::collections::BTreeMap::new();
+        ctx.insert("alpha".to_string(), "ALPHA SPECIFIC TASK: do the alpha thing.".to_string());
+        let branches = fork_with_contexts(&parent, &["alpha".into(), "beta".into()], Some(&ctx)).unwrap();
+        for (agent, bytes) in branches {
+            let b = ClanFile::from_bytes(bytes).unwrap();
+            let context = b.read_entry_string("agent/context.md").unwrap();
+            assert!(context.contains("# Branch Mode"), "every branch gets the banner: {agent}");
+            assert!(context.contains(&format!("agent `{agent}`")));
+            if agent == "alpha" {
+                assert!(context.contains("ALPHA SPECIFIC TASK"), "override applied for alpha");
+            } else {
+                // beta had no override → keeps the parent task below the banner.
+                assert!(context.contains("test brief"), "beta keeps parent task: {context}");
+            }
+        }
+    }
+
+    // F6: a prose key all branches wrote gets an append suggestion.
+    #[test]
+    fn prose_conflict_suggests_append() {
+        let (a, b) = forked_pair();
+        let a = with_namespace_data(&a, serde_json::json!({"assumptions": "alpha's view of the world"}));
+        let b = with_namespace_data(&b, serde_json::json!({"assumptions": "beta's different framing"}));
+        let outcome = merge(&[a, b], MergeOptions::default()).unwrap();
+        let conflict = outcome.report.conflicts.iter().find(|c| c.key == "assumptions").unwrap();
+        let suggestion = conflict.suggestion.as_ref().expect("prose conflict must carry a suggestion (F6)");
+        assert!(suggestion.contains("--policy assumptions=append"), "{suggestion}");
+    }
+
+    #[test]
+    fn append_policy_conflict_has_no_suggestion() {
+        let (a, b) = forked_pair();
+        let a = with_namespace_data(&a, serde_json::json!({"notes": "x"}));
+        let b = with_namespace_data(&b, serde_json::json!({"notes": "y"}));
+        let opts = MergeOptions {
+            policies: Some(MergePolicies { default: None, keys: [("notes".to_string(), "append".to_string())].into() }),
+            ..Default::default()
+        };
+        let outcome = merge(&[a, b], opts).unwrap();
+        // append keeps both → not a conflict at all.
+        assert!(outcome.report.conflicts.iter().all(|c| c.key != "notes"));
     }
 }
