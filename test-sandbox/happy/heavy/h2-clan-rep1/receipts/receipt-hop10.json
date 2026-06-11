@@ -1,0 +1,26 @@
+{
+  "role": "10-procurement-reviewer",
+  "hop": 10,
+  "arm": "clan",
+  "flow": "H2",
+  "commands_run": [
+    "clan read agent test-sandbox/happy/heavy/h2-clan-rep1/work/doc.clan --skip-guide",
+    "clan read data test-sandbox/happy/heavy/h2-clan-rep1/work/doc.clan",
+    "clan patch-data test-sandbox/happy/heavy/h2-clan-rep1/work/doc.clan tmp/h2-r1-hop10.json --agent 10-procurement-reviewer --action \"added 10-procurement-reviewer findings\" --rationale \"Zoho is procurable within 6 weeks with export clause feasible; contract execution by 25 June critical to preserve peak-season rollout\"",
+    "clan validate test-sandbox/happy/heavy/h2-clan-rep1/work/doc.clan",
+    "cp work/doc.clan snapshots/hop-10-10-procurement-reviewer.clan"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep1/work/doc.clan", "approx_chars": 2800}
+  ],
+  "files_written": [
+    {"file": "tmp/h2-r1-hop10.json", "chars": 2276},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep1/snapshots/hop-10-10-procurement-reviewer.clan", "chars": 0},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep1/receipts/hop10-output/patch-data.json", "chars": 2276},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep1/receipts/receipt-hop10.json", "chars": 1200}
+  ],
+  "output_chars": 2276,
+  "errors": [],
+  "problems_and_friction": "Copy-Item is not available in the bash shell; switched to POSIX cp. No other issues — validate returned OK immediately and all prior data was cleanly readable via clan read data.",
+  "context_understood": "Brightline Logistics (40 seats, EU, peak October) evaluating HubSpot vs Zoho CRM; prior hops established Zoho as cost leader with EU residency, integration gap at NetSuite, and tight July-November rollout timeline — procurement must secure contract by 25 June to protect that schedule."
+}

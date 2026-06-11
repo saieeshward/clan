@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CRM Platform Recommendation — Brightline Logistics</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, -apple-system, sans-serif; background: #f5f7fa; color: #1a1d23; line-height: 1.6; }
+    .page { max-width: 900px; margin: 40px auto; padding: 0 24px 60px; }
+    header { background: #1b3a6b; color: #fff; border-radius: 10px; padding: 36px 40px 28px; margin-bottom: 32px; }
+    header h1 { font-size: 1.7rem; font-weight: 700; letter-spacing: -0.3px; }
+    header .subtitle { font-size: 0.95rem; opacity: 0.75; margin-top: 6px; }
+    .verdict { background: #e8f5e9; border-left: 6px solid #2e7d32; border-radius: 8px; padding: 24px 28px; margin-bottom: 32px; }
+    .verdict .label { font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #2e7d32; margin-bottom: 6px; }
+    .verdict h2 { font-size: 1.5rem; font-weight: 700; color: #1b3a6b; }
+    .verdict .cost { font-size: 1.1rem; color: #2e7d32; font-weight: 600; margin-top: 4px; }
+    .section { background: #fff; border-radius: 8px; padding: 28px 32px; margin-bottom: 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); }
+    .section h3 { font-size: 1.05rem; font-weight: 700; color: #1b3a6b; border-bottom: 2px solid #e8edf4; padding-bottom: 10px; margin-bottom: 18px; text-transform: uppercase; letter-spacing: 0.5px; font-size: 0.85rem; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.93rem; }
+    th { background: #f0f4fb; text-align: left; padding: 10px 12px; font-weight: 600; color: #1b3a6b; border-bottom: 2px solid #dde4f0; }
+    td { padding: 9px 12px; border-bottom: 1px solid #f0f2f6; vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+    .winner { color: #2e7d32; font-weight: 700; }
+    .loser { color: #888; }
+    .badge { display: inline-block; padding: 2px 9px; border-radius: 12px; font-size: 0.78rem; font-weight: 700; }
+    .badge-high { background: #fdecea; color: #c62828; }
+    .badge-medium { background: #fff8e1; color: #e65100; }
+    .badge-low { background: #e8f5e9; color: #2e7d32; }
+    .risk-row td:first-child { font-weight: 600; }
+    .timeline { display: grid; grid-template-columns: 140px 1fr; gap: 0; }
+    .tl-date { font-weight: 700; color: #1b3a6b; padding: 8px 0; font-size: 0.9rem; }
+    .tl-desc { padding: 8px 0 8px 16px; border-left: 3px solid #1b3a6b; margin-left: 8px; font-size: 0.93rem; color: #333; }
+    .summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 4px; }
+    .stat-box { background: #f0f4fb; border-radius: 8px; padding: 16px 18px; text-align: center; }
+    .stat-box .num { font-size: 1.45rem; font-weight: 800; color: #1b3a6b; }
+    .stat-box .lbl { font-size: 0.78rem; color: #666; margin-top: 3px; }
+    .rationale p { margin-bottom: 12px; font-size: 0.95rem; }
+    .rationale p:last-child { margin-bottom: 0; }
+    .conditions li { margin: 6px 0 6px 18px; font-size: 0.93rem; }
+    footer { text-align: center; font-size: 0.8rem; color: #aaa; margin-top: 32px; }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <header>
+    <h1>CRM Platform Recommendation</h1>
+    <div class="subtitle">Brightline Logistics &mdash; 40 seats &mdash; EU mid-market &mdash; Prepared by Lead Partner &mdash; 2026-06-11</div>
+  </header>
+
+  <!-- VERDICT -->
+  <div class="verdict">
+    <div class="label">Final Recommendation</div>
+    <h2>Zoho CRM</h2>
+    <div class="cost">Year-1 cost: EUR 18,240 &nbsp;(EUR 38/seat/month, 40 seats)</div>
+  </div>
+
+  <!-- KEY METRICS -->
+  <div class="section">
+    <h3>Key Metrics at a Glance</h3>
+    <div class="summary-grid">
+      <div class="stat-box"><div class="num">EUR 18,240</div><div class="lbl">Year-1 cost</div></div>
+      <div class="stat-box"><div class="num">EUR 17,280</div><div class="lbl">3-year savings vs HubSpot</div></div>
+      <div class="stat-box"><div class="num">7 months</div><div class="lbl">Finance payback period</div></div>
+      <div class="stat-box"><div class="num">9 weeks</div><div class="lbl">Implementation effort</div></div>
+      <div class="stat-box"><div class="num">Go-live</div><div class="lbl">Before Oct peak season</div></div>
+      <div class="stat-box"><div class="num">EU Frankfurt</div><div class="lbl">Data residency (included)</div></div>
+    </div>
+  </div>
+
+  <!-- VENDOR COMPARISON -->
+  <div class="section">
+    <h3>Vendor Comparison</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Criterion</th>
+          <th>Zoho CRM</th>
+          <th>HubSpot</th>
+          <th>Salesforce</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Year-1 cost (40 seats)</td>
+          <td class="winner">EUR 18,240</td>
+          <td>EUR 24,000</td>
+          <td class="loser">EUR 36,000 — eliminated</td>
+        </tr>
+        <tr>
+          <td>Per-seat/month</td>
+          <td class="winner">EUR 38</td>
+          <td>EUR 50</td>
+          <td class="loser">EUR 75</td>
+        </tr>
+        <tr>
+          <td>3-year total</td>
+          <td class="winner">EUR 54,720</td>
+          <td>EUR 72,000</td>
+          <td class="loser">n/a</td>
+        </tr>
+        <tr>
+          <td>EU data residency (Frankfurt)</td>
+          <td class="winner">Included</td>
+          <td>Paid add-on</td>
+          <td class="loser">n/a</td>
+        </tr>
+        <tr>
+          <td>GDPR / DPA</td>
+          <td>Both sign DPA</td>
+          <td>Both sign DPA</td>
+          <td class="loser">n/a</td>
+        </tr>
+        <tr>
+          <td>Native integrations (of 6 required)</td>
+          <td>4 native + NetSuite via connector</td>
+          <td>5 native</td>
+          <td class="loser">n/a</td>
+        </tr>
+        <tr>
+          <td>Workflow maturity risk</td>
+          <td>Medium</td>
+          <td>Low</td>
+          <td class="loser">n/a</td>
+        </tr>
+        <tr>
+          <td>Switching cost / data portability</td>
+          <td class="winner">Low (export clause)</td>
+          <td>Low</td>
+          <td class="loser">n/a</td>
+        </tr>
+        <tr>
+          <td>Mid-market EU market share</td>
+          <td>21%</td>
+          <td>34%</td>
+          <td class="loser">29%</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- TOP RISKS -->
+  <div class="section">
+    <h3>Top Risks &amp; Mitigations</h3>
+    <table>
+      <thead>
+        <tr><th>Risk</th><th>Severity</th><th>Mitigation</th></tr>
+      </thead>
+      <tbody>
+        <tr class="risk-row">
+          <td>DPA not executed before go-live</td>
+          <td><span class="badge badge-high">High</span></td>
+          <td>Make DPA signature a contract condition precedent; block data migration until confirmed.</td>
+        </tr>
+        <tr class="risk-row">
+          <td>Liability cap = 1x annual fees (EUR 18,240) — insufficient for a data breach</td>
+          <td><span class="badge badge-high">High</span></td>
+          <td>Negotiate cap to 2x annual contract value or add a breach-specific carve-out; require Zoho cyber-liability insurance.</td>
+        </tr>
+        <tr class="risk-row">
+          <td>Migration data quality</td>
+          <td><span class="badge badge-high">High</span></td>
+          <td>Dedicate phase 1 (Jul–Aug) to data audit and parallel-run validation; appoint internal data owner.</td>
+        </tr>
+        <tr class="risk-row">
+          <td>User adoption (target 90%)</td>
+          <td><span class="badge badge-medium">Medium</span></td>
+          <td>Champion programme (4 identified); 24 hrs structured training; phased rollout reduces change volume.</td>
+        </tr>
+        <tr class="risk-row">
+          <td>Zoho workflow maturity for advanced automations</td>
+          <td><span class="badge badge-medium">Medium</span></td>
+          <td>Scope complex automations post-peak; validate standard workflows in phase 2.</td>
+        </tr>
+        <tr class="risk-row">
+          <td>Indemnification gap — no cover for regulatory fines from vendor-side breach</td>
+          <td><span class="badge badge-medium">Medium</span></td>
+          <td>Insert mutual indemnification clause covering third-party regulatory claims from vendor security failures.</td>
+        </tr>
+        <tr class="risk-row">
+          <td>Subprocessor change notice (30 days) may be too short for internal approval</td>
+          <td><span class="badge badge-medium">Medium</span></td>
+          <td>Negotiate 60-day notice window with right to object and exit without penalty.</td>
+        </tr>
+        <tr class="risk-row">
+          <td>Auto-renewal lock-in if notice deadline missed</td>
+          <td><span class="badge badge-medium">Medium</span></td>
+          <td>Set calendar reminder 90 days before renewal; negotiate 60-day notice window in contract.</td>
+        </tr>
+        <tr class="risk-row">
+          <td>NetSuite integration via connector (not native)</td>
+          <td><span class="badge badge-medium">Medium</span></td>
+          <td>Qualify connector in phase 1 spike; budget 1–2 extra integration weeks if custom mapping required.</td>
+        </tr>
+        <tr class="risk-row">
+          <td>Governing law may default to non-EU jurisdiction</td>
+          <td><span class="badge badge-low">Low</span></td>
+          <td>Negotiate Irish or EU governing law and exclusive EU jurisdiction clause at signing.</td>
+        </tr>
+        <tr class="risk-row">
+          <td>FX exposure if invoiced in USD</td>
+          <td><span class="badge badge-low">Low</span></td>
+          <td>Request EUR-denominated invoicing or agree fixed EUR rate at contract signature.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ROLLOUT TIMELINE -->
+  <div class="section">
+    <h3>Rollout Timeline</h3>
+    <div class="timeline">
+      <div class="tl-date">Now &rarr; Jun 2026</div>
+      <div class="tl-desc">Contract signature, DPA execution, procurement (3-week lead time). Negotiate price cap, EUR invoicing, liability cap, indemnity, governing law.</div>
+
+      <div class="tl-date">Phase 1<br/>1 Jul 2026</div>
+      <div class="tl-desc">Data audit and migration prep, core CRM configuration, NetSuite connector spike, admin and champion training begins.</div>
+
+      <div class="tl-date">Phase 2<br/>15 Sep 2026</div>
+      <div class="tl-desc">Marketing automation live, remaining integrations (Slack, Twilio, DocuSign, Outlook, Shopify), user acceptance testing, 24-hr training programme complete.</div>
+
+      <div class="tl-date">Phase 3<br/>1 Nov 2026</div>
+      <div class="tl-desc">Full production go-live before October peak. Advanced automations scoped post-peak to reduce risk. Champion programme active for ongoing adoption.</div>
+    </div>
+  </div>
+
+  <!-- CONTRACT CONDITIONS -->
+  <div class="section">
+    <h3>Contract Must-Haves (Procurement &amp; Legal)</h3>
+    <ul class="conditions">
+      <li>EU data residency SLA: 99.9% uptime, Frankfurt region, pinned in contract.</li>
+      <li>DPA signed as condition precedent to go-live — no data migration before execution.</li>
+      <li>Quarterly data export in CSV/JSON per Zoho export clause (feasibility confirmed).</li>
+      <li>Named customer success manager for the onboarding period.</li>
+      <li>Renewal price cap: maximum 5% increase at end of year 1.</li>
+      <li>Liability cap negotiated to 2x annual contract value (EUR 36,480) or breach-specific carve-out.</li>
+      <li>Mutual indemnification covering third-party regulatory fines from vendor-side security failures.</li>
+      <li>60-day subprocessor change notice window with right to object and exit without penalty.</li>
+      <li>EU governing law and jurisdiction (Irish law preferred).</li>
+      <li>EUR-denominated invoicing.</li>
+      <li>60-day termination notice window (not auto-renewal without explicit acceptance).</li>
+    </ul>
+  </div>
+
+  <!-- RATIONALE -->
+  <div class="section rationale">
+    <h3>Full Rationale (Synthesis of 11 Analyst Inputs)</h3>
+    <p><strong>Cost and finance (Analysts 02, 08):</strong> Zoho is the clear cost leader at EUR 38/seat/month, saving EUR 5,760 in year 1 versus HubSpot and EUR 17,760 versus Salesforce. The 3-year Zoho total of EUR 54,720 compares to EUR 72,000 for HubSpot. Finance modelling puts payback at 7 months. Salesforce was eliminated on cost alone (EUR 75/seat).</p>
+    <p><strong>GDPR and data residency (Analysts 04, 11):</strong> EU data residency in Frankfurt is a hard requirement for Brightline as an EU-domiciled business. Zoho includes this at no extra cost; HubSpot charges an add-on, widening the effective cost gap further. Both vendors sign a DPA, but the legal reviewer flags that the DPA must be a condition precedent to data migration, the liability cap must be renegotiated upward, and indemnification must be broadened to cover regulatory fines from vendor-side failures.</p>
+    <p><strong>Integrations (Analyst 05):</strong> Brightline requires NetSuite, Slack, Twilio, DocuSign, Outlook, and Shopify. HubSpot covers 5 natively; Zoho covers 4 natively with NetSuite via a supported connector. Both vendors require approximately 9 weeks of integration effort. The NetSuite connector should be prototyped in phase 1 to validate before full commitment.</p>
+    <p><strong>Risk (Analyst 03):</strong> Migration data quality is rated High for both vendors — this is a project execution risk, not vendor-specific. Zoho carries a Medium maturity risk on advanced workflow automation; HubSpot is rated Low on this dimension. The recommendation mitigates this by deferring complex automations until post-peak season, a sequencing endorsed by the rollout planner.</p>
+    <p><strong>Customer and adoption (Analyst 06):</strong> Six customer interviews confirm that fast lead response (under 2 hours) is the top need. Cost-conscious operations staff lean toward Zoho; power users prefer HubSpot's UI. With 4 identified internal champions and a 24-hour structured training programme, the 90% adoption target is achievable under a phased rollout. The champion programme and phased approach directly address this.</p>
+    <p><strong>Competitive and switching cost (Analyst 07):</strong> Zoho's contractual export clause keeps switching costs low, providing a meaningful hedge against its maturity risk. If Zoho's workflow capabilities prove insufficient post-stabilisation, Brightline can migrate without punitive exit costs. This makes Zoho a lower-risk long-term commitment than its maturity risk score alone would suggest.</p>
+    <p><strong>Rollout and timing (Analyst 09):</strong> The three-phase plan lands core CRM live before the October peak. Phase 2 (15 Sep) activates marketing automation with a 2-week buffer before peak begins. This timeline is feasible given the 9-week implementation estimate and the 3-week procurement lead time — provided contract signature occurs by mid-June 2026.</p>
+    <p><strong>Procurement (Analyst 10):</strong> The 40-seat deal sits at the mid-market floor, giving Brightline some negotiating leverage. A HubSpot walk-away quote and the October deadline (which incentivises Zoho to close quickly) are the primary levers. The export clause feasibility is confirmed. Multi-year discount should be explored even on a 1-year contract to establish a 3-year path.</p>
+    <p><strong>Conclusion:</strong> Across price, GDPR compliance, rollout timing, switching-cost optionality, and 3-year financial return, Zoho CRM is the dominant choice for Brightline Logistics. The key execution risks — migration quality, DPA execution, and the liability cap — are all addressable through contract conditions and phased delivery discipline. No dimension of the analysis recommends HubSpot strongly enough to justify its EUR 5,760/year premium over Zoho.</p>
+  </div>
+
+  <footer>Prepared by Lead Partner &mdash; Hop 12 &mdash; Brightline Logistics CRM Recommendation &mdash; 2026-06-11</footer>
+</div>
+</body>
+</html>

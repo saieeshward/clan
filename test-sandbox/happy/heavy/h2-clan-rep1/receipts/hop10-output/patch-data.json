@@ -1,0 +1,46 @@
+{
+  "procurement_lead_time_weeks": 6,
+  "procurement_contract_term_years": 2,
+  "procurement_key_commitments": [
+    "Annual price-lock clause for all 40 seats through contract term",
+    "EU Frankfurt data residency SLA (99.9% uptime, 4h RTO)",
+    "Dedicated CSM during 9-week rollout window",
+    "30-day subprocessor change notice per GDPR DPA",
+    "Data export within 30 days of contract termination (TIFF/CSV)"
+  ],
+  "procurement_negotiation_leverage": [
+    "Competitive shortlist with documented Zoho cost advantage ($5,760/yr vs HubSpot)",
+    "40-seat mid-market deal size — qualifies for regional reseller discount tier",
+    "October peak-season deadline creates urgency; vendor aware of time-to-value priority",
+    "Zoho low switching cost (comp_switching_cost_zoho: low) can be used as walk-away credibility",
+    "Multi-year commitment (2yr) justifies requesting free onboarding/migration support"
+  ],
+  "procurement_risks": [
+    {
+      "risk": "NetSuite connector dependency not covered by native integration — vendor support scope ambiguity",
+      "severity": "High",
+      "mitigation": "Require written SLA for connector uptime and include third-party connector escrow clause in contract"
+    },
+    {
+      "risk": "Contract signed too close to October peak season, leaving insufficient rollout buffer",
+      "severity": "High",
+      "mitigation": "Target contract execution by 25 June 2026 to preserve Phase 1 start of 2026-07-01"
+    },
+    {
+      "risk": "Price escalation at renewal if Zoho revises seat pricing after year 1",
+      "severity": "Medium",
+      "mitigation": "Negotiate multi-year price-lock or CPI-capped escalation clause (max 5% per annum)"
+    },
+    {
+      "risk": "DPA subprocessor list changes could trigger GDPR re-review mid-contract",
+      "severity": "Medium",
+      "mitigation": "30-day notice window already confirmed (gdpr_subprocessor_notice_days: 30); add opt-out right without penalty"
+    },
+    {
+      "risk": "Reseller channel adds contract complexity and may dilute direct Zoho accountability",
+      "severity": "Low",
+      "mitigation": "Ensure master services agreement is with Zoho Corp directly; reseller acts as billing agent only"
+    }
+  ],
+  "procurement_export_clause_feasible": true
+}

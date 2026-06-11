@@ -1,0 +1,27 @@
+{
+  "role": "09-rollout-planner",
+  "hop": 9,
+  "arm": "clan",
+  "flow": "H2",
+  "commands_run": [
+    "clan read agent test-sandbox/happy/heavy/h2-clan-rep4/work/doc.clan --skip-guide",
+    "clan patch-data test-sandbox/happy/heavy/h2-clan-rep4/work/doc.clan test-sandbox/happy/lite/_inputs/h2-supplied/09-rollout-planner.json --agent 09-rollout-planner --action \"added 09-rollout-planner findings\" --rationale \"Three phases land core CRM before the October peak with phase-2 marketing on 2026-09-15. Next: lead partner assembles the recommendation.\"",
+    "clan validate test-sandbox/happy/heavy/h2-clan-rep4/work/doc.clan",
+    "cp test-sandbox/happy/heavy/h2-clan-rep4/work/doc.clan test-sandbox/happy/heavy/h2-clan-rep4/snapshots/hop-09-09-rollout-planner.clan"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/work/doc.clan", "approx_chars": 3800},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/09-rollout-planner.handoff.txt", "approx_chars": 140},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/09-rollout-planner.json", "approx_chars": 216}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/work/doc.clan", "chars": 3960},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/snapshots/hop-09-09-rollout-planner.clan", "chars": 3960},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/receipts/hop09-output/patch-data.json", "chars": 216},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/receipts/receipt-hop09.json", "chars": 900}
+  ],
+  "output_chars": 216,
+  "errors": [],
+  "problems_and_friction": "Bash tool requires POSIX paths (not Windows backslash paths) so the Copy-Item PowerShell command failed on first attempt; recovered by using cp with forward-slash paths. No other issues.",
+  "context_understood": "Hop 9 adds rollout-planner findings (3-phase schedule, 9-week duration, champion program) to the Brightline Logistics CRM doc, building on 8 prior analyst hops toward a lead-partner recommendation."
+}

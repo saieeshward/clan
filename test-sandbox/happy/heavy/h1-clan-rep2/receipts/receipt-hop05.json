@@ -1,0 +1,23 @@
+{
+  "role": "residency-section",
+  "hop": 5,
+  "arm": "clan",
+  "flow": "H1",
+  "commands_run": [
+    "clan read agent test-sandbox/happy/heavy/h1-clan-rep2/work/doc.clan --skip-guide",
+    "clan patch-html test-sandbox/happy/heavy/h1-clan-rep2/work/doc.clan test-sandbox/happy/heavy/h1-clan-rep2/receipts/hop05-output/patch-html-fragment.html --agent residency-agent --action \"add data residency section\" --rationale \"Legal requirement to document residency\"",
+    "clan validate test-sandbox/happy/heavy/h1-clan-rep2/work/doc.clan",
+    "cp test-sandbox/happy/heavy/h1-clan-rep2/work/doc.clan test-sandbox/happy/heavy/h1-clan-rep2/snapshots/hop-05-residency-section.clan"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/lite/_inputs/h1-supplied/residency-section.html", "approx_chars": 910}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep2/receipts/hop05-output/patch-html-fragment.html", "chars": 982},
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep2/snapshots/hop-05-residency-section.clan", "chars": 0}
+  ],
+  "output_chars": 982,
+  "errors": [],
+  "problems_and_friction": "The clan read command syntax was not immediately obvious — it requires a subcommand (agent/human/data) before the file path rather than taking the file path as a positional argument. The patch-html HTML input file requires YAML frontmatter with mode/patch_selector/patch_action fields which had to be confirmed from examples. No issues after these were resolved.",
+  "context_understood": "Hop 05 appends a supplied Data residency section to the body of the CRM recommendation doc using clan patch-html, which records a decision chain entry and applies the change in-place."
+}

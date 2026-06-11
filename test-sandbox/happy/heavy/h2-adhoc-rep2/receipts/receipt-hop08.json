@@ -1,0 +1,32 @@
+{
+  "role": "08-finance-modeler",
+  "hop": 8,
+  "arm": "adhoc",
+  "flow": "H2",
+  "commands_run": [
+    "mkdir -p test-sandbox/happy/heavy/h2-adhoc-rep2/snapshots/hop-08-08-finance-modeler",
+    "cp work/findings.md snapshots/hop-08-08-finance-modeler/findings.md",
+    "cp work/handoff.md snapshots/hop-08-08-finance-modeler/handoff.md",
+    "mkdir -p receipts/hop08-output"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/work/brief.md", "approx_chars": 570},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/work/findings.md", "approx_chars": 1150},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/work/handoff.md", "approx_chars": 730},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/08-finance-modeler.json", "approx_chars": 175},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/08-finance-modeler.handoff.txt", "approx_chars": 100}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/work/findings.md", "chars": 193},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/work/handoff.md", "chars": 121},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/snapshots/hop-08-08-finance-modeler/findings.md", "chars": 193},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/snapshots/hop-08-08-finance-modeler/handoff.md", "chars": 121},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/receipts/hop08-output/findings-fragment.txt", "chars": 193},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/receipts/hop08-output/handoff-fragment.txt", "chars": 121},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/receipts/receipt-hop08.json", "chars": 0}
+  ],
+  "output_chars": 314,
+  "errors": [],
+  "problems_and_friction": "None. All required input files were present and well-formed. The PowerShell tool was needed for character counting as the Bash tool does not support PowerShell syntax.",
+  "context_understood": "Finance modeler appends 3-year cost model for Zoho vs HubSpot, confirming Zoho saves EUR17,280 over 3 years with 7-month payback, and hands off to rollout planner."
+}

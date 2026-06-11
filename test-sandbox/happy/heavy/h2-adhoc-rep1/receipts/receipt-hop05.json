@@ -1,0 +1,31 @@
+{
+  "role": "05-integrations-assessor",
+  "hop": 5,
+  "arm": "adhoc",
+  "flow": "H2",
+  "commands_run": [
+    "mkdir -p test-sandbox/happy/heavy/h2-adhoc-rep1/snapshots/hop-05-05-integrations-assessor",
+    "cp work/findings.md snapshots/hop-05-05-integrations-assessor/findings.md",
+    "cp work/handoff.md snapshots/hop-05-05-integrations-assessor/handoff.md",
+    "mkdir -p test-sandbox/happy/heavy/h2-adhoc-rep1/receipts/hop05-output"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/work/brief.md", "approx_chars": 620},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/work/findings.md", "approx_chars": 900},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/work/handoff.md", "approx_chars": 500},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/05-integrations-assessor.json", "approx_chars": 220},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/05-integrations-assessor.handoff.txt", "approx_chars": 145}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/work/findings.md", "chars": 205},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/work/handoff.md", "chars": 172},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/snapshots/hop-05-05-integrations-assessor/findings.md", "chars": 1105},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/snapshots/hop-05-05-integrations-assessor/handoff.md", "chars": 672},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/receipts/hop05-output/findings-fragment.txt", "chars": 205},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/receipts/hop05-output/handoff-fragment.txt", "chars": 172}
+  ],
+  "output_chars": 377,
+  "errors": [],
+  "problems_and_friction": "No significant friction encountered. All required input files were present and well-formed. The PowerShell command syntax needed minor adjustment as the Bash tool was invoked first by mistake.",
+  "context_understood": "Assessed integration coverage for 6 required connectors across HubSpot and Zoho, finding HubSpot has one more native integration while Zoho needs a connector for NetSuite, with ~9 weeks effort for either vendor."
+}

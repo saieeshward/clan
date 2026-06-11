@@ -1,0 +1,35 @@
+{
+  "role": "02-pricing-analyst",
+  "hop": 2,
+  "arm": "adhoc",
+  "flow": "H2",
+  "commands_run": [
+    "mkdir -p snapshots/hop-02-02-pricing-analyst",
+    "cp work/findings.md snapshots/hop-02-02-pricing-analyst/findings.md",
+    "cp work/handoff.md snapshots/hop-02-02-pricing-analyst/handoff.md",
+    "mkdir -p receipts/hop02-output",
+    "wc -c receipts/hop02-output/findings-fragment.txt receipts/hop02-output/handoff-fragment.txt"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/work/brief.md", "approx_chars": 560},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/work/findings.md", "approx_chars": 310},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/work/handoff.md", "approx_chars": 130},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/02-pricing-analyst.json", "approx_chars": 220},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/02-pricing-analyst.handoff.txt", "approx_chars": 130}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/work/findings.md", "chars": 538},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/work/handoff.md", "chars": 281},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/snapshots/hop-02-02-pricing-analyst/findings.md", "chars": 538},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/snapshots/hop-02-02-pricing-analyst/handoff.md", "chars": 281},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/receipts/hop02-output/findings-fragment.txt", "chars": 228},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/receipts/hop02-output/handoff-fragment.txt", "chars": 151},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/receipts/receipt-hop02.json", "chars": 1450}
+  ],
+  "output_chars": 379,
+  "errors": [
+    {"what": "PowerShell cmdlets (New-Item, Copy-Item) not available via Bash tool on this env", "recovered_by": "Switched to bash mkdir/cp commands"}
+  ],
+  "problems_and_friction": "The Bash tool does not have PowerShell available, so the first attempt using New-Item and Copy-Item failed; recovered immediately with POSIX bash equivalents. No substantive data or logic issues encountered.",
+  "context_understood": "Pricing analyst hop appending per-seat and annual cost data for three CRM vendors (40 seats, EU) to the growing findings/handoff chain, with Zoho identified as cheapest at EUR18,240/yr."
+}

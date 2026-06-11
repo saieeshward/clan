@@ -1,0 +1,25 @@
+{
+  "role": "pricing-update",
+  "hop": 1,
+  "arm": "clan",
+  "flow": "H1",
+  "commands_run": [
+    "clan read agent test-sandbox/happy/heavy/h1-clan-rep1/work/doc.clan",
+    "clan read data test-sandbox/happy/heavy/h1-clan-rep1/work/doc.clan",
+    "clan patch-data test-sandbox/happy/heavy/h1-clan-rep1/work/doc.clan /tmp/h1patch1.json --agent pricing-agent --action \"update Zoho seat price to 38\" --rationale \"New vendor quote received\"",
+    "clan validate test-sandbox/happy/heavy/h1-clan-rep1/work/doc.clan",
+    "cp test-sandbox/happy/heavy/h1-clan-rep1/work/doc.clan test-sandbox/happy/heavy/h1-clan-rep1/snapshots/hop-01-pricing-update.clan"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep1/work/doc.clan", "approx_chars": 2800}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep1/work/doc.clan", "chars": 2800},
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep1/snapshots/hop-01-pricing-update.clan", "chars": 2800},
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep1/receipts/hop01-output/patch.json", "chars": 51}
+  ],
+  "output_chars": 51,
+  "errors": [],
+  "problems_and_friction": "clan read requires a subcommand (agent/data/chain) rather than accepting the file path directly — discovered via --help. The /tmp path used in instructions maps to Windows AppData/Local/Temp; used that path for the intermediate JSON file. No validation failures.",
+  "context_understood": "Update Zoho CRM per-seat price from 45 to 38 and recalculate annual total to 18240 (38x40x12) using clan patch-data with attribution."
+}

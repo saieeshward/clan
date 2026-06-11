@@ -1,0 +1,3 @@
+﻿
+hop-01 pricing-update: zoho_price_per_seat 45->38, zoho_annual_total 21600->18240 (38x40x12)
+hop-02 risk-add: appended risk "Vendor lock-in" (severity Medium, mitigation "Quarterly data-export clause in contract") to data.json risks[] and report.html risk table

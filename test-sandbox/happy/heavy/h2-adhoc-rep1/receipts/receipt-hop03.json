@@ -1,0 +1,31 @@
+{
+  "role": "03-risk-analyst",
+  "hop": 3,
+  "arm": "adhoc",
+  "flow": "H2",
+  "commands_run": [
+    "mkdir -p snapshots/hop-03-03-risk-analyst",
+    "cp work/findings.md snapshots/hop-03-03-risk-analyst/findings.md",
+    "cp work/handoff.md snapshots/hop-03-03-risk-analyst/handoff.md",
+    "mkdir -p receipts/hop03-output",
+    "wc -c receipts/hop03-output/authored-fragment.md"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/work/brief.md", "approx_chars": 620},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/work/findings.md", "approx_chars": 450},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/work/handoff.md", "approx_chars": 280},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/03-risk-analyst.json", "approx_chars": 210},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/03-risk-analyst.handoff.txt", "approx_chars": 155}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/work/findings.md", "chars": 640},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/work/handoff.md", "chars": 450},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/snapshots/hop-03-03-risk-analyst/findings.md", "chars": 640},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/snapshots/hop-03-03-risk-analyst/handoff.md", "chars": 450},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/receipts/hop03-output/authored-fragment.md", "chars": 375}
+  ],
+  "output_chars": 375,
+  "errors": [],
+  "problems_and_friction": "None encountered. All supplied files were present and well-formed. Bash ran in POSIX mode so PowerShell syntax failed on first attempt for char count, recovered by using wc -c instead.",
+  "context_understood": "Hop 3 of a CRM recommendation chain for Brightline Logistics: append risk-analyst findings (severity ratings for migration, adoption, and vendor maturity risks) and handoff note to the growing work files, then snapshot and receipt."
+}

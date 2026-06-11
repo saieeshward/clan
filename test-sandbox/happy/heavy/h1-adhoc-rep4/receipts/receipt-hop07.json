@@ -1,0 +1,34 @@
+{
+  "role": "verdict-flip",
+  "hop": 7,
+  "arm": "adhoc",
+  "flow": "H1",
+  "commands_run": [
+    "append to decisions.log",
+    "mkdir snapshots/hop-07-verdict-flip",
+    "cp work/report.html snapshots/hop-07-verdict-flip/",
+    "cp work/data.json snapshots/hop-07-verdict-flip/",
+    "cp work/decisions.log snapshots/hop-07-verdict-flip/"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/lite/_inputs/h1-supplied/verdict-rationale.txt", "approx_chars": 199},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/work/data.json", "approx_chars": 1100},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/work/report.html", "approx_chars": 2600},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/work/decisions.log", "approx_chars": 680}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/work/data.json", "chars": 1263},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/work/report.html", "chars": 2662},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/work/decisions.log", "chars": 849},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/snapshots/hop-07-verdict-flip/data.json", "chars": 1263},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/snapshots/hop-07-verdict-flip/report.html", "chars": 2662},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/snapshots/hop-07-verdict-flip/decisions.log", "chars": 849},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/receipts/hop07-output/patch-data.json", "chars": 266},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/receipts/hop07-output/patch-html.txt", "chars": 333},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/receipts/hop07-output/decision.txt", "chars": 168}
+  ],
+  "output_chars": 767,
+  "errors": [],
+  "problems_and_friction": "No friction encountered. Files were cleanly structured with unique target strings, enabling surgical splice edits for both data.json and report.html without full rewrites.",
+  "context_understood": "Flip verdict from HubSpot to Zoho CRM in data.json and report.html using the h1-supplied rationale text, then snapshot and record the change."
+}

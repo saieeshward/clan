@@ -1,0 +1,3 @@
+## 11-legal-reviewer
+
+Zoho is legally viable for EU deployment with SCCs as transfer mechanism; three pre-signature must-fixes: (1) lift liability cap to ≥EUR250k for data-breach claims, (2) require written consent (not mere notice) on DPA subprocessor changes, and (3) obtain legal review of NetSuite connector EULA before go-live. Next: lead partner assembles the final recommendation.

@@ -1,0 +1,36 @@
+﻿{
+  "role": "03-risk-analyst",
+  "hop": 3,
+  "arm": "adhoc",
+  "flow": "H2",
+  "commands_run": [
+    "New-Item -ItemType Directory -Force snapshots/hop-03-03-risk-analyst",
+    "Copy-Item work/findings.md -> snapshots/hop-03-03-risk-analyst/findings.md",
+    "Copy-Item work/handoff.md -> snapshots/hop-03-03-risk-analyst/handoff.md",
+    "mkdir receipts/hop03-output",
+    "write receipts/hop03-output/findings-fragment.md",
+    "write receipts/hop03-output/handoff-fragment.md"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/work/brief.md", "approx_chars": 595},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/work/findings.md", "approx_chars": 430},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/work/handoff.md", "approx_chars": 265},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/03-risk-analyst.json", "approx_chars": 215},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/03-risk-analyst.handoff.txt", "approx_chars": 138}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/work/findings.md", "chars": 202},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/work/handoff.md", "chars": 138},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/snapshots/hop-03-03-risk-analyst/findings.md", "chars": 202},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/snapshots/hop-03-03-risk-analyst/handoff.md", "chars": 138},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/receipts/hop03-output/findings-fragment.md", "chars": 202},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/receipts/hop03-output/handoff-fragment.md", "chars": 138},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/receipts/receipt-hop03.json", "chars": 0}
+  ],
+  "output_chars": 340,
+  "errors": [
+    {"what": "Bash tool cannot run PowerShell commands", "recovered_by": "switched to PowerShell tool for directory/file operations"}
+  ],
+  "problems_and_friction": "Initial snapshot/copy commands failed because the Bash tool ran them as POSIX shell, not PowerShell; switched to the PowerShell tool to resolve. The Write tool rejected authoring fragment files and required using bash printf instead. No data ambiguity issues.",
+  "context_understood": "Risk analyst hop appending structured risk severity fields for HubSpot vs Zoho finalists to a growing CRM recommendation chain for Brightline Logistics (40 seats, EU)."
+}

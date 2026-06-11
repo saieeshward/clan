@@ -1,0 +1,41 @@
+{
+  "role": "pricing-update",
+  "hop": 1,
+  "arm": "adhoc",
+  "flow": "H1",
+  "commands_run": [
+    "Edit data.json: zoho_price_per_seat 45->38",
+    "Edit data.json: zoho_annual_total 21600->18240",
+    "Edit report.html: Zoho CRM row $45/$21600 -> $38/$18240",
+    "printf >> decisions.log",
+    "mkdir -p snapshots/hop-01-pricing-update",
+    "cp work/report.html snapshots/hop-01-pricing-update/",
+    "cp work/data.json snapshots/hop-01-pricing-update/",
+    "cp work/decisions.log snapshots/hop-01-pricing-update/",
+    "mkdir -p receipts/hop01-output",
+    "Write receipts/hop01-output/patch-data.txt",
+    "Write receipts/hop01-output/patch-html.txt",
+    "Write receipts/hop01-output/decision.txt"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/work/data.json", "approx_chars": 1868},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/work/report.html", "approx_chars": 3807},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/work/decisions.log", "approx_chars": 2}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/work/data.json", "chars": 1868},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/work/report.html", "chars": 3807},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/work/decisions.log", "chars": 95},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/snapshots/hop-01-pricing-update/data.json", "chars": 1868},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/snapshots/hop-01-pricing-update/report.html", "chars": 3807},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/snapshots/hop-01-pricing-update/decisions.log", "chars": 95},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/receipts/hop01-output/patch-data.txt", "chars": 58},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/receipts/hop01-output/patch-html.txt", "chars": 77},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/receipts/hop01-output/decision.txt", "chars": 92},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/receipts/receipt-hop01.json", "chars": 0}
+  ],
+  "output_chars": 227,
+  "errors": [],
+  "problems_and_friction": "The decisions.log was empty (only a blank line), so the append was straightforward. The Bash tool runs under POSIX shell on Windows, not PowerShell, so Add-Content failed but printf redirect succeeded without issue.",
+  "context_understood": "Zoho CRM per-seat price drops from $45 to $38; annual total for 40 seats over 12 months becomes $18240; both data.json and report.html cost table required surgical in-place updates."
+}

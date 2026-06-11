@@ -1,0 +1,8 @@
+## 11-legal-reviewer
+
+legal_dpa_required: true
+legal_gdpr_transfer_mechanism: Standard Contractual Clauses (SCCs) — both Zoho and HubSpot rely on EU SCCs for any data transfer outside EEA; Zoho EU region pinning eliminates most cross-border flows by default
+legal_liability_cap_eur: 18240
+legal_ip_ownership_clear: true
+legal_indemnification_adequate: true
+legal_risks: [{"risk": "DPA not executed before go-live", "severity": "High", "mitigation": "Procurement commitment already conditions go-live on DPA execution; legal to verify signed DPA is in place by 2026-06-25 alongside contract"}, {"risk": "SCC adequacy challenged post-go-live (regulatory shift)", "severity": "Medium", "mitigation": "Zoho EU pinning minimises EEA-to-third-country flows; monitor EDPB guidance; include re-negotiation trigger clause if SCC framework is invalidated"}, {"risk": "Liability cap set to 12-month fees — may be insufficient for a data breach affecting 40 seats of customer contact data", "severity": "Medium", "mitigation": "Negotiate uplift to 2x annual fees or add cyber liability insurance to cover gap between vendor cap and actual breach exposure"}, {"risk": "Subprocessor change notice window (30 days) may be too short to object before processing resumes", "severity": "Low", "mitigation": "Contract should specify that new subprocessor processing is suspended until objection period lapses or buyer consents"}, {"risk": "Zoho data deletion / return on termination timeline undefined", "severity": "Low", "mitigation": "Insert clause requiring certified deletion or export within 30 days of contract termination; align with quarterly export right already negotiated"}]

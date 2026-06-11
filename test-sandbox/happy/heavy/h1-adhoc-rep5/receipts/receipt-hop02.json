@@ -1,0 +1,33 @@
+{
+  "role": "risk-add",
+  "hop": 2,
+  "arm": "adhoc",
+  "flow": "H1",
+  "commands_run": [
+    "mkdir -p test-sandbox/happy/heavy/h1-adhoc-rep5/snapshots/hop-02-risk-add",
+    "cp work/report.html snapshots/hop-02-risk-add/report.html",
+    "cp work/data.json snapshots/hop-02-risk-add/data.json",
+    "cp work/decisions.log snapshots/hop-02-risk-add/decisions.log",
+    "mkdir -p test-sandbox/happy/heavy/h1-adhoc-rep5/receipts/hop02-output"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/work/data.json", "approx_chars": 1869},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/work/report.html", "approx_chars": 3807},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/work/decisions.log", "approx_chars": 113}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/work/data.json", "chars": 1980},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/work/report.html", "chars": 3904},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/work/decisions.log", "chars": 297},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/snapshots/hop-02-risk-add/data.json", "chars": 1980},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/snapshots/hop-02-risk-add/report.html", "chars": 3904},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/snapshots/hop-02-risk-add/decisions.log", "chars": 297},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/receipts/hop02-output/patch-data.json", "chars": 111},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/receipts/hop02-output/patch-html.fragment", "chars": 97},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/receipts/hop02-output/decision.txt", "chars": 184}
+  ],
+  "output_chars": 392,
+  "errors": [],
+  "problems_and_friction": "No friction encountered. The existing risks array and HTML table were cleanly structured, making surgical splice insertion straightforward. All three work files were modified minimally.",
+  "context_understood": "Hop 02 of the H1 ad-hoc arm: append a new Vendor lock-in risk to data.json risks[] and matching <tr> to the HTML risk table, log the decision, snapshot, and write authored fragments to receipts."
+}

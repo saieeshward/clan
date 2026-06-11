@@ -1,0 +1,33 @@
+{
+  "role": "07-competitive-intel",
+  "hop": 7,
+  "arm": "adhoc",
+  "flow": "H2",
+  "commands_run": [
+    "mkdir -p snapshots/hop-07-07-competitive-intel",
+    "cp work/findings.md snapshots/hop-07-07-competitive-intel/findings.md",
+    "cp work/handoff.md snapshots/hop-07-07-competitive-intel/handoff.md",
+    "mkdir -p receipts/hop07-output",
+    "Get-Content (measure output chars)"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep3/work/brief.md", "approx_chars": 620},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep3/work/findings.md", "approx_chars": 930},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep3/work/handoff.md", "approx_chars": 570},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/07-competitive-intel.json", "approx_chars": 185},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/07-competitive-intel.handoff.txt", "approx_chars": 110}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep3/work/findings.md", "chars": 207},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep3/work/handoff.md", "chars": 140},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep3/snapshots/hop-07-07-competitive-intel/findings.md", "chars": 1137},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep3/snapshots/hop-07-07-competitive-intel/handoff.md", "chars": 710},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep3/receipts/hop07-output/findings-fragment.txt", "chars": 207},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep3/receipts/hop07-output/handoff-fragment.txt", "chars": 140},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep3/receipts/receipt-hop07.json", "chars": 0}
+  ],
+  "output_chars": 347,
+  "errors": [],
+  "problems_and_friction": "The Bash tool attempted to run PowerShell syntax and failed; switched to the PowerShell tool for char counting. The supplied handoff.txt contained a mojibake character (replacement char) for an em-dash, which was normalised to a proper em-dash on write.",
+  "context_understood": "Hop 7 of an H2 ad-hoc chain appending competitive-intel findings (Zoho's strengths: price+EU residency, low switching cost via export clause) to the running CRM recommendation for Brightline Logistics."
+}

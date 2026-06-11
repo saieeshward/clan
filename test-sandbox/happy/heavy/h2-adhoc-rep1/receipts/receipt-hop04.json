@@ -1,0 +1,32 @@
+{
+  "role": "04-gdpr-reviewer",
+  "hop": 4,
+  "arm": "adhoc",
+  "flow": "H2",
+  "commands_run": [
+    "mkdir -p .../snapshots/hop-04-04-gdpr-reviewer",
+    "cp work/findings.md snapshots/hop-04-04-gdpr-reviewer/findings.md",
+    "cp work/handoff.md snapshots/hop-04-04-gdpr-reviewer/handoff.md",
+    "mkdir -p receipts/hop04-output",
+    "wc -c receipts/hop04-output/authored-fragment.md"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/work/brief.md", "approx_chars": 490},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/work/findings.md", "approx_chars": 560},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/work/handoff.md", "approx_chars": 320},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/04-gdpr-reviewer.json", "approx_chars": 190},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/04-gdpr-reviewer.handoff.txt", "approx_chars": 120}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/work/findings.md", "chars": 134},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/work/handoff.md", "chars": 126},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/snapshots/hop-04-04-gdpr-reviewer/findings.md", "chars": 694},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/snapshots/hop-04-04-gdpr-reviewer/handoff.md", "chars": 446},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/receipts/hop04-output/authored-fragment.md", "chars": 334},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/receipts/receipt-hop04.json", "chars": 0}
+  ],
+  "output_chars": 334,
+  "errors": [],
+  "problems_and_friction": "No friction encountered. All supplied files were present and well-formed. The append-only pattern was straightforward to follow.",
+  "context_understood": "GDPR reviewer hop appending EU data residency findings (Zoho includes EU pinning at no extra cost; HubSpot charges add-on) and handoff note to growing chain files, then snapshotting."
+}

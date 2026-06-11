@@ -1,0 +1,31 @@
+{
+  "role": "11-legal-reviewer",
+  "hop": 11,
+  "arm": "clan",
+  "flow": "H2",
+  "commands_run": [
+    "clan read agent test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan --skip-guide",
+    "clan read data test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan",
+    "clan patch-data test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan C:\\Users\\syson\\AppData\\Local\\Temp\\h2-r3-hop11.json --agent 11-legal-reviewer --action \"added 11-legal-reviewer findings\" --rationale \"Zoho DPA requires SCCs + DSR SLA clause; liability cap at EUR 18,240 is inadequate for GDPR exposure — must renegotiate to EUR 50,000 minimum\"",
+    "clan validate test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan",
+    "cp test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan test-sandbox/happy/heavy/h2-clan-rep3/snapshots/hop-11-11-legal-reviewer.clan"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan", "approx_chars": 3800}
+  ],
+  "files_written": [
+    {"file": "C:\\Users\\syson\\AppData\\Local\\Temp\\h2-r3-hop11.json", "chars": 1997},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep3/snapshots/hop-11-11-legal-reviewer.clan", "chars": 0},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep3/receipts/hop11-output/patch-data.json", "chars": 1997},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep3/receipts/receipt-hop11.json", "chars": 0}
+  ],
+  "output_chars": 1997,
+  "errors": [
+    {
+      "what": "clan patch-data rejected /tmp path — Bash /tmp is a WSL/POSIX mount not visible to Windows clan binary",
+      "recovered_by": "Wrote JSON to Windows native temp path C:\\Users\\syson\\AppData\\Local\\Temp\\h2-r3-hop11.json instead"
+    }
+  ],
+  "problems_and_friction": "The Write tool uses POSIX /tmp which is inaccessible to the Windows clan binary; had to redirect to the Windows %TEMP% path. No other friction encountered; prior analyst data was well-structured and the gdpr_* fields provided a solid factual foundation for legal analysis.",
+  "context_understood": "Brightline Logistics (EU, 40 seats) is evaluating Zoho CRM as preferred vendor; legal review focused on GDPR compliance gaps, DPA adequacy, liability cap insufficiency, and data subject rights obligations that must be negotiated into the Zoho contract before go-live."
+}

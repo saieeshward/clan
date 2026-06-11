@@ -1,0 +1,26 @@
+{
+  "role": "06-customer-discovery",
+  "hop": 6,
+  "arm": "clan",
+  "flow": "H2",
+  "commands_run": [
+    "clan read agent test-sandbox/happy/heavy/h2-clan-rep4/work/doc.clan --skip-guide",
+    "clan patch-data test-sandbox/happy/heavy/h2-clan-rep4/work/doc.clan test-sandbox/happy/lite/_inputs/h2-supplied/06-customer-discovery.json --agent 06-customer-discovery --action \"added 06-customer-discovery findings\" --rationale \"Reps want fast lead response and minimal clicks. Split preference: cost-conscious ops lean Zoho. Next: competitive intel.\"",
+    "clan validate test-sandbox/happy/heavy/h2-clan-rep4/work/doc.clan",
+    "cp test-sandbox/happy/heavy/h2-clan-rep4/work/doc.clan test-sandbox/happy/heavy/h2-clan-rep4/snapshots/hop-06-06-customer-discovery.clan"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/work/doc.clan", "approx_chars": 2800},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/06-customer-discovery.handoff.txt", "approx_chars": 96},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/06-customer-discovery.json", "approx_chars": 216}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/work/doc.clan", "chars": 2980},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/snapshots/hop-06-06-customer-discovery.clan", "chars": 2980},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/receipts/hop06-output/patch-data.json", "chars": 216}
+  ],
+  "output_chars": 216,
+  "errors": [],
+  "problems_and_friction": "No friction encountered. All commands succeeded on the first attempt. The handoff note was brief (one line) and cleanly mapped to the rationale field.",
+  "context_understood": "Customer discovery findings (6 interviews, rep preferences, adoption target) were patched into the data-only doc.clan, building on prior pricing, risk, GDPR, and integrations analysis for the Brightline Logistics CRM recommendation."
+}

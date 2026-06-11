@@ -1,0 +1,42 @@
+{
+  "role": "verdict-flip",
+  "hop": 7,
+  "arm": "adhoc",
+  "flow": "H1",
+  "commands_run": [
+    "Read verdict-rationale.txt",
+    "Read data.json",
+    "Read report.html",
+    "Read decisions.log",
+    "Edit data.json (verdict + verdict_rationale)",
+    "Edit report.html (verdict-value + verdict-rationale spans)",
+    "Append to decisions.log",
+    "mkdir snapshots/hop-07-verdict-flip",
+    "cp report.html data.json decisions.log to snapshot dir",
+    "mkdir receipts/hop07-output",
+    "Write patch-data.json",
+    "Write patch-html.html",
+    "Write decision.txt"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/lite/_inputs/h1-supplied/verdict-rationale.txt", "approx_chars": 196},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/work/data.json", "approx_chars": 2113},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/work/report.html", "approx_chars": 5043},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/work/decisions.log", "approx_chars": 1097}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/work/data.json", "chars": 2113},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/work/report.html", "chars": 5043},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/work/decisions.log", "chars": 1097},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/snapshots/hop-07-verdict-flip/data.json", "chars": 2113},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/snapshots/hop-07-verdict-flip/report.html", "chars": 5043},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/snapshots/hop-07-verdict-flip/decisions.log", "chars": 1097},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/receipts/hop07-output/patch-data.json", "chars": 266},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/receipts/hop07-output/patch-html.html", "chars": 333},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/receipts/hop07-output/decision.txt", "chars": 196}
+  ],
+  "output_chars": 795,
+  "errors": [],
+  "problems_and_friction": "No friction encountered. The verdict and rationale fields were cleanly identified in both data.json and report.html by their id attributes, enabling surgical splices without rewriting whole files. The decisions.log append used a shell echo due to lack of a direct append API.",
+  "context_understood": "Flip verdict from HubSpot to Zoho CRM in data.json and report.html using the supplied rationale text, append to decisions.log, snapshot the work directory, and record authored fragments in receipts."
+}

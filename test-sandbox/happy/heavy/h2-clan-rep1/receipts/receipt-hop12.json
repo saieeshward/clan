@@ -1,0 +1,30 @@
+{
+  "role": "lead-partner",
+  "hop": 12,
+  "arm": "clan",
+  "flow": "H2",
+  "commands_run": [
+    "clan read agent test-sandbox/happy/heavy/h2-clan-rep1/work/doc.clan --skip-guide",
+    "clan read chain test-sandbox/happy/heavy/h2-clan-rep1/work/doc.clan",
+    "clan patch-data test-sandbox/happy/heavy/h2-clan-rep1/work/doc.clan /tmp/h2-r1-lead.json --agent lead-partner --action \"final recommendation: Zoho CRM\" --rationale \"Synthesised 11 analyst inputs\"",
+    "clan render test-sandbox/happy/heavy/h2-clan-rep1/work/doc.clan",
+    "clan validate test-sandbox/happy/heavy/h2-clan-rep1/work/doc.clan",
+    "clan patch-decision test-sandbox/happy/heavy/h2-clan-rep1/work/doc.clan --agent lead-partner --action \"final recommendation: Zoho CRM\" --rationale \"Synthesised 11 analyst inputs.\" --pinned",
+    "cp work/doc.clan snapshots/hop-12-lead-partner.clan"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep1/work/doc.clan", "approx_chars": 6200}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep1/receipts/hop12-output/patch-data.json", "chars": 281},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep1/receipts/hop12-output/decision.txt", "chars": 85},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep1/snapshots/hop-12-lead-partner.clan", "chars": 0},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep1/receipts/receipt-hop12.json", "chars": 1380}
+  ],
+  "output_chars": 366,
+  "errors": [
+    {"what": "Copy-Item not found in bash context", "recovered_by": "Used bash cp command instead"}
+  ],
+  "problems_and_friction": "Shell context defaulted to bash rather than PowerShell, causing Copy-Item to fail; recovered immediately with cp. Temporary file had to be written to /tmp (Windows C:\\tmp) as the instruction path /tmp is POSIX-style. All clan commands completed cleanly.",
+  "context_understood": "Lead partner synthesising 11 specialist analyst findings (market, pricing, risk, GDPR, integrations, customer discovery, competitive intel, finance, rollout, procurement, legal) to produce a final pinned Zoho CRM recommendation for Brightline Logistics (40 seats, EU, peak season October 2026)."
+}

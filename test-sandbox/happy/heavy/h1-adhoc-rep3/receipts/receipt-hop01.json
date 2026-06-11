@@ -1,0 +1,43 @@
+{
+  "role": "pricing-update",
+  "hop": 1,
+  "arm": "adhoc",
+  "flow": "H1",
+  "commands_run": [
+    "Read work/data.json",
+    "Read work/decisions.log",
+    "Read work/report.html",
+    "Edit work/data.json: zoho_price_per_seat 45->38",
+    "Edit work/report.html: Zoho row $45/$21600 -> $38/$18240",
+    "Edit work/data.json: zoho_annual_total 21600->18240",
+    "bash: append to work/decisions.log",
+    "bash: mkdir snapshots/hop-01-pricing-update",
+    "bash: cp report.html data.json decisions.log to snapshots/hop-01-pricing-update/",
+    "bash: mkdir receipts/hop01-output",
+    "Write receipts/hop01-output/patch-data.txt",
+    "Write receipts/hop01-output/patch-html.txt",
+    "Write receipts/hop01-output/decision.txt"
+  ],
+  "files_read": [
+    {"file": "work/data.json", "approx_chars": 1210},
+    {"file": "work/decisions.log", "approx_chars": 1},
+    {"file": "work/report.html", "approx_chars": 2790}
+  ],
+  "files_written": [
+    {"file": "work/data.json", "chars": 1868},
+    {"file": "work/report.html", "chars": 3898},
+    {"file": "work/decisions.log", "chars": 143},
+    {"file": "snapshots/hop-01-pricing-update/data.json", "chars": 1868},
+    {"file": "snapshots/hop-01-pricing-update/report.html", "chars": 3898},
+    {"file": "snapshots/hop-01-pricing-update/decisions.log", "chars": 143},
+    {"file": "receipts/hop01-output/patch-data.txt", "chars": 58},
+    {"file": "receipts/hop01-output/patch-html.txt", "chars": 77},
+    {"file": "receipts/hop01-output/decision.txt", "chars": 137}
+  ],
+  "output_chars": 272,
+  "errors": [
+    {"what": "first cp command had a typo in path for decisions.log (missing 'happy' segment)", "recovered_by": "ran a corrected cp command immediately after"}
+  ],
+  "problems_and_friction": "The decisions.log was initially empty (just a blank line), which needed to be confirmed before appending. A path typo in the first snapshot copy command for decisions.log required a separate corrective copy. Otherwise the surgical edits to two fields in data.json and one table row in report.html were straightforward.",
+  "context_understood": "Zoho CRM per-seat price drops from 45 to 38 and annual total updates from 21600 to 18240 (38x40x12), requiring two JSON field edits and one HTML table row splice, plus a decisions.log entry and snapshot."
+}

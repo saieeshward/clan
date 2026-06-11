@@ -1,0 +1,33 @@
+{
+  "role": "03-risk-analyst",
+  "hop": 3,
+  "arm": "adhoc",
+  "flow": "H2",
+  "commands_run": [
+    "New-Item -ItemType Directory -Force snapshots/hop-03-03-risk-analyst",
+    "Copy-Item work/findings.md snapshots/hop-03-03-risk-analyst/findings.md",
+    "Copy-Item work/handoff.md snapshots/hop-03-03-risk-analyst/handoff.md",
+    "New-Item -ItemType Directory -Force receipts/hop03-output",
+    "Get-Content receipts/hop03-output/findings-fragment.txt -Raw .Length (measure)"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/work/brief.md", "approx_chars": 534},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/work/findings.md", "approx_chars": 410},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/work/handoff.md", "approx_chars": 270},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/03-risk-analyst.json", "approx_chars": 196},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/03-risk-analyst.handoff.txt", "approx_chars": 140}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/work/findings.md", "chars": 201},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/work/handoff.md", "chars": 157},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/snapshots/hop-03-03-risk-analyst/findings.md", "chars": 201},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/snapshots/hop-03-03-risk-analyst/handoff.md", "chars": 157},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/receipts/hop03-output/findings-fragment.txt", "chars": 201},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/receipts/hop03-output/handoff-fragment.txt", "chars": 157},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/receipts/receipt-hop03.json", "chars": 0}
+  ],
+  "output_chars": 358,
+  "errors": [],
+  "problems_and_friction": "Bash tool was used initially but failed because shell is PowerShell on Windows; switched to PowerShell tool which succeeded immediately. No other issues.",
+  "context_understood": "Risk-analyst hop appends structured risk findings and a handoff note for two CRM finalists (HubSpot vs Zoho) to growing chain documents, then snapshots them."
+}

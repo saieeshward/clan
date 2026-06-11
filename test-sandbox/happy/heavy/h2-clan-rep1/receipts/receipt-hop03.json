@@ -1,0 +1,26 @@
+{
+  "role": "03-risk-analyst",
+  "hop": 3,
+  "arm": "clan",
+  "flow": "H2",
+  "commands_run": [
+    "clan read agent test-sandbox/happy/heavy/h2-clan-rep1/work/doc.clan --skip-guide",
+    "clan patch-data test-sandbox/happy/heavy/h2-clan-rep1/work/doc.clan test-sandbox/happy/lite/_inputs/h2-supplied/03-risk-analyst.json --agent 03-risk-analyst --action \"added 03-risk-analyst findings\" --rationale \"Migration quality is the top risk for either vendor. Zoho carries slightly higher maturity risk on advanced workflows. Next: GDPR review.\"",
+    "clan validate test-sandbox/happy/heavy/h2-clan-rep1/work/doc.clan",
+    "cp work/doc.clan snapshots/hop-03-03-risk-analyst.clan"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep1/work/doc.clan", "approx_chars": 1800},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/03-risk-analyst.handoff.txt", "approx_chars": 130},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/03-risk-analyst.json", "approx_chars": 251}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep1/work/doc.clan", "chars": 12115},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep1/snapshots/hop-03-03-risk-analyst.clan", "chars": 12115},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep1/receipts/hop03-output/patch-data.json", "chars": 241}
+  ],
+  "output_chars": 241,
+  "errors": [],
+  "problems_and_friction": "Copy-Item is not available in bash shell; used cp instead for the snapshot step. No other friction encountered. All commands succeeded cleanly.",
+  "context_understood": "Risk analyst (hop 3) patches structured risk severity fields for the two CRM finalists (HubSpot, Zoho) into the agent-only doc.clan, building on prior market and pricing analyst hops."
+}

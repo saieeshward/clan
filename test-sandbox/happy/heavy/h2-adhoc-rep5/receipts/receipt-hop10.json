@@ -1,0 +1,34 @@
+{
+  "role": "10-procurement-reviewer",
+  "hop": 10,
+  "arm": "adhoc",
+  "flow": "H2",
+  "commands_run": [
+    "New-Item -ItemType Directory -Force ...snapshots/hop-10-10-procurement-reviewer",
+    "Copy-Item work/findings.md -> snapshots/hop-10-10-procurement-reviewer/findings.md",
+    "Copy-Item work/handoff.md -> snapshots/hop-10-10-procurement-reviewer/handoff.md",
+    "New-Item -ItemType Directory -Force receipts/hop10-output",
+    "Get-Content receipts/hop10-output/authored-fragment.md -Raw (char count)",
+    "Get-Content receipts/hop10-output/handoff-fragment.md -Raw (char count)"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/work/brief.md", "approx_chars": 510},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/work/findings.md", "approx_chars": 1680},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/work/handoff.md", "approx_chars": 1050}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/work/findings.md", "chars": 3228},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/work/handoff.md", "chars": 1309},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/snapshots/hop-10-10-procurement-reviewer/findings.md", "chars": 3228},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/snapshots/hop-10-10-procurement-reviewer/handoff.md", "chars": 1309},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/receipts/hop10-output/authored-fragment.md", "chars": 1548},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/receipts/hop10-output/handoff-fragment.md", "chars": 259},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/receipts/receipt-hop10.json", "chars": 1750}
+  ],
+  "output_chars": 1807,
+  "errors": [
+    {"what": "Bash tool invoked for PowerShell commands (New-Item/Copy-Item not found in bash)", "recovered_by": "Switched to PowerShell tool for directory creation and file copy"}
+  ],
+  "problems_and_friction": "Initial snapshot copy attempt used the Bash tool instead of PowerShell, causing command-not-found errors for New-Item and Copy-Item; recovered immediately by switching to the PowerShell tool. No substantive content issues; all prior analyst data was well-structured and straightforward to build on.",
+  "context_understood": "Brightline Logistics (40-seat, EU-based) is choosing between Zoho and HubSpot CRM with Zoho consistently favoured on cost, GDPR residency inclusion, and 3-year savings; procurement review needed to solidify contract terms, negotiation levers, and risks before the lead partner assembles the final recommendation."
+}

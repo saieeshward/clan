@@ -1,0 +1,24 @@
+{
+  "role": "pricing-update",
+  "hop": 1,
+  "arm": "clan",
+  "flow": "H1",
+  "commands_run": [
+    "clan read agent test-sandbox/happy/heavy/h1-clan-rep4/work/doc.clan --skip-guide",
+    "clan read data test-sandbox/happy/heavy/h1-clan-rep4/work/doc.clan",
+    "clan patch-data test-sandbox/happy/heavy/h1-clan-rep4/work/doc.clan /tmp/h1patch1.json --agent pricing-agent --action \"update Zoho seat price to 38\" --rationale \"New vendor quote received\"",
+    "clan validate test-sandbox/happy/heavy/h1-clan-rep4/work/doc.clan"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep4/work/doc.clan", "approx_chars": 13969}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep4/work/doc.clan", "chars": 13969},
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep4/snapshots/hop-01-pricing-update.clan", "chars": 13969},
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep4/receipts/hop01-output/patch.json", "chars": 52}
+  ],
+  "output_chars": 52,
+  "errors": [],
+  "problems_and_friction": "The clan read command syntax required subcommands (agent/data) rather than accepting a file path directly. The /tmp path used for the patch file works via bash but PowerShell commands were not available in the bash shell context.",
+  "context_understood": "Zoho CRM per-seat price updated from 45 to 38, and zoho_annual_total recalculated to 18240 (38x40x12) via clan patch-data with attribution."
+}

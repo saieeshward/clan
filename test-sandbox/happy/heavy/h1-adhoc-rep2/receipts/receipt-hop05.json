@@ -1,0 +1,33 @@
+{
+  "role": "residency-section",
+  "hop": 5,
+  "arm": "adhoc",
+  "flow": "H1",
+  "commands_run": [
+    "mkdir -p snapshots/hop-05-residency-section",
+    "cp work/report.html snapshots/hop-05-residency-section/report.html",
+    "cp work/data.json snapshots/hop-05-residency-section/data.json",
+    "cp work/decisions.log snapshots/hop-05-residency-section/decisions.log",
+    "mkdir -p receipts/hop05-output"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/lite/_inputs/h1-supplied/residency-section.html", "approx_chars": 910},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/work/report.html", "approx_chars": 3933},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/work/decisions.log", "approx_chars": 584},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/work/data.json", "approx_chars": 2007}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/work/report.html", "chars": 4843},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/work/decisions.log", "chars": 747},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/snapshots/hop-05-residency-section/report.html", "chars": 4843},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/snapshots/hop-05-residency-section/data.json", "chars": 2007},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/snapshots/hop-05-residency-section/decisions.log", "chars": 747},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/receipts/hop05-output/residency-splice.html", "chars": 911},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/receipts/hop05-output/decision-entry.txt", "chars": 163},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/receipts/receipt-hop05.json", "chars": 0}
+  ],
+  "output_chars": 1074,
+  "errors": [],
+  "problems_and_friction": "No friction encountered. The Data governance section was clearly identifiable in report.html, and the splice point (before Projected impact h2) was unambiguous. The supplied fragment was inserted verbatim with no adaptation required.",
+  "context_understood": "Insert the h1-supplied residency-section.html fragment into report.html immediately after the Data governance section, log the change, snapshot, and write receipts."
+}

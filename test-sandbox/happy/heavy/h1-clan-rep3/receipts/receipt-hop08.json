@@ -1,0 +1,23 @@
+{
+  "role": "signoff",
+  "hop": 8,
+  "arm": "clan",
+  "flow": "H1",
+  "commands_run": [
+    "clan read agent test-sandbox/happy/heavy/h1-clan-rep3/work/doc.clan --skip-guide",
+    "clan read chain test-sandbox/happy/heavy/h1-clan-rep3/work/doc.clan",
+    "clan patch-decision test-sandbox/happy/heavy/h1-clan-rep3/work/doc.clan --agent steering-committee --action \"approved Zoho CRM recommendation\" --rationale \"Re-scored cost vs time-to-value; Zoho wins on 40-seat cost with EU residency included.\" --pinned",
+    "clan validate test-sandbox/happy/heavy/h1-clan-rep3/work/doc.clan"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep3/work/doc.clan", "approx_chars": 14797}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep3/snapshots/hop-08-signoff.clan", "chars": 14797},
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep3/receipts/hop08-output/decision.yaml", "chars": 180}
+  ],
+  "output_chars": 180,
+  "errors": [],
+  "problems_and_friction": "Initial clan read syntax was wrong (passed file path as subcommand); corrected by using 'clan read agent' subcommand. PowerShell mkdir/copy commands failed in bash shell; used POSIX equivalents instead. No other issues.",
+  "context_understood": "Hop 8 is the final steering-committee sign-off recording approval of Zoho CRM on 2026-06-11, appended as a pinned decision entry to the existing decision chain."
+}

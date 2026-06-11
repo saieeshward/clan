@@ -1,0 +1,25 @@
+{
+  "role": "05-integrations-assessor",
+  "hop": 5,
+  "arm": "clan",
+  "flow": "H2",
+  "commands_run": [
+    "clan read agent test-sandbox/happy/heavy/h2-clan-rep5/work/doc.clan --skip-guide",
+    "clan patch-data test-sandbox/happy/heavy/h2-clan-rep5/work/doc.clan test-sandbox/happy/lite/_inputs/h2-supplied/05-integrations-assessor.json --agent 05-integrations-assessor --action \"added 05-integrations-assessor findings\" --rationale \"HubSpot has one more native connector; Zoho needs a NetSuite connector but it is supported. ~9 wk effort either way. Next: customer discovery.\"",
+    "clan validate test-sandbox/happy/heavy/h2-clan-rep5/work/doc.clan",
+    "cp work/doc.clan snapshots/hop-05-05-integrations-assessor.clan"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep5/work/doc.clan", "approx_chars": 2800},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/05-integrations-assessor.handoff.txt", "approx_chars": 130},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/05-integrations-assessor.json", "approx_chars": 272}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep5/snapshots/hop-05-05-integrations-assessor.clan", "chars": 3100},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep5/receipts/hop05-output/patch-data.json", "chars": 272}
+  ],
+  "output_chars": 272,
+  "errors": [],
+  "problems_and_friction": "Copy-Item is not available in bash context; used cp instead. No other friction encountered. Validate passed cleanly on first attempt.",
+  "context_understood": "Hop 5 of H2 chain: add integrations-assessor findings (5 fields covering required integrations, native connector counts, Zoho gap, and effort estimate) to the CRM recommendation doc for Brightline Logistics."
+}

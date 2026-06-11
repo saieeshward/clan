@@ -1,0 +1,32 @@
+{
+  "role": "09-rollout-planner",
+  "hop": 9,
+  "arm": "adhoc",
+  "flow": "H2",
+  "commands_run": [
+    "mkdir -p test-sandbox/happy/heavy/h2-adhoc-rep2/snapshots/hop-09-09-rollout-planner",
+    "cp work/findings.md snapshots/hop-09-09-rollout-planner/findings.md",
+    "cp work/handoff.md snapshots/hop-09-09-rollout-planner/handoff.md",
+    "mkdir -p test-sandbox/happy/heavy/h2-adhoc-rep2/receipts/hop09-output"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/work/brief.md", "approx_chars": 615},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/work/findings.md", "approx_chars": 1510},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/work/handoff.md", "approx_chars": 1050},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/09-rollout-planner.json", "approx_chars": 195},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/09-rollout-planner.handoff.txt", "approx_chars": 130}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/work/findings.md", "chars": 201},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/work/handoff.md", "chars": 161},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/snapshots/hop-09-09-rollout-planner/findings.md", "chars": 1711},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/snapshots/hop-09-09-rollout-planner/handoff.md", "chars": 1211},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/receipts/hop09-output/findings-fragment.txt", "chars": 201},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/receipts/hop09-output/handoff-fragment.txt", "chars": 161},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/receipts/receipt-hop09.json", "chars": 0}
+  ],
+  "output_chars": 362,
+  "errors": [],
+  "problems_and_friction": "No significant friction. All supplied JSON and handoff text were straightforward to append. Snapshot and receipts directories were created without issues.",
+  "context_understood": "Rollout planner appends a 3-phase go-live schedule (July/Sept/Nov 2026) to findings and handoff, ensuring core CRM is live before October peak season, with champion program enabled."
+}

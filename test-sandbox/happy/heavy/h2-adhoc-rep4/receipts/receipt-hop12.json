@@ -1,0 +1,31 @@
+{
+  "role": "lead-partner",
+  "hop": 12,
+  "arm": "adhoc",
+  "flow": "H2",
+  "commands_run": [
+    "mkdir -p snapshots/hop-12-lead-partner",
+    "mkdir -p receipts/hop12-output",
+    "cp work/findings.md snapshots/hop-12-lead-partner/findings.md",
+    "cp work/handoff.md snapshots/hop-12-lead-partner/handoff.md",
+    "cp work/report.html snapshots/hop-12-lead-partner/report.html",
+    "cp work/decisions.log snapshots/hop-12-lead-partner/decisions.log",
+    "wc -c work/report.html work/decisions.log"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/work/brief.md", "approx_chars": 650},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/work/findings.md", "approx_chars": 4100},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/work/handoff.md", "approx_chars": 1800}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/work/report.html", "chars": 14273},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/work/decisions.log", "chars": 91},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/receipts/hop12-output/decisions-entry.txt", "chars": 91},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/receipts/hop12-output/report.html", "chars": 14273},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/receipts/receipt-hop12.json", "chars": 1350}
+  ],
+  "output_chars": 14364,
+  "errors": [],
+  "problems_and_friction": "PowerShell mkdir commands failed in Bash tool; switched to POSIX mkdir -p which succeeded. No data gaps encountered — all 11 analyst inputs were complete and consistent.",
+  "context_understood": "Lead partner synthesising 11 specialist analyst inputs for Brightline Logistics CRM selection, producing a final HTML recommendation page for Zoho CRM at EUR 18,240 year-1 cost with top risks and rationale."
+}

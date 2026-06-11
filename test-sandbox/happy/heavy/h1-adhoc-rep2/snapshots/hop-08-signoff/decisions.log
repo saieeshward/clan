@@ -1,0 +1,9 @@
+
+2026-06-11 hop-01 pricing-update: Zoho CRM per-seat price updated 45->38, annual_total updated 21600->18240 (38x40x12).
+2026-06-11 hop-02 risk-add: Added risk "Vendor lock-in" (severity: Medium, mitigation: Quarterly data-export clause in contract) to risks[] in data.json and risk table in report.html.
+2026-06-11 hop-03 date-update: rollout_phase2_date updated 2026-08-01->2026-09-15 in data.json and id="phase2" cell in report.html.
+2026-06-11 hop-04 summary-rewrite: exec_summary replaced with h1-supplied text (Zoho now leads) in data.json and id="exec-summary" in report.html.
+2026-06-11 hop-05 residency-section: Inserted h2#data-residency + p#residency-detail after Data governance section in report.html (h1-supplied fragment verbatim).
+2026-06-11 hop-06 chart-update: SVG bar-zoho rect updated y=52->78 height=108->82 (Zoho is now cheapest).
+2026-06-11 hop-07 verdict-flip: verdict changed HubSpot->Zoho CRM; verdict_rationale updated to h1-supplied text in data.json and verdict-value/verdict-rationale in report.html.
+2026-06-11 | steering-committee | approved Zoho CRM recommendation | Re-scored cost vs time-to-value; Zoho wins on 40-seat cost with EU residency included.

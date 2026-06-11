@@ -1,0 +1,33 @@
+{
+  "role": "chart-update",
+  "hop": 6,
+  "arm": "clan",
+  "flow": "H1",
+  "commands_run": [
+    "clan read agent test-sandbox/happy/heavy/h1-clan-rep3/work/doc.clan --skip-guide",
+    "clan read human test-sandbox/happy/heavy/h1-clan-rep3/work/doc.clan",
+    "clan patch-html test-sandbox/happy/heavy/h1-clan-rep3/work/doc.clan test-sandbox/happy/heavy/h1-clan-rep3/work/patch-bar-zoho.html --agent chart-agent --action \"shrink Zoho bar to reflect lower cost\" --rationale \"Price drop from hop 1 reflected in chart\"",
+    "clan validate test-sandbox/happy/heavy/h1-clan-rep3/work/doc.clan",
+    "cp ...snapshots/hop-05-residency-section.clan .../work/doc.clan",
+    "cp .../work/doc.clan .../snapshots/hop-06-chart-update.clan"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep3/work/doc.clan (agent view)", "approx_chars": 2800},
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep3/work/doc.clan (human view, bar-zoho grep)", "approx_chars": 300}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep3/work/patch-bar-zoho.html", "chars": 158},
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep3/snapshots/hop-06-chart-update.clan", "chars": 0},
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep3/receipts/hop06-output/patch-bar-zoho.html", "chars": 158},
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep3/receipts/receipt-hop06.json", "chars": 0}
+  ],
+  "output_chars": 158,
+  "errors": [
+    {
+      "what": "First patch attempt used wrong frontmatter keys (selector/action instead of patch_selector/patch_action), causing append rather than replace — duplicate bar-zoho elements created, integrity check failed",
+      "recovered_by": "Restored doc.clan from hop-05 snapshot, corrected frontmatter keys in patch file, re-applied patch successfully"
+    }
+  ],
+  "problems_and_friction": "The patch-html frontmatter key names differ from the CLI flag names (patch_selector vs --selector), which is not obvious from --help alone and required reading the embedded spec. The first attempt created a duplicate element instead of replacing, breaking integrity and requiring a snapshot restore. After reading the spec the correct keys (patch_selector, patch_action) worked first try.",
+  "context_understood": "Hop 06 applies a chart update making Zoho's bar shorter (y=78, height=82) to reflect it becoming the cheapest option after the hop-01 price-drop change."
+}

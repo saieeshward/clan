@@ -1,0 +1,31 @@
+{
+  "role": "risk-add",
+  "hop": 2,
+  "arm": "clan",
+  "flow": "H1",
+  "commands_run": [
+    "clan read agent test-sandbox/happy/heavy/h1-clan-rep4/work/doc.clan --skip-guide",
+    "clan read data test-sandbox/happy/heavy/h1-clan-rep4/work/doc.clan",
+    "clan patch-data test-sandbox/happy/heavy/h1-clan-rep4/work/doc.clan receipts/hop02-output/patch-data.json --agent risk-agent --action \"add vendor lock-in risk\" --rationale \"Identified during procurement review\"",
+    "clan patch-html test-sandbox/happy/heavy/h1-clan-rep4/work/doc.clan receipts/hop02-output/patch-html.html --agent risk-agent --action \"add risk table row\" --rationale \"Mirror data patch in view\"",
+    "clan validate test-sandbox/happy/heavy/h1-clan-rep4/work/doc.clan"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep4/work/doc.clan", "approx_chars": 3200}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep4/receipts/hop02-output/patch-data.json", "chars": 458},
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep4/receipts/hop02-output/patch-html.html", "chars": 160},
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep4/snapshots/hop-02-risk-add.clan", "chars": 0},
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep4/receipts/receipt-hop02.json", "chars": 0}
+  ],
+  "output_chars": 618,
+  "errors": [
+    {
+      "what": "clan patch-html does not accept --selector/--action/--fragment inline flags; requires HTML file with YAML frontmatter",
+      "recovered_by": "Ran clan patch-html --help, then wrote a proper HTML patch file with frontmatter and re-ran"
+    }
+  ],
+  "problems_and_friction": "The protocol description implied patch-html accepts inline --selector and --fragment flags, but the actual CLI requires an HTML patch file with YAML frontmatter. This required one failed attempt and a --help lookup before recovering. Otherwise the patch-first workflow was smooth.",
+  "context_understood": "Rep 4, hop 2 adds the Vendor lock-in risk entry (severity: Medium) to the risks array and mirrors it in the HTML risk table via clan patch-data + patch-html, then validates and snapshots."
+}

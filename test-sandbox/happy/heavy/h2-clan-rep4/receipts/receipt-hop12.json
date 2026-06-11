@@ -1,0 +1,27 @@
+{
+  "role": "lead-partner",
+  "hop": 12,
+  "arm": "clan",
+  "flow": "H2",
+  "commands_run": [
+    "clan read agent test-sandbox/happy/heavy/h2-clan-rep4/work/doc.clan --skip-guide",
+    "clan read chain test-sandbox/happy/heavy/h2-clan-rep4/work/doc.clan",
+    "clan patch-data test-sandbox/happy/heavy/h2-clan-rep4/work/doc.clan C:/tmp/h2-r4-lead.json --agent lead-partner --action \"final recommendation: Zoho CRM\" --rationale \"Synthesised 11 analyst inputs\"",
+    "clan render test-sandbox/happy/heavy/h2-clan-rep4/work/doc.clan",
+    "clan validate test-sandbox/happy/heavy/h2-clan-rep4/work/doc.clan",
+    "clan patch-decision test-sandbox/happy/heavy/h2-clan-rep4/work/doc.clan --agent lead-partner --action \"final recommendation: Zoho CRM\" --rationale \"Synthesised 11 analyst inputs.\" --pinned",
+    "Copy-Item test-sandbox/happy/heavy/h2-clan-rep4/work/doc.clan test-sandbox/happy/heavy/h2-clan-rep4/snapshots/hop-12-lead-partner.clan"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/work/doc.clan", "approx_chars": 6800}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/receipts/hop12-output/patch-data.json", "chars": 295},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/receipts/hop12-output/decision.txt", "chars": 58},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/snapshots/hop-12-lead-partner.clan", "chars": 0}
+  ],
+  "output_chars": 353,
+  "errors": [],
+  "problems_and_friction": "No errors encountered. The /tmp path required adaptation to C:/tmp for Windows compatibility. All commands succeeded on first attempt.",
+  "context_understood": "Lead partner synthesising 11 specialist analyst findings to produce a final pinned CRM recommendation for Brightline Logistics (40 seats, EU, Zoho CRM at EUR 18,240/yr)."
+}

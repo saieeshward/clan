@@ -1,0 +1,30 @@
+{
+  "role": "lead-partner",
+  "hop": 12,
+  "arm": "clan",
+  "flow": "H2",
+  "commands_run": [
+    "clan read agent test-sandbox/happy/heavy/h2-clan-rep5/work/doc.clan --skip-guide",
+    "clan read chain test-sandbox/happy/heavy/h2-clan-rep5/work/doc.clan",
+    "clan patch-data test-sandbox/happy/heavy/h2-clan-rep5/work/doc.clan test-sandbox/happy/heavy/h2-clan-rep5/work/lead.json --agent lead-partner --action \"final recommendation: Zoho CRM\" --rationale \"Synthesised 11 analyst inputs\"",
+    "clan render test-sandbox/happy/heavy/h2-clan-rep5/work/doc.clan",
+    "clan validate test-sandbox/happy/heavy/h2-clan-rep5/work/doc.clan",
+    "clan patch-decision test-sandbox/happy/heavy/h2-clan-rep5/work/doc.clan --agent lead-partner --action \"final recommendation: Zoho CRM\" --rationale \"Synthesised 11 analyst inputs.\" --pinned",
+    "cp test-sandbox/happy/heavy/h2-clan-rep5/work/doc.clan test-sandbox/happy/heavy/h2-clan-rep5/snapshots/hop-12-lead-partner.clan"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep5/work/doc.clan", "approx_chars": 7200}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep5/work/lead.json", "chars": 281},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep5/snapshots/hop-12-lead-partner.clan", "chars": 0},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep5/receipts/hop12-output/patch-data.json", "chars": 281},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep5/receipts/receipt-hop12.json", "chars": 1100}
+  ],
+  "output_chars": 281,
+  "errors": [
+    {"what": "/tmp/h2-r5-lead.json not found by clan (WSL/Win path mismatch)", "recovered_by": "wrote JSON to repo-relative Windows path instead"}
+  ],
+  "problems_and_friction": "The /tmp path provided in the instructions is a WSL/POSIX path that clan (a native Windows binary) cannot resolve; the JSON had to be written to a repo-relative path instead. No other friction encountered; all five clan commands completed cleanly.",
+  "context_understood": "Synthesised 11 specialist analyst findings across pricing, risk, GDPR, integrations, customer discovery, competitive intel, finance, rollout, procurement, and legal to produce a final Zoho CRM recommendation for Brightline Logistics."
+}

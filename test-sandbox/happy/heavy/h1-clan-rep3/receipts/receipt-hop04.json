@@ -1,0 +1,34 @@
+﻿{
+    "flow":  "H1",
+    "files_read":  [
+                       {
+                           "approx_chars":  285,
+                           "file":  "test-sandbox/happy/lite/_inputs/h1-supplied/exec-summary.txt"
+                       }
+                   ],
+    "errors":  [
+
+               ],
+    "arm":  "clan",
+    "files_written":  [
+                          {
+                              "file":  "C:/tmp/h1patch4.json",
+                              "chars":  345
+                          },
+                          {
+                              "file":  "test-sandbox/happy/heavy/h1-clan-rep3/snapshots/hop-04-summary-rewrite.clan",
+                              "chars":  0
+                          }
+                      ],
+    "hop":  4,
+    "output_chars":  345,
+    "role":  "summary-rewrite",
+    "commands_run":  [
+                         "clan read agent test-sandbox/happy/heavy/h1-clan-rep3/work/doc.clan --skip-guide",
+                         "clan read data test-sandbox/happy/heavy/h1-clan-rep3/work/doc.clan",
+                         "clan patch-data test-sandbox/happy/heavy/h1-clan-rep3/work/doc.clan /tmp/h1patch4.json --agent summary-agent --action \"rewrite exec summary\" --rationale \"Board requested clearer opening\"",
+                         "clan validate test-sandbox/happy/heavy/h1-clan-rep3/work/doc.clan"
+                     ],
+    "context_understood":  "Replace exec_summary in the heavy-rep3 clan doc with verbatim text from h1-supplied/exec-summary.txt, then snapshot and receipt.",
+    "problems_and_friction":  "The Bash tool could not create files via PowerShell cmdlets; had to use the PowerShell tool instead. The clan patch-data command requires a filesystem path for /tmp, which maps to C:\\tmp on Windows. No logical errors encountered."
+}

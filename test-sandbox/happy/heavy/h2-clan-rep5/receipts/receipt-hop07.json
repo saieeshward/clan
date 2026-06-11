@@ -1,0 +1,26 @@
+{
+  "role": "07-competitive-intel",
+  "hop": 7,
+  "arm": "clan",
+  "flow": "H2",
+  "commands_run": [
+    "clan read agent test-sandbox/happy/heavy/h2-clan-rep5/work/doc.clan --skip-guide",
+    "clan patch-data test-sandbox/happy/heavy/h2-clan-rep5/work/doc.clan test-sandbox/happy/lite/_inputs/h2-supplied/07-competitive-intel.json --agent 07-competitive-intel --action \"added 07-competitive-intel findings\" --rationale \"Zoho's quarterly export clause keeps switching cost low — a hedge against its maturity risk. Next: finance model.\"",
+    "clan validate test-sandbox/happy/heavy/h2-clan-rep5/work/doc.clan",
+    "cp test-sandbox/happy/heavy/h2-clan-rep5/work/doc.clan test-sandbox/happy/heavy/h2-clan-rep5/snapshots/hop-07-07-competitive-intel.clan"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep5/work/doc.clan", "approx_chars": 3200},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/07-competitive-intel.handoff.txt", "approx_chars": 105},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/07-competitive-intel.json", "approx_chars": 185}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep5/snapshots/hop-07-07-competitive-intel.clan", "chars": 3380},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep5/receipts/hop07-output/patch-data.json", "chars": 185},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep5/receipts/receipt-hop07.json", "chars": 1100}
+  ],
+  "output_chars": 185,
+  "errors": [],
+  "problems_and_friction": "The handoff.txt file contained a garbled character (replacement char for em-dash) in the first word; the rationale text was used verbatim with a clean em-dash substitution. No structural issues encountered.",
+  "context_understood": "Hop 7 adds competitive-intel findings (5 fields) to the CRM recommendation doc for Brightline Logistics, building on prior hops covering market research, pricing, risk, GDPR, integrations, and customer discovery."
+}

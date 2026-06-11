@@ -1,0 +1,32 @@
+{
+  "role": "01-market-researcher",
+  "hop": 1,
+  "arm": "adhoc",
+  "flow": "H2",
+  "commands_run": [
+    "mkdir -p snapshots/hop-01-01-market-researcher",
+    "cp work/findings.md snapshots/hop-01-01-market-researcher/findings.md",
+    "cp work/handoff.md snapshots/hop-01-01-market-researcher/handoff.md",
+    "mkdir -p receipts/hop01-output"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/work/brief.md", "approx_chars": 640},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/work/findings.md", "approx_chars": 2},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/work/handoff.md", "approx_chars": 2},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/01-market-researcher.json", "approx_chars": 310},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/01-market-researcher.handoff.txt", "approx_chars": 145}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/work/findings.md", "chars": 224},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/work/handoff.md", "chars": 158},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/snapshots/hop-01-01-market-researcher/findings.md", "chars": 224},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/snapshots/hop-01-01-market-researcher/handoff.md", "chars": 158},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/receipts/hop01-output/findings-fragment.txt", "chars": 224},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/receipts/hop01-output/handoff-fragment.txt", "chars": 158},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/receipts/receipt-hop01.json", "chars": 1200}
+  ],
+  "output_chars": 382,
+  "errors": [],
+  "problems_and_friction": "findings.md and handoff.md were empty at start, so the append was a simple replacement of the blank line. No structural issues encountered. All supplied inputs matched the brief schema cleanly.",
+  "context_understood": "Hop 1 of an H2 ad-hoc chain: write market research findings (from supplied JSON) and a handoff note into the shared work files, then snapshot."
+}

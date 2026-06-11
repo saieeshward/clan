@@ -1,0 +1,31 @@
+{
+  "role": "11-legal-reviewer",
+  "hop": 11,
+  "arm": "clan",
+  "flow": "H2",
+  "commands_run": [
+    "clan read agent test-sandbox/happy/heavy/h2-clan-rep5/work/doc.clan --skip-guide",
+    "clan read data test-sandbox/happy/heavy/h2-clan-rep5/work/doc.clan",
+    "clan patch-data test-sandbox/happy/heavy/h2-clan-rep5/work/doc.clan test-sandbox/happy/heavy/h2-clan-rep5/work/hop11-legal.json --agent 11-legal-reviewer --action \"added 11-legal-reviewer findings\" --rationale \"NetSuite connector creates unaddressed GDPR sub-processor chain; liability cap below GDPR fine exposure; DPA negotiation required before contract signature\"",
+    "clan validate test-sandbox/happy/heavy/h2-clan-rep5/work/doc.clan",
+    "cp test-sandbox/happy/heavy/h2-clan-rep5/work/doc.clan test-sandbox/happy/heavy/h2-clan-rep5/snapshots/hop-11-11-legal-reviewer.clan"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep5/work/doc.clan", "approx_chars": 4200}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep5/work/hop11-legal.json", "chars": 2201},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep5/snapshots/hop-11-11-legal-reviewer.clan", "chars": 5800},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep5/receipts/receipt-hop11.json", "chars": 1350},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep5/receipts/hop11-output/patch-data.json", "chars": 2201}
+  ],
+  "output_chars": 2201,
+  "errors": [
+    {
+      "what": "clan patch-data failed with /tmp/h2-r5-hop11.json — Windows resolves /tmp to AppData/Local/Temp, but Write tool wrote to Linux-style /tmp which is not the same path clan (native Windows binary) sees",
+      "recovered_by": "Wrote JSON to project-local path test-sandbox/happy/heavy/h2-clan-rep5/work/hop11-legal.json and re-ran patch-data with that path; succeeded"
+    }
+  ],
+  "problems_and_friction": "The /tmp path mismatch on Windows (Write tool uses POSIX /tmp; clan binary resolves to AppData/Local/Temp) caused one failed patch attempt. Workaround was to use a project-relative path. Prior analysts left solid gdpr_* fields which informed but did not duplicate legal findings — chain design worked well here.",
+  "context_understood": "Brightline Logistics (40 seats, EU-based) evaluating Zoho CRM as recommended vendor at EUR18,240/yr; legal review focuses on GDPR DPA adequacy, liability gap, and sub-processor chain risk introduced by the third-party NetSuite connector."
+}

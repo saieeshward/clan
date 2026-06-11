@@ -1,0 +1,27 @@
+{
+  "role": "04-gdpr-reviewer",
+  "hop": 4,
+  "arm": "clan",
+  "flow": "H2",
+  "commands_run": [
+    "clan read agent test-sandbox/happy/heavy/h2-clan-rep5/work/doc.clan --skip-guide",
+    "clan patch-data test-sandbox/happy/heavy/h2-clan-rep5/work/doc.clan test-sandbox/happy/lite/_inputs/h2-supplied/04-gdpr-reviewer.json --agent 04-gdpr-reviewer --action \"added 04-gdpr-reviewer findings\" --rationale \"Zoho includes EU region pinning at no extra cost; HubSpot bills it as an add-on. Both sign a DPA. Next: assess integrations.\"",
+    "clan validate test-sandbox/happy/heavy/h2-clan-rep5/work/doc.clan",
+    "cp test-sandbox/happy/heavy/h2-clan-rep5/work/doc.clan test-sandbox/happy/heavy/h2-clan-rep5/snapshots/hop-04-04-gdpr-reviewer.clan"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep5/work/doc.clan", "approx_chars": 2800},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/04-gdpr-reviewer.handoff.txt", "approx_chars": 124},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/04-gdpr-reviewer.json", "approx_chars": 196}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep5/work/doc.clan", "chars": 12411},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep5/snapshots/hop-04-04-gdpr-reviewer.clan", "chars": 12411},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep5/receipts/hop04-output/patch-data.json", "chars": 190},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep5/receipts/receipt-hop04.json", "chars": 0}
+  ],
+  "output_chars": 190,
+  "errors": [],
+  "problems_and_friction": "No friction encountered. The protocol was clear and all commands succeeded first attempt. The handoff.txt was a single line used verbatim as the rationale.",
+  "context_understood": "GDPR reviewer adds 5 EU data-residency fields to the CRM recommendation chain document, distinguishing Zoho's included EU pinning vs HubSpot's add-on pricing, then snapshots for the next hop."
+}

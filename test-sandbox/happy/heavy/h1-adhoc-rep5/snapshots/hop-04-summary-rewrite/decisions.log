@@ -1,0 +1,5 @@
+
+2026-06-11 hop-01 pricing-update: Zoho CRM per-seat price updated 45->38, annual total 21600->18240 (38x40x12).
+2026-06-11 hop-02 risk-add: Added risk "Vendor lock-in" (severity: Medium, mitigation: Quarterly data-export clause in contract) to risks[] in data.json and risk table in report.html.
+2026-06-11 hop-03 date-update: rollout_phase2_date updated 2026-08-01->2026-09-15 in data.json and id="phase2" in report.html.
+2026-06-11 hop-04 summary-rewrite: exec_summary replaced with h1-supplied text (Zoho CRM now leads) in data.json and id="exec-summary" in report.html.

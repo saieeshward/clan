@@ -1,0 +1,26 @@
+{
+  "role": "03-risk-analyst",
+  "hop": 3,
+  "arm": "clan",
+  "flow": "H2",
+  "commands_run": [
+    "clan read agent test-sandbox/happy/heavy/h2-clan-rep2/work/doc.clan --skip-guide",
+    "clan patch-data test-sandbox/happy/heavy/h2-clan-rep2/work/doc.clan test-sandbox/happy/lite/_inputs/h2-supplied/03-risk-analyst.json --agent 03-risk-analyst --action \"added 03-risk-analyst findings\" --rationale \"Migration quality is the top risk for either vendor. Zoho carries slightly higher maturity risk on advanced workflows. Next: GDPR review.\"",
+    "clan validate test-sandbox/happy/heavy/h2-clan-rep2/work/doc.clan",
+    "cp test-sandbox/happy/heavy/h2-clan-rep2/work/doc.clan test-sandbox/happy/heavy/h2-clan-rep2/snapshots/hop-03-03-risk-analyst.clan"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep2/work/doc.clan", "approx_chars": 1800},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/03-risk-analyst.handoff.txt", "approx_chars": 120},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/03-risk-analyst.json", "approx_chars": 210}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep2/snapshots/hop-03-03-risk-analyst.clan", "chars": 1900},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep2/receipts/hop03-output/03-risk-analyst-patch.json", "chars": 210},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep2/receipts/receipt-hop03.json", "chars": 1100}
+  ],
+  "output_chars": 210,
+  "errors": [],
+  "problems_and_friction": "No issues encountered. The patch-data command applied cleanly and validation passed immediately. The handoff note was concise and clear.",
+  "context_understood": "Risk analyst adds five risk-namespaced fields (migration severity High, adoption Medium, Zoho maturity Medium, HubSpot maturity Low, and top-3 risk list) to the doc, with rationale pointing to GDPR as the next step."
+}

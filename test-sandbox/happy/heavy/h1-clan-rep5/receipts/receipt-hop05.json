@@ -1,0 +1,34 @@
+{
+  "role": "residency-section",
+  "hop": 5,
+  "arm": "clan",
+  "flow": "H1",
+  "commands_run": [
+    "clan read agent C:\\Users\\syson\\Documents\\Code\\clan\\test-sandbox\\happy\\heavy\\h1-clan-rep5\\work\\doc.clan",
+    "clan read human C:\\Users\\syson\\Documents\\Code\\clan\\test-sandbox\\happy\\heavy\\h1-clan-rep5\\work\\doc.clan",
+    "clan patch-html C:\\Users\\syson\\Documents\\Code\\clan\\test-sandbox\\happy\\heavy\\h1-clan-rep5\\work\\doc.clan C:\\Users\\syson\\Documents\\Code\\clan\\test-sandbox\\happy\\heavy\\h1-clan-rep5\\work\\residency-patch.html --agent residency-agent --action \"add data residency section\" --rationale \"Legal requirement to document residency\"",
+    "clan validate C:\\Users\\syson\\Documents\\Code\\clan\\test-sandbox\\happy\\heavy\\h1-clan-rep5\\work\\doc.clan"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep5/work/doc.clan", "approx_chars": 14506},
+    {"file": "test-sandbox/happy/lite/_inputs/h1-supplied/residency-section.html", "approx_chars": 910}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep5/work/doc.clan", "chars": 14506},
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep5/snapshots/hop-05-residency-section.clan", "chars": 14506},
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep5/receipts/hop05-output/residency-patch.html", "chars": 967}
+  ],
+  "output_chars": 967,
+  "errors": [
+    {
+      "what": "clan read used wrong syntax (positional path instead of subcommand)",
+      "recovered_by": "Ran clan read --help to discover correct subcommand structure"
+    },
+    {
+      "what": "clan patch-html does not accept --selector/--action flags directly; requires HTML file with YAML frontmatter",
+      "recovered_by": "Ran clan patch-html --help; created residency-patch.html with frontmatter mode/selector/action"
+    }
+  ],
+  "problems_and_friction": "The patch-html command requires a separate HTML file with YAML frontmatter rather than inline CLI flags as the protocol suggested; this required an extra file-creation step. The clan read subcommand also uses a subcommand structure (read agent/human/data) rather than taking the file path directly, causing an initial error. Both issues were resolved quickly via --help inspection.",
+  "context_understood": "Append a Data residency section (h2 + p) sourced from the supplied HTML fragment to the body of the CRM recommendation clan document, recording it as a decision attributed to residency-agent."
+}

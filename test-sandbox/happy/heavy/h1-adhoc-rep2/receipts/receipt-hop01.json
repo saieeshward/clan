@@ -1,0 +1,30 @@
+{
+  "role": "pricing-update",
+  "hop": 1,
+  "arm": "adhoc",
+  "flow": "H1",
+  "commands_run": [
+    "mkdir -p snapshots/hop-01-pricing-update",
+    "cp work/report.html snapshots/hop-01-pricing-update/report.html",
+    "cp work/data.json snapshots/hop-01-pricing-update/data.json",
+    "cp work/decisions.log snapshots/hop-01-pricing-update/decisions.log",
+    "mkdir -p receipts/hop01-output"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/work/data.json", "approx_chars": 1050},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/work/report.html", "approx_chars": 2600},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/work/decisions.log", "approx_chars": 1}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/work/data.json", "chars": 1050},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/work/report.html", "chars": 2600},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/work/decisions.log", "chars": 121},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/receipts/hop01-output/patch-data.txt", "chars": 59},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/receipts/hop01-output/patch-html.txt", "chars": 78},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/receipts/hop01-output/decision.txt", "chars": 120}
+  ],
+  "output_chars": 257,
+  "errors": [],
+  "problems_and_friction": "No friction encountered. Files were small and well-structured; surgical edits were straightforward. The decisions.log was empty so the append was trivial.",
+  "context_understood": "Zoho CRM per-seat price drops from $45 to $38, making the annual total 18240 (38x40x12); these two numeric values must be updated in both data.json and the HTML cost table, and the change logged."
+}

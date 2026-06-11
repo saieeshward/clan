@@ -1,0 +1,33 @@
+{
+  "role": "09-rollout-planner",
+  "hop": 9,
+  "arm": "adhoc",
+  "flow": "H2",
+  "commands_run": [
+    "mkdir -p .../snapshots/hop-09-09-rollout-planner",
+    "cp work/findings.md snapshots/hop-09-09-rollout-planner/findings.md",
+    "cp work/handoff.md snapshots/hop-09-09-rollout-planner/handoff.md",
+    "mkdir -p receipts/hop09-output",
+    "wc -c receipts/hop09-output/findings-fragment.txt receipts/hop09-output/handoff-fragment.txt"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep3/work/brief.md", "approx_chars": 570},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep3/work/findings.md", "approx_chars": 1520},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep3/work/handoff.md", "approx_chars": 820},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/09-rollout-planner.json", "approx_chars": 175},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/09-rollout-planner.handoff.txt", "approx_chars": 150}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep3/work/findings.md", "chars": 201},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep3/work/handoff.md", "chars": 160},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep3/snapshots/hop-09-09-rollout-planner/findings.md", "chars": 1721},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep3/snapshots/hop-09-09-rollout-planner/handoff.md", "chars": 980},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep3/receipts/hop09-output/findings-fragment.txt", "chars": 201},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep3/receipts/hop09-output/handoff-fragment.txt", "chars": 160},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep3/receipts/receipt-hop09.json", "chars": 1400}
+  ],
+  "output_chars": 361,
+  "errors": [],
+  "problems_and_friction": "No friction encountered. All supplied inputs were present and well-formed. The protocol was straightforward: append structured findings and handoff text, snapshot, and write receipt.",
+  "context_understood": "Rollout planner appends a 3-phase Zoho CRM go-live schedule (July–November 2026) ensuring core CRM is live before the October peak season, completing the last specialist hop before the lead partner assembles the final recommendation."
+}

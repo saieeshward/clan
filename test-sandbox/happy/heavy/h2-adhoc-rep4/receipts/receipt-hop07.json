@@ -1,0 +1,32 @@
+{
+  "role": "07-competitive-intel",
+  "hop": 7,
+  "arm": "adhoc",
+  "flow": "H2",
+  "commands_run": [
+    "New-Item -ItemType Directory -Force ...snapshots/hop-07-07-competitive-intel",
+    "Copy-Item findings.md -> snapshots/hop-07-07-competitive-intel/findings.md",
+    "Copy-Item handoff.md -> snapshots/hop-07-07-competitive-intel/handoff.md",
+    "New-Item -ItemType Directory -Force ...receipts/hop07-output"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/work/brief.md", "approx_chars": 530},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/work/findings.md", "approx_chars": 920},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/work/handoff.md", "approx_chars": 640},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/07-competitive-intel.json", "approx_chars": 175},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/07-competitive-intel.handoff.txt", "approx_chars": 105}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/work/findings.md", "chars": 207},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/work/handoff.md", "chars": 140},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/snapshots/hop-07-07-competitive-intel/findings.md", "chars": 207},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/snapshots/hop-07-07-competitive-intel/handoff.md", "chars": 140},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/receipts/hop07-output/findings-fragment.txt", "chars": 207},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/receipts/hop07-output/handoff-fragment.txt", "chars": 140},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/receipts/receipt-hop07.json", "chars": 1450}
+  ],
+  "output_chars": 347,
+  "errors": [],
+  "problems_and_friction": "Bash tool unavailable on Windows; switched to PowerShell for directory/file operations without issue. No other friction encountered.",
+  "context_understood": "Six prior specialist analysts have narrowed the CRM shortlist to Zoho vs HubSpot for Brightline Logistics; this hop adds competitive positioning and switching-cost intelligence to support the final finance/recommendation hops."
+}

@@ -1,0 +1,30 @@
+{
+  "role": "risk-add",
+  "hop": 2,
+  "arm": "clan",
+  "flow": "H1",
+  "commands_run": [
+    "clan read agent test-sandbox/happy/heavy/h1-clan-rep5/work/doc.clan --skip-guide",
+    "clan read data test-sandbox/happy/heavy/h1-clan-rep5/work/doc.clan",
+    "clan patch-data test-sandbox/happy/heavy/h1-clan-rep5/work/doc.clan /tmp/h1patch2.json --agent risk-agent --action \"add vendor lock-in risk\" --rationale \"Identified during procurement review\"",
+    "clan patch-html test-sandbox/happy/heavy/h1-clan-rep5/work/doc.clan /tmp/h1patch2.html --agent risk-agent --action \"add risk table row\" --rationale \"Mirror data patch in view\"",
+    "clan validate test-sandbox/happy/heavy/h1-clan-rep5/work/doc.clan",
+    "cp work/doc.clan snapshots/hop-02-risk-add.clan"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep5/work/doc.clan", "approx_chars": 1800}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep5/work/doc.clan", "chars": 0},
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep5/snapshots/hop-02-risk-add.clan", "chars": 0},
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep5/receipts/hop02-output/patch-data.json", "chars": 410},
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep5/receipts/hop02-output/patch-html-fragment.html", "chars": 97},
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep5/receipts/receipt-hop02.json", "chars": 0}
+  ],
+  "output_chars": 507,
+  "errors": [
+    {"what": "clan patch-html does not accept --selector/--action/--fragment inline flags; requires a patch file with YAML frontmatter", "recovered_by": "Created /tmp/h1patch2.html with mode:patch-html frontmatter and passed as positional arg"}
+  ],
+  "problems_and_friction": "The patch-html command signature differed from protocol instructions — it requires a separate HTML patch file with YAML frontmatter rather than inline --selector/--fragment flags. This required one failed attempt and a quick --help check to resolve. Otherwise the clan patch-data and validate steps were straightforward.",
+  "context_understood": "Hop 02 adds a Vendor lock-in risk entry (severity Medium, mitigation: Quarterly data-export clause in contract) to the Brightline Logistics CRM recommendation doc, updating both the data layer and the HTML risk table."
+}

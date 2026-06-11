@@ -1,0 +1,26 @@
+{
+  "role": "09-rollout-planner",
+  "hop": 9,
+  "arm": "clan",
+  "flow": "H2",
+  "commands_run": [
+    "clan read agent test-sandbox/happy/heavy/h2-clan-rep2/work/doc.clan --skip-guide",
+    "clan patch-data test-sandbox/happy/heavy/h2-clan-rep2/work/doc.clan test-sandbox/happy/lite/_inputs/h2-supplied/09-rollout-planner.json --agent 09-rollout-planner --action \"added 09-rollout-planner findings\" --rationale \"Three phases land core CRM before the October peak with phase-2 marketing on 2026-09-15. Next: lead partner assembles the recommendation.\"",
+    "clan validate test-sandbox/happy/heavy/h2-clan-rep2/work/doc.clan",
+    "cp test-sandbox/happy/heavy/h2-clan-rep2/work/doc.clan test-sandbox/happy/heavy/h2-clan-rep2/snapshots/hop-09-09-rollout-planner.clan"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep2/work/doc.clan", "approx_chars": 13736},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/09-rollout-planner.handoff.txt", "approx_chars": 137},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/09-rollout-planner.json", "approx_chars": 223}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep2/work/doc.clan", "chars": 13736},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep2/snapshots/hop-09-09-rollout-planner.clan", "chars": 13736},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep2/receipts/hop09-output/patch-data.json", "chars": 223}
+  ],
+  "output_chars": 223,
+  "errors": [],
+  "problems_and_friction": "No friction encountered. All commands succeeded on first attempt. The handoff.txt was a single line which served cleanly as the rationale.",
+  "context_understood": "Hop 9 adds rollout-planner structured findings (6 fields: phase dates, go-live flag, weeks, champion program) via patch-data; validation passed and snapshot saved."
+}

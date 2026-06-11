@@ -1,0 +1,33 @@
+{
+  "role": "chart-update",
+  "hop": 6,
+  "arm": "clan",
+  "flow": "H1",
+  "commands_run": [
+    "clan read agent test-sandbox/happy/heavy/h1-clan-rep5/work/doc.clan --skip-guide",
+    "clan read human test-sandbox/happy/heavy/h1-clan-rep5/work/doc.clan",
+    "clan patch-html test-sandbox/happy/heavy/h1-clan-rep5/work/doc.clan - --agent chart-agent --action 'shrink Zoho bar to reflect lower cost' --rationale 'Price drop from hop 1 reflected in chart' (first attempt, wrong frontmatter keys — appended stray rect)",
+    "python inline: remove stray appended rect from human/index.html",
+    "clan patch-html test-sandbox/happy/heavy/h1-clan-rep5/work/doc.clan - --agent chart-agent --action 'shrink Zoho bar to reflect lower cost' --rationale 'Price drop from hop 1 reflected in chart' (correct patch_selector/patch_action)",
+    "clan validate test-sandbox/happy/heavy/h1-clan-rep5/work/doc.clan",
+    "cp test-sandbox/happy/heavy/h1-clan-rep5/work/doc.clan test-sandbox/happy/heavy/h1-clan-rep5/snapshots/hop-06-chart-update.clan"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep5/work/doc.clan (agent view)", "approx_chars": 3200},
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep5/work/doc.clan (human view grep)", "approx_chars": 400}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep5/work/doc.clan", "chars": 0},
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep5/snapshots/hop-06-chart-update.clan", "chars": 0},
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep5/receipts/hop06-output/fragment.html", "chars": 156}
+  ],
+  "output_chars": 156,
+  "errors": [
+    {
+      "what": "First patch-html attempt used wrong frontmatter keys (selector/action instead of patch_selector/patch_action), causing fragment to be appended to body rather than replacing target element",
+      "recovered_by": "Inspected zip contents directly, removed stray rect via Python, then re-applied patch with correct patch_selector/patch_action frontmatter keys"
+    }
+  ],
+  "problems_and_friction": "The clan agent-help schema for patch-html frontmatter uses patch_selector and patch_action, but this was not known before checking agent-help; the first attempt used wrong keys causing an append instead of replace. Recovery required direct zip manipulation to remove the stray element before re-applying the correct patch.",
+  "context_understood": "Update rect#bar-zoho in the SVG cost chart to y=78/height=82 to reflect Zoho becoming the cheapest CRM option after the hop-1 price drop."
+}

@@ -1,0 +1,43 @@
+{
+  "role": "risk-add",
+  "hop": 2,
+  "arm": "adhoc",
+  "flow": "H1",
+  "commands_run": [
+    "Read work/data.json",
+    "Read work/report.html",
+    "Read work/decisions.log",
+    "Edit work/data.json — append risk object to risks[]",
+    "Edit work/report.html — append <tr> to #risk-rows tbody",
+    "Append hop-02 line to work/decisions.log",
+    "mkdir snapshots/hop-02-risk-add",
+    "cp work/report.html snapshots/hop-02-risk-add/",
+    "cp work/data.json snapshots/hop-02-risk-add/",
+    "cp work/decisions.log snapshots/hop-02-risk-add/",
+    "mkdir receipts/hop02-output",
+    "Write receipts/hop02-output/patch-data-fragment.json",
+    "Write receipts/hop02-output/patch-html-fragment.html",
+    "Write receipts/hop02-output/decision-text.txt",
+    "Write receipts/receipt-hop02.json"
+  ],
+  "files_read": [
+    {"file": "work/data.json", "approx_chars": 1250},
+    {"file": "work/report.html", "approx_chars": 2100},
+    {"file": "work/decisions.log", "approx_chars": 130}
+  ],
+  "files_written": [
+    {"file": "work/data.json", "chars": 1363},
+    {"file": "work/report.html", "chars": 2205},
+    {"file": "work/decisions.log", "chars": 302},
+    {"file": "snapshots/hop-02-risk-add/data.json", "chars": 1363},
+    {"file": "snapshots/hop-02-risk-add/report.html", "chars": 2205},
+    {"file": "snapshots/hop-02-risk-add/decisions.log", "chars": 302},
+    {"file": "receipts/hop02-output/patch-data-fragment.json", "chars": 110},
+    {"file": "receipts/hop02-output/patch-html-fragment.html", "chars": 96},
+    {"file": "receipts/hop02-output/decision-text.txt", "chars": 169}
+  ],
+  "output_chars": 375,
+  "errors": [],
+  "problems_and_friction": "Bash tool invoked PowerShell syntax which failed under the bash shell; fell back to python3 for char counting. No friction with the actual file edits — surgical splice was straightforward given clearly delimited risk arrays in both files.",
+  "context_understood": "Hop-02 adds a Vendor lock-in / Medium risk entry to both data.json risks[] and the HTML risk table, snapshots the work dir, and writes minimal authored fragments as ground-truth output bytes."
+}

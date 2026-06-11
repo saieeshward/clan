@@ -1,0 +1,26 @@
+{
+  "role": "08-finance-modeler",
+  "hop": 8,
+  "arm": "clan",
+  "flow": "H2",
+  "commands_run": [
+    "clan read agent test-sandbox/happy/heavy/h2-clan-rep5/work/doc.clan --skip-guide",
+    "clan patch-data test-sandbox/happy/heavy/h2-clan-rep5/work/doc.clan test-sandbox/happy/lite/_inputs/h2-supplied/08-finance-modeler.json --agent 08-finance-modeler --action \"added 08-finance-modeler findings\" --rationale \"Zoho saves ~EUR17,280 over 3 years with a 7-month payback. Finance leans Zoho. Next: rollout plan.\"",
+    "clan validate test-sandbox/happy/heavy/h2-clan-rep5/work/doc.clan",
+    "cp test-sandbox/happy/heavy/h2-clan-rep5/work/doc.clan test-sandbox/happy/heavy/h2-clan-rep5/snapshots/hop-08-08-finance-modeler.clan"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep5/work/doc.clan", "approx_chars": 3200},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/08-finance-modeler.handoff.txt", "approx_chars": 91},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/08-finance-modeler.json", "approx_chars": 210}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep5/snapshots/hop-08-08-finance-modeler.clan", "chars": 3600},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep5/receipts/hop08-output/08-finance-modeler.json", "chars": 211},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep5/receipts/receipt-hop08.json", "chars": 1200}
+  ],
+  "output_chars": 211,
+  "errors": [],
+  "problems_and_friction": "No issues encountered. All commands succeeded on first attempt. The supplied JSON and handoff note were clean and consistent.",
+  "context_understood": "Finance modeler adds 7 fields (3yr cost comparison and payback for Zoho vs HubSpot) confirming Zoho as the lean recommendation, building on prior analyst chain."
+}

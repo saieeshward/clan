@@ -1,0 +1,3 @@
+## 05-integrations-assessor
+
+HubSpot has one more native connector; Zoho needs a NetSuite connector but it is supported. ~9 wk effort either way. Next: customer discovery.

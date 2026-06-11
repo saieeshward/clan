@@ -1,0 +1,36 @@
+{
+  "role": "date-update",
+  "hop": 3,
+  "arm": "adhoc",
+  "flow": "H1",
+  "commands_run": [
+    "Edit data.json: rollout_phase2_date 2026-08-01→2026-09-15",
+    "Edit report.html: id=phase2 cell 2026-08-01→2026-09-15",
+    "Append to decisions.log",
+    "mkdir snapshots/hop-03-date-update",
+    "cp report.html data.json decisions.log to snapshots/hop-03-date-update/",
+    "Write receipts/hop03-output/patch-data.txt",
+    "Write receipts/hop03-output/patch-html.txt",
+    "Write receipts/hop03-output/decision.txt"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/work/data.json", "approx_chars": 1120},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/work/report.html", "approx_chars": 2350},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/work/decisions.log", "approx_chars": 230}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/work/data.json", "chars": 1120},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/work/report.html", "chars": 2350},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/work/decisions.log", "chars": 357},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/snapshots/hop-03-date-update/data.json", "chars": 1120},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/snapshots/hop-03-date-update/report.html", "chars": 2350},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/snapshots/hop-03-date-update/decisions.log", "chars": 357},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/receipts/hop03-output/patch-data.txt", "chars": 38},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/receipts/hop03-output/patch-html.txt", "chars": 76},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/receipts/hop03-output/decision.txt", "chars": 127}
+  ],
+  "output_chars": 241,
+  "errors": [],
+  "problems_and_friction": "No friction. Both edit targets were unambiguous single-occurrence strings. The Bash tool is not PowerShell so the char-count command failed once and was retried via PowerShell tool.",
+  "context_understood": "Phase 2 rollout date changed from 2026-08-01 to 2026-09-15 in both data.json (rollout_phase2_date field) and report.html (id=phase2 table cell), with log entry appended and snapshot captured."
+}

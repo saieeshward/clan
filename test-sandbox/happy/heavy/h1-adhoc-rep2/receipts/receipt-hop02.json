@@ -1,0 +1,41 @@
+{
+  "role": "risk-add",
+  "hop": 2,
+  "arm": "adhoc",
+  "flow": "H1",
+  "commands_run": [
+    "Read work/data.json",
+    "Read work/report.html",
+    "Read work/decisions.log",
+    "Edit work/data.json — splice new risk object into risks[]",
+    "Edit work/report.html — splice new <tr> into risk table tbody",
+    "Edit work/decisions.log — append hop-02 entry",
+    "PowerShell: New-Item + Copy-Item to snapshots/hop-02-risk-add/",
+    "Write receipts/hop02-output/patch-data.json",
+    "Write receipts/hop02-output/patch-html.html",
+    "Write receipts/hop02-output/decision.txt"
+  ],
+  "files_read": [
+    {"file": "work/data.json", "approx_chars": 1100},
+    {"file": "work/report.html", "approx_chars": 2100},
+    {"file": "work/decisions.log", "approx_chars": 130}
+  ],
+  "files_written": [
+    {"file": "work/data.json", "chars": 1214},
+    {"file": "work/report.html", "chars": 2196},
+    {"file": "work/decisions.log", "chars": 314},
+    {"file": "snapshots/hop-02-risk-add/data.json", "chars": 1214},
+    {"file": "snapshots/hop-02-risk-add/report.html", "chars": 2196},
+    {"file": "snapshots/hop-02-risk-add/decisions.log", "chars": 314},
+    {"file": "receipts/hop02-output/patch-data.json", "chars": 110},
+    {"file": "receipts/hop02-output/patch-html.html", "chars": 96},
+    {"file": "receipts/hop02-output/decision.txt", "chars": 183},
+    {"file": "receipts/receipt-hop02.json", "chars": 1450}
+  ],
+  "output_chars": 389,
+  "errors": [
+    {"what": "Bash tool used for PowerShell commands — exit 127", "recovered_by": "Switched to PowerShell tool for snapshot copy"}
+  ],
+  "problems_and_friction": "Initial snapshot copy failed because the Bash tool was invoked instead of PowerShell on this Windows host; recovered immediately by re-issuing via the PowerShell tool. No friction with the surgical splice itself — both JSON and HTML had clear insertion points. No schema ambiguity.",
+  "context_understood": "Hop 02 of the H1 ad-hoc arm: append a Vendor lock-in risk (Medium severity) to data.json risks[] and the matching HTML table row, log the decision, snapshot the work dir, and record authored fragments in receipts."
+}

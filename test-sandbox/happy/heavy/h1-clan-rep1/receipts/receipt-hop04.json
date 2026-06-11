@@ -1,0 +1,26 @@
+{
+  "role": "summary-rewrite",
+  "hop": 4,
+  "arm": "clan",
+  "flow": "H1",
+  "commands_run": [
+    "clan read agent test-sandbox/happy/heavy/h1-clan-rep1/work/doc.clan --skip-guide",
+    "clan patch-data test-sandbox/happy/heavy/h1-clan-rep1/work/doc.clan /tmp/h1patch4.json --agent summary-agent --action \"rewrite exec summary\" --rationale \"Board requested clearer opening\"",
+    "clan validate test-sandbox/happy/heavy/h1-clan-rep1/work/doc.clan",
+    "cp test-sandbox/happy/heavy/h1-clan-rep1/work/doc.clan test-sandbox/happy/heavy/h1-clan-rep1/snapshots/hop-04-summary-rewrite.clan"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep1/work/doc.clan", "approx_chars": 3200},
+    {"file": "test-sandbox/happy/lite/_inputs/h1-supplied/exec-summary.txt", "approx_chars": 275}
+  ],
+  "files_written": [
+    {"file": "/tmp/h1patch4.json", "chars": 343},
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep1/snapshots/hop-04-summary-rewrite.clan", "chars": 0},
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep1/receipts/hop04-output/patch-data.json", "chars": 343},
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep1/receipts/receipt-hop04.json", "chars": 0}
+  ],
+  "output_chars": 343,
+  "errors": [],
+  "problems_and_friction": "The Write tool required a prior Read for /tmp/h1patch4.json; the file already existed from a previous run so it was confirmed via shell before proceeding. No substantive issues encountered — patch-data and validate both succeeded cleanly.",
+  "context_understood": "Replace the exec_summary field in the heavy-rep1 clan document with the board-supplied text from exec-summary.txt, then snapshot and receipt the result."
+}

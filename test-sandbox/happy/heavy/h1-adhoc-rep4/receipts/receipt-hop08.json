@@ -1,0 +1,30 @@
+{
+  "role": "signoff",
+  "hop": 8,
+  "arm": "adhoc",
+  "flow": "H1",
+  "commands_run": [
+    "Edit decisions.log — append sign-off line",
+    "mkdir snapshots/hop-08-signoff",
+    "cp work/report.html snapshots/hop-08-signoff/report.html",
+    "cp work/data.json snapshots/hop-08-signoff/data.json",
+    "cp work/decisions.log snapshots/hop-08-signoff/decisions.log"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/work/decisions.log", "approx_chars": 952},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/work/report.html", "approx_chars": 5043},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/work/data.json", "approx_chars": 2108}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/work/decisions.log", "chars": 1108},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/snapshots/hop-08-signoff/report.html", "chars": 5043},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/snapshots/hop-08-signoff/data.json", "chars": 2108},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/snapshots/hop-08-signoff/decisions.log", "chars": 1108},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/receipts/hop08-output/decision-fragment.txt", "chars": 156},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/receipts/receipt-hop08.json", "chars": 1312}
+  ],
+  "output_chars": 156,
+  "errors": [],
+  "problems_and_friction": "No friction encountered. The decisions.log had a clean trailing newline after the hop-07 entry, so the splice was straightforward. Snapshot directory creation and file copies completed without issue.",
+  "context_understood": "Hop 8 records the steering-committee final sign-off approving Zoho CRM, appending a structured log entry to decisions.log and snapshotting all three work files."
+}

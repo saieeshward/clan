@@ -1,0 +1,32 @@
+{
+  "role": "date-update",
+  "hop": 3,
+  "arm": "adhoc",
+  "flow": "H1",
+  "commands_run": [
+    "echo '...' >> decisions.log",
+    "mkdir -p snapshots/hop-03-date-update",
+    "cp work/report.html snapshots/hop-03-date-update/report.html",
+    "cp work/data.json snapshots/hop-03-date-update/data.json",
+    "cp work/decisions.log snapshots/hop-03-date-update/decisions.log",
+    "mkdir -p receipts/hop03-output"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/work/data.json", "approx_chars": 1180},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/work/report.html", "approx_chars": 2350},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/work/decisions.log", "approx_chars": 195}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/work/data.json", "chars": 1180},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/work/report.html", "chars": 2350},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/work/decisions.log", "chars": 321},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/receipts/hop03-output/patch-data.json", "chars": 40},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/receipts/hop03-output/patch-html.html", "chars": 75},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/receipts/hop03-output/decision.txt", "chars": 126},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/receipts/receipt-hop03.json", "chars": 1320}
+  ],
+  "output_chars": 241,
+  "errors": [],
+  "problems_and_friction": "No friction encountered. Both files had the old date as a clean literal string, allowing surgical single-line edits without any ambiguity. The ad-hoc approach required reading each file manually before editing, but the changes were straightforward.",
+  "context_understood": "Update rollout_phase2_date from 2026-08-01 to 2026-09-15 in data.json and the matching id=phase2 table cell in report.html, then log and snapshot."
+}

@@ -1,0 +1,31 @@
+{
+  "role": "07-competitive-intel",
+  "hop": 7,
+  "arm": "adhoc",
+  "flow": "H2",
+  "commands_run": [
+    "mkdir -p snapshots/hop-07-07-competitive-intel",
+    "cp work/findings.md snapshots/hop-07-07-competitive-intel/findings.md",
+    "cp work/handoff.md snapshots/hop-07-07-competitive-intel/handoff.md",
+    "mkdir -p receipts/hop07-output"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/work/brief.md", "approx_chars": 531},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/work/findings.md", "approx_chars": 1480},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/work/handoff.md", "approx_chars": 920},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/07-competitive-intel.json", "approx_chars": 180},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/07-competitive-intel.handoff.txt", "approx_chars": 105}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/work/findings.md", "chars": 1636},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/work/handoff.md", "chars": 1123},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/snapshots/hop-07-07-competitive-intel/findings.md", "chars": 1636},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/snapshots/hop-07-07-competitive-intel/handoff.md", "chars": 1123},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/receipts/hop07-output/authored-fragment.md", "chars": 365},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/receipts/receipt-hop07.json", "chars": 1300}
+  ],
+  "output_chars": 365,
+  "errors": [],
+  "problems_and_friction": "The Bash tool ran PowerShell syntax on a POSIX shell, requiring a retry via the PowerShell tool to get file sizes. No data or logic issues encountered.",
+  "context_understood": "Chain of specialist analysts building a CRM recommendation for Brightline Logistics (40 seats, EU); this hop appends competitive-intel findings and a handoff note before the finance-model hop."
+}

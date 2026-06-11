@@ -1,0 +1,27 @@
+{
+  "role": "11-legal-reviewer",
+  "hop": 11,
+  "arm": "clan",
+  "flow": "H2",
+  "commands_run": [
+    "clan read agent test-sandbox/happy/heavy/h2-clan-rep4/work/doc.clan --skip-guide",
+    "clan read data test-sandbox/happy/heavy/h2-clan-rep4/work/doc.clan",
+    "clan patch-data test-sandbox/happy/heavy/h2-clan-rep4/work/doc.clan tmp/h2-r4-hop11.json --agent 11-legal-reviewer --action \"added 11-legal-reviewer findings\" --rationale \"Zoho recommended subject to DPA with Frankfurt pinning, subprocessor exhibit, and NetSuite connector DPA — liability cap set at 2x annual contract value\"",
+    "clan validate test-sandbox/happy/heavy/h2-clan-rep4/work/doc.clan",
+    "cp test-sandbox/happy/heavy/h2-clan-rep4/work/doc.clan test-sandbox/happy/heavy/h2-clan-rep4/snapshots/hop-11-11-legal-reviewer.clan"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/work/doc.clan", "approx_chars": 3800}
+  ],
+  "files_written": [
+    {"file": "tmp/h2-r4-hop11.json", "chars": 2383},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/snapshots/hop-11-11-legal-reviewer.clan", "chars": 5200},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/receipts/receipt-hop11.json", "chars": 1400}
+  ],
+  "output_chars": 2383,
+  "errors": [
+    {"what": "Copy-Item not found in bash shell", "recovered_by": "used cp command instead"}
+  ],
+  "problems_and_friction": "Minor shell environment issue: Copy-Item is a PowerShell cmdlet unavailable in the Bash shell, recovered by using cp. No substantive issues with the document or clan toolchain.",
+  "context_understood": "Brightline Logistics (40-seat EU CRM) legal review covering GDPR DPA requirements, transfer mechanisms, liability cap, IP ownership, indemnification, and 5 prioritised legal risks — Zoho is viable with proper DPA exhibit and subprocessor controls."
+}

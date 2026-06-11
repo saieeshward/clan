@@ -1,0 +1,26 @@
+{
+  "role": "pricing-update",
+  "hop": 1,
+  "arm": "clan",
+  "flow": "H1",
+  "commands_run": [
+    "clan read agent test-sandbox/happy/heavy/h1-clan-rep2/work/doc.clan --skip-guide",
+    "clan read data test-sandbox/happy/heavy/h1-clan-rep2/work/doc.clan",
+    "clan patch-data test-sandbox/happy/heavy/h1-clan-rep2/work/doc.clan tmp/h1patch1.json --agent pricing-agent --action \"update Zoho seat price to 38\" --rationale \"New vendor quote received\"",
+    "clan validate test-sandbox/happy/heavy/h1-clan-rep2/work/doc.clan",
+    "cp work/doc.clan snapshots/hop-01-pricing-update.clan"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep2/work/doc.clan", "approx_chars": 3200}
+  ],
+  "files_written": [
+    {"file": "tmp/h1patch1.json", "chars": 49},
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep2/receipts/hop01-output/patch.json", "chars": 49},
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep2/snapshots/hop-01-pricing-update.clan", "chars": 3200},
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep2/receipts/receipt-hop01.json", "chars": 920}
+  ],
+  "output_chars": 49,
+  "errors": [],
+  "problems_and_friction": "The clan read command syntax required a subcommand (agent/data) rather than taking the file directly as a positional argument, which caused one initial failed invocation. The patch file was written to a local tmp/ subdirectory rather than /tmp/ since that path is not accessible in this environment. No other issues.",
+  "context_understood": "Zoho CRM per-seat price drops from 45 to 38, and zoho_annual_total is updated from 21600 to 18240 (38 x 40 seats x 12 months), applied via clan patch-data with attribution."
+}

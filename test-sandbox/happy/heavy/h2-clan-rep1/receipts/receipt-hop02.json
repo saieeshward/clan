@@ -1,0 +1,26 @@
+{
+  "role": "02-pricing-analyst",
+  "hop": 2,
+  "arm": "clan",
+  "flow": "H2",
+  "commands_run": [
+    "clan read agent test-sandbox/happy/heavy/h2-clan-rep1/work/doc.clan --skip-guide",
+    "clan patch-data test-sandbox/happy/heavy/h2-clan-rep1/work/doc.clan test-sandbox/happy/lite/_inputs/h2-supplied/02-pricing-analyst.json --agent 02-pricing-analyst --action \"added 02-pricing-analyst findings\" --rationale \"Zoho is cheapest at EUR18,240/yr for 40 seats vs HubSpot 24,000. Salesforce is out on cost. Next: risk-weight the two finalists.\"",
+    "clan validate test-sandbox/happy/heavy/h2-clan-rep1/work/doc.clan",
+    "cp test-sandbox/happy/heavy/h2-clan-rep1/work/doc.clan test-sandbox/happy/heavy/h2-clan-rep1/snapshots/hop-02-02-pricing-analyst.clan"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep1/work/doc.clan", "approx_chars": 1650},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/02-pricing-analyst.handoff.txt", "approx_chars": 130},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/02-pricing-analyst.json", "approx_chars": 230}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep1/snapshots/hop-02-02-pricing-analyst.clan", "chars": 1900},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep1/receipts/hop02-output/patch-data-payload.json", "chars": 251},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep1/receipts/receipt-hop02.json", "chars": 1200}
+  ],
+  "output_chars": 251,
+  "errors": [],
+  "problems_and_friction": "Copy-Item (PowerShell) failed in bash shell; recovered immediately by using POSIX cp. No other friction encountered.",
+  "context_understood": "Hop 2 pricing-analyst adds per-seat and annual cost data for all three CRM vendors, identifying Zoho as cheapest at EUR18,240/yr, and hands off to risk analysis."
+}

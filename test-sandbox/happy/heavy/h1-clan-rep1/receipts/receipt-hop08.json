@@ -1,0 +1,24 @@
+{
+  "role": "signoff",
+  "hop": 8,
+  "arm": "clan",
+  "flow": "H1",
+  "commands_run": [
+    "clan read agent test-sandbox/happy/heavy/h1-clan-rep1/work/doc.clan --quiet",
+    "clan patch-decision test-sandbox/happy/heavy/h1-clan-rep1/work/doc.clan --agent steering-committee --action \"approved Zoho CRM recommendation\" --rationale \"Re-scored cost vs time-to-value; Zoho wins on 40-seat cost with EU residency included.\" --pinned",
+    "clan validate test-sandbox/happy/heavy/h1-clan-rep1/work/doc.clan",
+    "cp test-sandbox/happy/heavy/h1-clan-rep1/work/doc.clan test-sandbox/happy/heavy/h1-clan-rep1/snapshots/hop-08-signoff.clan"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep1/work/doc.clan", "approx_chars": 5800}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep1/snapshots/hop-08-signoff.clan", "chars": 14800},
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep1/receipts/hop08-output/decision.txt", "chars": 180},
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep1/receipts/receipt-hop08.json", "chars": 1024}
+  ],
+  "output_chars": 180,
+  "errors": [],
+  "problems_and_friction": "Initial clan read syntax was wrong (subcommand vs positional arg); recovered immediately by checking --help. No other issues — patch-decision, validate, and snapshot all succeeded on first attempt.",
+  "context_understood": "Hop 08 records final steering committee sign-off approving the Zoho CRM recommendation for Brightline Logistics, appended as a pinned decision entry."
+}

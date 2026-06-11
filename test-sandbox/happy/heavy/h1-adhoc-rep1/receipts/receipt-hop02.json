@@ -1,0 +1,40 @@
+{
+  "role": "risk-add",
+  "hop": 2,
+  "arm": "adhoc",
+  "flow": "H1",
+  "commands_run": [
+    "Edit data.json — splice new risk object after last existing risk entry",
+    "Edit report.html — splice new <tr> after last existing risk row",
+    "echo >> decisions.log",
+    "mkdir -p snapshots/hop-02-risk-add",
+    "cp work/report.html snapshots/hop-02-risk-add/report.html",
+    "cp work/data.json snapshots/hop-02-risk-add/data.json",
+    "cp work/decisions.log snapshots/hop-02-risk-add/decisions.log",
+    "mkdir -p receipts/hop02-output",
+    "Write receipts/hop02-output/patch-data.json",
+    "Write receipts/hop02-output/patch-html.fragment",
+    "Write receipts/hop02-output/decision.txt"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/work/data.json", "approx_chars": 1490},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/work/report.html", "approx_chars": 2850},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/work/decisions.log", "approx_chars": 152}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/work/data.json", "chars": 1980},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/work/report.html", "chars": 3996},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/work/decisions.log", "chars": 358},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/snapshots/hop-02-risk-add/data.json", "chars": 1980},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/snapshots/hop-02-risk-add/report.html", "chars": 3996},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/snapshots/hop-02-risk-add/decisions.log", "chars": 358},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/receipts/hop02-output/patch-data.json", "chars": 110},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/receipts/hop02-output/patch-html.fragment", "chars": 96},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/receipts/hop02-output/decision.txt", "chars": 206},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/receipts/receipt-hop02.json", "chars": 0}
+  ],
+  "output_chars": 412,
+  "errors": [],
+  "problems_and_friction": "No friction encountered. The surgical splice approach worked cleanly for both the JSON array append and the HTML table row insertion, with clear anchor strings to target in each file.",
+  "context_understood": "Ad-hoc arm hop 02 adds a Vendor lock-in risk entry (Medium severity, quarterly data-export mitigation) to both data.json risks[] and the report.html risk table, then snapshots and receipts the authored fragments."
+}

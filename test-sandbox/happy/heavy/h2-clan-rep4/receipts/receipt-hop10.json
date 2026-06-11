@@ -1,0 +1,31 @@
+{
+  "role": "10-procurement-reviewer",
+  "hop": 10,
+  "arm": "clan",
+  "flow": "H2",
+  "commands_run": [
+    "clan read agent test-sandbox/happy/heavy/h2-clan-rep4/work/doc.clan --skip-guide",
+    "clan read data test-sandbox/happy/heavy/h2-clan-rep4/work/doc.clan",
+    "clan patch-data test-sandbox/happy/heavy/h2-clan-rep4/work/doc.clan test-sandbox/happy/heavy/h2-clan-rep4/work/hop10-patch.json --agent 10-procurement-reviewer --action \"added 10-procurement-reviewer findings\" --rationale \"Zoho contract is feasible with 2-year term, 5% uplift cap, and mandatory EU DPA exhibit; GDPR subprocessor risk is the top procurement concern\"",
+    "clan validate test-sandbox/happy/heavy/h2-clan-rep4/work/doc.clan",
+    "cp test-sandbox/happy/heavy/h2-clan-rep4/work/doc.clan test-sandbox/happy/heavy/h2-clan-rep4/snapshots/hop-10-10-procurement-reviewer.clan"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/work/doc.clan", "approx_chars": 2800}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/work/hop10-patch.json", "chars": 2232},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/snapshots/hop-10-10-procurement-reviewer.clan", "chars": 2800},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/receipts/hop10-output/patch-data.json", "chars": 2232},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/receipts/receipt-hop10.json", "chars": 900}
+  ],
+  "output_chars": 2232,
+  "errors": [
+    {
+      "what": "clan patch-data with /tmp/h2-r4-hop10.json failed — Windows temp path mismatch (clan CLI resolves Windows AppData temp, not /tmp)",
+      "recovered_by": "Wrote patch JSON to project work directory and used relative path instead"
+    }
+  ],
+  "problems_and_friction": "The /tmp path used for the patch JSON was not accessible to the clan CLI on Windows (it resolves AppData\\Local\\Temp, not /tmp from the Bash tool's perspective). Recovered by writing the JSON directly into the project work directory. No other friction; prior hop data was complete and well-structured.",
+  "context_understood": "Brightline Logistics (40 seats, EU) needs a CRM; Zoho is the cost/GDPR-favoured choice per prior analysis; this hop adds procurement contract terms, negotiation leverage, and contractual risk coverage."
+}

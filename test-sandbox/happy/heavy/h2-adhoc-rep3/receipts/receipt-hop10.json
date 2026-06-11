@@ -1,0 +1,30 @@
+{
+  "role": "10-procurement-reviewer",
+  "hop": 10,
+  "arm": "adhoc",
+  "flow": "H2",
+  "commands_run": [
+    "mkdir -p snapshots/hop-10-10-procurement-reviewer && cp work/findings.md ... && cp work/handoff.md ...",
+    "python3 -c '...' (measure authored chars)",
+    "wc -c work/findings.md work/handoff.md",
+    "mkdir -p receipts/hop10-output",
+    "wc -c receipts/hop10-output/procurement-findings-fragment.md"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep3/work/brief.md", "approx_chars": 560},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep3/work/findings.md", "approx_chars": 2009},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep3/work/handoff.md", "approx_chars": 1416}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep3/work/findings.md", "chars": 3305},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep3/work/handoff.md", "chars": 1699},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep3/snapshots/hop-10-10-procurement-reviewer/findings.md", "chars": 3305},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep3/snapshots/hop-10-10-procurement-reviewer/handoff.md", "chars": 1699},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep3/receipts/hop10-output/procurement-findings-fragment.md", "chars": 1592},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep3/receipts/receipt-hop10.json", "chars": 1600}
+  ],
+  "output_chars": 1579,
+  "errors": [],
+  "problems_and_friction": "Bash tool ran in POSIX shell context despite Windows platform, so PowerShell commands failed on first attempt; switched to POSIX mkdir/cp which succeeded. No content or logic issues encountered.",
+  "context_understood": "Brightline Logistics (40 seats, EU, October peak) needs a CRM procurement review: contract terms, lead time, negotiation levers, and risks for the Zoho finalist identified by prior analysts."
+}

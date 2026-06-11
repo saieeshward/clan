@@ -1,0 +1,33 @@
+{
+  "role": "06-customer-discovery",
+  "hop": 6,
+  "arm": "adhoc",
+  "flow": "H2",
+  "commands_run": [
+    "mkdir -p snapshots/hop-06-06-customer-discovery",
+    "cp work/findings.md snapshots/hop-06-06-customer-discovery/findings.md",
+    "cp work/handoff.md snapshots/hop-06-06-customer-discovery/handoff.md",
+    "mkdir -p receipts/hop06-output",
+    "write receipts/hop06-output/findings-fragment.md",
+    "write receipts/hop06-output/handoff-fragment.md"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep3/work/brief.md", "approx_chars": 560},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep3/work/findings.md", "approx_chars": 870},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep3/work/handoff.md", "approx_chars": 560},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/06-customer-discovery.json", "approx_chars": 175},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/06-customer-discovery.handoff.txt", "approx_chars": 120}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep3/work/findings.md", "chars": 199},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep3/work/handoff.md", "chars": 148},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep3/snapshots/hop-06-06-customer-discovery/findings.md", "chars": 199},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep3/snapshots/hop-06-06-customer-discovery/handoff.md", "chars": 148},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep3/receipts/hop06-output/findings-fragment.md", "chars": 199},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep3/receipts/hop06-output/handoff-fragment.md", "chars": 148}
+  ],
+  "output_chars": 347,
+  "errors": [],
+  "problems_and_friction": "No significant friction. Write tool blocked direct file creation for output fragments so Bash was used instead. All protocol steps completed cleanly.",
+  "context_understood": "Customer discovery hop adds 6 interview findings showing split Zoho/HubSpot preference on cost vs UI, with lead response speed as the top user need."
+}

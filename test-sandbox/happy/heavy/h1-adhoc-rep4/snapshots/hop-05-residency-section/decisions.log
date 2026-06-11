@@ -1,0 +1,6 @@
+﻿
+hop-01 pricing-update: zoho_price_per_seat 45->38, zoho_annual_total 21600->18240 (38x40x12)
+hop-02 risk-add: appended risk "Vendor lock-in" (severity Medium, mitigation "Quarterly data-export clause in contract") to data.json risks[] and report.html risk table
+hop-03 date-update: rollout_phase2_date 2026-08-01->2026-09-15 in data.json and id=phase2 in report.html
+hop-04 summary-rewrite: exec_summary replaced with h1-supplied text (Zoho now leads) in data.json and id=exec-summary in report.html
+hop-05 residency-section: inserted h2#data-residency + p#residency-detail from h1-supplied fragment into report.html after Data governance section

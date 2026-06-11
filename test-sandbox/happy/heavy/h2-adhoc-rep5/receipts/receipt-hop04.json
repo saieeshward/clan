@@ -1,0 +1,32 @@
+{
+  "role": "04-gdpr-reviewer",
+  "hop": 4,
+  "arm": "adhoc",
+  "flow": "H2",
+  "commands_run": [
+    "mkdir -p snapshots/hop-04-04-gdpr-reviewer",
+    "cp work/findings.md snapshots/hop-04-04-gdpr-reviewer/findings.md",
+    "cp work/handoff.md snapshots/hop-04-04-gdpr-reviewer/handoff.md",
+    "mkdir -p receipts/hop04-output",
+    "wc -c receipts/hop04-output/authored-fragment.md"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/work/brief.md", "approx_chars": 590},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/work/findings.md", "approx_chars": 560},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/work/handoff.md", "approx_chars": 370},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/04-gdpr-reviewer.json", "approx_chars": 175},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/04-gdpr-reviewer.handoff.txt", "approx_chars": 118}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/work/findings.md", "chars": 739},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/work/handoff.md", "chars": 500},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/snapshots/hop-04-04-gdpr-reviewer/findings.md", "chars": 739},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/snapshots/hop-04-04-gdpr-reviewer/handoff.md", "chars": 500},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/receipts/hop04-output/authored-fragment.md", "chars": 335},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/receipts/receipt-hop04.json", "chars": 1280}
+  ],
+  "output_chars": 335,
+  "errors": [],
+  "problems_and_friction": "No friction encountered. All supplied input files were present and well-formed. The PowerShell wc equivalent failed in Bash context but was resolved by using the Bash tool directly.",
+  "context_understood": "GDPR reviewer hop appending EU data residency findings for the Brightline Logistics CRM selection chain, confirming Zoho includes EU pinning at no extra cost while HubSpot charges it as an add-on."
+}

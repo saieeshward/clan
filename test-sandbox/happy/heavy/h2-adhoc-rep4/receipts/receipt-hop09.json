@@ -1,0 +1,31 @@
+{
+  "role": "09-rollout-planner",
+  "hop": 9,
+  "arm": "adhoc",
+  "flow": "H2",
+  "commands_run": [
+    "mkdir -p .../snapshots/hop-09-09-rollout-planner",
+    "cp findings.md -> snapshots/hop-09-09-rollout-planner/findings.md",
+    "cp handoff.md -> snapshots/hop-09-09-rollout-planner/handoff.md",
+    "mkdir -p .../receipts/hop09-output"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/work/brief.md", "approx_chars": 500},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/work/findings.md", "approx_chars": 1350},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/work/handoff.md", "approx_chars": 850},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/09-rollout-planner.json", "approx_chars": 185},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/09-rollout-planner.handoff.txt", "approx_chars": 138}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/work/findings.md", "chars": 148},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/work/handoff.md", "chars": 140},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/snapshots/hop-09-09-rollout-planner/findings.md", "chars": 1498},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/snapshots/hop-09-09-rollout-planner/handoff.md", "chars": 990},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/receipts/hop09-output/fragment.md", "chars": 378},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/receipts/receipt-hop09.json", "chars": 0}
+  ],
+  "output_chars": 378,
+  "errors": [],
+  "problems_and_friction": "PowerShell vs Bash tool ambiguity caused one command to fail when using Bash tool with PowerShell syntax; recovered by switching to the PowerShell tool. No substantive issues with the task itself.",
+  "context_understood": "Appended rollout plan findings (6 fields) and handoff note to the growing chain documents for Brightline Logistics CRM recommendation, then snapshotted."
+}

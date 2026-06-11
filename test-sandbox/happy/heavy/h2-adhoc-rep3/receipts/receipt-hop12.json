@@ -1,0 +1,35 @@
+{
+  "role": "lead-partner",
+  "hop": 12,
+  "arm": "adhoc",
+  "flow": "H2",
+  "commands_run": [
+    "ls /c/Users/syson/Documents/Code/clan/test-sandbox/happy/heavy/h2-adhoc-rep3/",
+    "ls /c/Users/syson/Documents/Code/clan/test-sandbox/happy/heavy/h2-adhoc-rep3/receipts/",
+    "ls /c/Users/syson/Documents/Code/clan/test-sandbox/happy/heavy/h2-adhoc-rep3/snapshots/",
+    "mkdir -p snapshots/hop-12-lead-partner",
+    "mkdir -p receipts/hop12-output",
+    "cp findings.md handoff.md report.html decisions.log -> snapshots/hop-12-lead-partner/",
+    "wc -c report.html decisions.log"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep3/work/brief.md", "approx_chars": 620},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep3/work/findings.md", "approx_chars": 3200},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep3/work/handoff.md", "approx_chars": 1700}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep3/work/report.html", "chars": 16074},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep3/work/decisions.log", "chars": 91},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep3/receipts/hop12-output/report.html", "chars": 16074},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep3/receipts/hop12-output/decisions.log-entry.txt", "chars": 91},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep3/receipts/receipt-hop12.json", "chars": 1600},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep3/snapshots/hop-12-lead-partner/findings.md", "chars": 3200},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep3/snapshots/hop-12-lead-partner/handoff.md", "chars": 1700},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep3/snapshots/hop-12-lead-partner/report.html", "chars": 16074},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep3/snapshots/hop-12-lead-partner/decisions.log", "chars": 91}
+  ],
+  "output_chars": 16165,
+  "errors": [],
+  "problems_and_friction": "Backslash/forward-slash path mixing in a single cp command caused one cp failure that was immediately retried with separate commands on the next attempt. No data loss or logic errors resulted. All 11 analyst inputs were fully available in findings.md and handoff.md — no missing data.",
+  "context_understood": "Lead partner hop synthesising 11 specialist analyst inputs into a final Zoho CRM recommendation page (report.html) with vendor comparison, risk table, rollout timeline, contract conditions, and full rationale for Brightline Logistics."
+}

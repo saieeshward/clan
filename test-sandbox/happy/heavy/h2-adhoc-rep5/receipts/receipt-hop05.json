@@ -1,0 +1,33 @@
+{
+  "role": "05-integrations-assessor",
+  "hop": 5,
+  "arm": "adhoc",
+  "flow": "H2",
+  "commands_run": [
+    "mkdir -p test-sandbox/happy/heavy/h2-adhoc-rep5/snapshots/hop-05-05-integrations-assessor",
+    "cp work/findings.md snapshots/hop-05-05-integrations-assessor/findings.md",
+    "cp work/handoff.md snapshots/hop-05-05-integrations-assessor/handoff.md",
+    "mkdir -p test-sandbox/happy/heavy/h2-adhoc-rep5/receipts/hop05-output",
+    "wc -c receipts/hop05-output/fragment.md",
+    "wc -c work/findings.md work/handoff.md"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/work/brief.md", "approx_chars": 640},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/work/findings.md", "approx_chars": 860},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/work/handoff.md", "approx_chars": 580},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/05-integrations-assessor.json", "approx_chars": 200},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/05-integrations-assessor.handoff.txt", "approx_chars": 140}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/work/findings.md", "chars": 1210},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/work/handoff.md", "chars": 824},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/snapshots/hop-05-05-integrations-assessor/findings.md", "chars": 1210},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/snapshots/hop-05-05-integrations-assessor/handoff.md", "chars": 824},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/receipts/hop05-output/fragment.md", "chars": 377},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/receipts/receipt-hop05.json", "chars": 0}
+  ],
+  "output_chars": 377,
+  "errors": [],
+  "problems_and_friction": "No significant issues. PowerShell inline syntax not available in Bash tool so switched to POSIX commands for file size checks. All file operations completed cleanly.",
+  "context_understood": "Hop 5 of H2 ad-hoc chain: append integrations-assessor findings and handoff note to growing work files, snapshot, and write receipt."
+}

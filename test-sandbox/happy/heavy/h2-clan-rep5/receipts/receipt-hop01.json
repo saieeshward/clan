@@ -1,0 +1,24 @@
+{
+  "role": "01-market-researcher",
+  "hop": 1,
+  "arm": "clan",
+  "flow": "H2",
+  "commands_run": [
+    "clan read agent test-sandbox/happy/heavy/h2-clan-rep5/work/doc.clan --skip-guide",
+    "clan patch-data test-sandbox/happy/heavy/h2-clan-rep5/work/doc.clan test-sandbox/happy/lite/_inputs/h2-supplied/01-market-researcher.json --agent 01-market-researcher --action \"added 01-market-researcher findings\" --rationale \"Market favours fast EU-resident go-lives. HubSpot leads mindshare but Zoho is gaining in mid-market on price. Next: get hard per-seat pricing.\"",
+    "clan validate test-sandbox/happy/heavy/h2-clan-rep5/work/doc.clan",
+    "cp test-sandbox/happy/heavy/h2-clan-rep5/work/doc.clan test-sandbox/happy/heavy/h2-clan-rep5/snapshots/hop-01-01-market-researcher.clan"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/01-market-researcher.handoff.txt", "approx_chars": 142},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/01-market-researcher.json", "approx_chars": 280}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep5/snapshots/hop-01-01-market-researcher.clan", "chars": 0},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep5/receipts/hop01-output/patch-data.json", "chars": 253}
+  ],
+  "output_chars": 253,
+  "errors": [],
+  "problems_and_friction": "No errors encountered. The document was agent-only with no prior data, so patch-data applied cleanly as a fresh write. Snapshot directory already existed.",
+  "context_understood": "01-market-researcher patches EU mid-market CRM landscape data (TAM, incumbent shares, buyer priorities) into the doc for Brightline Logistics, setting up subsequent pricing and risk analysts."
+}

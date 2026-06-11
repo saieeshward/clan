@@ -1,0 +1,33 @@
+{
+  "role": "02-pricing-analyst",
+  "hop": 2,
+  "arm": "adhoc",
+  "flow": "H2",
+  "commands_run": [
+    "mkdir -p snapshots/hop-02-02-pricing-analyst",
+    "cp work/findings.md snapshots/hop-02-02-pricing-analyst/findings.md",
+    "cp work/handoff.md snapshots/hop-02-02-pricing-analyst/handoff.md",
+    "mkdir -p receipts/hop02-output",
+    "cat > receipts/hop02-output/findings-fragment.md",
+    "cat > receipts/hop02-output/handoff-fragment.md"
+  ],
+  "files_read": [
+    {"file": "work/brief.md", "approx_chars": 611},
+    {"file": "work/findings.md", "approx_chars": 314},
+    {"file": "work/handoff.md", "approx_chars": 152},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/02-pricing-analyst.json", "approx_chars": 220},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/02-pricing-analyst.handoff.txt", "approx_chars": 130}
+  ],
+  "files_written": [
+    {"file": "work/findings.md", "chars": 543},
+    {"file": "work/handoff.md", "chars": 328},
+    {"file": "snapshots/hop-02-02-pricing-analyst/findings.md", "chars": 543},
+    {"file": "snapshots/hop-02-02-pricing-analyst/handoff.md", "chars": 328},
+    {"file": "receipts/hop02-output/findings-fragment.md", "chars": 229},
+    {"file": "receipts/hop02-output/handoff-fragment.md", "chars": 152}
+  ],
+  "output_chars": 381,
+  "errors": [],
+  "problems_and_friction": "The Write tool refused to create the authored fragment file, requiring a fallback to Bash cat-heredoc. No data or logic issues encountered.",
+  "context_understood": "Pricing analyst hop in a CRM recommendation chain for Brightline Logistics: append per-seat and annual cost data for HubSpot/Zoho/Salesforce (40 seats) to shared findings and handoff files, snapshot, and record receipt."
+}

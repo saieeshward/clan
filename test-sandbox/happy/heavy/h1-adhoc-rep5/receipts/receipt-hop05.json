@@ -1,0 +1,33 @@
+{
+  "role": "residency-section",
+  "hop": 5,
+  "arm": "adhoc",
+  "flow": "H1",
+  "commands_run": [
+    "mkdir -p test-sandbox/happy/heavy/h1-adhoc-rep5/snapshots/hop-05-residency-section",
+    "cp work/report.html snapshots/hop-05-residency-section/report.html",
+    "cp work/data.json snapshots/hop-05-residency-section/data.json",
+    "cp work/decisions.log snapshots/hop-05-residency-section/decisions.log",
+    "mkdir -p receipts/hop05-output"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/lite/_inputs/h1-supplied/residency-section.html", "approx_chars": 910},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/work/report.html", "approx_chars": 3971},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/work/decisions.log", "approx_chars": 574},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/work/data.json", "approx_chars": 1072}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/work/report.html", "chars": 4843},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/work/decisions.log", "chars": 735},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/snapshots/hop-05-residency-section/report.html", "chars": 4843},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/snapshots/hop-05-residency-section/data.json", "chars": 1072},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/snapshots/hop-05-residency-section/decisions.log", "chars": 735},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/receipts/hop05-output/residency-fragment.html", "chars": 910},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/receipts/hop05-output/decision-line.txt", "chars": 159},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/receipts/receipt-hop05.json", "chars": 1892}
+  ],
+  "output_chars": 1069,
+  "errors": [],
+  "problems_and_friction": "No friction. The Data governance section was clearly identifiable in report.html, and the residency-section.html fragment could be spliced directly after it by inserting before the next h2 (Projected impact). The ad-hoc approach required reading the source file and the target file, then performing a surgical single-point insert.",
+  "context_understood": "Insert the h1-supplied Data residency HTML subsection after the existing Data governance section in report.html, log the change, snapshot all work files, and write a receipt with authored-output bytes only."
+}

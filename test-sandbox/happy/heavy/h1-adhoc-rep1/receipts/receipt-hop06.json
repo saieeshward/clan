@@ -1,0 +1,31 @@
+{
+  "role": "chart-update",
+  "hop": 6,
+  "arm": "adhoc",
+  "flow": "H1",
+  "commands_run": [
+    "mkdir -p snapshots/hop-06-chart-update",
+    "cp work/report.html snapshots/hop-06-chart-update/report.html",
+    "cp work/data.json snapshots/hop-06-chart-update/data.json",
+    "cp work/decisions.log snapshots/hop-06-chart-update/decisions.log",
+    "mkdir -p receipts/hop06-output"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/work/report.html", "approx_chars": 4855},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/work/decisions.log", "approx_chars": 854}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/work/report.html", "chars": 4855},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/work/decisions.log", "chars": 976},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/snapshots/hop-06-chart-update/report.html", "chars": 4855},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/snapshots/hop-06-chart-update/data.json", "chars": 0},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/snapshots/hop-06-chart-update/decisions.log", "chars": 976},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/receipts/hop06-output/html-fragment.txt", "chars": 82},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/receipts/hop06-output/decision-entry.txt", "chars": 122},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/receipts/receipt-hop06.json", "chars": 0}
+  ],
+  "output_chars": 204,
+  "errors": [],
+  "problems_and_friction": "No friction; the bar-zoho rect was a single uniquely identifiable element and a surgical attribute splice was straightforward. The decisions.log append was equally clean.",
+  "context_understood": "Update SVG bar #bar-zoho in report.html to y=78 height=82 to reflect Zoho as cheapest vendor, then log, snapshot, and receipt the change."
+}

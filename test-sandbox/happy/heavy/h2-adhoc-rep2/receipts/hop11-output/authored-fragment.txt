@@ -1,0 +1,23 @@
+## 11-legal-reviewer
+
+legal_dpa_required: true
+legal_gdpr_transfer_mechanism: Standard Contractual Clauses (SCCs) — both Zoho and HubSpot rely on EU SCCs for any data leaving EEA; Zoho EU region pinning minimises transfers but SCCs remain the contractual backstop
+legal_liability_cap_eur: 18240
+legal_ip_ownership_clear: true
+legal_indemnification_adequate: false
+legal_risks:
+  - risk: DPA auto-execution gap — procurement noted 30-day subprocessor notice period but contract must explicitly require written countersignature on DPA amendments, not merely notification
+    severity: Medium
+    mitigation: Require mutual written consent (not just notice) for material subprocessor additions before signing MSA
+  - risk: Liability cap inadequate — Zoho standard cap is 12 months of fees (~EUR18,240); a data breach involving 40-seat logistics data could trigger GDPR fines of up to EUR20M/4% global turnover, leaving Brightline exposed for the gap
+    severity: High
+    mitigation: Negotiate liability cap to minimum EUR250,000 for data-breach/IP claims; alternatively, obtain dedicated cyber-liability insurance bridging the gap
+  - risk: IP ownership of custom workflow configurations — Zoho MSA standard terms assert vendor right to anonymise and use aggregate usage data; custom workflow logic could be inadvertently included
+    severity: Low
+    mitigation: Add explicit clause: all custom field schemas, workflow definitions, and report templates are Brightline IP; vendor usage limited to aggregate anonymised telemetry only
+  - risk: Auto-renewal legal exposure — procurement flagged 60-day notice window; under EU contract law, failure to cancel may constitute tacit consent to revised pricing terms published by vendor
+    severity: Medium
+    mitigation: Negotiate 30-day notice window and stipulate that any renewal pricing changes require written acceptance, not silence-as-consent
+  - risk: NetSuite third-party connector has separate EULA not reviewed — could introduce conflicting data-processing terms or IP assignment clauses
+    severity: Medium
+    mitigation: Legal review of connector vendor EULA before go-live; ensure connector DPA aligns with Zoho DPA and Brightline's GDPR obligations

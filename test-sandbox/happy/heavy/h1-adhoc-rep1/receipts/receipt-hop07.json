@@ -1,0 +1,33 @@
+{
+  "role": "verdict-flip",
+  "hop": 7,
+  "arm": "adhoc",
+  "flow": "H1",
+  "commands_run": [
+    "mkdir -p snapshots/hop-07-verdict-flip",
+    "cp work/report.html snapshots/hop-07-verdict-flip/report.html",
+    "cp work/data.json snapshots/hop-07-verdict-flip/data.json",
+    "cp work/decisions.log snapshots/hop-07-verdict-flip/decisions.log"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/lite/_inputs/h1-supplied/verdict-rationale.txt", "approx_chars": 196},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/work/data.json", "approx_chars": 1063},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/work/report.html", "approx_chars": 2620},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/work/decisions.log", "approx_chars": 560}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/work/data.json", "chars": 2113},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/work/report.html", "chars": 5043},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/work/decisions.log", "chars": 1165},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/snapshots/hop-07-verdict-flip/report.html", "chars": 5043},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/snapshots/hop-07-verdict-flip/data.json", "chars": 2113},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/snapshots/hop-07-verdict-flip/decisions.log", "chars": 1165},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/receipts/hop07-output/patch-data.json", "chars": 266},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/receipts/hop07-output/patch-html.html", "chars": 333},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/receipts/hop07-output/decision.txt", "chars": 188}
+  ],
+  "output_chars": 787,
+  "errors": [],
+  "problems_and_friction": "No significant friction. The verdict-rationale.txt source was clean and the two target fields (verdict + verdict_rationale) were unambiguously identified in both data.json and report.html by their id attributes. Surgical splice was straightforward.",
+  "context_understood": "Hop 7 flips the recommendation verdict from HubSpot to Zoho CRM in both data.json and report.html, using the rationale text supplied in verdict-rationale.txt, then snapshots and receipts the authored fragments."
+}

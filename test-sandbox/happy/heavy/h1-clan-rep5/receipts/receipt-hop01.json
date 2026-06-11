@@ -1,0 +1,23 @@
+{
+  "role": "pricing-update",
+  "hop": 1,
+  "arm": "clan",
+  "flow": "H1",
+  "commands_run": [
+    "clan read agent test-sandbox/happy/heavy/h1-clan-rep5/work/doc.clan --skip-guide",
+    "clan patch-data test-sandbox/happy/heavy/h1-clan-rep5/work/doc.clan /tmp/h1patch1.json --agent pricing-agent --action \"update Zoho seat price to 38\" --rationale \"New vendor quote received\"",
+    "clan validate test-sandbox/happy/heavy/h1-clan-rep5/work/doc.clan"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep5/work/doc.clan", "approx_chars": 2800}
+  ],
+  "files_written": [
+    {"file": "/tmp/h1patch1.json", "chars": 51},
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep5/receipts/hop01-output/patch-data.json", "chars": 51},
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep5/snapshots/hop-01-pricing-update.clan", "chars": 0}
+  ],
+  "output_chars": 51,
+  "errors": [],
+  "problems_and_friction": "No friction encountered. The patch-data command applied cleanly and validate returned OK immediately. The only note is the expected reminder that the human view is stale (pack-html not run per protocol).",
+  "context_understood": "Zoho CRM per-seat price drops from 45 to 38, and zoho_annual_total updates from 21600 to 18240 (38x40x12), applied via clan patch-data as data-bound fields."
+}

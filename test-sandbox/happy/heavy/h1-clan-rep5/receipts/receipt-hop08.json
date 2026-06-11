@@ -1,0 +1,24 @@
+{
+  "role": "signoff",
+  "hop": 8,
+  "arm": "clan",
+  "flow": "H1",
+  "commands_run": [
+    "clan read agent test-sandbox/happy/heavy/h1-clan-rep5/work/doc.clan --skip-guide",
+    "clan read chain test-sandbox/happy/heavy/h1-clan-rep5/work/doc.clan",
+    "clan patch-decision test-sandbox/happy/heavy/h1-clan-rep5/work/doc.clan --agent steering-committee --action \"approved Zoho CRM recommendation\" --rationale \"Re-scored cost vs time-to-value; Zoho wins on 40-seat cost with EU residency included.\" --pinned",
+    "clan validate test-sandbox/happy/heavy/h1-clan-rep5/work/doc.clan"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep5/work/doc.clan", "approx_chars": 4200}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep5/snapshots/hop-08-signoff.clan", "chars": 4200},
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep5/receipts/hop08-output/decision.yaml", "chars": 178},
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep5/receipts/receipt-hop08.json", "chars": 0}
+  ],
+  "output_chars": 178,
+  "errors": [],
+  "problems_and_friction": "Initial clan read syntax was wrong (subcommand required); corrected to 'clan read agent'. PowerShell copy command failed in bash context; used POSIX cp instead.",
+  "context_understood": "Hop 8 signoff role: record steering committee approval of Zoho CRM recommendation via patch-decision with --pinned flag on a 40-seat CRM platform recommendation document."
+}

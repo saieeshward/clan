@@ -1,0 +1,30 @@
+{
+  "role": "11-legal-reviewer",
+  "hop": 11,
+  "arm": "clan",
+  "flow": "H2",
+  "commands_run": [
+    "clan read agent test-sandbox/happy/heavy/h2-clan-rep2/work/doc.clan --skip-guide",
+    "clan read data test-sandbox/happy/heavy/h2-clan-rep2/work/doc.clan",
+    "clan patch-data test-sandbox/happy/heavy/h2-clan-rep2/work/doc.clan C:/Users/syson/AppData/Local/Temp/h2-r2-hop11.json --agent 11-legal-reviewer --action \"added 11-legal-reviewer findings\" --rationale \"HubSpot EU data residency is add-on not default, creating GDPR transfer risk; Zoho subprocessor chain for NetSuite connector requires dedicated DPA coverage\"",
+    "clan validate test-sandbox/happy/heavy/h2-clan-rep2/work/doc.clan",
+    "cp test-sandbox/happy/heavy/h2-clan-rep2/work/doc.clan test-sandbox/happy/heavy/h2-clan-rep2/snapshots/hop-11-11-legal-reviewer.clan"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep2/work/doc.clan", "approx_chars": 3800}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep2/work/doc.clan", "chars": 2176},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep2/snapshots/hop-11-11-legal-reviewer.clan", "chars": 2176},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep2/receipts/hop11-output/patch-data.json", "chars": 2176}
+  ],
+  "output_chars": 2176,
+  "errors": [
+    {
+      "what": "clan patch-data failed with /tmp path — clan CLI is Windows-native and resolves /tmp to AppData/Local/Temp but the Write tool used Linux-style /tmp path first",
+      "recovered_by": "Re-wrote JSON to Windows-native path C:/Users/syson/AppData/Local/Temp/h2-r2-hop11.json and re-ran patch-data"
+    }
+  ],
+  "problems_and_friction": "The /tmp path used by the Write tool is accessible via Bash but not by the Windows-native clan CLI, requiring a path redirect to AppData/Local/Temp. Otherwise the task was straightforward: prior analysts had already confirmed gdpr_dpa_both and flagged the 30-day subprocessor notice, giving clear anchors for the legal risk assessment.",
+  "context_understood": "Brightline Logistics (40 seats, EU-based) is evaluating HubSpot vs Zoho CRM; legal review focuses on GDPR/DPA compliance, liability caps, and contract risks with Zoho favored but HubSpot's EU residency add-on and Zoho's NetSuite connector DPA gap as key legal flags."
+}

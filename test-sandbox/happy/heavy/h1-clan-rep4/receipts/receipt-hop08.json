@@ -1,0 +1,25 @@
+{
+  "role": "signoff",
+  "hop": 8,
+  "arm": "clan",
+  "flow": "H1",
+  "commands_run": [
+    "clan read agent test-sandbox/happy/heavy/h1-clan-rep4/work/doc.clan",
+    "clan read data test-sandbox/happy/heavy/h1-clan-rep4/work/doc.clan",
+    "clan patch-decision test-sandbox/happy/heavy/h1-clan-rep4/work/doc.clan --agent steering-committee --action \"approved Zoho CRM recommendation\" --rationale \"Re-scored cost vs time-to-value; Zoho wins on 40-seat cost with EU residency included.\" --pinned",
+    "clan validate test-sandbox/happy/heavy/h1-clan-rep4/work/doc.clan",
+    "copy test-sandbox/happy/heavy/h1-clan-rep4/work/doc.clan to test-sandbox/happy/heavy/h1-clan-rep4/snapshots/hop-08-signoff.clan"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep4/work/doc.clan", "approx_chars": 3800}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep4/snapshots/hop-08-signoff.clan", "chars": 3800},
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep4/receipts/hop08-output/decision.yaml", "chars": 186},
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep4/receipts/receipt-hop08.json", "chars": 0}
+  ],
+  "output_chars": 186,
+  "errors": [],
+  "problems_and_friction": "clan read syntax requires a subcommand (agent/data/chain) rather than accepting a file path directly; this required a quick --help check before proceeding. No other friction encountered.",
+  "context_understood": "Record final steering-committee sign-off approving the Zoho CRM recommendation on 2026-06-11, appending a pinned decision entry to the chain."
+}

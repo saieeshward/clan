@@ -1,0 +1,32 @@
+{
+  "role": "06-customer-discovery",
+  "hop": 6,
+  "arm": "adhoc",
+  "flow": "H2",
+  "commands_run": [
+    "mkdir -p test-sandbox/happy/heavy/h2-adhoc-rep1/snapshots/hop-06-06-customer-discovery",
+    "cp work/findings.md snapshots/hop-06-06-customer-discovery/findings.md",
+    "cp work/handoff.md snapshots/hop-06-06-customer-discovery/handoff.md",
+    "mkdir -p test-sandbox/happy/heavy/h2-adhoc-rep1/receipts/hop06-output",
+    "wc -c receipts/hop06-output/fragment.md"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/work/brief.md", "approx_chars": 560},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/work/findings.md", "approx_chars": 780},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/work/handoff.md", "approx_chars": 600},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/06-customer-discovery.json", "approx_chars": 175},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/06-customer-discovery.handoff.txt", "approx_chars": 108}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/work/findings.md", "chars": 188},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/work/handoff.md", "chars": 115},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/snapshots/hop-06-06-customer-discovery/findings.md", "chars": 968},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/snapshots/hop-06-06-customer-discovery/handoff.md", "chars": 715},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/receipts/hop06-output/fragment.md", "chars": 358},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/receipts/receipt-hop06.json", "chars": 1200}
+  ],
+  "output_chars": 358,
+  "errors": [],
+  "problems_and_friction": "No significant friction. Bash mkdir with -p flag worked via POSIX shell despite Windows environment. Char counting required using wc -c via Bash tool as PowerShell syntax failed in the Bash tool.",
+  "context_understood": "Customer discovery hop for a CRM selection chain; appended 6-field findings and 1-line handoff to growing shared documents, then snapshotted."
+}

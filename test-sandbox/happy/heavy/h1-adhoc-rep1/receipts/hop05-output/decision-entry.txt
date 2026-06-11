@@ -1,0 +1,1 @@
+2026-06-11 hop-05 residency-section: inserted h1-supplied Data residency subsection (h2#data-residency + p#residency-detail) into report.html after Data governance section; data.json unchanged.

@@ -1,0 +1,33 @@
+{
+  "role": "signoff",
+  "hop": 8,
+  "arm": "adhoc",
+  "flow": "H1",
+  "commands_run": [
+    "Read work/decisions.log",
+    "Read work/data.json (first 10 lines)",
+    "Edit work/decisions.log — appended sign-off entry",
+    "mkdir snapshots/hop-08-signoff",
+    "cp work/report.html snapshots/hop-08-signoff/",
+    "cp work/data.json snapshots/hop-08-signoff/",
+    "cp work/decisions.log snapshots/hop-08-signoff/",
+    "mkdir receipts/hop08-output",
+    "Write receipts/hop08-output/decision-append.txt"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/work/decisions.log", "approx_chars": 1100},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/work/data.json", "approx_chars": 300}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/work/decisions.log", "chars": 1257},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/snapshots/hop-08-signoff/report.html", "chars": 5043},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/snapshots/hop-08-signoff/data.json", "chars": 2113},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/snapshots/hop-08-signoff/decisions.log", "chars": 1257},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/receipts/hop08-output/decision-append.txt", "chars": 155},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/receipts/receipt-hop08.json", "chars": 0}
+  ],
+  "output_chars": 155,
+  "errors": [],
+  "problems_and_friction": "No significant friction. Windows path quoting required using POSIX paths via Bash tool. The edit was a clean surgical append to decisions.log with no file rewrites needed.",
+  "context_understood": "Hop 8 sign-off: append steering-committee approval of Zoho CRM to decisions.log, snapshot all three work files, and record receipt with authored fragment only."
+}

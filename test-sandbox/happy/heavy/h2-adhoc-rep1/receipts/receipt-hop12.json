@@ -1,0 +1,36 @@
+{
+  "role": "lead-partner",
+  "hop": 12,
+  "arm": "adhoc",
+  "flow": "H2",
+  "commands_run": [
+    "mkdir -p test-sandbox/happy/heavy/h2-adhoc-rep1/snapshots/hop-12-lead-partner",
+    "mkdir -p test-sandbox/happy/heavy/h2-adhoc-rep1/receipts/hop12-output",
+    "cp work/findings.md snapshots/hop-12-lead-partner/findings.md",
+    "cp work/handoff.md snapshots/hop-12-lead-partner/handoff.md",
+    "cp work/report.html snapshots/hop-12-lead-partner/report.html",
+    "cp work/decisions.log snapshots/hop-12-lead-partner/decisions.log",
+    "python3 -c char-count-report.html,decisions.log",
+    "python3 -c char-count-hop12-output-files"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/work/brief.md", "approx_chars": 700},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/work/findings.md", "approx_chars": 3650},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/work/handoff.md", "approx_chars": 1550}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/work/report.html", "chars": 14488},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/work/decisions.log", "chars": 91},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/snapshots/hop-12-lead-partner/findings.md", "chars": 3650},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/snapshots/hop-12-lead-partner/handoff.md", "chars": 1550},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/snapshots/hop-12-lead-partner/report.html", "chars": 14488},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/snapshots/hop-12-lead-partner/decisions.log", "chars": 91},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/receipts/hop12-output/report.html", "chars": 14488},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/receipts/hop12-output/decisions.log-entry.txt", "chars": 91},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/receipts/receipt-hop12.json", "chars": 0}
+  ],
+  "output_chars": 14579,
+  "errors": [],
+  "problems_and_friction": "No material friction. All 11 analyst inputs were present and consistent; the recommendation was unambiguous from the data. Snapshot and receipts directories had to be created as they did not yet exist.",
+  "context_understood": "Lead-partner hop synthesising 11 analyst findings into a final Zoho CRM recommendation for Brightline Logistics (40 seats, EUR 18,240 year-1), covering costs, GDPR, integrations, risks, rollout, procurement, and legal conditions."
+}

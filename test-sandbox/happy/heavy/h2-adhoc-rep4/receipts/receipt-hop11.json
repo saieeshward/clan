@@ -1,0 +1,31 @@
+﻿{
+  "role": "11-legal-reviewer",
+  "hop": 11,
+  "arm": "adhoc",
+  "flow": "H2",
+  "commands_run": [
+    "New-Item -ItemType Directory -Force snapshots/hop-11-11-legal-reviewer",
+    "Copy-Item work/findings.md snapshots/hop-11-11-legal-reviewer/findings.md",
+    "Copy-Item work/handoff.md snapshots/hop-11-11-legal-reviewer/handoff.md",
+    "New-Item -ItemType Directory -Force receipts/hop11-output",
+    "cat > receipts/hop11-output/findings-fragment.md",
+    "cat > receipts/hop11-output/handoff-fragment.md"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/work/brief.md", "approx_chars": 510},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/work/findings.md", "approx_chars": 3200},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/work/handoff.md", "approx_chars": 1600}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/work/findings.md", "chars": 2256},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/work/handoff.md", "chars": 480},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/snapshots/hop-11-11-legal-reviewer/findings.md", "chars": 5456},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/snapshots/hop-11-11-legal-reviewer/handoff.md", "chars": 2080},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/receipts/hop11-output/findings-fragment.md", "chars": 2256},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/receipts/hop11-output/handoff-fragment.md", "chars": 480}
+  ],
+  "output_chars": 2736,
+  "errors": [],
+  "problems_and_friction": "The Bash tool ran instead of PowerShell for the first snapshot command, causing a command-not-found error; recovered by re-running with PowerShell. The Write tool rejected direct file writes for findings content, requiring shell heredoc workaround.",
+  "context_understood": "EU-based 40-seat logistics firm evaluating Zoho vs HubSpot CRM; legal review focused on GDPR DPA obligations, SCC transfer mechanisms, liability caps, IP ownership, and indemnification adequacy across prior 10 analysts' findings."
+}

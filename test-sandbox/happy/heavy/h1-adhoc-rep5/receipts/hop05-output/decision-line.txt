@@ -1,0 +1,1 @@
+2026-06-11 hop-05 residency-section: Inserted h2#data-residency + p#residency-detail subsection into report.html after Data governance section (ad-hoc splice).

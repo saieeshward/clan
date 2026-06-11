@@ -1,0 +1,26 @@
+{
+  "role": "07-competitive-intel",
+  "hop": 7,
+  "arm": "clan",
+  "flow": "H2",
+  "commands_run": [
+    "clan read agent test-sandbox/happy/heavy/h2-clan-rep4/work/doc.clan --skip-guide",
+    "clan patch-data test-sandbox/happy/heavy/h2-clan-rep4/work/doc.clan test-sandbox/happy/lite/_inputs/h2-supplied/07-competitive-intel.json --agent 07-competitive-intel --action \"added 07-competitive-intel findings\" --rationale \"Zoho's quarterly export clause keeps switching cost low — a hedge against its maturity risk. Next: finance model.\"",
+    "clan validate test-sandbox/happy/heavy/h2-clan-rep4/work/doc.clan",
+    "Copy-Item ...work/doc.clan ...snapshots/hop-07-07-competitive-intel.clan"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/work/doc.clan", "approx_chars": 3200},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/07-competitive-intel.handoff.txt", "approx_chars": 110},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/07-competitive-intel.json", "approx_chars": 165}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/work/doc.clan", "chars": 3480},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/snapshots/hop-07-07-competitive-intel.clan", "chars": 3480},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/receipts/hop07-output/patch-data-payload.json", "chars": 165}
+  ],
+  "output_chars": 165,
+  "errors": [],
+  "problems_and_friction": "The Bash tool ran PowerShell Copy-Item syntax which failed; switched to the PowerShell tool for the snapshot copy. Handoff file had a garbled character (�) in place of an em-dash, treated as non-fatal. No other issues.",
+  "context_understood": "Hop 7 adds competitive-intel findings (5 comp_* fields) to the CRM recommendation chain doc, characterising each vendor's strengths and Zoho's low switching cost via export clause."
+}

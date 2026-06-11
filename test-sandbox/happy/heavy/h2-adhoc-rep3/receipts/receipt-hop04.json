@@ -1,0 +1,32 @@
+{
+  "role": "04-gdpr-reviewer",
+  "hop": 4,
+  "arm": "adhoc",
+  "flow": "H2",
+  "commands_run": [
+    "mkdir -p snapshots/hop-04-04-gdpr-reviewer",
+    "cp work/findings.md snapshots/hop-04-04-gdpr-reviewer/findings.md",
+    "cp work/handoff.md snapshots/hop-04-04-gdpr-reviewer/handoff.md",
+    "mkdir -p receipts/hop04-output"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep3/work/brief.md", "approx_chars": 560},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep3/work/findings.md", "approx_chars": 620},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep3/work/handoff.md", "approx_chars": 310},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/04-gdpr-reviewer.json", "approx_chars": 175},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/04-gdpr-reviewer.handoff.txt", "approx_chars": 120}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep3/work/findings.md", "chars": 177},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep3/work/handoff.md", "chars": 145},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep3/snapshots/hop-04-04-gdpr-reviewer/findings.md", "chars": 797},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep3/snapshots/hop-04-04-gdpr-reviewer/handoff.md", "chars": 455},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep3/receipts/hop04-output/findings-fragment.txt", "chars": 177},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep3/receipts/hop04-output/handoff-fragment.txt", "chars": 145},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep3/receipts/receipt-hop04.json", "chars": 0}
+  ],
+  "output_chars": 322,
+  "errors": [],
+  "problems_and_friction": "No issues encountered. Files were well-structured and the supplied JSON mapped directly to key:value format. Snapshot and receipt directories needed creation.",
+  "context_understood": "GDPR reviewer appending EU data residency and DPA findings for the CRM shortlist comparison, noting Zoho includes EU pinning while HubSpot charges extra."
+}

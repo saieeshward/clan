@@ -1,0 +1,28 @@
+{
+  "role": "07-competitive-intel",
+  "hop": 7,
+  "arm": "clan",
+  "flow": "H2",
+  "commands_run": [
+    "clan read agent test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan --skip-guide",
+    "clan patch-data test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan test-sandbox/happy/lite/_inputs/h2-supplied/07-competitive-intel.json --agent 07-competitive-intel --action \"added 07-competitive-intel findings\" --rationale \"Zoho's quarterly export clause keeps switching cost low — a hedge against its maturity risk. Next: finance model.\"",
+    "clan validate test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan",
+    "cp work/doc.clan snapshots/hop-07-07-competitive-intel.clan"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan", "approx_chars": 3200},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/07-competitive-intel.handoff.txt", "approx_chars": 110},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/07-competitive-intel.json", "approx_chars": 224}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan", "chars": 3450},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep3/snapshots/hop-07-07-competitive-intel.clan", "chars": 3450},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep3/receipts/hop07-output/patch-data.json", "chars": 224}
+  ],
+  "output_chars": 224,
+  "errors": [
+    {"what": "Copy-Item not found in bash shell", "recovered_by": "Used cp with absolute paths instead"}
+  ],
+  "problems_and_friction": "Copy-Item (PowerShell cmdlet) failed in the bash shell; recovered immediately using cp with absolute paths. Handoff note had a garbled character (encoding artifact) in the first word but meaning was clear. No other friction.",
+  "context_understood": "Hop 7 adds competitive intel findings (5 fields: comp_hubspot_strength, comp_zoho_strength, comp_salesforce_strength, comp_switching_cost_zoho, comp_zoho_export_clause) to an ongoing CRM recommendation chain for Brightline Logistics, building on six prior specialist analysts."
+}

@@ -1,0 +1,28 @@
+﻿{
+  "role": "risk-add",
+  "hop": 2,
+  "arm": "clan",
+  "flow": "H1",
+  "commands_run": [
+    "clan read agent test-sandbox/happy/heavy/h1-clan-rep2/work/doc.clan --skip-guide",
+    "clan read data test-sandbox/happy/heavy/h1-clan-rep2/work/doc.clan",
+    "clan patch-data test-sandbox/happy/heavy/h1-clan-rep2/work/doc.clan /tmp/h1patch2.json --agent risk-agent --action \"add vendor lock-in risk\" --rationale \"Identified during procurement review\"",
+    "clan patch-html test-sandbox/happy/heavy/h1-clan-rep2/work/doc.clan /tmp/h1patch2.html --agent risk-agent --action \"add risk table row\" --rationale \"Mirror data patch in view\"",
+    "clan validate test-sandbox/happy/heavy/h1-clan-rep2/work/doc.clan"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep2/work/doc.clan", "approx_chars": 3200}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep2/work/doc.clan", "chars": 0},
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep2/snapshots/hop-02-risk-add.clan", "chars": 0},
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep2/receipts/hop02-output/patch-data.json", "chars": 410},
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep2/receipts/hop02-output/patch-html-fragment.html", "chars": 98}
+  ],
+  "output_chars": 508,
+  "errors": [
+    {"what": "patch-html called with --selector flag which is not supported as CLI arg", "recovered_by": "Created HTML patch file with YAML frontmatter containing selector and action fields"}
+  ],
+  "problems_and_friction": "The patch-html command does not accept --selector/--action/--fragment as inline CLI flags; the protocol instructions implied that syntax but the actual CLI requires a patch file with YAML frontmatter. This required creating an intermediate file. Otherwise the workflow was straightforward.",
+  "context_understood": "Add a Vendor lock-in risk entry (severity Medium, mitigation: Quarterly data-export clause) to both the data layer and the HTML view of the CRM recommendation doc."
+}

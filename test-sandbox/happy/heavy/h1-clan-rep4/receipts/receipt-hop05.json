@@ -1,0 +1,30 @@
+{
+  "role": "residency-section",
+  "hop": 5,
+  "arm": "clan",
+  "flow": "H1",
+  "commands_run": [
+    "clan read agent test-sandbox/happy/heavy/h1-clan-rep4/work/doc.clan",
+    "clan read human test-sandbox/happy/heavy/h1-clan-rep4/work/doc.clan",
+    "clan patch-html test-sandbox/happy/heavy/h1-clan-rep4/work/doc.clan test-sandbox/happy/heavy/h1-clan-rep4/work/residency-patch.html --agent residency-agent --action \"add data residency section\" --rationale \"Legal requirement to document residency\"",
+    "clan validate test-sandbox/happy/heavy/h1-clan-rep4/work/doc.clan",
+    "cp test-sandbox/happy/heavy/h1-clan-rep4/work/doc.clan test-sandbox/happy/heavy/h1-clan-rep4/snapshots/hop-05-residency-section.clan"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/lite/_inputs/h1-supplied/residency-section.html", "approx_chars": 810},
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep4/work/doc.clan", "approx_chars": 4200}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep4/work/residency-patch.html", "chars": 966},
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep4/snapshots/hop-05-residency-section.clan", "chars": 4200},
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep4/receipts/receipt-hop05.json", "chars": 1024},
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep4/receipts/hop05-output/residency-patch.html", "chars": 966}
+  ],
+  "output_chars": 966,
+  "errors": [
+    {"what": "clan read subcommand syntax wrong — passed file path directly", "recovered_by": "Used 'clan read agent <file>' subcommand form"},
+    {"what": "clan patch-html does not accept --selector/--action inline flags", "recovered_by": "Wrote HTML patch file with YAML frontmatter (mode: patch-html, selector: body, action: append)"}
+  ],
+  "problems_and_friction": "The patch-html command required an HTML file with YAML frontmatter rather than inline CLI flags, which wasn't obvious from the protocol description. The clan read subcommand syntax also required discovery. Both recovered quickly via --help.",
+  "context_understood": "Append the supplied Data Residency HTML section to the body of the CRM recommendation clan document using the guided patch-html arm."
+}

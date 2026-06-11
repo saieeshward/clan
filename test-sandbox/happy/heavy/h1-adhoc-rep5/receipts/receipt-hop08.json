@@ -1,0 +1,26 @@
+{
+  "role": "signoff",
+  "hop": 8,
+  "arm": "adhoc",
+  "flow": "H1",
+  "commands_run": [
+    "ls C:/Users/syson/Documents/Code/clan/test-sandbox/happy/heavy/h1-adhoc-rep5/work/",
+    "mkdir -p .../snapshots/hop-08-signoff && cp work/report.html work/data.json work/decisions.log .../snapshots/hop-08-signoff/",
+    "mkdir -p .../receipts/hop08-output"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/work/decisions.log", "approx_chars": 720}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/work/decisions.log", "chars": 867},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/snapshots/hop-08-signoff/decisions.log", "chars": 867},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/snapshots/hop-08-signoff/report.html", "chars": -1},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/snapshots/hop-08-signoff/data.json", "chars": -1},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/receipts/hop08-output/decision-append.txt", "chars": 147},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/receipts/receipt-hop08.json", "chars": 1024}
+  ],
+  "output_chars": 147,
+  "errors": [],
+  "problems_and_friction": "Initial ls command failed due to shell quoting with double-quotes on Windows Bash; resolved by switching to unquoted path. No logical friction: the append was a single surgical line to decisions.log with no structural ambiguity.",
+  "context_understood": "Hop 8 (signoff) appends the steering-committee approval of Zoho CRM to decisions.log, snapshots all three work files, and records the authored fragment plus receipt for the ad-hoc arm of flow H1."
+}

@@ -1,0 +1,1 @@
+hop-06 chart-update: bar-zoho rect updated y="52"->y="78" height="108"->height="82" (Zoho is now cheapest, bar reflects lower cost)

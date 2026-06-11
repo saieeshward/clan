@@ -1,0 +1,47 @@
+{
+  "procurement_lead_time_weeks": 6,
+  "procurement_contract_term_years": 3,
+  "procurement_key_commitments": [
+    "Annual payment upfront for best pricing tier",
+    "EU data residency (Frankfurt) written into contract",
+    "GDPR DPA countersigned before go-live",
+    "30-day subprocessor change notice clause enforced",
+    "Data export right on contract termination (TIFF/CSV within 30 days)",
+    "SLA: 99.9% uptime with financial penalty clause"
+  ],
+  "procurement_negotiation_leverage": [
+    "40-seat deal is borderline SME/mid-market — request mid-market pricing tier",
+    "3-year commitment secures ~15-20% discount vs month-to-month",
+    "Competing bid from HubSpot provides floor-price leverage with Zoho",
+    "October peak season creates urgency — vendor motivated to close by Q3",
+    "Low Zoho switching cost keeps renewal leverage in buyer's favour"
+  ],
+  "procurement_risks": [
+    {
+      "risk": "Vendor lock-in via proprietary data formats",
+      "severity": "Low",
+      "mitigation": "Zoho export clause already confirmed true (comp_zoho_export_clause); contractually mandate CSV/standard export within 30 days of termination"
+    },
+    {
+      "risk": "Price escalation at Year 3 renewal",
+      "severity": "Medium",
+      "mitigation": "Cap annual price increases at 5% in contract; benchmark against HubSpot/Salesforce at renewal"
+    },
+    {
+      "risk": "NetSuite connector dependency on third-party vendor",
+      "severity": "Medium",
+      "mitigation": "Evaluate certified Zoho-NetSuite connector SLA before signing; include connector cost in TCO"
+    },
+    {
+      "risk": "Procurement delay pushing past October peak",
+      "severity": "High",
+      "mitigation": "Initiate RFP/legal review immediately; target contract signature by July 1 to align with rollout_phase1_date"
+    },
+    {
+      "risk": "Currency exposure on EUR-denominated contract",
+      "severity": "Low",
+      "mitigation": "Brightline EU-based; Zoho EUR pricing eliminates FX risk — confirm invoice currency at contract stage"
+    }
+  ],
+  "procurement_export_clause_feasible": true
+}

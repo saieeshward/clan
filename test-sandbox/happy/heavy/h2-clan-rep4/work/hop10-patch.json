@@ -1,0 +1,46 @@
+{
+  "procurement_lead_time_weeks": 4,
+  "procurement_contract_term_years": 2,
+  "procurement_key_commitments": [
+    "EU Frankfurt data residency guaranteed in writing (DPA exhibit)",
+    "99.9% uptime SLA with credits >= 10% monthly fee per breach",
+    "Annual price cap: max 5% uplift on renewal",
+    "30-day subprocessor change notice clause (already standard with Zoho)",
+    "Data export in standard CSV/JSON within 30 days of termination"
+  ],
+  "procurement_negotiation_leverage": [
+    "40-seat deal is mid-tier but 2-year commit gives vendor revenue certainty — use for discount",
+    "Peak-season deadline (October go-live) creates urgency; vendor keen to close before Q3 end",
+    "Competitor bids from HubSpot and Salesforce provide active BATNA to press for 10-15% discount",
+    "Zoho's low switching cost acknowledged internally; vendor aware retention incentive is high",
+    "Bundle Zoho CRM + Zoho One add-ons as future upsell — offer roadmap commitment in exchange for price lock"
+  ],
+  "procurement_risks": [
+    {
+      "risk": "Contract auto-renews on unfavourable terms if review window missed",
+      "severity": "Medium",
+      "mitigation": "Set calendar alert 90 days before contract anniversary; assign contract owner"
+    },
+    {
+      "risk": "Price uplift at year-2 renewal erodes 3-year savings case",
+      "severity": "Medium",
+      "mitigation": "Negotiate max 5% annual uplift cap in initial contract; accept 2-year term in exchange"
+    },
+    {
+      "risk": "Vendor changes subprocessors affecting GDPR compliance without adequate notice",
+      "severity": "High",
+      "mitigation": "Enforce 30-day notice clause; DPA must list current subprocessors as exhibit"
+    },
+    {
+      "risk": "Export clause not exercised in time post-termination leading to data lock-in",
+      "severity": "Low",
+      "mitigation": "Contract specifies 30-day export window and machine-readable format; test export in UAT"
+    },
+    {
+      "risk": "NetSuite connector (third-party) not covered by Zoho SLA",
+      "severity": "Medium",
+      "mitigation": "Obtain SLA from connector vendor separately; include in integration risk register"
+    }
+  ],
+  "procurement_export_clause_feasible": true
+}

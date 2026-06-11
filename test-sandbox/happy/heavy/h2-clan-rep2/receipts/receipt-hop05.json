@@ -1,0 +1,26 @@
+{
+  "role": "05-integrations-assessor",
+  "hop": 5,
+  "arm": "clan",
+  "flow": "H2",
+  "commands_run": [
+    "clan read agent test-sandbox/happy/heavy/h2-clan-rep2/work/doc.clan --skip-guide",
+    "clan patch-data test-sandbox/happy/heavy/h2-clan-rep2/work/doc.clan test-sandbox/happy/lite/_inputs/h2-supplied/05-integrations-assessor.json --agent 05-integrations-assessor --action \"added 05-integrations-assessor findings\" --rationale \"HubSpot has one more native connector; Zoho needs a NetSuite connector but it is supported. ~9 wk effort either way. Next: customer discovery.\"",
+    "clan validate test-sandbox/happy/heavy/h2-clan-rep2/work/doc.clan",
+    "cp test-sandbox/happy/heavy/h2-clan-rep2/work/doc.clan test-sandbox/happy/heavy/h2-clan-rep2/snapshots/hop-05-05-integrations-assessor.clan"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep2/work/doc.clan", "approx_chars": 2800},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/05-integrations-assessor.handoff.txt", "approx_chars": 115},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/05-integrations-assessor.json", "approx_chars": 272}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep2/work/doc.clan", "chars": 3150},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep2/snapshots/hop-05-05-integrations-assessor.clan", "chars": 3150},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep2/receipts/hop05-output/patch-data.json", "chars": 272}
+  ],
+  "output_chars": 272,
+  "errors": [],
+  "problems_and_friction": "No friction encountered. All steps completed cleanly: patch applied, validation passed OK, snapshot copied successfully.",
+  "context_understood": "Brightline Logistics CRM chain — hop 5 adds integration depth findings (HubSpot 5 native, Zoho 4 native with NetSuite gap, ~9 wk effort either way) to inform the subsequent customer-discovery and lead-partner hops."
+}

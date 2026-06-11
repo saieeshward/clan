@@ -1,0 +1,34 @@
+{
+  "role": "02-pricing-analyst",
+  "hop": 2,
+  "arm": "adhoc",
+  "flow": "H2",
+  "commands_run": [
+    "mkdir -p .../snapshots/hop-02-02-pricing-analyst",
+    "cp findings.md -> snapshots/hop-02-02-pricing-analyst/findings.md",
+    "cp handoff.md -> snapshots/hop-02-02-pricing-analyst/handoff.md",
+    "mkdir -p .../receipts/hop02-output",
+    "python3 char count for output files",
+    "python3 char count for files_read"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/work/brief.md", "approx_chars": 740},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/work/findings.md", "approx_chars": 294},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/work/handoff.md", "approx_chars": 171},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/02-pricing-analyst.json", "approx_chars": 250},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/02-pricing-analyst.handoff.txt", "approx_chars": 128}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/work/findings.md", "chars": 523},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/work/handoff.md", "chars": 323},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/snapshots/hop-02-02-pricing-analyst/findings.md", "chars": 523},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/snapshots/hop-02-02-pricing-analyst/handoff.md", "chars": 323},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/receipts/hop02-output/findings-fragment.txt", "chars": 229},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/receipts/hop02-output/handoff-fragment.txt", "chars": 152},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/receipts/receipt-hop02.json", "chars": 0}
+  ],
+  "output_chars": 381,
+  "errors": [],
+  "problems_and_friction": "No significant friction. Files were in expected locations and the supplied JSON mapped directly to the findings.md key-value format. The files_read char counts were computed for the pre-edit state of findings.md and handoff.md to reflect what was actually injected as context.",
+  "context_understood": "Pricing analyst hop appending per-seat and annual cost data for HubSpot, Zoho, and Salesforce for a 40-seat EU logistics firm, identifying Zoho as cheapest and eliminating Salesforce, handing off to risk analysis of the two finalists."
+}

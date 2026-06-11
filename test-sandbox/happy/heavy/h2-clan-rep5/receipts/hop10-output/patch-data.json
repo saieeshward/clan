@@ -1,0 +1,47 @@
+{
+  "procurement_lead_time_weeks": 4,
+  "procurement_contract_term_years": 2,
+  "procurement_key_commitments": [
+    "Annual billing with 30-day cancellation notice",
+    "EU data residency (Frankfurt) guaranteed in SLA",
+    "Quarterly full-data export right under DPA",
+    "Subprocessor change notice minimum 30 days",
+    "Named CSM assigned for first 12 months",
+    "SLA: 99.9% uptime with credit mechanism"
+  ],
+  "procurement_negotiation_leverage": [
+    "40-seat deal is modest volume — negotiate multi-year discount (15-20% off list for 2-year commit)",
+    "Zoho list EUR18,240/yr; competitor HubSpot quote EUR24,000 is a live BATNA to present",
+    "Peak-season constraint (October deadline) gives urgency — request expedited implementation support at no cost",
+    "Request free onboarding/training package (24 training hours already scoped) in lieu of price concession",
+    "Export clause already confirmed in GDPR DPA — use it to de-risk lock-in and soften contract term resistance"
+  ],
+  "procurement_risks": [
+    {
+      "risk": "Contract auto-renewal clause locks in a price increase before review",
+      "severity": "Medium",
+      "mitigation": "Insert 90-day pre-renewal opt-out window and cap annual price uplift at CPI+2%"
+    },
+    {
+      "risk": "NetSuite connector dependency creates single-vendor choke point mid-rollout",
+      "severity": "High",
+      "mitigation": "Confirm connector SLA and support tier before contract signature; add break clause if connector is discontinued"
+    },
+    {
+      "risk": "Zoho product maturity risk may require mid-term upgrade to higher tier, inflating cost",
+      "severity": "Medium",
+      "mitigation": "Negotiate tier-upgrade pricing caps at time of initial contract; document current-tier feature set in Schedule A"
+    },
+    {
+      "risk": "Phase-1 go-live (2026-07-01) leaves <4 weeks from contract signature to deployment start",
+      "severity": "High",
+      "mitigation": "Begin procurement process immediately; target contract execution by 2026-06-20 to protect schedule"
+    },
+    {
+      "risk": "Subprocessor substitution by Zoho could affect GDPR compliance mid-term",
+      "severity": "Low",
+      "mitigation": "30-day notice clause already confirmed; include right-to-terminate if replacement subprocessor is unacceptable"
+    }
+  ],
+  "procurement_export_clause_feasible": true
+}

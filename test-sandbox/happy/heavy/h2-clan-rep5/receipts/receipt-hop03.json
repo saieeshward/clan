@@ -1,0 +1,26 @@
+{
+  "role": "03-risk-analyst",
+  "hop": 3,
+  "arm": "clan",
+  "flow": "H2",
+  "commands_run": [
+    "clan read agent test-sandbox/happy/heavy/h2-clan-rep5/work/doc.clan --skip-guide",
+    "clan patch-data test-sandbox/happy/heavy/h2-clan-rep5/work/doc.clan test-sandbox/happy/lite/_inputs/h2-supplied/03-risk-analyst.json --agent 03-risk-analyst --action \"added 03-risk-analyst findings\" --rationale \"Migration quality is the top risk for either vendor. Zoho carries slightly higher maturity risk on advanced workflows. Next: GDPR review.\"",
+    "clan validate test-sandbox/happy/heavy/h2-clan-rep5/work/doc.clan",
+    "cp test-sandbox/happy/heavy/h2-clan-rep5/work/doc.clan test-sandbox/happy/heavy/h2-clan-rep5/snapshots/hop-03-03-risk-analyst.clan"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep5/work/doc.clan", "approx_chars": 2100},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/03-risk-analyst.handoff.txt", "approx_chars": 131},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/03-risk-analyst.json", "approx_chars": 185}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep5/work/doc.clan", "chars": 12117},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep5/snapshots/hop-03-03-risk-analyst.clan", "chars": 12117},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep5/receipts/hop03-output/patch-data.json", "chars": 185}
+  ],
+  "output_chars": 185,
+  "errors": [],
+  "problems_and_friction": "The Copy-Item PowerShell command failed because Bash was used instead of PowerShell; fell back to cp which succeeded without issue. No structural problems with the patch or validation.",
+  "context_understood": "Risk analyst hop adds severity ratings for migration, adoption, and vendor maturity risks for the two CRM finalists (Zoho and HubSpot), building on prior pricing and market data."
+}

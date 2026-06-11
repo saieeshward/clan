@@ -1,0 +1,32 @@
+{
+  "role": "08-finance-modeler",
+  "hop": 8,
+  "arm": "adhoc",
+  "flow": "H2",
+  "commands_run": [
+    "mkdir -p test-sandbox/happy/heavy/h2-adhoc-rep1/snapshots/hop-08-08-finance-modeler",
+    "cp work/findings.md snapshots/hop-08-08-finance-modeler/findings.md",
+    "cp work/handoff.md snapshots/hop-08-08-finance-modeler/handoff.md",
+    "mkdir -p test-sandbox/happy/heavy/h2-adhoc-rep1/receipts/hop08-output"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/work/brief.md", "approx_chars": 620},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/work/findings.md", "approx_chars": 1350},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/work/handoff.md", "approx_chars": 760},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/08-finance-modeler.json", "approx_chars": 210},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/08-finance-modeler.handoff.txt", "approx_chars": 100}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/work/findings.md", "chars": 193},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/work/handoff.md", "chars": 121},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/snapshots/hop-08-08-finance-modeler/findings.md", "chars": 1543},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/snapshots/hop-08-08-finance-modeler/handoff.md", "chars": 881},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/receipts/hop08-output/findings-fragment.txt", "chars": 193},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/receipts/hop08-output/handoff-fragment.txt", "chars": 121},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/receipts/receipt-hop08.json", "chars": 1500}
+  ],
+  "output_chars": 314,
+  "errors": [],
+  "problems_and_friction": "Bash tool used PowerShell syntax and failed; switched to PowerShell tool for char-count measurement. No data gaps — all supplied values were complete and consistent with prior analyst chain. No ambiguity in the finance model fields.",
+  "context_understood": "Finance model compares Zoho vs HubSpot year-1 and 3-year costs, finds EUR17,280 savings with Zoho and a 7-month payback, yielding a Zoho lean recommendation for the lead partner."
+}

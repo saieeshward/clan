@@ -1,0 +1,26 @@
+{
+  "role": "summary-rewrite",
+  "hop": 4,
+  "arm": "clan",
+  "flow": "H1",
+  "commands_run": [
+    "clan read agent test-sandbox/happy/heavy/h1-clan-rep2/work/doc.clan --skip-guide",
+    "clan patch-data test-sandbox/happy/heavy/h1-clan-rep2/work/doc.clan /tmp/h1patch4.json --agent summary-agent --action \"rewrite exec summary\" --rationale \"Board requested clearer opening\"",
+    "clan validate test-sandbox/happy/heavy/h1-clan-rep2/work/doc.clan"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep2/work/doc.clan", "approx_chars": 2800},
+    {"file": "test-sandbox/happy/lite/_inputs/h1-supplied/exec-summary.txt", "approx_chars": 280}
+  ],
+  "files_written": [
+    {"file": "/tmp/h1patch4.json", "chars": 343},
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep2/work/doc.clan", "chars": 343},
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep2/snapshots/hop-04-summary-rewrite.clan", "chars": 343},
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep2/receipts/hop04-output/patch-data.json", "chars": 343},
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep2/receipts/receipt-hop04.json", "chars": 0}
+  ],
+  "output_chars": 343,
+  "errors": [],
+  "problems_and_friction": "No errors encountered. The clan patch-data command succeeded on first attempt and validate printed OK immediately. The snapshot directory did not exist yet but was created without issue.",
+  "context_understood": "Replace the exec_summary field in doc.clan with the verbatim text from exec-summary.txt, using clan patch-data with required attribution metadata, then validate and snapshot."
+}

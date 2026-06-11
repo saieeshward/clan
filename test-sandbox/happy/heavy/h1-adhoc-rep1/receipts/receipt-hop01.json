@@ -1,0 +1,41 @@
+{
+  "role": "pricing-update",
+  "hop": 1,
+  "arm": "adhoc",
+  "flow": "H1",
+  "commands_run": [
+    "Read work/data.json",
+    "Read work/report.html",
+    "Read work/decisions.log",
+    "Edit work/data.json zoho_price_per_seat 45->38",
+    "Edit work/data.json zoho_annual_total 21600->18240",
+    "Edit work/report.html Zoho CRM row $45/$21600 -> $38/$18240",
+    "Write work/decisions.log (append entry)",
+    "PowerShell: mkdir snapshots/hop-01-pricing-update + receipts dirs; Copy-Item x3",
+    "Write receipts/hop01-output/patch-data.json",
+    "Write receipts/hop01-output/patch-html.fragment",
+    "Write receipts/hop01-output/decision.txt"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/work/data.json", "approx_chars": 1868},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/work/report.html", "approx_chars": 3898},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/work/decisions.log", "approx_chars": 2}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/work/data.json", "chars": 1868},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/work/report.html", "chars": 3898},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/work/decisions.log", "chars": 151},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/snapshots/hop-01-pricing-update/data.json", "chars": 1868},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/snapshots/hop-01-pricing-update/report.html", "chars": 3898},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/snapshots/hop-01-pricing-update/decisions.log", "chars": 151},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/receipts/hop01-output/patch-data.json", "chars": 58},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/receipts/hop01-output/patch-html.fragment", "chars": 77},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/receipts/hop01-output/decision.txt", "chars": 149}
+  ],
+  "output_chars": 284,
+  "errors": [
+    {"what": "Bash tool attempted for PowerShell mkdir/copy commands — wrong shell", "recovered_by": "Switched to PowerShell tool"}
+  ],
+  "problems_and_friction": "The Bash tool was invoked first for directory creation/copy operations, which failed because PowerShell syntax is not valid in bash. This was recovered immediately by switching to the PowerShell tool. No other friction; the file edits were straightforward surgical splices.",
+  "context_understood": "Zoho CRM per-seat price dropped from $45 to $38, requiring two numeric field updates in data.json (zoho_price_per_seat and zoho_annual_total) and one table row update in report.html, followed by a decisions.log entry and snapshot."
+}

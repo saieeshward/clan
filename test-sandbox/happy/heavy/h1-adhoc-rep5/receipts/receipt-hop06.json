@@ -1,0 +1,33 @@
+{
+  "role": "chart-update",
+  "hop": 6,
+  "arm": "adhoc",
+  "flow": "H1",
+  "commands_run": [
+    "Edit report.html: replace bar-zoho rect y=52 height=108 -> y=78 height=82",
+    "Edit decisions.log: append hop-06 log line",
+    "mkdir snapshots/hop-06-chart-update",
+    "cp work/report.html snapshots/hop-06-chart-update/",
+    "cp work/data.json snapshots/hop-06-chart-update/",
+    "cp work/decisions.log snapshots/hop-06-chart-update/",
+    "mkdir receipts/hop06-output",
+    "Write receipts/hop06-output/fragment.html"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/work/report.html", "approx_chars": 4937},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/work/decisions.log", "approx_chars": 735}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/work/report.html", "chars": 4937},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/work/decisions.log", "chars": 842},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/snapshots/hop-06-chart-update/report.html", "chars": 4937},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/snapshots/hop-06-chart-update/data.json", "chars": 2007},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/snapshots/hop-06-chart-update/decisions.log", "chars": 842},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/receipts/hop06-output/fragment.html", "chars": 82},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/receipts/receipt-hop06.json", "chars": 0}
+  ],
+  "output_chars": 188,
+  "errors": [],
+  "problems_and_friction": "Add-Content PowerShell command failed in the Bash tool (not available in POSIX shell); recovered by using the Edit tool to append the log line directly. No other issues encountered.",
+  "context_understood": "Update SVG bar-zoho rect from y=52 height=108 to y=78 height=82 to reflect Zoho as cheapest vendor in the cost chart."
+}

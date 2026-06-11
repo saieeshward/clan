@@ -1,0 +1,31 @@
+{
+  "role": "lead-partner",
+  "hop": 12,
+  "arm": "adhoc",
+  "flow": "H2",
+  "commands_run": [
+    "mkdir -p snapshots/hop-12-lead-partner",
+    "mkdir -p receipts/hop12-output",
+    "PowerShell: Set-Content decisions.log",
+    "PowerShell: Copy-Item findings.md handoff.md report.html decisions.log to snapshots/hop-12-lead-partner"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/work/brief.md", "approx_chars": 620},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/work/findings.md", "approx_chars": 5757},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/work/handoff.md", "approx_chars": 2087}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/work/report.html", "chars": 20163},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/work/decisions.log", "chars": 95},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/snapshots/hop-12-lead-partner/findings.md", "chars": 5757},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/snapshots/hop-12-lead-partner/handoff.md", "chars": 2087},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/snapshots/hop-12-lead-partner/report.html", "chars": 20163},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/snapshots/hop-12-lead-partner/decisions.log", "chars": 95},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/receipts/hop12-output/report.html", "chars": 20163},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/receipts/hop12-output/decisions-entry.txt", "chars": 90}
+  ],
+  "output_chars": 20253,
+  "errors": [],
+  "problems_and_friction": "Initial mkdir used Bash tool which failed on PowerShell syntax; switched to PowerShell tool immediately and all subsequent commands succeeded. No data gaps or ambiguities in analyst chain — all 11 inputs were self-consistent and pointed to the same conclusion.",
+  "context_understood": "Lead partner role at hop 12 of a 12-hop analyst chain: synthesise all prior findings into a final HTML recommendation report for Brightline Logistics choosing Zoho CRM at EUR 18,240/year-1, document the decision, and snapshot all artefacts."
+}

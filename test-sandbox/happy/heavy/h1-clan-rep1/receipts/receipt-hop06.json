@@ -1,0 +1,30 @@
+{
+  "role": "chart-update",
+  "hop": 6,
+  "arm": "clan",
+  "flow": "H1",
+  "commands_run": [
+    "clan read agent test-sandbox/happy/heavy/h1-clan-rep1/work/doc.clan --skip-guide",
+    "clan read human test-sandbox/happy/heavy/h1-clan-rep1/work/doc.clan",
+    "clan patch-html test-sandbox/happy/heavy/h1-clan-rep1/work/doc.clan test-sandbox/happy/heavy/h1-clan-rep1/work/patch-hop06.html --agent chart-agent --action \"shrink Zoho bar to reflect lower cost\" --rationale \"Price drop from hop 1 reflected in chart\"",
+    "clan validate test-sandbox/happy/heavy/h1-clan-rep1/work/doc.clan",
+    "cp test-sandbox/happy/heavy/h1-clan-rep1/work/doc.clan test-sandbox/happy/heavy/h1-clan-rep1/snapshots/hop-06-chart-update.clan"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep1/work/doc.clan", "approx_chars": 3200}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep1/work/doc.clan", "chars": 80},
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep1/snapshots/hop-06-chart-update.clan", "chars": 80},
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep1/receipts/hop06-output/fragment.html", "chars": 80}
+  ],
+  "output_chars": 80,
+  "errors": [
+    {
+      "what": "clan patch-html appended fragment to end of body instead of replacing the selector target; also caused SHA256 mismatch in manifest",
+      "recovered_by": "Directly patched human/index.html in zip: removed appended duplicate, replaced original element with correct y/height values; recomputed SHA256 and updated manifest.yaml"
+    }
+  ],
+  "problems_and_friction": "clan patch-html with YAML frontmatter selector did not replace the matched element in-place; instead it appended the fragment to the end of the body, creating a duplicate id. Recovery required direct zip manipulation to fix the HTML and update the manifest SHA256. The patch-html CLI selector syntax may not support CSS selector-based replacement when passed via frontmatter.",
+  "context_understood": "Hop 06 updates the SVG cost chart so bar-zoho reflects y=78 height=82, making Zoho visually cheapest in the bar chart to match the price drop established in hop 01."
+}

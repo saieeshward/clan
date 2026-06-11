@@ -1,0 +1,28 @@
+{
+  "role": "lead-partner",
+  "hop": 12,
+  "arm": "clan",
+  "flow": "H2",
+  "commands_run": [
+    "clan read agent test-sandbox/happy/heavy/h2-clan-rep2/work/doc.clan --skip-guide",
+    "clan read chain test-sandbox/happy/heavy/h2-clan-rep2/work/doc.clan",
+    "clan patch-data test-sandbox/happy/heavy/h2-clan-rep2/work/doc.clan C:/tmp/h2-r2-lead.json --agent lead-partner --action \"final recommendation: Zoho CRM\" --rationale \"Synthesised 11 analyst inputs\"",
+    "clan render test-sandbox/happy/heavy/h2-clan-rep2/work/doc.clan",
+    "clan validate test-sandbox/happy/heavy/h2-clan-rep2/work/doc.clan",
+    "clan patch-decision test-sandbox/happy/heavy/h2-clan-rep2/work/doc.clan --agent lead-partner --action \"final recommendation: Zoho CRM\" --rationale \"Synthesised 11 analyst inputs.\" --pinned",
+    "cp test-sandbox/happy/heavy/h2-clan-rep2/work/doc.clan test-sandbox/happy/heavy/h2-clan-rep2/snapshots/hop-12-lead-partner.clan"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep2/work/doc.clan", "approx_chars": 7200}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep2/receipts/hop12-output/patch-data.json", "chars": 224},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep2/receipts/hop12-output/decision.txt", "chars": 85},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep2/snapshots/hop-12-lead-partner.clan", "chars": 7400},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep2/receipts/receipt-hop12.json", "chars": 1600}
+  ],
+  "output_chars": 309,
+  "errors": [],
+  "problems_and_friction": "No errors encountered. The /tmp path required a Windows-compatible C:/tmp form for the patch-data JSON. All clan commands succeeded on first attempt.",
+  "context_understood": "Lead partner hop synthesising 11 analyst findings (pricing, risk, GDPR, integrations, customer discovery, competitive intel, finance, rollout, procurement, legal) into a final pinned Zoho CRM recommendation for Brightline Logistics."
+}

@@ -1,0 +1,33 @@
+{
+  "role": "09-rollout-planner",
+  "hop": 9,
+  "arm": "adhoc",
+  "flow": "H2",
+  "commands_run": [
+    "mkdir -p test-sandbox/happy/heavy/h2-adhoc-rep5/snapshots/hop-09-09-rollout-planner",
+    "cp work/findings.md snapshots/hop-09-09-rollout-planner/findings.md",
+    "cp work/handoff.md snapshots/hop-09-09-rollout-planner/handoff.md",
+    "mkdir -p receipts/hop09-output",
+    "write receipts/hop09-output/findings-fragment.md",
+    "write receipts/hop09-output/handoff-fragment.md"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/work/brief.md", "approx_chars": 620},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/work/findings.md", "approx_chars": 1480},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/work/handoff.md", "approx_chars": 1020},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/09-rollout-planner.json", "approx_chars": 185},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/09-rollout-planner.handoff.txt", "approx_chars": 140}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/work/findings.md", "chars": 201},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/work/handoff.md", "chars": 161},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/snapshots/hop-09-09-rollout-planner/findings.md", "chars": 1681},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/snapshots/hop-09-09-rollout-planner/handoff.md", "chars": 1181},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/receipts/hop09-output/findings-fragment.md", "chars": 201},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/receipts/hop09-output/handoff-fragment.md", "chars": 161}
+  ],
+  "output_chars": 362,
+  "errors": [],
+  "problems_and_friction": "Write tool blocked writing to receipts/hop09-output requiring a Bash fallback for that file. No data loss or logic issues encountered.",
+  "context_understood": "Rollout planner hop appending a 3-phase go-live schedule (phases: 2026-07-01, 2026-09-15, 2026-11-01) with champion program to findings and handoff for the Brightline Logistics CRM chain."
+}

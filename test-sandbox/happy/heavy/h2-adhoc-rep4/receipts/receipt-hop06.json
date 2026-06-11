@@ -1,0 +1,36 @@
+{
+  "role": "06-customer-discovery",
+  "hop": 6,
+  "arm": "adhoc",
+  "flow": "H2",
+  "commands_run": [
+    "mkdir -p snapshots/hop-06-06-customer-discovery",
+    "cp work/findings.md snapshots/hop-06-06-customer-discovery/findings.md",
+    "cp work/handoff.md snapshots/hop-06-06-customer-discovery/handoff.md",
+    "mkdir -p receipts/hop06-output",
+    "cat > receipts/hop06-output/findings-fragment.md",
+    "cat > receipts/hop06-output/handoff-fragment.md",
+    "wc -c (fragment files)",
+    "wc -c (written files)"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/work/brief.md", "approx_chars": 598},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/work/findings.md", "approx_chars": 1168},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/work/handoff.md", "approx_chars": 827},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/06-customer-discovery.json", "approx_chars": 175},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/06-customer-discovery.handoff.txt", "approx_chars": 110}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/work/findings.md", "chars": 1367},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/work/handoff.md", "chars": 975},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/snapshots/hop-06-06-customer-discovery/findings.md", "chars": 1367},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/snapshots/hop-06-06-customer-discovery/handoff.md", "chars": 975},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/receipts/hop06-output/findings-fragment.md", "chars": 199},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/receipts/hop06-output/handoff-fragment.md", "chars": 148},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/receipts/receipt-hop06.json", "chars": 0}
+  ],
+  "output_chars": 347,
+  "errors": [],
+  "problems_and_friction": "No friction encountered. All supplied files were present and well-formed. Snapshot directory creation and file copies completed without issues.",
+  "context_understood": "Customer discovery findings for a CRM vendor evaluation (HubSpot vs Zoho for Brightline Logistics, 40 seats, EU-based) covering interview count, top need, adoption target, champion count, training hours, and preference lean."
+}

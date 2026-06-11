@@ -1,0 +1,45 @@
+{
+  "role": "verdict-flip",
+  "hop": 7,
+  "arm": "clan",
+  "flow": "H1",
+  "commands_run": [
+    "clan read agent test-sandbox/happy/heavy/h1-clan-rep4/work/doc.clan --skip-guide",
+    "clan patch-data test-sandbox/happy/heavy/h1-clan-rep4/work/doc.clan '{...}' --agent verdict-agent --action 'flip verdict to Zoho CRM' --rationale 'Re-scored: Zoho wins on 40-seat cost with EU residency'",
+    "clan validate test-sandbox/happy/heavy/h1-clan-rep4/work/doc.clan",
+    "cp test-sandbox/happy/heavy/h1-clan-rep4/work/doc.clan test-sandbox/happy/heavy/h1-clan-rep4/snapshots/hop-07-verdict-flip.clan"
+  ],
+  "files_read": [
+    {
+      "file": "test-sandbox/happy/heavy/h1-clan-rep4/work/doc.clan",
+      "approx_chars": 1200
+    },
+    {
+      "file": "test-sandbox/happy/lite/_inputs/h1-supplied/verdict-rationale.txt",
+      "approx_chars": 230
+    }
+  ],
+  "files_written": [
+    {
+      "file": "test-sandbox/happy/heavy/h1-clan-rep4/work/doc.clan",
+      "chars": 0
+    },
+    {
+      "file": "test-sandbox/happy/heavy/h1-clan-rep4/snapshots/hop-07-verdict-flip.clan",
+      "chars": 0
+    },
+    {
+      "file": "test-sandbox/happy/heavy/h1-clan-rep4/receipts/hop07-output/patch-data.json",
+      "chars": 259
+    }
+  ],
+  "output_chars": 259,
+  "errors": [
+    {
+      "what": "clan patch-data with /tmp/h1patch7.json file path failed: invalid JSON patch at column 195 — likely shell encoding of em-dash in file path argument",
+      "recovered_by": "switched to inline JSON string argument (clan accepts inline JSON starting with '{')"
+    }
+  ],
+  "problems_and_friction": "The /tmp file-path approach for patch-data failed with an 'invalid escape' error at column 195 despite the file containing valid JSON; this was caused by the bash shell tool writing the em-dash character as a raw UTF-8 byte sequence that clan's parser rejected when reading the file. Switching to inline JSON (passing the JSON string directly as a CLI argument, which clan supports) resolved the issue immediately. No other friction.",
+  "context_understood": "Flip the verdict field to 'Zoho CRM' and set verdict_rationale to the verbatim text from the supplied rationale file, then validate and snapshot as hop-07."
+}

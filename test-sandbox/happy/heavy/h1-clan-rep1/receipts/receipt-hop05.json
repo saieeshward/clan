@@ -1,0 +1,28 @@
+{
+  "role": "residency-section",
+  "hop": 5,
+  "arm": "clan",
+  "flow": "H1",
+  "commands_run": [
+    "clan read agent test-sandbox/happy/heavy/h1-clan-rep1/work/doc.clan",
+    "clan read human test-sandbox/happy/heavy/h1-clan-rep1/work/doc.clan",
+    "clan patch-html test-sandbox/happy/heavy/h1-clan-rep1/work/doc.clan - --agent residency-agent --action 'add data residency section' --rationale 'Legal requirement to document residency'",
+    "clan validate test-sandbox/happy/heavy/h1-clan-rep1/work/doc.clan",
+    "cp test-sandbox/happy/heavy/h1-clan-rep1/work/doc.clan test-sandbox/happy/heavy/h1-clan-rep1/snapshots/hop-05-residency-section.clan"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/lite/_inputs/h1-supplied/residency-section.html", "approx_chars": 827}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep1/work/doc.clan", "chars": 0},
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep1/snapshots/hop-05-residency-section.clan", "chars": 0},
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep1/receipts/hop05-output/patch-html-fragment.html", "chars": 968}
+  ],
+  "output_chars": 968,
+  "errors": [
+    {"what": "clan read called with wrong syntax (file path as subcommand)", "recovered_by": "ran clan read --help to find correct subcommand syntax, used 'clan read agent <file>'"},
+    {"what": "clan patch-html does not accept --selector/--action/--fragment flags", "recovered_by": "ran clan patch-html --help, discovered it takes an HTML_FILE with YAML frontmatter; used stdin with frontmatter specifying selector/action"}
+  ],
+  "problems_and_friction": "The protocol description implied --selector/--action/--fragment flags for patch-html, but the actual CLI takes an HTML patch file with YAML frontmatter. Similarly, clan read syntax required a subcommand (agent/human/data) rather than a bare file path. Both were resolved quickly via --help.",
+  "context_understood": "Appended the pre-supplied 'Data residency' HTML subsection to the body of the CRM recommendation doc.clan for Brightline Logistics using clan patch-html with YAML frontmatter."
+}
