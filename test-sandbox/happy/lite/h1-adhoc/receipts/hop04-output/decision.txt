@@ -1,0 +1,1 @@
+2026-06-11 hop-04 summary-rewrite (ad-hoc): replaced exec_summary with supplied text (Zoho now leads) in data.json and report.html #exec-summary.

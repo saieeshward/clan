@@ -1,0 +1,43 @@
+---
+mode: patch-html
+patch_selector: "body"
+patch_action: "append"
+---
+<h2>Happy-Path LITE Benchmark — H1 &amp; H2 (2026-06-11)</h2>
+<p>Directional pass (n=1) of the two claim-carrying flows from <code>research/15</code>, run with 37 real subagents (885,831 tokens, ~25 min). Both arms make byte-identical changes from identical seeds, so the comparison isolates the <em>medium</em>, not agent skill. No variance claims from LITE.</p>
+
+<h3>H1 — Revision loop: patch vs rewrite <span class="pill">CONFIRMED — promote to HEAVY</span></h3>
+<p>Eight small edits to a 25-field data-bound CRM report. Primary metric: characters the agent had to author per hop. Ad-hoc ran best-case (surgical splicing, not full rewrite).</p>
+<table>
+<thead><tr><th>Output authored</th><th class="num">CLAN</th><th class="num">Ad-hoc (best-case splice)</th><th class="num">CLAN / ad-hoc</th></tr></thead>
+<tbody>
+<tr><td>Marginal (excl. supplied text)</td><td class="num">1,472</td><td class="num">2,982</td><td class="num win">49.4%</td></tr>
+<tr><td>Total (incl. supplied fragments)</td><td class="num">2,587</td><td class="num">3,966</td><td class="num win">65.2%</td></tr>
+<tr><td>Data-bound hops only (1,3,4,7)</td><td class="num">696</td><td class="num">2,060</td><td class="num win">33.8%</td></tr>
+<tr><td>Array-append hop 2</td><td class="num">582</td><td class="num">346</td><td class="num lose">1.7× (CLAN loses)</td></tr>
+</tbody>
+</table>
+<p><strong>Where CLAN wins:</strong> data-bound fields — one <code>patch-data</code> updates both the data and the bound <code>{{key}}</code> view, while ad-hoc must edit <em>two</em> files and often re-types the same supplied text. <strong>Where it loses:</strong> appending one item to an array — <code>patch-data</code>'s RFC-7396 merge-patch <em>replaces</em> arrays, forcing the agent to re-author every prior element (finding <strong>F14</strong>). <strong>Fidelity:</strong> 8/8 changes present in both arms, zero meaningful unintended diffs.</p>
+
+<h3>H2 — Long chain: find the crossover <span class="pill" style="background:#c0392b">NOT CONFIRMED in LITE</span></h3>
+<p>Ten-hop analyst chain, data/notes only until the final hop. Primary metric: injected context per hop.</p>
+<table>
+<thead><tr><th>Hop</th><th class="num">CLAN (--skip-guide)</th><th class="num">CLAN (full, w/ guide)</th><th class="num">Ad-hoc</th><th class="num">CLAN-sg / ad-hoc</th></tr></thead>
+<tbody>
+<tr><td>1</td><td class="num">3,005</td><td class="num">10,953</td><td class="num">1,301</td><td class="num lose">2.31×</td></tr>
+<tr><td>5</td><td class="num">4,867</td><td class="num">12,815</td><td class="num">2,797</td><td class="num lose">1.74×</td></tr>
+<tr><td>9</td><td class="num">6,171</td><td class="num">14,119</td><td class="num">3,849</td><td class="num lose">1.60×</td></tr>
+</tbody>
+</table>
+<p><strong>No genuine crossover.</strong> For the data-only interval (hops 1–9) CLAN's injected context stayed 1.5–2.3× <em>above</em> ad-hoc, and CLAN's marginal growth (453 chars/hop) was actually steeper than ad-hoc's (366) — because CLAN re-injects the growing decision chain each hop. The apparent hop-10 crossover is an artifact: the ad-hoc lead-partner authored a full HTML report, ballooning its snapshot. The <strong>guide alone is ~7,948 chars</strong> — larger than the entire skip-guide injection, so a cold agent reads 3.5× more than ad-hoc. <strong>Honest read (matches research/14):</strong> at small structured-findings scale CLAN is net injected-context overhead, not savings. The crossover needs larger per-hop payloads and/or chain pruning — flagged for HEAVY.</p>
+
+<h3>New findings F13–F16</h3>
+<table>
+<tbody>
+<tr><td>F13</td><td>Stale-view hint fires on data-bound fields even after <code>patch-data</code> updated the bound view (cousin of F2)</td></tr>
+<tr><td>F14</td><td><code>patch-data</code> array-replace forces re-authoring the whole array to append one item — CLAN's only H1 output loss</td></tr>
+<tr><td>F15</td><td><code>patch-data</code> has no inline JSON (<code>--set</code>); requires a file or stdin <code>-</code> — recurring first-try errors</td></tr>
+<tr><td>F16</td><td>No <code>clan read-html</code> subcommand — agents used <code>read human</code> to find <code>patch-html</code> selectors</td></tr>
+</tbody>
+</table>
+<p><small>LITE caveats: n=1 (directional only); ad-hoc tested at its best case (splicing); H2-adhoc error counts were inflated by a harness Write-guard artifact, not a CLAN issue. Full metrics: test-sandbox/happy/lite/metrics-lite.json.</small></p>

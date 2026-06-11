@@ -1,0 +1,29 @@
+{
+  "role": "lead-partner",
+  "hop": 10,
+  "arm": "lite",
+  "flow": "h2-clan",
+  "commands_run": [
+    "clan read agent test-sandbox/happy/lite/h2-clan/work/doc.clan --skip-guide",
+    "clan read chain test-sandbox/happy/lite/h2-clan/work/doc.clan",
+    "clan patch-data work/doc.clan tmp/final-rec.json",
+    "clan render work/doc.clan",
+    "clan patch-decision --agent lead-partner --action \"final recommendation: Zoho CRM\" --rationale \"Synthesised 9 analyst inputs.\" --pinned work/doc.clan",
+    "clan validate work/doc.clan",
+    "cp work/doc.clan snapshots/hop-10-lead-partner.clan"
+  ],
+  "files_read": [
+    { "file": "test-sandbox/happy/lite/h2-clan/work/doc.clan", "approx_chars": 6500 }
+  ],
+  "files_written": [
+    { "file": "test-sandbox/happy/lite/h2-clan/tmp/final-rec.json", "chars": 282 },
+    { "file": "test-sandbox/happy/lite/h2-clan/work/doc.clan", "chars": 16497 },
+    { "file": "test-sandbox/happy/lite/h2-clan/snapshots/hop-10-lead-partner.clan", "chars": 16497 },
+    { "file": "test-sandbox/happy/lite/h2-clan/receipts/hop10-output/patch-data.json", "chars": 282 },
+    { "file": "test-sandbox/happy/lite/h2-clan/receipts/hop10-output/decision.txt", "chars": 113 }
+  ],
+  "output_chars": 352,
+  "errors": [],
+  "problems_and_friction": "No friction; all commands succeeded on first attempt. Render is DESIGNED-mode auto-generation, so I authored only the patch-data JSON and the decision action/rationale strings, not the HTML.",
+  "context_understood": "As the final lead-partner hop, I synthesised 9 analysts' findings into a pinned Zoho CRM recommendation (EUR18,240 y1, EU residency, low switching cost), patched it as data, rendered the human view, validated, and snapshotted."
+}

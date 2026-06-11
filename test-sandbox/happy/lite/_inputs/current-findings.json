@@ -1,0 +1,14 @@
+[
+  "F1 patch-data auto-appends 'unknown-agent / processed document' chain noise",
+  "F2 stale-view hint suggests clan render even for hand-authored full-html views (destructive)",
+  "F3 patch-data rejects UTF-8 BOM (PowerShell 5.1 Out-File default) with an unhelpful error",
+  "F4 viewer edit bridge persists instrumentation attrs and saves no-op patches",
+  "F5 full-html repack drops human/patches.yaml - fold superseded human patches into the decision chain",
+  "F6 prose keys (assumptions) collide across branches - default append policy or role prefixes",
+  "F7 fork copies parent context.md verbatim - branch agents see conflicting task instructions",
+  "F8 requirements.yaml (layer 5) unused - needs first-class commands",
+  "F9 create bootstraps a {type: object} stub schema - no field guidance, patch-schema never triggers naturally",
+  "F10 full-html replacement drops parent human/assets - auto-carry referenced assets or hint --assets",
+  "F11 pack-html frontmatter merge-patches data.yaml but docs never say so - agents re-transcribe prior data verbatim",
+  "F12 agents guess 'clan read decisions' - add as alias of read chain"
+]

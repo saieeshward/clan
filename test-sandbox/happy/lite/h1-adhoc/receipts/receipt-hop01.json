@@ -1,0 +1,30 @@
+{
+  "role": "pricing-update",
+  "hop": 1,
+  "arm": "ad-hoc",
+  "flow": "guided-best-case",
+  "commands_run": [
+    "append decisions.log + mkdir snapshots/receipts + cp work/* into snapshot dir",
+    "wc -c on authored output fragments"
+  ],
+  "files_read": [
+    { "file": "test-sandbox/happy/lite/h1-adhoc/work/data.json", "approx_chars": 1868 },
+    { "file": "test-sandbox/happy/lite/h1-adhoc/work/report.html", "approx_chars": 3905 },
+    { "file": "test-sandbox/happy/lite/h1-adhoc/work/decisions.log", "approx_chars": 110 }
+  ],
+  "files_written": [
+    { "file": "test-sandbox/happy/lite/h1-adhoc/work/data.json", "chars": 1868 },
+    { "file": "test-sandbox/happy/lite/h1-adhoc/work/report.html", "chars": 3898 },
+    { "file": "test-sandbox/happy/lite/h1-adhoc/work/decisions.log", "chars": 258 },
+    { "file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-01-pricing-update/data.json", "chars": 1868 },
+    { "file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-01-pricing-update/report.html", "chars": 3898 },
+    { "file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-01-pricing-update/decisions.log", "chars": 258 },
+    { "file": "test-sandbox/happy/lite/h1-adhoc/receipts/hop01-output/patch-data.txt", "chars": 56 },
+    { "file": "test-sandbox/happy/lite/h1-adhoc/receipts/hop01-output/patch-html.txt", "chars": 76 },
+    { "file": "test-sandbox/happy/lite/h1-adhoc/receipts/hop01-output/decision.txt", "chars": 148 }
+  ],
+  "output_chars": 280,
+  "errors": [],
+  "problems_and_friction": "No friction; guided ad-hoc protocol with explicit edit targets meant three surgical splices plus one log line. Old values (45/$45/21600/$21600) were unique strings so Edit matched cleanly.",
+  "context_understood": "Drop Zoho CRM per-seat price from 45 to 38 and annual total from 21600 to 18240 across data.json and the report.html cost table, log it, and snapshot the work files."
+}

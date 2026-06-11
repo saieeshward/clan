@@ -1,0 +1,24 @@
+{
+  "role": "pricing-update",
+  "hop": 1,
+  "arm": "clan",
+  "flow": "guided-patch-first",
+  "commands_run": [
+    "clan read agent test-sandbox/happy/lite/h1-clan/work/doc.clan --skip-guide",
+    "clan patch-data test-sandbox/happy/lite/h1-clan/work/doc.clan test-sandbox/happy/lite/h1-clan/work/patch.json",
+    "clan validate test-sandbox/happy/lite/h1-clan/work/doc.clan",
+    "clan read data test-sandbox/happy/lite/h1-clan/work/doc.clan"
+  ],
+  "files_read": [
+    { "file": "test-sandbox/happy/lite/h1-clan/work/doc.clan", "approx_chars": 4200 }
+  ],
+  "files_written": [
+    { "file": "test-sandbox/happy/lite/h1-clan/work/patch.json", "chars": 52 },
+    { "file": "test-sandbox/happy/lite/h1-clan/snapshots/hop-01-pricing-update.clan", "chars": 13818 },
+    { "file": "test-sandbox/happy/lite/h1-clan/receipts/hop01-output/patch-data.json", "chars": 52 }
+  ],
+  "output_chars": 52,
+  "errors": [],
+  "problems_and_friction": "The CLI repeatedly nudged toward pack-html/render to refresh a 'stale hand-authored human view', but protocol forbids pack-html and the two fields are data-bound, so the patch-data alone correctly updated both data and bound view. No actual failure.",
+  "context_understood": "Drop Zoho CRM per-seat price to 38 and zoho_annual_total to 18240 via a single data-bound patch-data, since both are {{}}-bound fields requiring no HTML edit."
+}

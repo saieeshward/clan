@@ -1,0 +1,29 @@
+{
+  "role": "chart-update",
+  "hop": 6,
+  "arm": "ad-hoc",
+  "flow": "read report.html + decisions.log; surgical Edit of #bar-zoho rect (y=52->78, height=108->82); append decisions.log line; snapshot work files to snapshots/hop-06-chart-update/",
+  "commands_run": [
+    "printf ... >> work/decisions.log",
+    "mkdir -p snapshots/hop-06-chart-update receipts/hop06-output",
+    "cp work/report.html work/data.json work/decisions.log snapshots/hop-06-chart-update/",
+    "wc -c patch-html-fragment.html decision.txt"
+  ],
+  "files_read": [
+    { "file": "work/report.html", "approx_chars": 4937 },
+    { "file": "work/decisions.log", "approx_chars": 866 }
+  ],
+  "files_written": [
+    { "file": "work/report.html", "chars": 4937 },
+    { "file": "work/decisions.log", "chars": 994 },
+    { "file": "snapshots/hop-06-chart-update/report.html", "chars": 4937 },
+    { "file": "snapshots/hop-06-chart-update/data.json", "chars": 2007 },
+    { "file": "snapshots/hop-06-chart-update/decisions.log", "chars": 994 },
+    { "file": "receipts/hop06-output/patch-html-fragment.html", "chars": 82 },
+    { "file": "receipts/hop06-output/decision.txt", "chars": 135 }
+  ],
+  "output_chars": 216,
+  "errors": [],
+  "problems_and_friction": "None. The single bar-zoho rect line was unique, so the surgical Edit applied cleanly; only two attribute values changed.",
+  "context_understood": "Zoho became cheapest, so its SVG bar must shrink by setting #bar-zoho to y=78 height=82 to reflect the lower cost in the chart."
+}

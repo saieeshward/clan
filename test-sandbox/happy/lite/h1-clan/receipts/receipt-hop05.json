@@ -1,0 +1,27 @@
+{
+  "role": "residency-section",
+  "hop": 5,
+  "arm": "clan",
+  "flow": "guided patch-first: read agent --skip-guide, read supplied fragment, patch-html append to body selector, validate, snapshot",
+  "commands_run": [
+    "clan read agent test-sandbox/happy/lite/h1-clan/work/doc.clan --skip-guide",
+    "clan patch-html --help",
+    "clan patch-html test-sandbox/happy/lite/h1-clan/work/doc.clan test-sandbox/happy/lite/h1-clan/receipts/hop05-output/patch-html.frag --delta \"Add Data residency subsection\"",
+    "clan validate test-sandbox/happy/lite/h1-clan/work/doc.clan",
+    "cp test-sandbox/happy/lite/h1-clan/work/doc.clan test-sandbox/happy/lite/h1-clan/snapshots/hop-05-residency-section.clan"
+  ],
+  "files_read": [
+    { "file": "test-sandbox/happy/lite/h1-clan/work/doc.clan", "approx_chars": 3500 },
+    { "file": "test-sandbox/happy/lite/_inputs/h1-supplied/residency-section.html", "approx_chars": 900 },
+    { "file": "test-sandbox/happy/lite/h1-clan/receipts/hop02-output/patch-html.frag", "approx_chars": 180 }
+  ],
+  "files_written": [
+    { "file": "test-sandbox/happy/lite/h1-clan/receipts/hop05-output/patch-html.frag", "chars": 980 },
+    { "file": "test-sandbox/happy/lite/h1-clan/snapshots/hop-05-residency-section.clan", "chars": 14089 },
+    { "file": "test-sandbox/happy/lite/h1-clan/receipts/receipt-hop05.json", "chars": 1600 }
+  ],
+  "output_chars": 78,
+  "errors": [],
+  "problems_and_friction": "No friction. The supplied fragment is pure view content with no {{key}} bindings, so patch-html append to the body selector was the correct path; mirrored the frontmatter format from the prior hop-02 frag.",
+  "context_understood": "Append a new Data residency subsection (heading + paragraph) as new view content via patch-html append to body, with pack-html forbidden."
+}

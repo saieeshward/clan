@@ -1,0 +1,30 @@
+{
+  "role": "08-finance-modeler",
+  "hop": 8,
+  "arm": "lite",
+  "flow": "h2",
+  "commands_run": [
+    "clan read agent test-sandbox/happy/lite/h2-clan/work/doc.clan --skip-guide",
+    "clan patch-data test-sandbox/happy/lite/h2-clan/work/doc.clan test-sandbox/happy/lite/_inputs/h2-supplied/08-finance-modeler.json",
+    "clan patch-decision --agent 08-finance-modeler --action \"added 08-finance-modeler findings\" --rationale \"...\" test-sandbox/happy/lite/h2-clan/work/doc.clan",
+    "clan validate test-sandbox/happy/lite/h2-clan/work/doc.clan",
+    "Copy-Item work/doc.clan snapshots/hop-08-08-finance-modeler.clan"
+  ],
+  "files_read": [
+    { "file": "test-sandbox/happy/lite/h2-clan/work/doc.clan", "approx_chars": 3400 },
+    { "file": "test-sandbox/happy/lite/_inputs/h2-supplied/08-finance-modeler.json", "approx_chars": 222 },
+    { "file": "test-sandbox/happy/lite/_inputs/h2-supplied/08-finance-modeler.handoff.txt", "approx_chars": 97 }
+  ],
+  "files_written": [
+    { "file": "test-sandbox/happy/lite/h2-clan/work/doc.clan", "chars": 97 },
+    { "file": "test-sandbox/happy/lite/h2-clan/snapshots/hop-08-08-finance-modeler.clan", "chars": 3600 },
+    { "file": "test-sandbox/happy/lite/h2-clan/receipts/hop08-output/patch-data.json", "chars": 222 },
+    { "file": "test-sandbox/happy/lite/h2-clan/receipts/hop08-output/decision.txt", "chars": 97 }
+  ],
+  "output_chars": 97,
+  "errors": [
+    { "what": "Copy-Item ran in Bash tool and failed (cmdlet not found, exit 127)", "recovered_by": "re-ran the copy via the PowerShell tool" }
+  ],
+  "problems_and_friction": "The snapshot copy was issued through the Bash tool, where Copy-Item does not exist; re-running it in PowerShell succeeded. Otherwise the patch-first guided flow was frictionless.",
+  "context_understood": "Hop 8 finance-modeler adds year-1 and 3-year cost totals plus payback, confirming Zoho leans cheapest (~EUR17,280/3yr savings, 7-mo payback) for the lead partner's final CRM recommendation."
+}

@@ -1,0 +1,28 @@
+{
+  "role": "01-market-researcher",
+  "hop": 1,
+  "arm": "lite",
+  "flow": "h2",
+  "commands_run": [
+    "clan read agent test-sandbox/happy/lite/h2-clan/work/doc.clan --skip-guide",
+    "clan patch-data test-sandbox/happy/lite/h2-clan/work/doc.clan test-sandbox/happy/lite/_inputs/h2-supplied/01-market-researcher.json",
+    "clan patch-decision --agent 01-market-researcher --action \"added 01-market-researcher findings\" --rationale \"<handoff note>\" test-sandbox/happy/lite/h2-clan/work/doc.clan",
+    "clan validate test-sandbox/happy/lite/h2-clan/work/doc.clan",
+    "copy work/doc.clan -> snapshots/hop-01-01-market-researcher.clan"
+  ],
+  "files_read": [
+    { "file": "test-sandbox/happy/lite/_inputs/h2-supplied/01-market-researcher.json", "approx_chars": 320 },
+    { "file": "test-sandbox/happy/lite/_inputs/h2-supplied/01-market-researcher.handoff.txt", "approx_chars": 145 }
+  ],
+  "files_written": [
+    { "file": "test-sandbox/happy/lite/h2-clan/work/doc.clan", "chars": 0 },
+    { "file": "test-sandbox/happy/lite/h2-clan/snapshots/hop-01-01-market-researcher.clan", "chars": 0 },
+    { "file": "test-sandbox/happy/lite/h2-clan/receipts/hop01-output/decision.txt", "chars": 217 }
+  ],
+  "output_chars": 179,
+  "errors": [
+    { "what": "PowerShell cmdlets failed under Bash tool (bash shell, exit 127)", "recovered_by": "re-ran snapshot/mkdir via the PowerShell tool" }
+  ],
+  "problems_and_friction": "The agent read with --skip-guide showed an empty data/decision section so no prior transcription was needed. Only friction was running PowerShell cmdlets through the Bash tool, fixed by switching tools.",
+  "context_understood": "Hop 1 of an agent-only CLAN chain: merge-patch my market-research findings (data-only) and a handoff decision into doc.clan for downstream pricing/risk analysts and the final lead-partner view."
+}

@@ -1,0 +1,28 @@
+{
+  "role": "verdict-flip",
+  "hop": 7,
+  "arm": "clan",
+  "flow": "patch-data",
+  "commands_run": [
+    "clan read agent test-sandbox/happy/lite/h1-clan/work/doc.clan --skip-guide",
+    "clan patch-data --help",
+    "printf ... | clan patch-data test-sandbox/happy/lite/h1-clan/work/doc.clan -",
+    "clan validate test-sandbox/happy/lite/h1-clan/work/doc.clan",
+    "cp work/doc.clan snapshots/hop-07-verdict-flip.clan"
+  ],
+  "files_read": [
+    { "file": "test-sandbox/happy/lite/h1-clan/work/doc.clan", "approx_chars": 3200 },
+    { "file": "test-sandbox/happy/lite/_inputs/h1-supplied/verdict-rationale.txt", "approx_chars": 286 }
+  ],
+  "files_written": [
+    { "file": "test-sandbox/happy/lite/h1-clan/work/doc.clan", "chars": 286 },
+    { "file": "test-sandbox/happy/lite/h1-clan/snapshots/hop-07-verdict-flip.clan", "chars": 0 },
+    { "file": "test-sandbox/happy/lite/h1-clan/receipts/hop07-output/patch-data.json", "chars": 333 }
+  ],
+  "output_chars": 47,
+  "errors": [
+    { "what": "patch-data rejected inline JSON arg (expects a file path / `-` for stdin); os error 123", "recovered_by": "re-ran piping the JSON via stdin with `-` as the JSON_FILE arg" }
+  ],
+  "problems_and_friction": "patch-data takes a JSON_FILE arg, not inline JSON, so the first invocation failed; piping through stdin with `-` worked. Both target fields were data-bound, so patch-data alone effected the change with no pack-html.",
+  "context_understood": "Flip a data-bound verdict from HubSpot to Zoho CRM and replace verdict_rationale with supplied text via a single patch-data merge, then validate and snapshot."
+}

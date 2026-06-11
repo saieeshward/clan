@@ -1,0 +1,30 @@
+{
+  "role": "02-pricing-analyst",
+  "hop": 2,
+  "arm": "lite",
+  "flow": "guided patch-first --skip-guide",
+  "commands_run": [
+    "clan read agent test-sandbox/happy/lite/h2-clan/work/doc.clan --skip-guide",
+    "clan patch-data test-sandbox/happy/lite/h2-clan/work/doc.clan test-sandbox/happy/lite/_inputs/h2-supplied/02-pricing-analyst.json",
+    "clan patch-decision --agent 02-pricing-analyst --action \"added 02-pricing-analyst findings\" --rationale \"...\" test-sandbox/happy/lite/h2-clan/work/doc.clan",
+    "clan validate test-sandbox/happy/lite/h2-clan/work/doc.clan",
+    "Copy-Item work/doc.clan -> snapshots/hop-02-02-pricing-analyst.clan"
+  ],
+  "files_read": [
+    { "file": "test-sandbox/happy/lite/h2-clan/work/doc.clan (via clan read agent)", "approx_chars": 1900 },
+    { "file": "test-sandbox/happy/lite/_inputs/h2-supplied/02-pricing-analyst.json", "approx_chars": 230 },
+    { "file": "test-sandbox/happy/lite/_inputs/h2-supplied/02-pricing-analyst.handoff.txt", "approx_chars": 130 }
+  ],
+  "files_written": [
+    { "file": "test-sandbox/happy/lite/h2-clan/work/doc.clan", "chars": 230 },
+    { "file": "test-sandbox/happy/lite/h2-clan/snapshots/hop-02-02-pricing-analyst.clan", "chars": 0 },
+    { "file": "test-sandbox/happy/lite/h2-clan/receipts/hop02-output/patch-data.json", "chars": 230 },
+    { "file": "test-sandbox/happy/lite/h2-clan/receipts/hop02-output/decision.txt", "chars": 128 }
+  ],
+  "output_chars": 358,
+  "errors": [
+    { "what": "PowerShell snapshot cmd ran in bash shell (New-Item not found)", "recovered_by": "re-ran via PowerShell tool" }
+  ],
+  "problems_and_friction": "Smooth hop; the --skip-guide agent read surfaced only prior market data so no re-transcription was needed. Only friction was a shell mismatch when creating dirs/snapshot.",
+  "context_understood": "Add pricing findings (per-seat and year-1 annual costs for the 3 vendors, cheapest=Zoho) as data and hand off to the risk analyst, without restating hop-01's market data."
+}

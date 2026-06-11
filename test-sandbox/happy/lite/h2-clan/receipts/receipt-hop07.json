@@ -1,0 +1,31 @@
+{
+  "role": "07-competitive-intel",
+  "hop": 7,
+  "arm": "lite",
+  "flow": "guided patch-first --skip-guide",
+  "commands_run": [
+    "clan read agent test-sandbox/happy/lite/h2-clan/work/doc.clan --skip-guide",
+    "clan patch-data test-sandbox/happy/lite/h2-clan/work/doc.clan test-sandbox/happy/lite/_inputs/h2-supplied/07-competitive-intel.json",
+    "clan patch-decision --agent 07-competitive-intel --action \"added 07-competitive-intel findings\" --rationale \"...\" test-sandbox/happy/lite/h2-clan/work/doc.clan",
+    "clan validate test-sandbox/happy/lite/h2-clan/work/doc.clan",
+    "Copy-Item work/doc.clan snapshots/hop-07-07-competitive-intel.clan"
+  ],
+  "files_read": [
+    { "file": "test-sandbox/happy/lite/h2-clan/work/doc.clan (agent view, --skip-guide)", "approx_chars": 3600 },
+    { "file": "test-sandbox/happy/lite/_inputs/h2-supplied/07-competitive-intel.json", "approx_chars": 200 },
+    { "file": "test-sandbox/happy/lite/_inputs/h2-supplied/07-competitive-intel.handoff.txt", "approx_chars": 110 }
+  ],
+  "files_written": [
+    { "file": "test-sandbox/happy/lite/h2-clan/work/doc.clan", "chars": 168 },
+    { "file": "test-sandbox/happy/lite/h2-clan/snapshots/hop-07-07-competitive-intel.clan", "chars": 4100 },
+    { "file": "test-sandbox/happy/lite/h2-clan/receipts/hop07-output/patch-data.json", "chars": 192 },
+    { "file": "test-sandbox/happy/lite/h2-clan/receipts/hop07-output/decision.txt", "chars": 113 }
+  ],
+  "output_chars": 168,
+  "errors": [
+    { "what": "bash `type` mangled Windows backslash paths; bash `copy` not found", "recovered_by": "used Read tool for inputs and PowerShell Copy-Item for snapshot" },
+    { "what": "handoff.txt em-dash rendered as replacement char on read", "recovered_by": "supplied a clean UTF-8 em-dash in the --rationale text" }
+  ],
+  "problems_and_friction": "Path/encoding friction on Windows (bash builtins choke on backslashes and CP1252 em-dash), resolved by using PowerShell and a literal em-dash. The --skip-guide agent read was compact and merge-patch kept prior findings intact with no re-transcription.",
+  "context_understood": "I added five role-namespaced comp_* competitive-strength findings and a low-switching-cost handoff to the Brightline CRM doc, then handed off to the finance modeler."
+}

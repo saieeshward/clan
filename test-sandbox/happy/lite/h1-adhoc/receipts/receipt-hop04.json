@@ -1,0 +1,34 @@
+{
+  "role": "summary-rewrite",
+  "hop": 4,
+  "arm": "ad-hoc",
+  "flow": "read supplied exec-summary text + work files, surgically Edit exec_summary in data.json and #exec-summary <p> in report.html, append decisions.log entry, snapshot work files into snapshots/hop-04-summary-rewrite/",
+  "commands_run": [
+    "printf ... >> work/decisions.log",
+    "mkdir -p snapshots/hop-04-summary-rewrite",
+    "cp work/report.html work/data.json work/decisions.log snapshots/hop-04-summary-rewrite/",
+    "mkdir -p receipts/hop04-output",
+    "wc -c (authored payload files)"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/lite/_inputs/h1-supplied/exec-summary.txt", "approx_chars": 320},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/data.json", "approx_chars": 1740},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/report.html", "approx_chars": 3700},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/decisions.log", "approx_chars": 540}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/data.json", "chars": 2007},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/report.html", "chars": 4023},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/decisions.log", "chars": 674},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-04-summary-rewrite/data.json", "chars": 2007},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-04-summary-rewrite/report.html", "chars": 4023},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-04-summary-rewrite/decisions.log", "chars": 674},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/receipts/hop04-output/data-exec_summary-value.txt", "chars": 319},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/receipts/hop04-output/report-exec-summary-fragment.html", "chars": 343},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/receipts/hop04-output/decision.txt", "chars": 124}
+  ],
+  "output_chars": 786,
+  "errors": [],
+  "problems_and_friction": "None — guided ad-hoc splice was straightforward; the supplied summary text matched cleanly into both the JSON string value and the HTML <p> via two minimal Edit operations.",
+  "context_understood": "Replace the exec_summary in data.json and the matching #exec-summary paragraph in report.html with the supplied verbatim text (which shifts the recommendation framing toward Zoho), log it, and snapshot."
+}

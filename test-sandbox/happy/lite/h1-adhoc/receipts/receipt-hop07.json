@@ -1,0 +1,36 @@
+{
+  "role": "verdict-flip",
+  "hop": 7,
+  "arm": "adhoc",
+  "flow": "guided-edit-in-place",
+  "commands_run": [
+    "printf ... >> work/decisions.log",
+    "mkdir -p snapshots/hop-07-verdict-flip",
+    "cp work/report.html work/data.json work/decisions.log snapshots/hop-07-verdict-flip/",
+    "mkdir -p receipts/hop07-output",
+    "wc -m (authored output files)"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/lite/_inputs/h1-supplied/verdict-rationale.txt", "approx_chars": 230},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/data.json", "approx_chars": 1830},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/decisions.log", "approx_chars": 1000},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/report.html", "approx_chars": 5040}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/data.json", "chars": 2113},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/report.html", "chars": 5043},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/decisions.log", "chars": 1185},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-07-verdict-flip/data.json", "chars": 2113},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-07-verdict-flip/report.html", "chars": 5043},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-07-verdict-flip/decisions.log", "chars": 1185},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/receipts/hop07-output/patch-data.txt", "chars": 266},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/receipts/hop07-output/patch-html.txt", "chars": 292},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/receipts/hop07-output/decision.txt", "chars": 190}
+  ],
+  "output_chars": 748,
+  "errors": [
+    {"what": "First report.html Edit attempts failed: file not read yet in this session", "recovered_by": "Read the verdict-box span region, then re-issued the two Edits successfully"}
+  ],
+  "problems_and_friction": "Minor: report.html had to be Read before editing since reading only verdict-rationale.txt/data.json/decisions.log up front did not satisfy the Edit read-gate; one quick targeted Read resolved it.",
+  "context_understood": "Flip the CRM verdict from HubSpot to Zoho CRM and swap in the supplied rationale across data.json and the report.html verdict spans, then log and snapshot."
+}

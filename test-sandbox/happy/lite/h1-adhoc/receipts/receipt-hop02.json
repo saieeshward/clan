@@ -1,0 +1,34 @@
+{
+  "role": "risk-add",
+  "hop": 2,
+  "arm": "adhoc",
+  "flow": "read work/data.json + report.html + decisions.log; Edit-spliced risk into data.json risks[] and report.html risk-table; appended decision.log line; validated JSON; snapshotted to snapshots/hop-02-risk-add/",
+  "commands_run": [
+    "printf ... >> work/decisions.log",
+    "python -c json.load(open('work/data.json'))",
+    "mkdir -p snapshots/hop-02-risk-add receipts/hop02-output",
+    "cp work/report.html work/data.json work/decisions.log snapshots/hop-02-risk-add/",
+    "ls -la snapshots/hop-02-risk-add/",
+    "wc -c data-fragment.json html-fragment.html decision.txt"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/data.json", "approx_chars": 1830},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/report.html", "approx_chars": 3900},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/decisions.log", "approx_chars": 280}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/data.json", "chars": 1980},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/report.html", "chars": 3996},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/decisions.log", "chars": 397},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-02-risk-add/data.json", "chars": 1980},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-02-risk-add/report.html", "chars": 3996},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-02-risk-add/decisions.log", "chars": 397},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/receipts/hop02-output/data-fragment.json", "chars": 112},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/receipts/hop02-output/html-fragment.html", "chars": 96},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/receipts/hop02-output/decision.txt", "chars": 138}
+  ],
+  "output_chars": 346,
+  "errors": [],
+  "problems_and_friction": "No friction. Both target spots had a unique anchor line, so two minimal Edit splices plus one appended log line sufficed; JSON re-validated clean after the insert.",
+  "context_understood": "A CRM recommendation report exists in parallel HTML + JSON forms with a synced risk register, and hop-02 adds one Medium vendor lock-in risk to both."
+}

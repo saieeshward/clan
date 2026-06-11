@@ -1,0 +1,28 @@
+{
+  "role": "06-customer-discovery",
+  "hop": 6,
+  "arm": "lite",
+  "flow": "h2",
+  "commands_run": [
+    "clan read agent test-sandbox/happy/lite/h2-clan/work/doc.clan --skip-guide",
+    "clan patch-data test-sandbox/happy/lite/h2-clan/work/doc.clan test-sandbox/happy/lite/_inputs/h2-supplied/06-customer-discovery.json",
+    "clan patch-decision --agent 06-customer-discovery --action \"added 06-customer-discovery findings\" --rationale \"<handoff note>\" test-sandbox/happy/lite/h2-clan/work/doc.clan",
+    "clan validate test-sandbox/happy/lite/h2-clan/work/doc.clan",
+    "cp test-sandbox/happy/lite/h2-clan/work/doc.clan test-sandbox/happy/lite/h2-clan/snapshots/hop-06-06-customer-discovery.clan"
+  ],
+  "files_read": [
+    { "file": "test-sandbox/happy/lite/h2-clan/work/doc.clan (agent view, --skip-guide)", "approx_chars": 3300 },
+    { "file": "test-sandbox/happy/lite/_inputs/h2-supplied/06-customer-discovery.json", "approx_chars": 200 },
+    { "file": "test-sandbox/happy/lite/_inputs/h2-supplied/06-customer-discovery.handoff.txt", "approx_chars": 120 }
+  ],
+  "files_written": [
+    { "file": "test-sandbox/happy/lite/h2-clan/work/doc.clan", "chars": 0 },
+    { "file": "test-sandbox/happy/lite/h2-clan/snapshots/hop-06-06-customer-discovery.clan", "chars": 0 },
+    { "file": "test-sandbox/happy/lite/h2-clan/receipts/hop06-output/decision.txt", "chars": 118 },
+    { "file": "test-sandbox/happy/lite/h2-clan/receipts/receipt-hop06.json", "chars": 0 }
+  ],
+  "output_chars": 118,
+  "errors": [],
+  "problems_and_friction": "None. Patch-first flow worked cleanly; the --skip-guide agent read kept context minimal and the supplied JSON merged without re-transcription.",
+  "context_understood": "I added bounded customer-discovery findings (6 interviews, top need = lead response <2h, 90% adoption target, Zoho-on-cost/HubSpot-on-UI split) and handed off to competitive intel."
+}

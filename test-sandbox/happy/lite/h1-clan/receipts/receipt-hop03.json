@@ -1,0 +1,27 @@
+{
+  "role": "date-update",
+  "hop": 3,
+  "arm": "clan",
+  "flow": "guided-patch-first",
+  "commands_run": [
+    "clan read agent test-sandbox/happy/lite/h1-clan/work/doc.clan --skip-guide",
+    "clan patch-data --help",
+    "echo '{\"rollout_phase2_date\":\"2026-09-15\"}' | clan patch-data test-sandbox/happy/lite/h1-clan/work/doc.clan -",
+    "clan validate test-sandbox/happy/lite/h1-clan/work/doc.clan",
+    "cp test-sandbox/happy/lite/h1-clan/work/doc.clan test-sandbox/happy/lite/h1-clan/snapshots/hop-03-date-update.clan"
+  ],
+  "files_read": [
+    { "file": "test-sandbox/happy/lite/h1-clan/work/doc.clan", "approx_chars": 3300 }
+  ],
+  "files_written": [
+    { "file": "test-sandbox/happy/lite/h1-clan/work/doc.clan", "chars": 36 },
+    { "file": "test-sandbox/happy/lite/h1-clan/snapshots/hop-03-date-update.clan", "chars": 0 },
+    { "file": "test-sandbox/happy/lite/h1-clan/receipts/hop03-output/patch-data.json", "chars": 36 }
+  ],
+  "output_chars": 36,
+  "errors": [
+    { "what": "patch-data with inline JSON arg failed (os error 123) — CLI treats arg as a file path", "recovered_by": "checked --help, then piped JSON via stdin using '-'" }
+  ],
+  "problems_and_friction": "patch-data takes a JSON file path (or stdin '-'), not an inline JSON string, so the first attempt failed; resolved via stdin. The CLI's next: hints repeatedly pushed pack-html to refresh the stale human view, but the protocol forbids it for a data-bound field.",
+  "context_understood": "Changed the single data-bound field rollout_phase2_date from 2026-08-01 to 2026-09-15 via patch-data alone, relying on {{key}} binding to propagate without re-authoring HTML."
+}

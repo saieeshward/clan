@@ -1,0 +1,31 @@
+{
+  "role": "residency-section",
+  "hop": 5,
+  "arm": "ad-hoc",
+  "flow": "read supplied fragment + report.html + decisions.log; spliced supplied Data residency subsection into report.html after Data governance section via one Edit; appended decision line; snapshotted work files",
+  "commands_run": [
+    "wc -c (char counts)",
+    "mkdir -p snapshots/hop-05-residency-section",
+    "cp work/report.html work/data.json work/decisions.log snapshots/hop-05-residency-section/",
+    "printf >> work/decisions.log",
+    "mkdir -p receipts/hop05-output"
+  ],
+  "files_read": [
+    { "file": "test-sandbox/happy/lite/_inputs/h1-supplied/residency-section.html", "approx_chars": 910 },
+    { "file": "test-sandbox/happy/lite/h1-adhoc/work/report.html", "approx_chars": 3870 },
+    { "file": "test-sandbox/happy/lite/h1-adhoc/work/decisions.log", "approx_chars": 700 }
+  ],
+  "files_written": [
+    { "file": "test-sandbox/happy/lite/h1-adhoc/work/report.html", "chars": 4938 },
+    { "file": "test-sandbox/happy/lite/h1-adhoc/work/decisions.log", "chars": 859 },
+    { "file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-05-residency-section/report.html", "chars": 4938 },
+    { "file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-05-residency-section/data.json", "chars": 2007 },
+    { "file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-05-residency-section/decisions.log", "chars": 859 },
+    { "file": "test-sandbox/happy/lite/h1-adhoc/receipts/hop05-output/patch-html-fragment.html", "chars": 910 },
+    { "file": "test-sandbox/happy/lite/h1-adhoc/receipts/hop05-output/decision.txt", "chars": 185 }
+  ],
+  "output_chars": 185,
+  "errors": [],
+  "problems_and_friction": "No friction. The supplied fragment dropped cleanly after the Data governance section with a single surgical Edit; the only original prose authored was the one-line decision-log entry. The 910-char residency fragment was supplied content (typed but reused), so it is excluded from output_chars.",
+  "context_understood": "Ad-hoc best-case: splice the supplied Data residency subsection into report.html after Data governance, log it, and snapshot the work files."
+}

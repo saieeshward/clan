@@ -1,0 +1,30 @@
+{
+  "role": "09-rollout-planner",
+  "hop": 9,
+  "arm": "lite",
+  "flow": "h2-clan",
+  "commands_run": [
+    "clan read agent test-sandbox/happy/lite/h2-clan/work/doc.clan --skip-guide",
+    "clan patch-data test-sandbox/happy/lite/h2-clan/work/doc.clan test-sandbox/happy/lite/_inputs/h2-supplied/09-rollout-planner.json",
+    "clan patch-decision --agent 09-rollout-planner --action \"added 09-rollout-planner findings\" --rationale \"<handoff>\" test-sandbox/happy/lite/h2-clan/work/doc.clan",
+    "clan validate test-sandbox/happy/lite/h2-clan/work/doc.clan",
+    "cp work/doc.clan snapshots/hop-09-09-rollout-planner.clan"
+  ],
+  "files_read": [
+    { "file": "test-sandbox/happy/lite/h2-clan/work/doc.clan", "approx_chars": 4200 },
+    { "file": "test-sandbox/happy/lite/_inputs/h2-supplied/09-rollout-planner.json", "approx_chars": 210 },
+    { "file": "test-sandbox/happy/lite/_inputs/h2-supplied/09-rollout-planner.handoff.txt", "approx_chars": 138 }
+  ],
+  "files_written": [
+    { "file": "test-sandbox/happy/lite/h2-clan/work/doc.clan", "chars": 4550 },
+    { "file": "test-sandbox/happy/lite/h2-clan/snapshots/hop-09-09-rollout-planner.clan", "chars": 4550 },
+    { "file": "test-sandbox/happy/lite/h2-clan/receipts/hop09-output/decision.txt", "chars": 138 },
+    { "file": "test-sandbox/happy/lite/h2-clan/receipts/receipt-hop09.json", "chars": 1500 }
+  ],
+  "output_chars": 138,
+  "errors": [
+    { "what": "cp via 'copy' failed (Bash tool uses bash, not cmd)", "recovered_by": "reran with bash 'cp'" }
+  ],
+  "problems_and_friction": "Smooth hop; only friction was using cmd 'copy' in the bash tool, fixed by switching to 'cp'. Patch-first protocol meant I read only the agent view plus my two small supplied inputs.",
+  "context_understood": "I appended 6 rollout_* fields (3-phase plan landing core CRM before October peak) and a handoff decision to the CRM-recommendation chain doc, then validated and snapshotted."
+}

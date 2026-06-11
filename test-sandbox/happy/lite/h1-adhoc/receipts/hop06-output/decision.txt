@@ -1,0 +1,1 @@
+2026-06-11 hop-06 chart-update (ad-hoc): edited report.html SVG #bar-zoho rect to y="78" height="82" (Zoho now cheapest, bar shrinks).

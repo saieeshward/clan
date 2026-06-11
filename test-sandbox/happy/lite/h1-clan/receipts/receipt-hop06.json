@@ -1,0 +1,28 @@
+{
+  "role": "chart-update",
+  "hop": 6,
+  "arm": "clan",
+  "flow": "guided-patch-first",
+  "commands_run": [
+    "clan read agent test-sandbox/happy/lite/h1-clan/work/doc.clan --skip-guide",
+    "clan patch-html --help",
+    "clan agent-help",
+    "clan patch-html test-sandbox/happy/lite/h1-clan/work/doc.clan test-sandbox/happy/lite/h1-clan/receipts/hop06-output/patch-html.txt",
+    "clan validate test-sandbox/happy/lite/h1-clan/work/doc.clan",
+    "cp work/doc.clan snapshots/hop-06-chart-update.clan"
+  ],
+  "files_read": [
+    { "file": "test-sandbox/happy/lite/h1-clan/work/doc.clan", "approx_chars": 5200 }
+  ],
+  "files_written": [
+    { "file": "test-sandbox/happy/lite/h1-clan/receipts/hop06-output/patch-html.txt", "chars": 158 },
+    { "file": "test-sandbox/happy/lite/h1-clan/work/doc.clan", "chars": 14080 },
+    { "file": "test-sandbox/happy/lite/h1-clan/snapshots/hop-06-chart-update.clan", "chars": 14080 }
+  ],
+  "output_chars": 158,
+  "errors": [
+    { "what": "First patch-html attempt used flag-style args (--action/--selector/--fragment); CLI rejected them", "recovered_by": "Read patch-html --help and agent-help; authored a patch file with YAML frontmatter (mode/patch_selector/patch_action) and passed it as HTML_FILE arg" }
+  ],
+  "problems_and_friction": "patch-html takes a frontmatter patch file, not inline flags, so the first invocation failed; agent-help clarified the exact schema and the retry succeeded. Validation printed OK and the snapshot was taken cleanly.",
+  "context_understood": "Zoho is now cheapest, so its chart bar must shrink to y=78 height=82 via a single patch-html replace of the #bar-zoho rect."
+}

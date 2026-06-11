@@ -1,0 +1,36 @@
+{
+  "role": "risk-add",
+  "hop": 2,
+  "arm": "clan",
+  "flow": "guided patch-first",
+  "commands_run": [
+    "clan read agent test-sandbox/happy/lite/h1-clan/work/doc.clan --skip-guide",
+    "clan read data test-sandbox/happy/lite/h1-clan/work/doc.clan",
+    "clan patch-data --help",
+    "clan patch-html --help",
+    "clan read --help",
+    "clan read human test-sandbox/happy/lite/h1-clan/work/doc.clan --quiet",
+    "clan patch-data test-sandbox/happy/lite/h1-clan/work/doc.clan receipts/hop02-output/patch-data.json --quiet",
+    "clan patch-html test-sandbox/happy/lite/h1-clan/work/doc.clan receipts/hop02-output/patch-html.frag --quiet",
+    "clan validate test-sandbox/happy/lite/h1-clan/work/doc.clan",
+    "clan read data test-sandbox/happy/lite/h1-clan/work/doc.clan --quiet",
+    "clan read human test-sandbox/happy/lite/h1-clan/work/doc.clan --quiet",
+    "cp work/doc.clan snapshots/hop-02-risk-add.clan"
+  ],
+  "files_read": [
+    { "file": "test-sandbox/happy/lite/h1-clan/work/doc.clan (agent view)", "approx_chars": 4200 },
+    { "file": "test-sandbox/happy/lite/h1-clan/work/doc.clan (data view)", "approx_chars": 1500 },
+    { "file": "test-sandbox/happy/lite/h1-clan/work/doc.clan (human html view)", "approx_chars": 2600 }
+  ],
+  "files_written": [
+    { "file": "test-sandbox/happy/lite/h1-clan/receipts/hop02-output/patch-data.json", "chars": 410 },
+    { "file": "test-sandbox/happy/lite/h1-clan/receipts/hop02-output/patch-html.frag", "chars": 172 },
+    { "file": "test-sandbox/happy/lite/h1-clan/snapshots/hop-02-risk-add.clan", "chars": 13950 }
+  ],
+  "output_chars": 582,
+  "errors": [
+    { "what": "Initial attempt to inspect HTML via 'clan read html' failed (no such subcommand); also grep on the zipped .clan binary found nothing", "recovered_by": "Used 'clan read human' to print the rendered HTML and locate the #risk-rows selector and existing row markup" }
+  ],
+  "problems_and_friction": "patch-data merge-patch replaces arrays, so I had to read the existing risks, re-author all 3 prior entries plus the new one, and resend the full array — that re-authoring is the bulk of the output bytes. Discovering the HTML selector required 'clan read human' since there is no read-html subcommand.",
+  "context_understood": "Add a fourth Vendor lock-in risk by replacing the full risks array via patch-data and appending one literal <tr> to #risk-rows via patch-html, keeping bound data and the literal HTML table in sync without pack-html."
+}

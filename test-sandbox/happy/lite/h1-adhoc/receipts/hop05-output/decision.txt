@@ -1,0 +1,1 @@
+2026-06-11 hop-05 residency-section (ad-hoc): inserted supplied "Data residency" subsection (h2#data-residency + p#residency-detail) into report.html after the Data governance section.
