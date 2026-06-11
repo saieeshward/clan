@@ -25,7 +25,7 @@ use clap::{Parser, Subcommand};
 use clan_sdk::{
     assemble, create, export_static, fork_with_contexts, merge, pack, pack_html,
     patch_data_namespaced, patch_decision, patch_requirements, patch_state, patch_context,
-    patch_asset, render, validate, AgentOutput, ClanFile, CreateOptions, InjectOptions,
+    render, validate, AgentOutput, ClanFile, CreateOptions, InjectOptions,
     MergeOptions, MergePolicies, PackOptions, DecisionEntry, MERGE_REPORT_PATH,
 };
 
@@ -274,6 +274,21 @@ enum Commands {
         internal_path: String,
         /// Local file containing the asset.
         local_file: PathBuf,
+        /// Agent recording this asset change (required unless `--no-decision`).
+        #[arg(long)]
+        agent: Option<String>,
+        /// Short description of the change (required unless `--no-decision`).
+        #[arg(long)]
+        action: Option<String>,
+        /// Detailed rationale for the change (optional).
+        #[arg(long)]
+        rationale: Option<String>,
+        /// Pin the recorded decision so it stays highly visible.
+        #[arg(long)]
+        pinned: bool,
+        /// Skip recording a decision for this asset change.
+        #[arg(long = "no-decision")]
+        no_decision: bool,
     },
     /// Write or replace `agent/requirements.yaml` — declared tool/capability
     /// needs (spec §22 layer 5). Surfaced in agent context and warned (not
@@ -440,7 +455,8 @@ fn main() -> Result<()> {
         Commands::PatchDecision { file, agent, action, rationale, pinned } => cmd_patch_decision(file, agent, action, rationale, pinned, &hints),
         Commands::PatchState { file, json_file, set } => cmd_patch_state(file, json_file, set),
         Commands::PatchContext { file, markdown_file, append } => cmd_patch_context(file, markdown_file, append),
-        Commands::PatchAsset { file, internal_path, local_file } => cmd_patch_asset(file, internal_path, local_file),
+        Commands::PatchAsset { file, internal_path, local_file, agent, action, rationale, pinned, no_decision } =>
+            cmd_patch_asset(file, internal_path, local_file, agent, action, rationale, pinned, no_decision),
         Commands::PatchRequirements { file, requirements_file } => cmd_patch_requirements(file, requirements_file),
         Commands::ExportStatic { file, output } => cmd_export_static(file, output),
         Commands::PackHtml { parent, html_file, output, assets, schema, delta } => {
@@ -970,7 +986,7 @@ patch_action: "append" | "replace" | "prepend"
 3. State: clan patch-state <file> <json|-|inline> [--set key=value]   (RFC7396 Merge Patch agent/state.yaml)
 4. Notes: clan patch-context <file> <md> [--append]
 5. History: clan patch-decision <file> --agent X --action Y --rationale Z
-6. Asset: clan patch-asset <file> <path/in/zip> <local_file>
+6. Asset: clan patch-asset <file> <path/in/zip> <local_file> --agent X --action Y   (attribution REQUIRED; or --no-decision)
 7. Schema: clan patch-schema <file> <schema.json>
 
 # PARALLEL (fork/join, spec S24)
@@ -1232,11 +1248,31 @@ fn cmd_patch_context(file: PathBuf, markdown_file: String, append: bool) -> Resu
     Ok(())
 }
 
-fn cmd_patch_asset(file: PathBuf, internal_path: String, local_file: PathBuf) -> Result<()> {
+#[allow(clippy::too_many_arguments)]
+fn cmd_patch_asset(
+    file: PathBuf,
+    internal_path: String,
+    local_file: PathBuf,
+    agent: Option<String>,
+    action: Option<String>,
+    rationale: Option<String>,
+    pinned: bool,
+    no_decision: bool,
+) -> Result<()> {
     let clan = open(&file)?;
     let bytes = std::fs::read(&local_file).with_context(|| format!("could not read {}", local_file.display()))?;
 
-    let out_bytes = patch_asset(&clan, &internal_path, bytes)?;
+    // F15: an asset change is a document mutation — attribute it (no data
+    // fields change, so fields_changed is empty). --no-decision opts out.
+    let decision = decision_for_patch(
+        agent,
+        action,
+        rationale,
+        pinned,
+        no_decision,
+        &serde_json::Value::Object(Default::default()),
+    )?;
+    let out_bytes = clan_sdk::pack::patch_asset_with(&clan, &internal_path, bytes, decision)?;
     std::fs::write(&file, &out_bytes)?;
     eprintln!("Patched asset in-place: {}", file.display());
     Ok(())

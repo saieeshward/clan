@@ -238,7 +238,7 @@ Format: Markdown payload (overwrites or appends via `--append`).
 
 ### `patch-asset`
 Target: `human/assets/`
-Format: Binary/text injection natively into the ZIP without touching any other files.
+Format: Binary/text injection natively into the ZIP without touching any other files. **Attribution is required by default** (`--agent`/`--action`, or `--no-decision`) — an asset swap is a document change and is recorded in the chain.
 
 ### `patch-requirements`
 Target: `agent/requirements.yaml`

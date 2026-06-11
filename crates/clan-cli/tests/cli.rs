@@ -126,6 +126,35 @@ fn pack_html_uses_output_flag() {
     assert!(next.exists());
 }
 
+#[test]
+fn patch_asset_requires_attribution_and_records_it() {
+    // F15: an asset write is a document mutation — attribute it (--no-decision opts out).
+    let dir = tempfile::tempdir().unwrap();
+    let parent = create_parent(dir.path());
+    let asset = dir.path().join("logo.svg");
+    std::fs::write(&asset, "<svg/>").unwrap();
+    let before = std::fs::read(&parent).unwrap();
+
+    // No attribution → teaching error, file untouched.
+    let out = clan(&["patch-asset", parent.to_str().unwrap(), "logo.svg", asset.to_str().unwrap()]);
+    assert!(!out.status.success(), "asset write without attribution must fail");
+    assert!(stderr(&out).contains("--agent") && stderr(&out).contains("--no-decision"), "{}", stderr(&out));
+    assert_eq!(before, std::fs::read(&parent).unwrap(), "rejected write must not touch the file");
+
+    // With attribution → succeeds and records the decision in the chain.
+    let out = clan(&["patch-asset", parent.to_str().unwrap(), "logo.svg", asset.to_str().unwrap(),
+                     "--agent", "designer", "--action", "added logo"]);
+    assert!(out.status.success(), "{}", stderr(&out));
+    let chain = stdout(&clan(&["read", "chain", parent.to_str().unwrap()]));
+    assert!(chain.contains("designer") && chain.contains("added logo"), "{chain}");
+
+    // --no-decision succeeds without recording.
+    let asset2 = dir.path().join("icon.svg");
+    std::fs::write(&asset2, "<svg/>").unwrap();
+    let out = clan(&["patch-asset", parent.to_str().unwrap(), "icon.svg", asset2.to_str().unwrap(), "--no-decision"]);
+    assert!(out.status.success(), "--no-decision must work: {}", stderr(&out));
+}
+
 // --- #21: patch-html must fail loudly when the selector matches nothing ---
 
 #[test]

@@ -939,6 +939,19 @@ pub fn patch_schema(parent: &ClanFile, schema_json: &str, compressor: Option<&Co
 
 /// Helper to repack a `.clan` file with a single updated or added entry.
 fn repack_with_entry(parent: &ClanFile, target_path: &str, new_bytes: Vec<u8>, delta: Option<String>) -> Result<Vec<u8>> {
+    repack_with_entry_decision(parent, target_path, new_bytes, delta, None)
+}
+
+/// Like [`repack_with_entry`] but, when `decision` is present, also prepends it
+/// to `agent/decision-chain.yaml` in the same generation (F15: attributed asset
+/// writes). `fields_changed` defaults to empty for non-data members.
+fn repack_with_entry_decision(
+    parent: &ClanFile,
+    target_path: &str,
+    new_bytes: Vec<u8>,
+    delta: Option<String>,
+    decision: Option<DecisionEntry>,
+) -> Result<Vec<u8>> {
     let now = chrono::Utc::now().to_rfc3339();
     let parent_manifest = parent.manifest();
     let mut new_manifest = parent_manifest.clone();
@@ -981,14 +994,38 @@ fn repack_with_entry(parent: &ClanFile, target_path: &str, new_bytes: Vec<u8>, d
         });
     }
 
+    // Optional attributed decision (F15): prepend to the shared chain.
+    const CHAIN_PATH: &str = "agent/decision-chain.yaml";
+    let chain_override: Option<Vec<u8>> = match decision {
+        Some(d) => {
+            let mut chain = DecisionChain::from_yaml(&parent.read_entry(CHAIN_PATH)?)?;
+            chain.prepend(Decision {
+                agent: d.agent_name,
+                version: None,
+                action: d.action,
+                rationale: d.rationale,
+                timestamp: now.clone(),
+                fields_changed: d.fields_changed.unwrap_or_default(),
+                pinned: d.pinned,
+                trace_ref: None,
+            });
+            Some(chain.to_yaml()?)
+        }
+        None => None,
+    };
+
     let mut builder = ClanBuilder::new(new_manifest);
 
     for (path, bytes) in parent.read_all_entries()? {
         if path == "manifest.yaml" || path == target_path { continue; }
+        if chain_override.is_some() && path == CHAIN_PATH { continue; }
         builder.add_entry(path, bytes);
     }
-    
+
     builder.add_entry(target_path, new_bytes);
+    if let Some(chain_bytes) = chain_override {
+        builder.add_entry(CHAIN_PATH, chain_bytes);
+    }
     builder.build()
 }
 
@@ -1037,13 +1074,29 @@ pub fn patch_requirements(parent: &ClanFile, yaml_text: &str) -> Result<Vec<u8>>
 
 /// Inject or replace an asset in `human/assets/`.
 pub fn patch_asset(parent: &ClanFile, internal_path: &str, bytes: Vec<u8>) -> Result<Vec<u8>> {
+    patch_asset_with(parent, internal_path, bytes, None)
+}
+
+/// Like [`patch_asset`] but records an attributed decision (F15) when present.
+pub fn patch_asset_with(
+    parent: &ClanFile,
+    internal_path: &str,
+    bytes: Vec<u8>,
+    decision: Option<DecisionEntry>,
+) -> Result<Vec<u8>> {
     reject_if_forked(parent, "writing human/ assets")?;
     let full_path = if internal_path.starts_with("human/assets/") {
         internal_path.to_string()
     } else {
         format!("human/assets/{}", internal_path)
     };
-    repack_with_entry(parent, &full_path, bytes, Some(format!("added asset {}", internal_path)))
+    repack_with_entry_decision(
+        parent,
+        &full_path,
+        bytes,
+        Some(format!("added asset {}", internal_path)),
+        decision,
+    )
 }
 
 #[cfg(test)]

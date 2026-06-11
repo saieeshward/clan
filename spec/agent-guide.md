@@ -90,7 +90,7 @@ If you only need to update a small part of the document, do not output the full 
 - **`clan patch-state`**: Merge-patches your private `agent/state.yaml` scratchpad using JSON Merge Patch (inline JSON / `--set` accepted).
 - **`clan patch-decision`**: Cleanly appends a standalone decision; for changes tied to data, prefer the inline `--agent`/`--action` on `patch-data`.
 - **`clan patch-context`**: Overwrites or appends to `agent/context.md` (e.g. for agent handoffs).
-- **`clan patch-asset`**: Injects or replaces a binary asset natively.
+- **`clan patch-asset`**: Injects or replaces a binary asset natively. **Attribution is required** (`--agent`/`--action`, or `--no-decision`) — an asset swap is a document change.
 
 See `clan agent-help` for the exact syntax of these commands.
 
