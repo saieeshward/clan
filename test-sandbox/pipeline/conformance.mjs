@@ -116,16 +116,35 @@ r = clan(['patch-data', 'doc.clan', tmpJson({ risks: [{ risk: 'two', severity: '
   record('T10', 'skip-guide saves >1k chars', full.code === 0 && skip.code === 0 && full.stdout.length - skip.stdout.length > 1000, `full=${full.stdout.length} skip=${skip.stdout.length}`)
 }
 
-// ---------- T11/T12 patch-html: bad selector fails loudly; good patch applies ----------
+// ---------- T11/T12/T24 patch-html: bad selector fails; body-append applies; --selector targets element (F16) ----------
 {
+  // Seed a view that actually HAS a <body> and a table (the bare placeholder
+  // view created by `clan create` has neither, so patch targets need real DOM).
+  const full = join(work, 'view.html')
+  writeFileSync(full, '<!DOCTYPE html><html><body><h1>Report</h1><table><tbody id="rows"><tr><td>seed</td></tr></tbody></table></body></html>')
+  clan(['pack-html', '--output', 'view.clan', 'doc.clan', full])
+
   const frag = join(work, 'frag.html')
   writeFileSync(frag, '---\nmode: patch-html\npatch_selector: "#does-not-exist-xyz"\npatch_action: append\n---\n<p>x</p>')
-  r = clan(['patch-html', 'doc.clan', frag, ...ATTR])
+  r = clan(['patch-html', 'view.clan', frag, ...ATTR])
   record('T11', 'patch-html non-matching selector exits non-zero', r.code !== 0, `code=${r.code} ${r.out}`)
+
   writeFileSync(frag, '---\nmode: patch-html\npatch_selector: "body"\npatch_action: append\n---\n<p id="conf-frag">appended-by-conformance</p>')
-  r = clan(['patch-html', 'doc.clan', frag, ...ATTR])
-  const h = clan(['read', 'human', 'doc.clan'])
+  r = clan(['patch-html', 'view.clan', frag, ...ATTR])
+  let h = clan(['read', 'human', 'view.clan'])
   record('T12', 'patch-html append applies', r.code === 0 && /appended-by-conformance/.test(h.out), r.out)
+
+  // T24 (F16): --selector flag (no frontmatter) targets the element and lands
+  // the fragment INSIDE it — a bare <tr> must end up before </tbody>, not
+  // orphaned after </table>. Also asserts patch-html never full-replaces.
+  const row = join(work, 'row.html')
+  writeFileSync(row, '<tr><td>f16-row</td></tr>')
+  r = clan(['patch-html', 'view.clan', row, '--selector', '#rows', '--patch-action', 'append', ...ATTR])
+  h = clan(['read', 'human', 'view.clan'])
+  const insideTbody = /<tr><td>f16-row<\/td><\/tr>\s*<\/tbody>/.test(h.out)
+  const viewSurvived = /<h1>Report<\/h1>/.test(h.out)
+  record('T24', 'patch-html --selector lands fragment inside element (F16)',
+    r.code === 0 && insideTbody && viewSurvived, `inside=${insideTbody} survived=${viewSurvived} ${r.out}`)
 }
 
 // ---------- T13–T17 fork / namespace guard / merge / conflict report / policy ----------

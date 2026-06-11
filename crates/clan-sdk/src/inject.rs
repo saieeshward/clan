@@ -470,9 +470,11 @@ mod tests {
             "the key must not be invented for entries that never had it:\n{}",
             ctx.text
         );
-        // All seven entries are still present.
+        // All seven entries are still present. (Space-free uniform entries
+        // encode columnar — `agentN` is a row token rather than `agent: agentN`
+        // — so assert on the value, which appears either way.)
         for i in 0..7 {
-            assert!(ctx.text.contains(&format!("agent: agent{i}")), "{}", ctx.text);
+            assert!(ctx.text.contains(&format!("agent{i}")), "{}", ctx.text);
         }
     }
 

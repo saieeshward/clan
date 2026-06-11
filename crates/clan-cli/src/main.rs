@@ -182,6 +182,16 @@ enum Commands {
         /// Skip recording a decision for this view change.
         #[arg(long = "no-decision")]
         no_decision: bool,
+        /// CSS selector for the element to patch (e.g. `#risk-rows`, `body`).
+        /// Overrides any `patch_selector` in frontmatter and forces patch-html
+        /// (DOM patch) mode. Without it, the fragment lands at the end of <body>.
+        #[arg(long)]
+        selector: Option<String>,
+        /// How to apply the fragment to the matched element: `append` (default),
+        /// `prepend`, `replace`, `before`, or `after`. Overrides frontmatter
+        /// `patch_action`. (Distinct from `--action`, which is the attribution.)
+        #[arg(long = "patch-action")]
+        patch_action: Option<String>,
     },
     /// Surgically patch `shared/data.yaml` inside a .clan file using JSON Merge Patch (RFC 7396).
     PatchData {
@@ -447,8 +457,8 @@ fn main() -> Result<()> {
             delta,
         } => cmd_pack(parent, output_json, output, schema, delta, &hints),
         Commands::Edit { file } => cmd_edit(file),
-        Commands::PatchHtml { file, html_file, delta, agent, action, rationale, pinned, no_decision } =>
-            cmd_patch_html(file, html_file, delta, agent, action, rationale, pinned, no_decision),
+        Commands::PatchHtml { file, html_file, delta, agent, action, rationale, pinned, no_decision, selector, patch_action } =>
+            cmd_patch_html(file, html_file, delta, agent, action, rationale, pinned, no_decision, selector, patch_action),
         Commands::PatchData { file, json_file, namespace, set, append, agent, action, rationale, pinned, no_decision } =>
             cmd_patch_data(file, json_file, namespace, set, append, agent, action, rationale, pinned, no_decision, &hints),
         Commands::PatchSchema { file, schema_file } => cmd_patch_schema(file, schema_file),
@@ -866,6 +876,7 @@ fn cmd_pack_html(
 }
 
 #[allow(clippy::too_many_arguments)]
+#[allow(clippy::too_many_arguments)]
 fn cmd_patch_html(
     file: PathBuf,
     html_file: String,
@@ -875,9 +886,23 @@ fn cmd_patch_html(
     rationale: Option<String>,
     pinned: bool,
     no_decision: bool,
+    selector: Option<String>,
+    patch_action: Option<String>,
 ) -> Result<()> {
     let clan = open(&file)?;
     let raw_html = read_source(&html_file)?;
+
+    // Validate --patch-action up front so the error names the legal verbs
+    // rather than silently falling through to `append` in the SDK.
+    if let Some(pa) = patch_action.as_deref() {
+        const ACTIONS: [&str; 5] = ["append", "prepend", "replace", "before", "after"];
+        if !ACTIONS.contains(&pa) {
+            anyhow::bail!(
+                "unknown --patch-action {pa:?}; expected one of: {}",
+                ACTIONS.join(", ")
+            );
+        }
+    }
 
     // F15: a view change must be attributed unless the frontmatter already
     // carries a decision or `--no-decision` is set. fields_changed is left to
@@ -897,7 +922,8 @@ fn cmd_patch_html(
         ),
     };
 
-    let bytes = clan_sdk::pack::pack_html_with(&clan, &raw_html, None, None, delta, decision_override, None)?;
+    let targeting = clan_sdk::PatchTargeting { selector, action: patch_action, force_patch_mode: true };
+    let bytes = clan_sdk::pack::pack_html_targeted(&clan, &raw_html, None, None, delta, decision_override, targeting, None)?;
     std::fs::write(&file, &bytes)?;
     eprintln!("Patched {} in-place", file.display());
     Ok(())
@@ -969,14 +995,18 @@ decision: {{agent: X, action: Y, rationale: Z}}
 (Hint: frontmatter `structured:` MERGE-PATCHES shared/data.yaml — fields you OMIT are KEPT from prior hops. Only restate what you change; do NOT re-transcribe carried data.)
 
 # PATCH (In-place, Lowest Token Cost, Preferred)
-1. DOM: clan patch-html <file> <patch_file> --agent X --action Y    (attribution REQUIRED; or a `decision:` block in frontmatter, or --no-decision)
-Schema:
+1. DOM: clan patch-html <file> <patch_file> --selector '#id' [--patch-action append|prepend|replace|before|after] --agent X --action Y
+   (attribution REQUIRED; or a `decision:` block in frontmatter, or --no-decision)
+   --selector targets the element (e.g. '#risk-rows' to add a <tr> INSIDE that tbody); --patch-action defaults to append.
+   WITHOUT --selector the fragment lands at the end of <body> — so a bare <tr> ends up OUTSIDE its table. Always pass --selector for in-element edits.
+   (--action is the attribution verb for the decision chain; --patch-action is the DOM operation. They are different.)
+Equivalent via frontmatter (if you prefer a self-describing patch file):
 ---
 mode: patch-html
-patch_selector: "div#app"
-patch_action: "append" | "replace" | "prepend"
+patch_selector: '#risk-rows'
+patch_action: 'append' | 'prepend' | 'replace' | 'before' | 'after'
 ---
-<div>New</div>
+<tr><td>New row</td></tr>
 
 2. Data: clan patch-data <file> <json-or-inline> --agent X --action Y [--rationale Z] [--pinned]
       <json> may be a file, `-` (stdin), or an inline JSON string. Or set scalars: --set key=value (repeatable).

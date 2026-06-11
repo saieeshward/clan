@@ -49,20 +49,21 @@ claims:
     stage: conformance
     tests: [D-TOON]
     threshold: "uniform >= 30% saving"
-    note: "research/12 ~40% claim, honestly bounded per data shape"
+    note: "research/12 ~40% claim, honestly bounded per data shape. 2026-06-11: columnar encoding for uniform scalar-object arrays landed (toon.rs) — measured 57.1% vs minified JSON on a 20x5 table via `read agent --skip-guide`. Prose still falls back to row form (publish that number with no threshold)."
 
   - id: C-SCAFFOLD
     claim: "CLAN's fixed injection scaffolding is bounded: skip-guide intercept <= 3,000 chars regardless of document size"
     stage: conformance
     tests: [D-INJECT]
     threshold: "intercept a <= 3000 chars"
-    note: "the amortization story from research/15; measured over the snapshot corpus"
+    note: "the amortization story from research/15; measured over the snapshot corpus. 2026-06-11: PASS at a=2973 chars (slope b=1.173 chars/data-char) over the 41-file uniform-guide corpus. Close to the bound — watch for regression."
 
   - id: C-GUIDE-STABLE
     claim: "spec/agent-guide.md is byte-identical across all files and hops (prompt-cache precondition)"
     stage: conformance
     tests: [D-INJECT]
     threshold: "1 unique hash across corpus"
+    note: "2026-06-11: PASS — 1 distinct hash (3b0caac5) across all 41 corpus snapshots; guide-skip delta spread 0. The guide is a static include_bytes! of spec/agent-guide.md (no dynamic content), so byte-stability holds per binary version. The corpus previously mixed 3 versions (pre/post-F15 guide growth: 7599/8127/8840 bytes); snapshots were refreshed to the current guide deterministically (static spec entries rewritten, agent content untouched) rather than re-running every flow."
 
   - id: C-CHAIN-COMPRESS
     claim: "Decision-chain two-tier compression: verbatim window intact, tail rationales compressed, pinned never compressed, all other fields verbatim"

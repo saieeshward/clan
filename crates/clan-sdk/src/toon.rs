@@ -94,9 +94,64 @@ pub(crate) fn parse_toon(text: &str) -> Option<Value> {
     (idx == lines.len()).then_some(value)
 }
 
-/// True when the line could open a mapping entry (kv or `key [n]` header).
+/// True when the line could open a mapping entry (kv, `key [n]` header, or a
+/// columnar `key [n] @f1 f2` table header).
 fn looks_like_entry(line: &str) -> bool {
-    line.contains(": ") || seq_header(line).is_some()
+    line.contains(": ") || seq_header(line).is_some() || columnar_header(line).is_some()
+}
+
+/// Match a columnar table header `KEY [N] @f1 f2 …` (or key-less `[N] @f1 f2`).
+/// Returns (key, n, fields). The `@` marker distinguishes a uniform-object
+/// table (one value row per object) from a flattened sequence or scalar list.
+fn columnar_header(line: &str) -> Option<(&str, usize, Vec<&str>)> {
+    if line.contains(": ") {
+        return None;
+    }
+    let at = line.find(" @")?;
+    let head = &line[..at];
+    let (key, n) = match seq_header(head) {
+        Some((k, n)) => (k, n),
+        None => ("", bare_seq_header(head)?),
+    };
+    let fields: Vec<&str> = line[at + 2..].split(' ').collect();
+    if fields.is_empty() || fields.iter().any(|f| f.is_empty()) {
+        return None;
+    }
+    Some((key, n, fields))
+}
+
+/// Parse the `n` value rows of a columnar table at `depth`. Each row is a
+/// space-separated tuple of exactly `fields.len()` scalar tokens, rebuilt into
+/// a mapping. Rejects (returns None) on any arity/duplicate/indent mismatch so
+/// the round-trip verifier never accepts an ambiguous table.
+fn parse_columnar_rows(
+    lines: &[(usize, &str)],
+    idx: &mut usize,
+    depth: usize,
+    n: usize,
+    fields: &[&str],
+) -> Option<Vec<Value>> {
+    let indent = depth * INDENT.len();
+    let mut items = Vec::with_capacity(n);
+    for _ in 0..n {
+        let (spaces, line) = *lines.get(*idx)?;
+        if spaces != indent {
+            return None;
+        }
+        let tokens: Vec<&str> = line.split(' ').collect();
+        if tokens.len() != fields.len() || tokens.iter().any(|t| t.is_empty()) {
+            return None;
+        }
+        let mut m = serde_yaml::Mapping::new();
+        for (f, t) in fields.iter().zip(tokens.iter()) {
+            if m.insert(Value::String(f.to_string()), parse_scalar(t)).is_some() {
+                return None; // duplicate field name in header
+            }
+        }
+        items.push(Value::Mapping(m));
+        *idx += 1;
+    }
+    Some(items)
 }
 
 /// Match a key-less `[n]` header (nested sequence item).
@@ -173,6 +228,11 @@ fn parse_entry(
     depth: usize,
 ) -> Option<(String, Value)> {
     let (_, line) = lines[*idx];
+    if let Some((key, n, fields)) = columnar_header(line) {
+        *idx += 1;
+        let items = parse_columnar_rows(lines, idx, depth + 1, n, &fields)?;
+        return Some((key.to_string(), Value::Sequence(items)));
+    }
     if let Some((key, n)) = seq_header(line) {
         *idx += 1;
         let items = parse_seq_items(lines, idx, depth + 1)?;
@@ -215,7 +275,15 @@ fn parse_seq_items(lines: &[(usize, &str)], idx: &mut usize, depth: usize) -> Op
         let next_is_deeper = lines
             .get(*idx + 1)
             .map_or(false, |(s, _)| *s > indent);
-        if let Some(n) = bare_seq_header(line) {
+        if let Some(("", n, fields)) = columnar_header(line) {
+            // Nested key-less columnar table item: "[n] @f1 f2" + value rows.
+            if let Some(m) = current.take() {
+                items.push(Value::Mapping(m));
+            }
+            *idx += 1;
+            let inner = parse_columnar_rows(lines, idx, depth + 1, n, &fields)?;
+            items.push(Value::Sequence(inner));
+        } else if let Some(n) = bare_seq_header(line) {
             // Nested sequence item: "[n]" header with its own items below.
             if let Some(m) = current.take() {
                 items.push(Value::Mapping(m));
@@ -280,10 +348,82 @@ fn encode_value(value: &Value, depth: usize, out: &mut String) {
     }
 }
 
+/// If `seq` is a uniform scalar table — ≥2 mappings, identical key sets, and
+/// every value an inline-safe scalar (no spaces/newlines/tabs, non-empty) —
+/// return its sorted column names and one rendered-value row per object.
+/// Otherwise None, and the caller emits the row-per-object form. This is the
+/// columnar TOON win (C-TOON): keys are written once in the header instead of
+/// repeated on every row.
+fn uniform_scalar_table(seq: &[Value]) -> Option<(Vec<String>, Vec<Vec<String>>)> {
+    if seq.len() < 2 {
+        return None;
+    }
+    let first = seq[0].as_mapping()?;
+    if first.is_empty() {
+        return None;
+    }
+    let mut keys: Vec<String> = Vec::with_capacity(first.len());
+    for (k, _) in first {
+        let ks = match k {
+            Value::String(s) => s.clone(),
+            _ => return None,
+        };
+        if ks.is_empty() || ks.contains(' ') || ks.contains('\n') || ks.contains('\t') {
+            return None;
+        }
+        keys.push(ks);
+    }
+    keys.sort();
+    if keys.windows(2).any(|w| w[0] == w[1]) {
+        return None; // duplicate column name
+    }
+
+    let mut rows = Vec::with_capacity(seq.len());
+    for item in seq {
+        let m = item.as_mapping()?;
+        // Equal length + every column present ⇒ identical key set (no extras).
+        if m.len() != keys.len() {
+            return None;
+        }
+        let mut row = Vec::with_capacity(keys.len());
+        for key in &keys {
+            let v = m.get(key.as_str())?;
+            let s = match v {
+                Value::Null | Value::Bool(_) | Value::Number(_) | Value::String(_) => {
+                    scalar_to_string(v)
+                }
+                _ => return None, // nested collection — not a flat row
+            };
+            if s.is_empty()
+                || s.contains(' ')
+                || s.contains('\n')
+                || s.contains('\r')
+                || s.contains('\t')
+            {
+                return None;
+            }
+            row.push(s);
+        }
+        rows.push(row);
+    }
+    Some((keys, rows))
+}
+
 /// Encode a `key: value` / `key [n]` / nested-`key` pair.
 fn encode_pair(key: &str, value: &Value, depth: usize, out: &mut String) {
     match value {
         Value::Sequence(seq) => {
+            if let Some((cols, rows)) = uniform_scalar_table(seq) {
+                push_indent(depth, out);
+                out.push_str(key);
+                out.push_str(&format!(" [{}] @{}\n", seq.len(), cols.join(" ")));
+                for row in &rows {
+                    push_indent(depth + 1, out);
+                    out.push_str(&row.join(" "));
+                    out.push('\n');
+                }
+                return;
+            }
             push_indent(depth, out);
             out.push_str(key);
             out.push_str(&format!(" [{}]\n", seq.len()));
@@ -317,6 +457,16 @@ fn encode_seq_item(item: &Value, depth: usize, out: &mut String) {
             }
         }
         Value::Sequence(seq) => {
+            if let Some((cols, rows)) = uniform_scalar_table(seq) {
+                push_indent(depth, out);
+                out.push_str(&format!("[{}] @{}\n", seq.len(), cols.join(" ")));
+                for row in &rows {
+                    push_indent(depth + 1, out);
+                    out.push_str(&row.join(" "));
+                    out.push('\n');
+                }
+                return;
+            }
             push_indent(depth, out);
             out.push_str(&format!("[{}]\n", seq.len()));
             for inner in seq {
@@ -407,6 +557,100 @@ meta:
         let yaml = "tags:\n  - a\n  - b\n  - c\n";
         let toon = yaml_to_toon(yaml.as_bytes()).unwrap();
         assert_eq!(toon, "tags [3]\n  a\n  b\n  c");
+    }
+
+    #[test]
+    fn columnar_table_for_uniform_scalar_objects() {
+        // Uniform objects (same keys, scalar values, no spaces) → columnar.
+        let yaml = r#"
+rows:
+  - id: 1
+    cat: A
+    val: 0
+  - id: 2
+    cat: A
+    val: 10
+"#;
+        let toon = yaml_to_toon(yaml.as_bytes()).unwrap();
+        // Columns are sorted; keys appear once in the header, not per row.
+        assert_eq!(toon, "rows [2] @cat id val\n  A 1 0\n  A 2 10");
+    }
+
+    #[test]
+    fn columnar_falls_back_when_values_have_spaces() {
+        // line_items values contain spaces → row-per-object form (spec example).
+        let yaml = r#"
+line_items:
+  - description: Software Development Services
+    amount: 12500.00
+  - description: Consulting
+    amount: 2875.00
+"#;
+        let toon = yaml_to_toon(yaml.as_bytes()).unwrap();
+        assert!(toon.starts_with("line_items [2]\n"), "should not be columnar: {toon}");
+        assert!(!toon.contains(" @"), "no columnar header expected: {toon}");
+    }
+
+    #[test]
+    fn columnar_falls_back_on_heterogeneous_keys() {
+        let yaml = "rows:\n  - a: 1\n  - b: 2\n";
+        let toon = yaml_to_toon(yaml.as_bytes()).unwrap();
+        assert!(!toon.contains(" @"), "disjoint keys must not be columnar: {toon}");
+    }
+
+    #[test]
+    fn columnar_roundtrips_losslessly() {
+        use serde_json::json;
+        let v = json!({"rows": [
+            {"id": 1, "cat": "A", "val": 0},
+            {"id": 2, "cat": "B", "val": 10},
+            {"id": 3, "cat": "A", "val": 20}
+        ]});
+        let toon = json_to_toon_verified(&v).expect("uniform scalar table must encode");
+        assert!(toon.contains("rows [3] @cat id val"), "columnar header missing: {toon}");
+        let back: serde_json::Value =
+            serde_json::to_value(&parse_toon(&toon).unwrap()).unwrap();
+        assert_eq!(back, v);
+    }
+
+    #[test]
+    fn columnar_beats_row_form_by_30pct_on_uniform_table() {
+        // The C-TOON claim: ≥30% smaller than the repeated-key row form on a
+        // 20-row × 5-col table of short scalars.
+        let mut rows = Vec::new();
+        for i in 0..20 {
+            rows.push(serde_json::json!({
+                "id": i, "cat": "A", "flag": true, "name": format!("item{i}"), "val": i * 10
+            }));
+        }
+        let v = serde_json::json!({ "rows": rows });
+        let columnar = json_to_toon_verified(&v).expect("must encode columnar");
+        assert!(columnar.contains(" @cat flag id name val"), "header: {columnar}");
+
+        // Build the old row-per-object form for the same data to compare.
+        let yaml: Value = serde_yaml::to_value(&v).unwrap();
+        let row_form = {
+            let mut s = String::new();
+            // emulate the non-columnar encoding by forcing a space into nothing —
+            // instead, measure against a hand-built repeated-key baseline.
+            let arr = yaml.get("rows").unwrap().as_sequence().unwrap();
+            s.push_str(&format!("rows [{}]\n", arr.len()));
+            for item in arr {
+                for (k, val) in item.as_mapping().unwrap() {
+                    s.push_str(&format!("  {}: {}\n", scalar_to_string(k), scalar_to_string(val)));
+                }
+            }
+            s.pop();
+            s
+        };
+        let saving = 1.0 - (columnar.len() as f64 / row_form.len() as f64);
+        assert!(
+            saving >= 0.30,
+            "columnar saving {:.1}% < 30% (columnar={} row_form={})",
+            saving * 100.0,
+            columnar.len(),
+            row_form.len()
+        );
     }
 }
 

@@ -479,6 +479,21 @@ pub fn pack_html(
     pack_html_with(parent, raw_html, assets_dir_files, schema_override, delta, None, compressor)
 }
 
+/// CLI-supplied overrides for a DOM patch. When `selector` is set, the patch
+/// is forced into `patch-html` mode and the element is targeted directly —
+/// so an agent never has to hand-author `mode:`/`patch_selector:` frontmatter
+/// (and never trips the silent default-to-`body` footgun, F16).
+#[derive(Default)]
+pub struct PatchTargeting {
+    pub selector: Option<String>,
+    pub action: Option<String>,
+    /// Set by the `patch-html` command: this is a DOM patch by construction,
+    /// so a frontmatter-less fragment must NOT be misread as a full-html
+    /// replacement that nukes the whole view (F16). `pack-html` leaves this
+    /// false so its default stays `full-html`.
+    pub force_patch_mode: bool,
+}
+
 /// Like [`pack_html`] but a `decision_override`, when present, supplies the
 /// decision instead of (or in the absence of) one in the frontmatter (F15:
 /// attribution recorded from CLI flags).
@@ -492,9 +507,40 @@ pub fn pack_html_with(
     decision_override: Option<DecisionEntry>,
     compressor: Option<&Compressor>,
 ) -> Result<Vec<u8>> {
+    pack_html_targeted(parent, raw_html, assets_dir_files, schema_override, delta, decision_override, PatchTargeting::default(), compressor)
+}
+
+/// Like [`pack_html_with`] but with CLI-supplied `targeting` (selector +
+/// patch action) that overrides any frontmatter. Passing a selector forces
+/// `patch-html` mode (F16: makes `--selector` a first-class flag).
+#[allow(clippy::too_many_arguments)]
+pub fn pack_html_targeted(
+    parent: &ClanFile,
+    raw_html: &str,
+    assets_dir_files: Option<HashMap<String, Vec<u8>>>,
+    schema_override: Option<String>,
+    delta: Option<String>,
+    decision_override: Option<DecisionEntry>,
+    targeting: PatchTargeting,
+    compressor: Option<&Compressor>,
+) -> Result<Vec<u8>> {
     // Parse optional YAML frontmatter.
-    let (parsed_mode, structured, decision_entry, patch_selector, patch_action, context_handoff, html_body) = parse_html_frontmatter(raw_html);
-    let mode = parsed_mode.unwrap_or_else(|| "full-html".to_string());
+    let (parsed_mode, structured, decision_entry, fm_selector, fm_action, context_handoff, html_body) = parse_html_frontmatter(raw_html);
+    // CLI flags win over frontmatter; a CLI selector implies patch-html mode.
+    let patch_selector = targeting.selector.or(fm_selector);
+    let patch_action = targeting.action.or(fm_action);
+    // The `patch-html` command is a DOM patch by construction — never let a
+    // frontmatter-less fragment fall through to a full-html replacement that
+    // would silently overwrite the whole view (F16). A CLI selector also
+    // implies patch-html. Otherwise honour explicit frontmatter `mode:`, then
+    // fall back to full-html (the `pack-html` default).
+    let mode = if targeting.force_patch_mode {
+        parsed_mode.unwrap_or_else(|| "patch-html".to_string())
+    } else {
+        parsed_mode
+            .or_else(|| patch_selector.as_ref().map(|_| "patch-html".to_string()))
+            .unwrap_or_else(|| "full-html".to_string())
+    };
 
     let output = AgentOutput {
         mode,
@@ -576,11 +622,30 @@ fn parse_html_frontmatter(input: &str) -> (Option<String>, Value, Option<Decisio
 
 fn apply_html_patch(existing: &str, payload: &HumanPayload) -> Result<String> {
     use lol_html::{rewrite_str, element, RewriteStrSettings};
-    use std::cell::Cell;
-    let selector = payload.patch_selector.as_deref().unwrap_or("body");
+    use std::cell::{Cell, RefCell};
+    // No selector resolved from --selector or frontmatter: we fall back to
+    // appending at the end of <body>. That silently misplaces fragments meant
+    // for a specific element (e.g. a <tr> lands outside its table), so warn
+    // loudly rather than corrupt the view quietly (F16).
+    let selector = match payload.patch_selector.as_deref() {
+        Some(s) => s,
+        None => {
+            eprintln!(
+                "patch-html: no selector given — defaulting to append at end of <body>. \
+                 If you meant to target an element (e.g. a table row), pass \
+                 --selector \"<css>\" (or set patch_selector in frontmatter)."
+            );
+            "body"
+        }
+    };
     let action = payload.patch_action.as_deref().unwrap_or("append");
     let html = &payload.html;
     let matched = Cell::new(0usize);
+    // Describe the FIRST matched element (tag + id/class) so the success line
+    // tells the agent where the fragment actually landed — letting them catch a
+    // mis-target (e.g. "into <body>" when they meant a table) without a
+    // separate `read human` round-trip (F16 ergonomics).
+    let landed_on: RefCell<Option<String>> = RefCell::new(None);
 
     let result = rewrite_str(
         existing,
@@ -588,6 +653,9 @@ fn apply_html_patch(existing: &str, payload: &HumanPayload) -> Result<String> {
             element_content_handlers: vec![
                 element!(selector, |el| {
                     matched.set(matched.get() + 1);
+                    if landed_on.borrow().is_none() {
+                        *landed_on.borrow_mut() = Some(describe_element(el));
+                    }
                     match action {
                         "append" => el.append(&html, lol_html::html_content::ContentType::Html),
                         "prepend" => el.prepend(&html, lol_html::html_content::ContentType::Html),
@@ -604,12 +672,38 @@ fn apply_html_patch(existing: &str, payload: &HumanPayload) -> Result<String> {
     )
     .map_err(|e| Error::OutputRejected(format!("patch-html: could not apply selector {selector:?}: {e}")))?;
 
-    if matched.get() == 0 {
+    let n = matched.get();
+    if n == 0 {
         return Err(Error::OutputRejected(format!(
             "patch-html: selector {selector:?} matched no elements — nothing was patched"
         )));
     }
+    // Structural confirmation: where the fragment landed and how many matched.
+    let verb = match action {
+        "prepend" => "prepended into",
+        "replace" => "replaced",
+        "before" => "inserted before",
+        "after" => "inserted after",
+        _ => "appended into",
+    };
+    let target = landed_on.borrow().clone().unwrap_or_else(|| format!("<{selector}>"));
+    let plural = if n == 1 { "match" } else { "matches" };
+    eprintln!("patch-html: {verb} {target} ({n} {plural} for {selector:?})");
     Ok(result)
+}
+
+/// Render a matched element as `<tag id="x" class="y">` for the confirmation
+/// line. Only id/class are shown — enough to recognise the target at a glance.
+fn describe_element(el: &lol_html::html_content::Element) -> String {
+    let mut s = format!("<{}", el.tag_name());
+    if let Some(id) = el.get_attribute("id") {
+        s.push_str(&format!(" id=\"{id}\""));
+    }
+    if let Some(class) = el.get_attribute("class") {
+        s.push_str(&format!(" class=\"{class}\""));
+    }
+    s.push('>');
+    s
 }
 
 /// Strip `<script>...</script>` blocks and `on*` event handler attributes.
@@ -1298,6 +1392,70 @@ mod tests {
             .read_entry_string("human/index.html")
             .unwrap()
             .contains("<span>new</span>"));
+    }
+
+    // Regression for F16: a bare fragment (no frontmatter) plus a CLI
+    // --selector must (a) force patch-html mode rather than replacing the whole
+    // view, and (b) land the fragment INSIDE the targeted element — not dumped
+    // at the end of <body>, which is what orphaned a <tr> outside its table.
+    #[test]
+    fn patch_html_cli_selector_targets_element_without_frontmatter() {
+        let parent = test_clan("vendor: Acme\n", PERMISSIVE_SCHEMA);
+        // No frontmatter: just a row, exactly as an agent would hand it.
+        let fragment = "<tr><td>Vendor lock-in</td></tr>";
+        let targeting = PatchTargeting {
+            selector: Some("#app".into()),
+            action: Some("append".into()),
+            force_patch_mode: true,
+        };
+        let bytes = pack_html_targeted(
+            &parent, fragment, None, None, None, None, targeting, None,
+        )
+        .expect("CLI selector should drive a patch-html DOM patch");
+        let next = ClanFile::from_bytes(bytes).unwrap();
+        let view = next.read_entry_string("human/index.html").unwrap();
+
+        // Fragment is INSIDE #app (before its </div>), and the rest of the
+        // document survived — i.e. it was a DOM patch, not a full replacement.
+        assert!(
+            view.contains("<div id=\"app\">x<tr><td>Vendor lock-in</td></tr></div>"),
+            "row should be appended inside #app, got: {view}"
+        );
+        assert!(view.contains("<body>"), "body must survive — not replaced: {view}");
+    }
+
+    // F16: the patch-html command must NEVER full-replace the view. A bare
+    // fragment with no frontmatter and no selector falls back to body-append
+    // (the rest of the document survives), instead of overwriting index.html
+    // with just the fragment.
+    #[test]
+    fn patch_html_force_mode_never_full_replaces() {
+        let parent = test_clan("vendor: Acme\n", PERMISSIVE_SCHEMA);
+        let fragment = "<tr><td>orphan</td></tr>";
+        let targeting = PatchTargeting { selector: None, action: None, force_patch_mode: true };
+        let bytes = pack_html_targeted(
+            &parent, fragment, None, None, None, None, targeting, None,
+        )
+        .unwrap();
+        let view = ClanFile::from_bytes(bytes).unwrap().read_entry_string("human/index.html").unwrap();
+        // Original content survived AND the fragment was appended — not a wipe.
+        assert!(view.contains("<div id=\"app\">x</div>"), "original view must survive: {view}");
+        assert!(view.contains("<tr><td>orphan</td></tr>"), "fragment must be appended: {view}");
+    }
+
+    // F16: a CLI selector overrides a frontmatter patch_selector (flags win).
+    #[test]
+    fn patch_html_cli_selector_overrides_frontmatter() {
+        let parent = test_clan("vendor: Acme\n", PERMISSIVE_SCHEMA);
+        let with_fm = "---\nmode: patch-html\npatch_selector: \"body\"\n---\n<tr>r</tr>";
+        let targeting = PatchTargeting { selector: Some("#app".into()), action: None, force_patch_mode: true };
+        let bytes = pack_html_targeted(
+            &parent, with_fm, None, None, None, None, targeting, None,
+        )
+        .unwrap();
+        let view = ClanFile::from_bytes(bytes).unwrap().read_entry_string("human/index.html").unwrap();
+        // Landed in #app (flag), not at end of body (frontmatter).
+        assert!(view.contains("<div id=\"app\">x<tr>r</tr></div>"), "flag selector must win: {view}");
     }
 
     #[test]
