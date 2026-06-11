@@ -218,6 +218,7 @@ patch_action: "append"
 ---
 <p>New content</p>
 ```
+**Attribution is required by default** (like `patch-data`): pass `--agent`/`--action` on the command line, include a `decision:` block in the frontmatter, or pass `--no-decision` to skip recording the view change.
 
 ### `patch-data` & `patch-state`
 Target: `shared/data.yaml` or `agent/state.yaml`

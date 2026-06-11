@@ -462,12 +462,34 @@ pub fn pack(
 /// ...
 /// ```
 /// If no frontmatter is present the HTML is packed as-is with empty structured data.
+/// True when the HTML's YAML frontmatter already carries a `decision:` block.
+/// Lets the CLI enforce attribution (F15) without re-implementing the parser.
+pub fn frontmatter_has_decision(raw_html: &str) -> bool {
+    parse_html_frontmatter(raw_html).2.is_some()
+}
+
 pub fn pack_html(
     parent: &ClanFile,
     raw_html: &str,
     assets_dir_files: Option<HashMap<String, Vec<u8>>>,
     schema_override: Option<String>,
     delta: Option<String>,
+    compressor: Option<&Compressor>,
+) -> Result<Vec<u8>> {
+    pack_html_with(parent, raw_html, assets_dir_files, schema_override, delta, None, compressor)
+}
+
+/// Like [`pack_html`] but a `decision_override`, when present, supplies the
+/// decision instead of (or in the absence of) one in the frontmatter (F15:
+/// attribution recorded from CLI flags).
+#[allow(clippy::too_many_arguments)]
+pub fn pack_html_with(
+    parent: &ClanFile,
+    raw_html: &str,
+    assets_dir_files: Option<HashMap<String, Vec<u8>>>,
+    schema_override: Option<String>,
+    delta: Option<String>,
+    decision_override: Option<DecisionEntry>,
     compressor: Option<&Compressor>,
 ) -> Result<Vec<u8>> {
     // Parse optional YAML frontmatter.
@@ -485,7 +507,7 @@ pub fn pack_html(
             patch_selector,
             patch_action,
         }),
-        decision: decision_entry,
+        decision: decision_override.or(decision_entry),
     };
 
     let mut opts = PackOptions { delta, schema_override, ..Default::default() };

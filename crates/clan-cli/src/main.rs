@@ -166,6 +166,22 @@ enum Commands {
         /// Human-readable description of what changed.
         #[arg(long)]
         delta: Option<String>,
+        /// Agent recording this change (required unless the HTML frontmatter
+        /// already carries a decision, or `--no-decision` is set).
+        #[arg(long)]
+        agent: Option<String>,
+        /// Short description of the change (see `--agent`).
+        #[arg(long)]
+        action: Option<String>,
+        /// Detailed rationale for the change (optional).
+        #[arg(long)]
+        rationale: Option<String>,
+        /// Pin the recorded decision so it stays highly visible.
+        #[arg(long)]
+        pinned: bool,
+        /// Skip recording a decision for this view change.
+        #[arg(long = "no-decision")]
+        no_decision: bool,
     },
     /// Surgically patch `shared/data.yaml` inside a .clan file using JSON Merge Patch (RFC 7396).
     PatchData {
@@ -416,7 +432,8 @@ fn main() -> Result<()> {
             delta,
         } => cmd_pack(parent, output_json, output, schema, delta, &hints),
         Commands::Edit { file } => cmd_edit(file),
-        Commands::PatchHtml { file, html_file, delta } => cmd_patch_html(file, html_file, delta),
+        Commands::PatchHtml { file, html_file, delta, agent, action, rationale, pinned, no_decision } =>
+            cmd_patch_html(file, html_file, delta, agent, action, rationale, pinned, no_decision),
         Commands::PatchData { file, json_file, namespace, set, append, agent, action, rationale, pinned, no_decision } =>
             cmd_patch_data(file, json_file, namespace, set, append, agent, action, rationale, pinned, no_decision, &hints),
         Commands::PatchSchema { file, schema_file } => cmd_patch_schema(file, schema_file),
@@ -832,11 +849,39 @@ fn cmd_pack_html(
     Ok(())
 }
 
-fn cmd_patch_html(file: PathBuf, html_file: String, delta: Option<String>) -> Result<()> {
+#[allow(clippy::too_many_arguments)]
+fn cmd_patch_html(
+    file: PathBuf,
+    html_file: String,
+    delta: Option<String>,
+    agent: Option<String>,
+    action: Option<String>,
+    rationale: Option<String>,
+    pinned: bool,
+    no_decision: bool,
+) -> Result<()> {
     let clan = open(&file)?;
     let raw_html = read_source(&html_file)?;
 
-    let bytes = pack_html(&clan, &raw_html, None, None, delta, None)?;
+    // F15: a view change must be attributed unless the frontmatter already
+    // carries a decision or `--no-decision` is set. fields_changed is left to
+    // pack() to derive from any structured delta in the frontmatter.
+    let decision_override = match (agent, action) {
+        (Some(agent_name), Some(action)) => Some(DecisionEntry {
+            agent_name,
+            action,
+            rationale: rationale.unwrap_or_default(),
+            pinned,
+            fields_changed: None,
+        }),
+        _ if no_decision || clan_sdk::pack::frontmatter_has_decision(&raw_html) => None,
+        _ => anyhow::bail!(
+            "this view change needs attribution: pass --agent <name> --action \"<what changed>\", \
+             include a `decision:` block in the HTML frontmatter, or --no-decision to skip"
+        ),
+    };
+
+    let bytes = clan_sdk::pack::pack_html_with(&clan, &raw_html, None, None, delta, decision_override, None)?;
     std::fs::write(&file, &bytes)?;
     eprintln!("Patched {} in-place", file.display());
     Ok(())
@@ -908,7 +953,7 @@ decision: {{agent: X, action: Y, rationale: Z}}
 (Hint: frontmatter `structured:` MERGE-PATCHES shared/data.yaml — fields you OMIT are KEPT from prior hops. Only restate what you change; do NOT re-transcribe carried data.)
 
 # PATCH (In-place, Lowest Token Cost, Preferred)
-1. DOM: clan patch-html <file> <patch_file>
+1. DOM: clan patch-html <file> <patch_file> --agent X --action Y    (attribution REQUIRED; or a `decision:` block in frontmatter, or --no-decision)
 Schema:
 ---
 mode: patch-html

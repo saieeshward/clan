@@ -141,7 +141,7 @@ fn patch_html_nonmatching_selector_exits_nonzero() {
     )
     .unwrap();
 
-    let out = clan(&["patch-html", parent.to_str().unwrap(), patch.to_str().unwrap()]);
+    let out = clan(&["patch-html", parent.to_str().unwrap(), patch.to_str().unwrap(), "--no-decision"]);
     assert!(
         !out.status.success(),
         "zero-match selector must exit non-zero (stderr: {})",
@@ -723,11 +723,42 @@ fn patch_html_matching_selector_succeeds() {
     )
     .unwrap();
 
-    let out = clan(&["patch-html", parent.to_str().unwrap(), patch.to_str().unwrap()]);
+    let out = clan(&["patch-html", parent.to_str().unwrap(), patch.to_str().unwrap(),
+                     "--agent", "designer", "--action", "added a section"]);
     assert!(out.status.success(), "patch-html failed: {}", stderr(&out));
 
     let read = clan(&["read", "human", parent.to_str().unwrap()]);
     assert!(String::from_utf8_lossy(&read.stdout).contains("id=\"added\""));
+    // F15: the view change is attributed in the chain.
+    let chain = stdout(&clan(&["read", "chain", parent.to_str().unwrap()]));
+    assert!(chain.contains("designer") && chain.contains("added a section"), "{chain}");
+}
+
+#[test]
+fn patch_html_requires_attribution_by_default() {
+    // F15: a view change without --agent/--action and without a frontmatter
+    // decision is a teaching error.
+    let dir = tempfile::tempdir().unwrap();
+    let parent = create_parent(dir.path());
+    let patch = dir.path().join("p.html");
+    std::fs::write(&patch,
+        "---\nmode: patch-html\npatch_selector: \"section\"\npatch_action: \"append\"\n---\n<div id=\"x\">y</div>").unwrap();
+    let before = std::fs::read(&parent).unwrap();
+
+    let out = clan(&["patch-html", parent.to_str().unwrap(), patch.to_str().unwrap()]);
+    assert!(!out.status.success(), "missing attribution must fail");
+    let err = stderr(&out);
+    assert!(err.contains("--agent") && err.contains("--no-decision"), "error must teach the options: {err}");
+    assert_eq!(before, std::fs::read(&parent).unwrap(), "rejected patch must not touch the file");
+
+    // A frontmatter decision satisfies the requirement without flags.
+    let patch2 = dir.path().join("p2.html");
+    std::fs::write(&patch2,
+        "---\nmode: patch-html\npatch_selector: \"section\"\npatch_action: \"append\"\ndecision:\n  agent: designer\n  action: added via frontmatter\n---\n<div id=\"z\">y</div>").unwrap();
+    let out = clan(&["patch-html", parent.to_str().unwrap(), patch2.to_str().unwrap()]);
+    assert!(out.status.success(), "frontmatter decision must satisfy attribution: {}", stderr(&out));
+    let chain = stdout(&clan(&["read", "chain", parent.to_str().unwrap()]));
+    assert!(chain.contains("added via frontmatter"), "{chain}");
 }
 
 // --- Multi-agent edge-case CLI tests ---
