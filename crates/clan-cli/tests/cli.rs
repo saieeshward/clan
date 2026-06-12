@@ -1476,11 +1476,7 @@ fn pack_html_attribution_records_decision() {
     let dir = tempfile::tempdir().unwrap();
     let parent = create_parent(dir.path());
     let html = dir.path().join("view.html");
-    std::fs::write(
-        &html,
-        "<!DOCTYPE html><html><body><p>v2</p></body></html>",
-    )
-    .unwrap();
+    std::fs::write(&html, "<!DOCTYPE html><html><body><p>v2</p></body></html>").unwrap();
     let next = dir.path().join("next.clan");
 
     let out = clan(&[
@@ -1494,13 +1490,26 @@ fn pack_html_attribution_records_decision() {
         "--action",
         "refresh layout",
     ]);
-    assert!(out.status.success(), "pack-html with attribution failed: {}", stderr(&out));
+    assert!(
+        out.status.success(),
+        "pack-html with attribution failed: {}",
+        stderr(&out)
+    );
 
     let chain = clan(&["read", "chain", next.to_str().unwrap()]);
     let chain_out = String::from_utf8_lossy(&chain.stdout).into_owned();
-    assert!(chain_out.contains("design-bot"), "agent not in chain: {chain_out}");
-    assert!(chain_out.contains("refresh layout"), "action not in chain: {chain_out}");
-    assert!(chain_out.contains("human/index.html"), "fields_changed missing: {chain_out}");
+    assert!(
+        chain_out.contains("design-bot"),
+        "agent not in chain: {chain_out}"
+    );
+    assert!(
+        chain_out.contains("refresh layout"),
+        "action not in chain: {chain_out}"
+    );
+    assert!(
+        chain_out.contains("human/index.html"),
+        "fields_changed missing: {chain_out}"
+    );
 }
 
 /// F17: --agent without --action (or vice versa) is an error.
@@ -1611,7 +1620,11 @@ fn pack_html_data_only_write_with_force_succeeds() {
         next.to_str().unwrap(),
         "--force",
     ]);
-    assert!(out.status.success(), "--force must allow the write: {}", stderr(&out));
+    assert!(
+        out.status.success(),
+        "--force must allow the write: {}",
+        stderr(&out)
+    );
     let err = stderr(&out);
     assert!(
         err.contains("note:"),
@@ -1656,7 +1669,11 @@ fn pack_html_structured_with_changed_view_hints_but_succeeds() {
         "--output",
         next.to_str().unwrap(),
     ]);
-    assert!(out.status.success(), "combined view+data write must succeed: {}", stderr(&out));
+    assert!(
+        out.status.success(),
+        "combined view+data write must succeed: {}",
+        stderr(&out)
+    );
     assert!(
         stderr(&out).contains("patch-data"),
         "must emit the hint: {}",
