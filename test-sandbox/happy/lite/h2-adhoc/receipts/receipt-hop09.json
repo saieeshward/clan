@@ -4,28 +4,29 @@
   "arm": "h2-adhoc",
   "flow": "happy/lite",
   "commands_run": [
-    "mkdir -p test-sandbox/happy/lite/h2-adhoc/snapshots/hop-09-09-rollout-planner",
+    "mkdir -p snapshots/hop-09-09-rollout-planner",
     "cp work/findings.md snapshots/hop-09-09-rollout-planner/findings.md",
     "cp work/handoff.md snapshots/hop-09-09-rollout-planner/handoff.md",
-    "mkdir -p test-sandbox/happy/lite/h2-adhoc/receipts/hop09-output"
+    "mkdir -p receipts/hop09-output"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/lite/h2-adhoc/work/brief.md", "approx_chars": 570},
-    {"file": "test-sandbox/happy/lite/h2-adhoc/work/findings.md", "approx_chars": 1520},
-    {"file": "test-sandbox/happy/lite/h2-adhoc/work/handoff.md", "approx_chars": 760},
-    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/09-rollout-planner.json", "approx_chars": 200},
+    {"file": "test-sandbox/happy/lite/h2-adhoc/work/brief.md", "approx_chars": 560},
+    {"file": "test-sandbox/happy/lite/h2-adhoc/work/findings.md", "approx_chars": 2700},
+    {"file": "test-sandbox/happy/lite/h2-adhoc/work/handoff.md", "approx_chars": 1650},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/09-rollout-planner.json", "approx_chars": 175},
     {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/09-rollout-planner.handoff.txt", "approx_chars": 120}
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/lite/h2-adhoc/work/findings.md", "chars": 164},
-    {"file": "test-sandbox/happy/lite/h2-adhoc/work/handoff.md", "chars": 147},
-    {"file": "test-sandbox/happy/lite/h2-adhoc/snapshots/hop-09-09-rollout-planner/findings.md", "chars": 1684},
-    {"file": "test-sandbox/happy/lite/h2-adhoc/snapshots/hop-09-09-rollout-planner/handoff.md", "chars": 907},
-    {"file": "test-sandbox/happy/lite/h2-adhoc/receipts/hop09-output/authored-fragment.md", "chars": 311},
-    {"file": "test-sandbox/happy/lite/h2-adhoc/receipts/receipt-hop09.json", "chars": 1200}
+    {"file": "test-sandbox/happy/lite/h2-adhoc/work/findings.md", "chars": 630},
+    {"file": "test-sandbox/happy/lite/h2-adhoc/work/handoff.md", "chars": 335},
+    {"file": "test-sandbox/happy/lite/h2-adhoc/snapshots/hop-09-09-rollout-planner/findings.md", "chars": 630},
+    {"file": "test-sandbox/happy/lite/h2-adhoc/snapshots/hop-09-09-rollout-planner/handoff.md", "chars": 335},
+    {"file": "test-sandbox/happy/lite/h2-adhoc/receipts/hop09-output/findings-fragment.txt", "chars": 630},
+    {"file": "test-sandbox/happy/lite/h2-adhoc/receipts/hop09-output/handoff-fragment.txt", "chars": 335},
+    {"file": "test-sandbox/happy/lite/h2-adhoc/receipts/receipt-hop09.json", "chars": 1350}
   ],
-  "output_chars": 458,
+  "output_chars": 965,
   "errors": [],
-  "problems_and_friction": "No friction encountered. Supplied JSON and handoff text matched expected format exactly, making the append straightforward. Snapshot and receipt directories needed creation but that was routine.",
-  "context_understood": "09-rollout-planner appends a 3-phase go-live timeline (July-November 2026) ensuring Zoho CRM is live before the October peak season, with a champion program to drive adoption."
+  "problems_and_friction": "No friction encountered. Supplied JSON had 6 fields which mapped cleanly onto the rollout plan structure. The chain state was well-accumulated and unambiguous, making the rollout plan straightforward to derive.",
+  "context_understood": "9-hop AD-HOC H2 chain producing a CRM recommendation for Brightline Logistics (40 seats, EU, October peak); this hop adds a phased rollout plan for the Zoho-leaning recommendation before the lead-partner final hop."
 }

@@ -1,1 +1,0 @@
-hop-06 chart-update: updated bar-zoho <rect> in report.html SVG from y="52" height="108" to y="78" height="82" (Zoho now cheapest vendor)

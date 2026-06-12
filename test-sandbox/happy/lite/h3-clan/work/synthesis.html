@@ -1,0 +1,720 @@
+---
+structured:
+  synthesis_agent: 03-lead-partner
+  synthesis_recommendation: HubSpot
+  synthesis_rationale: HubSpot balances EU data residency, integration ecosystem, and manageable 40% cost premium over Zoho — justified by lower integration risk for a logistics operator.
+  synthesis_finalists:
+    - vendor: HubSpot
+      annual_eur: 24000
+      seat_cost: 50
+      eu_residency: true
+      integration_depth: high
+      risk_level: low
+    - vendor: Zoho
+      annual_eur: 18240
+      seat_cost: 38
+      eu_residency: partial
+      integration_depth: medium
+      risk_level: medium
+  synthesis_eliminated:
+    - vendor: Salesforce
+      reason: EUR 36,000/yr exceeds budget ceiling; no EU cost advantage for 40 seats
+  synthesis_status: complete
+decision:
+  agent: 03-lead-partner
+  action: synthesised findings and issued final recommendation
+  rationale: "Two finalists risk-weighted: HubSpot wins on EU residency (full GDPR datacentres in Frankfurt/Dublin) and deeper logistics integrations (ShipBob, Flexport, ERP connectors). Zoho's EUR 5,760/yr saving does not offset the integration risk for a logistics operator with complex data flows. Recommend HubSpot; negotiate annual prepay for 10–15% discount."
+  pinned: true
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Brightline CRM Recommendation</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:         #0f1117;
+      --surface:    #161b27;
+      --surface2:   #1e2535;
+      --border:     #2a3148;
+      --accent:     #6366f1;
+      --accent-dim: #4f51c5;
+      --green:      #10b981;
+      --amber:      #f59e0b;
+      --red:        #ef4444;
+      --text:       #e2e8f0;
+      --muted:      #8895b3;
+      --serif:      'DM Serif Display', Georgia, serif;
+      --sans:       'Inter', system-ui, sans-serif;
+    }
+
+    html { font-size: 16px; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* ── Layout ── */
+    .shell {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 48px 32px 80px;
+    }
+
+    /* ── Header ── */
+    .report-header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 36px;
+      margin-bottom: 48px;
+    }
+    .report-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .badge {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 4px;
+      background: var(--accent);
+      color: #fff;
+    }
+    .badge.final { background: var(--green); }
+    .report-date {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+    h1.headline {
+      font-family: var(--serif);
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      font-weight: 400;
+      line-height: 1.15;
+      color: #fff;
+      margin-bottom: 12px;
+    }
+    h1.headline em {
+      font-style: italic;
+      color: #a5b4fc;
+    }
+    .subheadline {
+      font-size: 1rem;
+      color: var(--muted);
+      max-width: 620px;
+    }
+
+    /* ── Section titles ── */
+    .section { margin-bottom: 48px; }
+    h2.section-title {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    h2.section-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ── Verdict card ── */
+    .verdict-card {
+      background: linear-gradient(135deg, #1a1f35 0%, #1e2040 100%);
+      border: 1px solid var(--accent);
+      border-radius: 16px;
+      padding: 36px 40px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 24px;
+      align-items: start;
+    }
+    .verdict-label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 6px;
+    }
+    .verdict-vendor {
+      font-family: var(--serif);
+      font-size: 2.8rem;
+      color: #fff;
+      line-height: 1;
+    }
+    .verdict-rationale {
+      font-size: 0.95rem;
+      color: var(--muted);
+      margin-top: 14px;
+      max-width: 560px;
+      line-height: 1.65;
+    }
+    .verdict-price {
+      text-align: right;
+    }
+    .price-figure {
+      font-family: var(--serif);
+      font-size: 2.2rem;
+      color: var(--green);
+    }
+    .price-label {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+    .negotiate-tag {
+      display: inline-block;
+      margin-top: 10px;
+      font-size: 0.72rem;
+      font-weight: 500;
+      padding: 3px 8px;
+      border-radius: 4px;
+      background: rgba(16,185,129,0.15);
+      color: var(--green);
+      border: 1px solid rgba(16,185,129,0.3);
+    }
+
+    /* ── Finalist comparison ── */
+    .finalist-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    @media (max-width: 640px) { .finalist-grid { grid-template-columns: 1fr; } }
+
+    .finalist-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 28px;
+      position: relative;
+      overflow: hidden;
+    }
+    .finalist-card.winner {
+      border-color: var(--accent);
+    }
+    .finalist-card.winner::before {
+      content: 'RECOMMENDED';
+      position: absolute;
+      top: 14px; right: -28px;
+      background: var(--accent);
+      color: #fff;
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      padding: 4px 36px;
+      transform: rotate(45deg);
+    }
+    .fc-vendor {
+      font-family: var(--serif);
+      font-size: 1.6rem;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+    .fc-annual {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--green);
+    }
+    .fc-seat {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 20px;
+    }
+    .fc-attrs {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .attr-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.82rem;
+      padding: 6px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .attr-row:last-child { border-bottom: none; }
+    .attr-label { color: var(--muted); }
+    .attr-val { font-weight: 500; }
+    .pill {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-size: 0.72rem;
+      font-weight: 600;
+    }
+    .pill.green { background: rgba(16,185,129,0.15); color: var(--green); }
+    .pill.amber { background: rgba(245,158,11,0.15); color: var(--amber); }
+    .pill.red   { background: rgba(239,68,68,0.15);  color: var(--red);   }
+
+    /* ── Cost comparison bar chart ── */
+    .chart-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 28px;
+    }
+    .bar-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 14px;
+    }
+    .bar-row:last-child { margin-bottom: 0; }
+    .bar-vendor {
+      width: 110px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      flex-shrink: 0;
+    }
+    .bar-track {
+      flex: 1;
+      height: 32px;
+      background: var(--surface2);
+      border-radius: 6px;
+      overflow: hidden;
+      position: relative;
+    }
+    .bar-fill {
+      height: 100%;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      padding-left: 12px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: #fff;
+      transition: width 0.8s ease;
+    }
+    .bar-fill.hubspot    { background: linear-gradient(90deg, var(--accent), #818cf8); }
+    .bar-fill.zoho       { background: linear-gradient(90deg, var(--green), #34d399); }
+    .bar-fill.salesforce { background: linear-gradient(90deg, #6b7280, #9ca3af); }
+
+    /* ── Market snapshot ── */
+    .market-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 16px;
+    }
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+    }
+    .stat-value {
+      font-family: var(--serif);
+      font-size: 2rem;
+      color: #fff;
+      line-height: 1;
+    }
+    .stat-unit {
+      font-size: 1rem;
+      color: var(--muted);
+    }
+    .stat-label {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+
+    /* ── Market share donut ── */
+    .donut-wrap {
+      display: flex;
+      gap: 32px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .donut-legend {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.85rem;
+    }
+    .legend-dot {
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* ── Priorities ── */
+    .priority-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .priority-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 18px;
+    }
+    .priority-rank {
+      font-family: var(--serif);
+      font-size: 1.4rem;
+      color: var(--accent);
+      width: 28px;
+      flex-shrink: 0;
+    }
+    .priority-text {
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    /* ── Decision chain ── */
+    .chain { display: flex; flex-direction: column; gap: 0; }
+    .chain-node {
+      display: grid;
+      grid-template-columns: 28px 1fr;
+      gap: 0 16px;
+    }
+    .chain-spine {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .chain-dot {
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      background: var(--accent);
+      flex-shrink: 0;
+      margin-top: 4px;
+    }
+    .chain-dot.final-dot { background: var(--green); }
+    .chain-line {
+      flex: 1;
+      width: 2px;
+      background: var(--border);
+      margin: 4px 0;
+    }
+    .chain-content {
+      padding-bottom: 28px;
+    }
+    .chain-agent {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 4px;
+    }
+    .chain-action {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 6px;
+    }
+    .chain-rationale {
+      font-size: 0.83rem;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    /* ── Footer ── */
+    .report-footer {
+      border-top: 1px solid var(--border);
+      padding-top: 24px;
+      margin-top: 48px;
+      font-size: 0.75rem;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+  </style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- ── Header ── -->
+  <header class="report-header">
+    <div class="report-meta">
+      <span class="badge final">Final</span>
+      <span class="badge">CRM Vendor Analysis</span>
+      <span class="report-date" data-adf-id="report-date">June 2026 · 3-agent pipeline</span>
+    </div>
+    <h1 class="headline" data-adf-id="headline">
+      CRM Recommendation for<br><em>Brightline Logistics</em>
+    </h1>
+    <p class="subheadline" data-adf-id="subheadline">
+      40-seat deployment · EU mid-market logistics · Annual contract
+    </p>
+  </header>
+
+  <!-- ── Verdict ── -->
+  <section class="section">
+    <h2 class="section-title">Final Recommendation</h2>
+    <div class="verdict-card">
+      <div>
+        <div class="verdict-label">Recommended Vendor</div>
+        <div class="verdict-vendor" data-adf-id="verdict-vendor">{{synthesis_recommendation}}</div>
+        <p class="verdict-rationale" data-adf-id="verdict-rationale">{{synthesis_rationale}}</p>
+      </div>
+      <div class="verdict-price">
+        <div class="verdict-label">Annual Cost</div>
+        <div class="price-figure" data-adf-id="verdict-price">EUR 24,000</div>
+        <div class="price-label">40 seats · EUR 50/seat/mo</div>
+        <div class="negotiate-tag">Negotiate annual prepay → ~EUR 20,400</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Finalist Comparison ── -->
+  <section class="section">
+    <h2 class="section-title">Finalist Comparison</h2>
+    <div class="finalist-grid">
+      <!-- HubSpot -->
+      <div class="finalist-card winner">
+        <div class="fc-vendor" data-adf-id="finalist-hubspot-name">HubSpot</div>
+        <div class="fc-annual" data-adf-id="finalist-hubspot-annual">EUR 24,000 / yr</div>
+        <div class="fc-seat" data-adf-id="finalist-hubspot-seat">EUR 50 · seat · month</div>
+        <div class="fc-attrs">
+          <div class="attr-row">
+            <span class="attr-label">EU Data Residency</span>
+            <span class="attr-val"><span class="pill green">Full</span></span>
+          </div>
+          <div class="attr-row">
+            <span class="attr-label">Integration Depth</span>
+            <span class="attr-val"><span class="pill green">High</span></span>
+          </div>
+          <div class="attr-row">
+            <span class="attr-label">Logistics Connectors</span>
+            <span class="attr-val"><span class="pill green">ShipBob, Flexport, ERPs</span></span>
+          </div>
+          <div class="attr-row">
+            <span class="attr-label">Risk Level</span>
+            <span class="attr-val"><span class="pill green">Low</span></span>
+          </div>
+          <div class="attr-row">
+            <span class="attr-label">Time-to-Value</span>
+            <span class="attr-val"><span class="pill green">Fast</span></span>
+          </div>
+        </div>
+      </div>
+      <!-- Zoho -->
+      <div class="finalist-card">
+        <div class="fc-vendor" data-adf-id="finalist-zoho-name">Zoho</div>
+        <div class="fc-annual" data-adf-id="finalist-zoho-annual">EUR 18,240 / yr</div>
+        <div class="fc-seat" data-adf-id="finalist-zoho-seat">EUR 38 · seat · month</div>
+        <div class="fc-attrs">
+          <div class="attr-row">
+            <span class="attr-label">EU Data Residency</span>
+            <span class="attr-val"><span class="pill amber">Partial</span></span>
+          </div>
+          <div class="attr-row">
+            <span class="attr-label">Integration Depth</span>
+            <span class="attr-val"><span class="pill amber">Medium</span></span>
+          </div>
+          <div class="attr-row">
+            <span class="attr-label">Logistics Connectors</span>
+            <span class="attr-val"><span class="pill amber">Limited native</span></span>
+          </div>
+          <div class="attr-row">
+            <span class="attr-label">Risk Level</span>
+            <span class="attr-val"><span class="pill amber">Medium</span></span>
+          </div>
+          <div class="attr-row">
+            <span class="attr-label">Time-to-Value</span>
+            <span class="attr-val"><span class="pill amber">Moderate</span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Cost Bar Chart ── -->
+  <section class="section">
+    <h2 class="section-title">Annual Cost Comparison (40 Seats)</h2>
+    <div class="chart-wrap">
+      <div class="bar-row">
+        <span class="bar-vendor" data-adf-id="bar-zoho-label">Zoho</span>
+        <div class="bar-track">
+          <div class="bar-fill zoho" style="width:50.7%">EUR 18,240</div>
+        </div>
+      </div>
+      <div class="bar-row">
+        <span class="bar-vendor" data-adf-id="bar-hubspot-label">HubSpot ✓</span>
+        <div class="bar-track">
+          <div class="bar-fill hubspot" style="width:66.7%">EUR 24,000</div>
+        </div>
+      </div>
+      <div class="bar-row">
+        <span class="bar-vendor" data-adf-id="bar-sf-label">Salesforce</span>
+        <div class="bar-track">
+          <div class="bar-fill salesforce" style="width:100%">EUR 36,000</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Market Snapshot ── -->
+  <section class="section">
+    <h2 class="section-title">Market Snapshot</h2>
+    <div class="market-grid">
+      <div class="stat-card">
+        <div class="stat-value" data-adf-id="stat-tam">EUR 2.4<span class="stat-unit">M</span></div>
+        <div class="stat-label">EU Mid-Market TAM</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" data-adf-id="stat-growth">12<span class="stat-unit">%</span></div>
+        <div class="stat-label">Annual Market Growth</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" data-adf-id="stat-seats">40</div>
+        <div class="stat-label">Brightline Seats</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" data-adf-id="stat-segment" style="font-size:1.1rem;padding-top:6px;">EU Logistics<br>Mid-Market</div>
+        <div class="stat-label">Target Segment</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Buyer Priorities + Market Share ── -->
+  <section class="section">
+    <h2 class="section-title">Buyer Priorities &amp; Incumbent Share</h2>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start;">
+      <div>
+        <p style="font-size:0.8rem;color:var(--muted);margin-bottom:14px;">Ranked buyer priorities for EU logistics operators</p>
+        <div class="priority-list">
+          <div class="priority-item">
+            <span class="priority-rank">1</span>
+            <span class="priority-text" data-adf-id="priority-1">Time-to-Value</span>
+          </div>
+          <div class="priority-item">
+            <span class="priority-rank">2</span>
+            <span class="priority-text" data-adf-id="priority-2">EU Data Residency</span>
+          </div>
+          <div class="priority-item">
+            <span class="priority-rank">3</span>
+            <span class="priority-text" data-adf-id="priority-3">Integration Depth</span>
+          </div>
+        </div>
+      </div>
+      <div class="chart-wrap" style="padding:24px;">
+        <p style="font-size:0.8rem;color:var(--muted);margin-bottom:16px;">Current EU mid-market incumbent share</p>
+        <div class="donut-wrap">
+          <svg width="120" height="120" viewBox="0 0 120 120">
+            <!-- HubSpot 34% -->
+            <circle cx="60" cy="60" r="46" fill="none" stroke="#6366f1" stroke-width="22"
+              stroke-dasharray="97.9 191.1" stroke-dashoffset="0" transform="rotate(-90 60 60)" />
+            <!-- Salesforce 29% -->
+            <circle cx="60" cy="60" r="46" fill="none" stroke="#818cf8" stroke-width="22"
+              stroke-dasharray="83.5 205.5" stroke-dashoffset="-97.9" transform="rotate(-90 60 60)" />
+            <!-- Zoho 21% -->
+            <circle cx="60" cy="60" r="46" fill="none" stroke="#10b981" stroke-width="22"
+              stroke-dasharray="60.5 228.5" stroke-dashoffset="-181.4" transform="rotate(-90 60 60)" />
+            <!-- Other 16% -->
+            <circle cx="60" cy="60" r="46" fill="none" stroke="#374151" stroke-width="22"
+              stroke-dasharray="46.1 242.9" stroke-dashoffset="-241.9" transform="rotate(-90 60 60)" />
+            <text x="60" y="64" text-anchor="middle" fill="#fff" font-size="11" font-family="Inter,sans-serif" font-weight="600">Share</text>
+          </svg>
+          <div class="donut-legend">
+            <div class="legend-item">
+              <span class="legend-dot" style="background:#6366f1"></span>
+              <span data-adf-id="legend-hubspot">HubSpot 34%</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-dot" style="background:#818cf8"></span>
+              <span data-adf-id="legend-sf">Salesforce 29%</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-dot" style="background:#10b981"></span>
+              <span data-adf-id="legend-zoho">Zoho 21%</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-dot" style="background:#374151"></span>
+              <span data-adf-id="legend-other">Other 16%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Analysis Pipeline ── -->
+  <section class="section">
+    <h2 class="section-title">Analysis Pipeline</h2>
+    <div class="chain">
+      <div class="chain-node">
+        <div class="chain-spine">
+          <div class="chain-dot"></div>
+          <div class="chain-line"></div>
+        </div>
+        <div class="chain-content">
+          <div class="chain-agent">01-market-researcher</div>
+          <div class="chain-action" data-adf-id="chain-1-action">Market landscape analysis</div>
+          <div class="chain-rationale" data-adf-id="chain-1-rationale">Market favours fast EU-resident go-lives. HubSpot leads mindshare but Zoho is gaining in mid-market on price. Flagged: get hard per-seat pricing.</div>
+        </div>
+      </div>
+      <div class="chain-node">
+        <div class="chain-spine">
+          <div class="chain-dot"></div>
+          <div class="chain-line"></div>
+        </div>
+        <div class="chain-content">
+          <div class="chain-agent">02-pricing-analyst</div>
+          <div class="chain-action" data-adf-id="chain-2-action">Pricing benchmarking</div>
+          <div class="chain-rationale" data-adf-id="chain-2-rationale">Zoho cheapest at EUR 18,240/yr for 40 seats vs HubSpot EUR 24,000. Salesforce eliminated at EUR 36,000. Flagged: risk-weight the two finalists.</div>
+        </div>
+      </div>
+      <div class="chain-node">
+        <div class="chain-spine">
+          <div class="chain-dot final-dot"></div>
+        </div>
+        <div class="chain-content">
+          <div class="chain-agent" style="color:var(--green);">03-lead-partner</div>
+          <div class="chain-action" data-adf-id="chain-3-action">Risk weighting &amp; final recommendation</div>
+          <div class="chain-rationale" data-adf-id="chain-3-rationale">HubSpot wins on EU full residency (Frankfurt/Dublin datacentres) and superior logistics integrations. Zoho's EUR 5,760/yr saving does not offset integration risk for a logistics operator with complex data flows. Recommend HubSpot; negotiate annual prepay for 10–15% discount.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="report-footer">
+    <span data-adf-id="footer-client">Brightline Logistics — Confidential</span>
+    <span data-adf-id="footer-pipeline">Generated by 3-agent CLAN pipeline · June 2026</span>
+  </footer>
+</div>
+
+<script>
+  // Hydrate any {{key}} placeholders from window.__CLAN__.data if available
+  document.addEventListener('DOMContentLoaded', function () {
+    var data = window.__CLAN__ && window.__CLAN__.data;
+    if (!data) return;
+    document.querySelectorAll('[data-adf-id]').forEach(function (el) {
+      el.innerHTML = el.innerHTML.replace(/\{\{(\w+)\}\}/g, function (_, k) {
+        return data[k] !== undefined ? data[k] : '{{' + k + '}}';
+      });
+    });
+  });
+</script>
+</body>
+</html>

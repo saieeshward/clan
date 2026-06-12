@@ -1,3 +1,4 @@
+
 ## 01-market-researcher
 
 market_tam_eur: 2400000

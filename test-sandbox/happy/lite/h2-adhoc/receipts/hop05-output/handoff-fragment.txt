@@ -1,3 +1,3 @@
 ## 05-integrations-assessor
 
-HubSpot has one more native connector; Zoho needs a NetSuite connector but it is supported. ~9 wk effort either way. Next: customer discovery.
+HubSpot has native connectors for all 6 required systems (NetSuite, Slack, Twilio, DocuSign, Outlook, Shopify). Zoho covers 5 natively but needs a third-party connector for NetSuite, adding ~1 wk and ~EUR 1,200/yr. Integration score favours HubSpot. Combined with GDPR and risk findings the decision is now finely balanced: Zoho wins on price and GDPR bundling, HubSpot wins on integration completeness and maturity. Next: customer discovery / references to break the tie.

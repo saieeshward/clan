@@ -4,29 +4,29 @@
   "arm": "h2-adhoc",
   "flow": "happy/lite",
   "commands_run": [
-    "mkdir -p snapshots/hop-04-04-gdpr-reviewer",
+    "mkdir -p test-sandbox/happy/lite/h2-adhoc/snapshots/hop-04-04-gdpr-reviewer",
     "cp work/findings.md snapshots/hop-04-04-gdpr-reviewer/findings.md",
     "cp work/handoff.md snapshots/hop-04-04-gdpr-reviewer/handoff.md",
-    "mkdir -p receipts/hop04-output",
-    "wc -c receipts/hop04-output/*"
+    "mkdir -p test-sandbox/happy/lite/h2-adhoc/receipts/hop04-output",
+    "wc -c receipts/hop04-output/authored-fragments.md"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/lite/h2-adhoc/work/brief.md", "approx_chars": 540},
-    {"file": "test-sandbox/happy/lite/h2-adhoc/work/findings.md", "approx_chars": 620},
-    {"file": "test-sandbox/happy/lite/h2-adhoc/work/handoff.md", "approx_chars": 330},
-    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/04-gdpr-reviewer.json", "approx_chars": 180},
-    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/04-gdpr-reviewer.handoff.txt", "approx_chars": 120}
+    {"file": "test-sandbox/happy/lite/h2-adhoc/work/brief.md", "approx_chars": 530},
+    {"file": "test-sandbox/happy/lite/h2-adhoc/work/findings.md", "approx_chars": 780},
+    {"file": "test-sandbox/happy/lite/h2-adhoc/work/handoff.md", "approx_chars": 340},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/04-gdpr-reviewer.json", "approx_chars": 200},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/04-gdpr-reviewer.handoff.txt", "approx_chars": 105}
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/lite/h2-adhoc/work/findings.md", "chars": 178},
-    {"file": "test-sandbox/happy/lite/h2-adhoc/work/handoff.md", "chars": 120},
-    {"file": "test-sandbox/happy/lite/h2-adhoc/snapshots/hop-04-04-gdpr-reviewer/findings.md", "chars": 178},
-    {"file": "test-sandbox/happy/lite/h2-adhoc/snapshots/hop-04-04-gdpr-reviewer/handoff.md", "chars": 120},
-    {"file": "test-sandbox/happy/lite/h2-adhoc/receipts/hop04-output/findings-fragment.md", "chars": 178},
-    {"file": "test-sandbox/happy/lite/h2-adhoc/receipts/hop04-output/handoff-fragment.md", "chars": 120}
+    {"file": "test-sandbox/happy/lite/h2-adhoc/work/findings.md", "chars": 1010},
+    {"file": "test-sandbox/happy/lite/h2-adhoc/work/handoff.md", "chars": 530},
+    {"file": "test-sandbox/happy/lite/h2-adhoc/snapshots/hop-04-04-gdpr-reviewer/findings.md", "chars": 1010},
+    {"file": "test-sandbox/happy/lite/h2-adhoc/snapshots/hop-04-04-gdpr-reviewer/handoff.md", "chars": 530},
+    {"file": "test-sandbox/happy/lite/h2-adhoc/receipts/hop04-output/authored-fragments.md", "chars": 612},
+    {"file": "test-sandbox/happy/lite/h2-adhoc/receipts/receipt-hop04.json", "chars": 1350}
   ],
-  "output_chars": 324,
+  "output_chars": 612,
   "errors": [],
-  "problems_and_friction": "No friction encountered. Supplied JSON and handoff matched expected format perfectly. The Write tool rejected direct file writes for output fragments but Bash workaround succeeded.",
-  "context_understood": "GDPR reviewer role appending EU data residency findings for Brightline Logistics CRM selection, confirming Zoho has included EU pinning vs HubSpot's paid add-on, both providing DPA."
+  "problems_and_friction": "No friction encountered. Supplied JSON and handoff text were consistent and cleanly integrated with prior findings. The chain state was coherent and required no reconciliation.",
+  "context_understood": "Brightline Logistics (40 seats, EU) needs a CRM recommendation from HubSpot/Zoho/Salesforce; this hop adds GDPR/data-residency findings showing Zoho has a compliance advantage via bundled EU pinning."
 }

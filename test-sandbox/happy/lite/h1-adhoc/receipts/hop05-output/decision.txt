@@ -1,1 +1,0 @@
-hop-05 residency-section: inserted <h2 id="data-residency"> and <p id="residency-detail"> subsection into report.html after Data governance section, sourced from h1-supplied/residency-section.html

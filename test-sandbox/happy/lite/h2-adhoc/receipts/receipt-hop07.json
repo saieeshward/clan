@@ -4,29 +4,32 @@
   "arm": "h2-adhoc",
   "flow": "happy/lite",
   "commands_run": [
-    "mkdir -p snapshots/hop-07-07-competitive-intel",
-    "mkdir -p receipts/hop07-output",
-    "cp work/findings.md snapshots/hop-07-07-competitive-intel/findings.md",
-    "cp work/handoff.md snapshots/hop-07-07-competitive-intel/handoff.md"
+    "Edit findings.md (append ## 07-competitive-intel section)",
+    "Edit handoff.md (append ## 07-competitive-intel section)",
+    "PowerShell: New-Item snapshot dir; Copy-Item findings.md and handoff.md to snapshot",
+    "PowerShell: New-Item receipts/hop07-output dir",
+    "Write hop07-output/findings-fragment.txt",
+    "Write hop07-output/handoff-fragment.txt",
+    "PowerShell: measure authored char counts"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/lite/h2-adhoc/work/brief.md", "approx_chars": 520},
-    {"file": "test-sandbox/happy/lite/h2-adhoc/work/findings.md", "approx_chars": 960},
-    {"file": "test-sandbox/happy/lite/h2-adhoc/work/handoff.md", "approx_chars": 640},
-    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/07-competitive-intel.json", "approx_chars": 175},
-    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/07-competitive-intel.handoff.txt", "approx_chars": 115}
+    {"file": "test-sandbox/happy/lite/h2-adhoc/work/brief.md", "approx_chars": 630},
+    {"file": "test-sandbox/happy/lite/h2-adhoc/work/findings.md", "approx_chars": 2050},
+    {"file": "test-sandbox/happy/lite/h2-adhoc/work/handoff.md", "approx_chars": 1100},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/07-competitive-intel.json", "approx_chars": 180},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/07-competitive-intel.handoff.txt", "approx_chars": 110}
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/lite/h2-adhoc/work/findings.md", "chars": 155},
-    {"file": "test-sandbox/happy/lite/h2-adhoc/work/handoff.md", "chars": 120},
-    {"file": "test-sandbox/happy/lite/h2-adhoc/snapshots/hop-07-07-competitive-intel/findings.md", "chars": 1115},
-    {"file": "test-sandbox/happy/lite/h2-adhoc/snapshots/hop-07-07-competitive-intel/handoff.md", "chars": 760},
-    {"file": "test-sandbox/happy/lite/h2-adhoc/receipts/hop07-output/findings-fragment.txt", "chars": 155},
-    {"file": "test-sandbox/happy/lite/h2-adhoc/receipts/hop07-output/handoff-fragment.txt", "chars": 120},
-    {"file": "test-sandbox/happy/lite/h2-adhoc/receipts/receipt-hop07.json", "chars": 1350}
+    {"file": "test-sandbox/happy/lite/h2-adhoc/work/findings.md", "chars": 455},
+    {"file": "test-sandbox/happy/lite/h2-adhoc/work/handoff.md", "chars": 374},
+    {"file": "test-sandbox/happy/lite/h2-adhoc/snapshots/hop-07-07-competitive-intel/findings.md", "chars": 455},
+    {"file": "test-sandbox/happy/lite/h2-adhoc/snapshots/hop-07-07-competitive-intel/handoff.md", "chars": 374},
+    {"file": "test-sandbox/happy/lite/h2-adhoc/receipts/hop07-output/findings-fragment.txt", "chars": 455},
+    {"file": "test-sandbox/happy/lite/h2-adhoc/receipts/hop07-output/handoff-fragment.txt", "chars": 374},
+    {"file": "test-sandbox/happy/lite/h2-adhoc/receipts/receipt-hop07.json", "chars": 1650}
   ],
-  "output_chars": 275,
+  "output_chars": 829,
   "errors": [],
-  "problems_and_friction": "No friction encountered. Supplied JSON and handoff note were concise and directly usable. The emoji in the supplied handoff.txt was replaced with an em-dash for clean text output.",
-  "context_understood": "Hop 07 adds competitive intel findings (strengths per vendor, switching cost, export clause) to the CRM recommendation chain for Brightline Logistics."
+  "problems_and_friction": "Bash tool was used initially instead of PowerShell for directory/file operations on Windows, causing immediate failures; switched to PowerShell which succeeded. No other friction encountered. Supplied JSON findings were minimal (5 fields) and mapped cleanly onto accumulated chain state.",
+  "context_understood": "Hop 07 adds competitive-intel findings confirming Zoho's portability hedge via export clause and Salesforce's elimination, leaving HubSpot vs Zoho as the finely balanced finalists for the lead partner to resolve."
 }

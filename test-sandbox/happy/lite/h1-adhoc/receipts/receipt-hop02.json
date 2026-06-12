@@ -1,33 +1,35 @@
 {
-  "role": "risk-add",
+  "role": "hop-agent",
   "hop": 2,
-  "arm": "h1-adhoc",
-  "flow": "happy/lite",
+  "arm": "risk-add",
+  "flow": "h1-adhoc",
   "commands_run": [
-    "mkdir -p .../snapshots/hop-02-risk-add",
-    "cp work/report.html work/data.json work/decisions.log .../snapshots/hop-02-risk-add/",
-    "mkdir -p .../receipts/hop02-output",
-    "wc -c (authored output files)"
+    "Edit data.json — append new risk object to risks[]",
+    "Edit report.html — append <tr> to risk table tbody",
+    "Edit decisions.log — append one-line entry",
+    "PowerShell: mkdir snapshots/hop-02-risk-add; Copy-Item x3",
+    "PowerShell: mkdir receipts, receipts/hop02-output",
+    "Write receipts/hop02-output/patch.txt",
+    "PowerShell: measure char counts",
+    "Write receipts/receipt-hop02.json"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/lite/h1-adhoc/work/data.json", "approx_chars": 1200},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/work/report.html", "approx_chars": 2300},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/work/decisions.log", "approx_chars": 150}
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/data.json", "approx_chars": 1960},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/report.html", "approx_chars": 3700},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/decisions.log", "approx_chars": 160}
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/lite/h1-adhoc/work/data.json", "chars": 111},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/work/report.html", "chars": 97},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/work/decisions.log", "chars": 199},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-02-risk-add/data.json", "chars": 0},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-02-risk-add/report.html", "chars": 0},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-02-risk-add/decisions.log", "chars": 0},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/receipts/hop02-output/patch-data.json", "chars": 111},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/receipts/hop02-output/patch-html.html", "chars": 97},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/receipts/hop02-output/decision.txt", "chars": 199},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/data.json", "chars": 1980},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/report.html", "chars": 3787},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/decisions.log", "chars": 322},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-02-risk-add/data.json", "chars": 1980},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-02-risk-add/report.html", "chars": 3787},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-02-risk-add/decisions.log", "chars": 322},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/receipts/hop02-output/patch.txt", "chars": 466},
     {"file": "test-sandbox/happy/lite/h1-adhoc/receipts/receipt-hop02.json", "chars": 0}
   ],
-  "output_chars": 407,
+  "output_chars": 466,
   "errors": [],
-  "problems_and_friction": "No friction. The risks array had a trailing item without a comma so a splice was needed to add a comma after the last existing item and append the new object. The HTML tbody had a clear insertion point before the closing tag. Both edits were minimal and surgical.",
-  "context_understood": "Hop 2 of the ad-hoc arm adds a Vendor lock-in risk entry to both data.json and the HTML risk table, then logs the decision and snapshots the work directory."
+  "problems_and_friction": "Bash tool used first for PowerShell commands — failed with command not found; corrected immediately by switching to PowerShell tool.",
+  "context_understood": "Hop-02 risk-add: append a new Vendor lock-in risk (Medium severity) to data.json risks[] and a matching <tr> to report.html risk table; log in decisions.log; snapshot to hop-02-risk-add/; write receipt and patch payload to receipts/."
 }

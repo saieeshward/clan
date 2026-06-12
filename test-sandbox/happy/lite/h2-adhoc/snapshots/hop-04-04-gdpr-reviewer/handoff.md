@@ -1,3 +1,4 @@
+
 ## 01-market-researcher
 
 Market favours fast EU-resident go-lives. HubSpot leads mindshare but Zoho is gaining in mid-market on price. Next: get hard per-seat pricing.
@@ -12,4 +13,4 @@ Migration quality is the top risk for either vendor. Zoho carries slightly highe
 
 ## 04-gdpr-reviewer
 
-Zoho includes EU region pinning at no extra cost; HubSpot bills it as an add-on. Both sign a DPA. Next: assess integrations.
+Both vendors sign a DPA and give 30-day subprocessor notice. Zoho includes EU Frankfurt pinning in the base price; HubSpot charges extra for it. GDPR compliance tilts toward Zoho. Next: assess integration depth for logistics workflows.

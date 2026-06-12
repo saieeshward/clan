@@ -1,7 +1,7 @@
 {
-  "role": "summary-rewrite",
-  "hop": 4,
-  "arm": "adhoc",
+  "role": "AD-HOC H1 revision agent",
+  "hop": "04",
+  "arm": "summary-rewrite",
   "flow": "h1-adhoc",
   "commands_run": [
     "read exec-summary.txt",
@@ -9,35 +9,32 @@
     "read report.html",
     "read decisions.log",
     "edit data.json exec_summary field",
-    "edit report.html <p id=\"exec-summary\">",
-    "edit decisions.log append entry",
+    "edit report.html #exec-summary paragraph",
+    "append to decisions.log",
     "mkdir snapshots/hop-04-summary-rewrite",
-    "cp report.html data.json decisions.log → snapshots/hop-04-summary-rewrite/",
+    "cp report.html data.json decisions.log to snapshot dir",
     "mkdir receipts/hop04-output",
-    "write patch-data.json",
-    "write patch-html.html",
-    "write decision.txt",
+    "write hop04-output/exec-summary-patch.txt",
     "write receipt-hop04.json"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/lite/_inputs/h1-supplied/exec-summary.txt", "approx_chars": 297},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/work/data.json", "approx_chars": 1180},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/work/report.html", "approx_chars": 2150},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/work/decisions.log", "approx_chars": 400}
+    {"file": "test-sandbox/happy/lite/_inputs/h1-supplied/exec-summary.txt", "approx_chars": 324},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/data.json", "approx_chars": 1987},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/report.html", "approx_chars": 4046},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/decisions.log", "approx_chars": 397}
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/lite/h1-adhoc/work/data.json", "chars": 345},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/work/report.html", "chars": 354},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/work/decisions.log", "chars": 186},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-04-summary-rewrite/data.json", "chars": 345},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-04-summary-rewrite/report.html", "chars": 354},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-04-summary-rewrite/decisions.log", "chars": 186},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/receipts/hop04-output/patch-data.json", "chars": 345},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/receipts/hop04-output/patch-html.html", "chars": 354},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/receipts/hop04-output/decision.txt", "chars": 186}
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/data.json", "chars": 2007},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/report.html", "chars": 4069},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/decisions.log", "chars": 634},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-04-summary-rewrite/data.json", "chars": 2007},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-04-summary-rewrite/report.html", "chars": 4069},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-04-summary-rewrite/decisions.log", "chars": 634},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/receipts/hop04-output/exec-summary-patch.txt", "chars": 323},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/receipts/receipt-hop04.json", "chars": 0}
   ],
-  "output_chars": 885,
+  "output_chars": 323,
   "errors": [],
-  "problems_and_friction": "None. The report.html uses a template placeholder {{exec_summary}} in the original, but the supplied text needed to be inlined literally since no template engine is run at snapshot time. The apostrophe in 'Brightline's' was HTML-escaped as &#x27; in the HTML fragment to be safe.",
-  "context_understood": "Replace the exec_summary field in data.json and the matching <p id='exec-summary'> in report.html with the verbatim text from h1-supplied/exec-summary.txt, then snapshot and write receipts."
+  "problems_and_friction": "PowerShell Add-Content failed due to shell quoting conflict with embedded double-quotes in the log line; resolved by switching to Bash printf redirect.",
+  "context_understood": "Replace exec_summary in data.json and <p id=exec-summary> in report.html with verbatim text from exec-summary.txt; append decisions.log entry; snapshot work/ files; write receipt and hop output."
 }
