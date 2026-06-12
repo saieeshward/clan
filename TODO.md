@@ -8,8 +8,8 @@ Priority order: fix blockers first, then correctness, then packaging, then optim
 
 - [X] `Cargo.toml:8` — change `license = "Apache-2.0"` to `"MPL-2.0"` (wrong license on every crate)
 - [x] `Cargo.toml:9` — fix `repository` URL (`xon` → `clan`)
-- [ ] Add `.github/workflows/ci.yml` — cargo check + test + tsc on every PR
-- [ ] Add `.github/workflows/release.yml` — tag push → CLI binaries + DMG/MSI/AppImage via `tauri-action`
+- [x] Add `.github/workflows/ci.yml` — cargo check + test + tsc on every PR
+- [x] Add `.github/workflows/release.yml` — tag push → CLI binaries + DMG/MSI/AppImage via `tauri-action`
 - [x] Add `.nvmrc` containing `20` in `app/` (Node 16 users get cryptic failures)
 - [x] Add `"engines": { "node": ">=20" }` to `app/package.json`
 
@@ -90,14 +90,14 @@ Priority order: fix blockers first, then correctness, then packaging, then optim
 - [x] Create `crates/clan-sdk/README.md` — crates.io renders this; without it the page is blank
 - [x] Promote `lol_html = "2.1.0"` from `clan-sdk/Cargo.toml` into `[workspace.dependencies]`
 - [x] Add `[[bin]]` entry to `crates/clan-cli/Cargo.toml` declaring binary name explicitly
-- [ ] Add correct logo for the app.
+- [x] Add correct logo for the app.
 - [x] ASCII Art on first installation [OPT]
 
 ### App packaging
 
 - [x] Rename `app/package.json` `"name"` from `"app"` to `"clan-viewer"`
 - [x] Set `app/package.json` `"version"` to match workspace version (`1.0.0`)
-- [ ] Add correct logo for the app.
+- [x] Add correct logo for the app.
 - [ ] File Tree in App [OPT]
 
 ### Repository hygiene
@@ -111,9 +111,18 @@ Priority order: fix blockers first, then correctness, then packaging, then optim
 
 - [ ] CLI: publish `clan-cli` to crates.io on tag + attach pre-built binaries (Linux x86_64/ARM, macOS ARM/Intel, Windows x86_64) via `cross`
 - [ ] SDK: publish `clan-sdk` to crates.io on tag
-- [ ] Viewer: attach `.dmg`, `.msi`, `.AppImage` to GitHub Release via `tauri-action`
+- [x] Viewer: attach `.dmg`, `.msi`, `.AppImage` to GitHub Release via `tauri-action`
 - [ ] Spec: host `spec/CLAN-SPEC.md` at a versioned URL and reference from crates.io docs
 - [ ] Packages on github for download : Discuss
+
+### Launch announcements (drafts ready 2026-06-12, kept local until posted)
+
+- [ ] Reddit — r/AI_Agents: benchmark-led post ("where it won and where it honestly lost")
+- [ ] Reddit — r/rust: engineering-led post (SDK/CLI/Tauri, <200ms, MPL-2.0)
+- [ ] Reddit — r/LocalLLaMA [OPT]: variant of the r/AI_Agents post
+- [ ] LinkedIn: launch post (provenance/"where does the truth live" angle)
+- [ ] Merge PR #45 to main before posting (so visitors land on the launch README)
+- [ ] Update post links to the latest release tag before publishing
 
 ---
 
