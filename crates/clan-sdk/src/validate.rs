@@ -8,7 +8,6 @@ use crate::container::ClanFile;
 use crate::error::{Error, Result};
 use crate::hash;
 
-
 /// A collected set of validation problems. Empty == valid.
 #[derive(Debug, Default)]
 pub struct ValidationReport {
@@ -149,9 +148,9 @@ fn content_checks(clan: &ClanFile, report: &mut ValidationReport) {
         for member in ["data.yaml", "decisions.yaml"] {
             let path = format!("{}{member}", fork.namespace);
             if !clan.has_entry(&path) {
-                report
-                    .structural
-                    .push(format!("forked file is missing its namespace member: {path}"));
+                report.structural.push(format!(
+                    "forked file is missing its namespace member: {path}"
+                ));
             }
         }
     }
@@ -227,9 +226,7 @@ fn content_checks(clan: &ClanFile, report: &mut ValidationReport) {
 
     // decision-chain.yaml entries must have required fields.
     if let Ok(bytes) = clan.read_entry("agent/decision-chain.yaml") {
-        if let Ok(chain) =
-            serde_yaml::from_slice::<serde_yaml::Value>(&bytes)
-        {
+        if let Ok(chain) = serde_yaml::from_slice::<serde_yaml::Value>(&bytes) {
             if let Some(decisions) = chain.get("decisions").and_then(|v| v.as_sequence()) {
                 for (i, entry) in decisions.iter().enumerate() {
                     for field in &["agent", "action", "rationale", "timestamp"] {

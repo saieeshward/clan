@@ -95,7 +95,13 @@ impl AgentOutput {
             };
             let patch_selector = v["human"]["patch_selector"].as_str().map(|s| s.to_string());
             let patch_action = v["human"]["patch_action"].as_str().map(|s| s.to_string());
-            Some(HumanPayload { html, css, assets, patch_selector, patch_action })
+            Some(HumanPayload {
+                html,
+                css,
+                assets,
+                patch_selector,
+                patch_action,
+            })
         } else {
             None
         };
@@ -133,12 +139,12 @@ impl AgentOutput {
             .map_err(|e| Error::Schema(format!("invalid schema: {e}")))?;
         let compiled = jsonschema::validator_for(&schema)
             .map_err(|e| Error::Schema(format!("could not compile schema: {e}")))?;
-            
+
         let mut payload_to_validate = self.structured.clone();
         if let Some(obj) = payload_to_validate.as_object_mut() {
             obj.remove("$schema");
         }
-            
+
         let errors: Vec<String> = compiled
             .iter_errors(&payload_to_validate)
             .map(|e| e.to_string())
@@ -196,7 +202,7 @@ pub fn pack(
     // --- Merge structured data into shared/data.yaml ---
     let existing_data_bytes = parent.read_entry("shared/data.yaml")?;
     let mut data: Value = serde_yaml::from_slice(&existing_data_bytes)?;
-    
+
     if output.mode == "data-update" {
         // patch_data and patch_schema pass the fully merged state
         data = output.structured.clone();
@@ -204,20 +210,20 @@ pub fn pack(
         // pack_html passes a partial update delta, use RFC 7396 merge
         merge_json(&mut data, &output.structured);
     }
-    
+
     // --- ENFORCE SCHEMA VALIDATION ---
     // We validate the FULLY MERGED data against the schema, not just the partial update.
     let schema_json = match &opts.schema_override {
         Some(s) => Ok(s.clone()),
         None => parent.read_entry_string("agent/output-schema.json"),
     };
-    
+
     if let Ok(schema_str) = schema_json {
         let mut validation_output = output.clone();
         validation_output.structured = data.clone();
         validation_output.validate_schema(&schema_str)?;
     }
-    
+
     let new_data_yaml = serde_yaml::to_string(&data)?.into_bytes();
 
     // --- Update decision chain ---
@@ -233,7 +239,8 @@ pub fn pack(
         // otherwise derive from the structured payload, which for pack_html is
         // itself the delta.
         let fields_changed = d.fields_changed.unwrap_or_else(|| {
-            output.structured
+            output
+                .structured
                 .as_object()
                 .map(|o| o.keys().cloned().collect())
                 .unwrap_or_default()
@@ -352,10 +359,18 @@ pub fn pack(
     // Carry over all parent entries unchanged, except ones we're replacing.
     // Single-pass read: one ZipArchive instantiation for the whole archive.
     for (path, bytes) in parent.read_all_entries()? {
-        if path == "manifest.yaml" { continue; }
-        if path == "shared/data.yaml" { continue; }
-        if path == "agent/decision-chain.yaml" { continue; }
-        if opts.schema_override.is_some() && path == "agent/output-schema.json" { continue; }
+        if path == "manifest.yaml" {
+            continue;
+        }
+        if path == "shared/data.yaml" {
+            continue;
+        }
+        if path == "agent/decision-chain.yaml" {
+            continue;
+        }
+        if opts.schema_override.is_some() && path == "agent/output-schema.json" {
+            continue;
+        }
         // full-html drops the prior view + patches, but carries human/assets/
         // forward (F5 folded the patches into the chain above; F10 keeps assets).
         if output.mode == "full-html"
@@ -416,7 +431,9 @@ pub fn pack(
         }
         "patch-html" => {
             if let Some(h) = output.human {
-                let existing = parent.read_entry_string("human/index.html").unwrap_or_else(|_| "".to_string());
+                let existing = parent
+                    .read_entry_string("human/index.html")
+                    .unwrap_or_else(|_| "".to_string());
                 let new_html = apply_html_patch(&existing, &h)?;
                 builder.add_entry("human/index.html", new_html.into_bytes());
             }
@@ -476,7 +493,15 @@ pub fn pack_html(
     delta: Option<String>,
     compressor: Option<&Compressor>,
 ) -> Result<Vec<u8>> {
-    pack_html_with(parent, raw_html, assets_dir_files, schema_override, delta, None, compressor)
+    pack_html_with(
+        parent,
+        raw_html,
+        assets_dir_files,
+        schema_override,
+        delta,
+        None,
+        compressor,
+    )
 }
 
 /// CLI-supplied overrides for a DOM patch. When `selector` is set, the patch
@@ -507,7 +532,16 @@ pub fn pack_html_with(
     decision_override: Option<DecisionEntry>,
     compressor: Option<&Compressor>,
 ) -> Result<Vec<u8>> {
-    pack_html_targeted(parent, raw_html, assets_dir_files, schema_override, delta, decision_override, PatchTargeting::default(), compressor)
+    pack_html_targeted(
+        parent,
+        raw_html,
+        assets_dir_files,
+        schema_override,
+        delta,
+        decision_override,
+        PatchTargeting::default(),
+        compressor,
+    )
 }
 
 /// Like [`pack_html_with`] but with CLI-supplied `targeting` (selector +
@@ -525,7 +559,15 @@ pub fn pack_html_targeted(
     compressor: Option<&Compressor>,
 ) -> Result<Vec<u8>> {
     // Parse optional YAML frontmatter.
-    let (parsed_mode, structured, decision_entry, fm_selector, fm_action, context_handoff, html_body) = parse_html_frontmatter(raw_html);
+    let (
+        parsed_mode,
+        structured,
+        decision_entry,
+        fm_selector,
+        fm_action,
+        context_handoff,
+        html_body,
+    ) = parse_html_frontmatter(raw_html);
     // CLI flags win over frontmatter; a CLI selector implies patch-html mode.
     let patch_selector = targeting.selector.or(fm_selector);
     let patch_action = targeting.action.or(fm_action);
@@ -556,14 +598,25 @@ pub fn pack_html_targeted(
         decision: decision_override.or(decision_entry),
     };
 
-    let mut opts = PackOptions { delta, schema_override, ..Default::default() };
+    let mut opts = PackOptions {
+        delta,
+        schema_override,
+        ..Default::default()
+    };
 
     // Handoff via context.md: passed straight into pack() as an extra entry,
     // so the archive is built exactly once (no rebuild, no byte clones).
     if let Some(handoff) = context_handoff {
-        let existing_ctx = parent.read_entry_string("agent/context.md").unwrap_or_default();
-        let new_ctx = if existing_ctx.is_empty() { handoff } else { format!("{}\n\n---\n{}", existing_ctx, handoff) };
-        opts.extra_entries.push(("agent/context.md".to_string(), new_ctx.into_bytes()));
+        let existing_ctx = parent
+            .read_entry_string("agent/context.md")
+            .unwrap_or_default();
+        let new_ctx = if existing_ctx.is_empty() {
+            handoff
+        } else {
+            format!("{}\n\n---\n{}", existing_ctx, handoff)
+        };
+        opts.extra_entries
+            .push(("agent/context.md".to_string(), new_ctx.into_bytes()));
     }
 
     pack(parent, output, opts, compressor)
@@ -571,8 +624,26 @@ pub fn pack_html_targeted(
 
 /// Parse optional YAML frontmatter from the top of an HTML string.
 /// Returns (mode, structured_data, decision_entry, patch_selector, patch_action, context_handoff, html_without_frontmatter).
-fn parse_html_frontmatter(input: &str) -> (Option<String>, Value, Option<DecisionEntry>, Option<String>, Option<String>, Option<String>, String) {
-    let empty = (None, Value::Object(Default::default()), None, None, None, None, input.to_string());
+fn parse_html_frontmatter(
+    input: &str,
+) -> (
+    Option<String>,
+    Value,
+    Option<DecisionEntry>,
+    Option<String>,
+    Option<String>,
+    Option<String>,
+    String,
+) {
+    let empty = (
+        None,
+        Value::Object(Default::default()),
+        None,
+        None,
+        None,
+        None,
+        input.to_string(),
+    );
 
     let trimmed = input.trim_start();
     if !trimmed.starts_with("---") {
@@ -580,7 +651,9 @@ fn parse_html_frontmatter(input: &str) -> (Option<String>, Value, Option<Decisio
     }
 
     let after_open = &trimmed[3..];
-    let Some(close) = after_open.find("\n---") else { return empty };
+    let Some(close) = after_open.find("\n---") else {
+        return empty;
+    };
 
     let yaml_src = &after_open[..close];
     let html_body = after_open[close + 4..].trim_start().to_string();
@@ -597,10 +670,19 @@ fn parse_html_frontmatter(input: &str) -> (Option<String>, Value, Option<Decisio
         }
     };
 
-    let mode = val.get("mode").and_then(|v| v.as_str().map(|s| s.to_string()));
-    let patch_selector = val.get("patch_selector").and_then(|v| v.as_str().map(|s| s.to_string()));
-    let patch_action = val.get("patch_action").and_then(|v| v.as_str().map(|s| s.to_string()));
-    let context_handoff = val.get("next_task").or_else(|| val.get("context")).and_then(|v| v.as_str().map(|s| s.to_string()));
+    let mode = val
+        .get("mode")
+        .and_then(|v| v.as_str().map(|s| s.to_string()));
+    let patch_selector = val
+        .get("patch_selector")
+        .and_then(|v| v.as_str().map(|s| s.to_string()));
+    let patch_action = val
+        .get("patch_action")
+        .and_then(|v| v.as_str().map(|s| s.to_string()));
+    let context_handoff = val
+        .get("next_task")
+        .or_else(|| val.get("context"))
+        .and_then(|v| v.as_str().map(|s| s.to_string()));
 
     let structured: Value = val
         .get("structured")
@@ -617,11 +699,19 @@ fn parse_html_frontmatter(input: &str) -> (Option<String>, Value, Option<Decisio
         })
     });
 
-    (mode, structured, decision_entry, patch_selector, patch_action, context_handoff, html_body)
+    (
+        mode,
+        structured,
+        decision_entry,
+        patch_selector,
+        patch_action,
+        context_handoff,
+        html_body,
+    )
 }
 
 fn apply_html_patch(existing: &str, payload: &HumanPayload) -> Result<String> {
-    use lol_html::{rewrite_str, element, RewriteStrSettings};
+    use lol_html::{element, rewrite_str, RewriteStrSettings};
     use std::cell::{Cell, RefCell};
     // No selector resolved from --selector or frontmatter: we fall back to
     // appending at the end of <body>. That silently misplaces fragments meant
@@ -650,27 +740,29 @@ fn apply_html_patch(existing: &str, payload: &HumanPayload) -> Result<String> {
     let result = rewrite_str(
         existing,
         RewriteStrSettings {
-            element_content_handlers: vec![
-                element!(selector, |el| {
-                    matched.set(matched.get() + 1);
-                    if landed_on.borrow().is_none() {
-                        *landed_on.borrow_mut() = Some(describe_element(el));
-                    }
-                    match action {
-                        "append" => el.append(&html, lol_html::html_content::ContentType::Html),
-                        "prepend" => el.prepend(&html, lol_html::html_content::ContentType::Html),
-                        "replace" => el.replace(&html, lol_html::html_content::ContentType::Html),
-                        "before" => el.before(&html, lol_html::html_content::ContentType::Html),
-                        "after" => el.after(&html, lol_html::html_content::ContentType::Html),
-                        _ => el.append(&html, lol_html::html_content::ContentType::Html),
-                    }
-                    Ok(())
-                })
-            ],
+            element_content_handlers: vec![element!(selector, |el| {
+                matched.set(matched.get() + 1);
+                if landed_on.borrow().is_none() {
+                    *landed_on.borrow_mut() = Some(describe_element(el));
+                }
+                match action {
+                    "append" => el.append(&html, lol_html::html_content::ContentType::Html),
+                    "prepend" => el.prepend(&html, lol_html::html_content::ContentType::Html),
+                    "replace" => el.replace(&html, lol_html::html_content::ContentType::Html),
+                    "before" => el.before(&html, lol_html::html_content::ContentType::Html),
+                    "after" => el.after(&html, lol_html::html_content::ContentType::Html),
+                    _ => el.append(&html, lol_html::html_content::ContentType::Html),
+                }
+                Ok(())
+            })],
             ..RewriteStrSettings::default()
-        }
+        },
     )
-    .map_err(|e| Error::OutputRejected(format!("patch-html: could not apply selector {selector:?}: {e}")))?;
+    .map_err(|e| {
+        Error::OutputRejected(format!(
+            "patch-html: could not apply selector {selector:?}: {e}"
+        ))
+    })?;
 
     let n = matched.get();
     if n == 0 {
@@ -686,7 +778,10 @@ fn apply_html_patch(existing: &str, payload: &HumanPayload) -> Result<String> {
         "after" => "inserted after",
         _ => "appended into",
     };
-    let target = landed_on.borrow().clone().unwrap_or_else(|| format!("<{selector}>"));
+    let target = landed_on
+        .borrow()
+        .clone()
+        .unwrap_or_else(|| format!("<{selector}>"));
     let plural = if n == 1 { "match" } else { "matches" };
     eprintln!("patch-html: {verb} {target} ({n} {plural} for {selector:?})");
     Ok(result)
@@ -770,18 +865,27 @@ fn strip_on_handlers(html: &str) -> String {
             let rest = &bytes[i..];
             if rest.starts_with(b"on")
                 && rest.len() > 2
-                && rest[2..].iter().next().map_or(false, |c| c.is_ascii_alphabetic())
+                && rest[2..]
+                    .iter()
+                    .next()
+                    .map_or(false, |c| c.is_ascii_alphabetic())
             {
                 // Skip to end of attribute value.
                 while i < bytes.len() && bytes[i] != b'>' {
                     if bytes[i] == b'"' || bytes[i] == b'\'' {
                         let q = bytes[i];
                         i += 1;
-                        while i < bytes.len() && bytes[i] != q { i += 1; }
+                        while i < bytes.len() && bytes[i] != q {
+                            i += 1;
+                        }
                     }
                     if i < bytes.len() {
                         // Stop at next attribute or tag end.
-                        if bytes[i] == b' ' || bytes[i] == b'\t' || bytes[i] == b'\n' || bytes[i] == b'>' {
+                        if bytes[i] == b' '
+                            || bytes[i] == b'\t'
+                            || bytes[i] == b'\n'
+                            || bytes[i] == b'>'
+                        {
                             break;
                         }
                         i += 1;
@@ -874,13 +978,19 @@ fn apply_patch_with_append(data: &mut Value, patch: &Value, append_keys: &[Strin
     let data_obj = data.as_object_mut().expect("forced to object above");
     for key in append_keys {
         if let Some(new_val) = patch_obj.get(key) {
-            let slot = data_obj.entry(key.clone()).or_insert_with(|| Value::Array(Vec::new()));
+            let slot = data_obj
+                .entry(key.clone())
+                .or_insert_with(|| Value::Array(Vec::new()));
             append_into(slot, new_val);
         }
     }
 }
 
-pub fn patch_data(parent: &ClanFile, patch: &Value, compressor: Option<&Compressor>) -> Result<Vec<u8>> {
+pub fn patch_data(
+    parent: &ClanFile,
+    patch: &Value,
+    compressor: Option<&Compressor>,
+) -> Result<Vec<u8>> {
     patch_data_with(parent, patch, PatchDataOptions::default(), compressor)
 }
 
@@ -893,11 +1003,14 @@ pub fn patch_data_with(
     compressor: Option<&Compressor>,
 ) -> Result<Vec<u8>> {
     reject_if_forked(parent, "a direct write to shared/data.yaml")?;
-    let existing_str = parent.read_entry_string("shared/data.yaml").unwrap_or_default();
+    let existing_str = parent
+        .read_entry_string("shared/data.yaml")
+        .unwrap_or_default();
     let mut data: Value = if existing_str.is_empty() {
         Value::Object(Default::default())
     } else {
-        serde_yaml::from_str(&existing_str).map_err(|e| Error::OutputRejected(format!("existing data.yaml is invalid: {}", e)))?
+        serde_yaml::from_str(&existing_str)
+            .map_err(|e| Error::OutputRejected(format!("existing data.yaml is invalid: {}", e)))?
     };
 
     apply_patch_with_append(&mut data, patch, &pd_opts.append_keys);
@@ -912,24 +1025,31 @@ pub fn patch_data_with(
         decision: pd_opts.decision,
     };
 
-    let mut opts = PackOptions { delta: None, ..Default::default() };
+    let mut opts = PackOptions {
+        delta: None,
+        ..Default::default()
+    };
 
     // Adjudication (spec §25): a data write that settles a contested key
     // removes it from the merge report and decrements `unresolved`.
     if parent.has_entry(crate::merge::MERGE_REPORT_PATH) {
-        if let Ok(mut report) =
-            crate::merge::MergeReport::from_yaml(&parent.read_entry(crate::merge::MERGE_REPORT_PATH)?)
-        {
+        if let Ok(mut report) = crate::merge::MergeReport::from_yaml(
+            &parent.read_entry(crate::merge::MERGE_REPORT_PATH)?,
+        ) {
             let patched: std::collections::BTreeSet<&str> = patch
                 .as_object()
                 .map(|o| o.keys().map(String::as_str).collect())
                 .unwrap_or_default();
             let before = report.conflicts.len();
-            report.conflicts.retain(|c| !patched.contains(c.key.as_str()));
+            report
+                .conflicts
+                .retain(|c| !patched.contains(c.key.as_str()));
             if report.conflicts.len() != before {
                 report.unresolved = report.conflicts.len();
-                opts.extra_entries
-                    .push((crate::merge::MERGE_REPORT_PATH.to_string(), report.to_yaml()?));
+                opts.extra_entries.push((
+                    crate::merge::MERGE_REPORT_PATH.to_string(),
+                    report.to_yaml()?,
+                ));
             }
         }
     }
@@ -940,7 +1060,11 @@ pub fn patch_data_with(
 /// Append a new Decision to `agent/decision-chain.yaml` inside the archive.
 /// Preserves all other files and increments the generation. Swaps only the
 /// chain entry — no schema validation runs, since the data is untouched.
-pub fn patch_decision(parent: &ClanFile, entry: DecisionEntry, compressor: Option<&Compressor>) -> Result<Vec<u8>> {
+pub fn patch_decision(
+    parent: &ClanFile,
+    entry: DecisionEntry,
+    compressor: Option<&Compressor>,
+) -> Result<Vec<u8>> {
     let now = Utc::now().to_rfc3339();
 
     // On a forked branch file decisions are auto-routed into the branch
@@ -992,22 +1116,34 @@ pub fn patch_data_namespaced(parent: &ClanFile, patch: &Value) -> Result<Vec<u8>
         if existing.trim().is_empty() {
             Value::Object(Default::default())
         } else {
-            serde_yaml::from_str(&existing)
-                .map_err(|e| Error::OutputRejected(format!("existing {data_path} is invalid: {e}")))?
+            serde_yaml::from_str(&existing).map_err(|e| {
+                Error::OutputRejected(format!("existing {data_path} is invalid: {e}"))
+            })?
         }
     } else {
         Value::Object(Default::default())
     };
     merge_json(&mut data, patch);
     let new_yaml = serde_yaml::to_string(&data)?.into_bytes();
-    repack_with_entry(parent, &data_path, new_yaml, Some(format!("patched {data_path}")))
+    repack_with_entry(
+        parent,
+        &data_path,
+        new_yaml,
+        Some(format!("patched {data_path}")),
+    )
 }
 
 /// Replace `agent/output-schema.json` inside the archive.
 /// This allows an agent to atomically migrate a file's structure.
-pub fn patch_schema(parent: &ClanFile, schema_json: &str, compressor: Option<&Compressor>) -> Result<Vec<u8>> {
+pub fn patch_schema(
+    parent: &ClanFile,
+    schema_json: &str,
+    compressor: Option<&Compressor>,
+) -> Result<Vec<u8>> {
     reject_if_forked(parent, "replacing the shared output schema")?;
-    let existing_data_str = parent.read_entry_string("shared/data.yaml").unwrap_or_default();
+    let existing_data_str = parent
+        .read_entry_string("shared/data.yaml")
+        .unwrap_or_default();
     let structured: Value = if existing_data_str.is_empty() {
         Value::Object(Default::default())
     } else {
@@ -1022,17 +1158,22 @@ pub fn patch_schema(parent: &ClanFile, schema_json: &str, compressor: Option<&Co
         decision: None,
     };
 
-    let opts = PackOptions { 
-        delta: Some("schema migrated".to_string()), 
+    let opts = PackOptions {
+        delta: Some("schema migrated".to_string()),
         schema_override: Some(schema_json.to_string()),
         ..Default::default()
     };
-    
+
     pack(parent, output, opts, compressor)
 }
 
 /// Helper to repack a `.clan` file with a single updated or added entry.
-fn repack_with_entry(parent: &ClanFile, target_path: &str, new_bytes: Vec<u8>, delta: Option<String>) -> Result<Vec<u8>> {
+fn repack_with_entry(
+    parent: &ClanFile,
+    target_path: &str,
+    new_bytes: Vec<u8>,
+    delta: Option<String>,
+) -> Result<Vec<u8>> {
     repack_with_entry_decision(parent, target_path, new_bytes, delta, None)
 }
 
@@ -1111,8 +1252,12 @@ fn repack_with_entry_decision(
     let mut builder = ClanBuilder::new(new_manifest);
 
     for (path, bytes) in parent.read_all_entries()? {
-        if path == "manifest.yaml" || path == target_path { continue; }
-        if chain_override.is_some() && path == CHAIN_PATH { continue; }
+        if path == "manifest.yaml" || path == target_path {
+            continue;
+        }
+        if chain_override.is_some() && path == CHAIN_PATH {
+            continue;
+        }
         builder.add_entry(path, bytes);
     }
 
@@ -1125,21 +1270,31 @@ fn repack_with_entry_decision(
 
 /// Patch `agent/state.yaml` inside the archive with a JSON Merge Patch (RFC 7396).
 pub fn patch_state(parent: &ClanFile, patch: &Value) -> Result<Vec<u8>> {
-    let existing_str = parent.read_entry_string("agent/state.yaml").unwrap_or_default();
+    let existing_str = parent
+        .read_entry_string("agent/state.yaml")
+        .unwrap_or_default();
     let mut state: Value = if existing_str.is_empty() {
         Value::Object(Default::default())
     } else {
-        serde_yaml::from_str(&existing_str).map_err(|e| Error::OutputRejected(format!("invalid state: {}", e)))?
+        serde_yaml::from_str(&existing_str)
+            .map_err(|e| Error::OutputRejected(format!("invalid state: {}", e)))?
     };
     merge_json(&mut state, patch);
     let new_state = serde_yaml::to_string(&state)?.into_bytes();
-    repack_with_entry(parent, "agent/state.yaml", new_state, Some("patched agent/state.yaml".into()))
+    repack_with_entry(
+        parent,
+        "agent/state.yaml",
+        new_state,
+        Some("patched agent/state.yaml".into()),
+    )
 }
 
 /// Patch or append to `agent/context.md`.
 pub fn patch_context(parent: &ClanFile, text: &str, append: bool) -> Result<Vec<u8>> {
     reject_if_forked(parent, "rewriting the shared agent/context.md")?;
-    let mut existing = parent.read_entry_string("agent/context.md").unwrap_or_default();
+    let mut existing = parent
+        .read_entry_string("agent/context.md")
+        .unwrap_or_default();
     if append {
         if !existing.is_empty() && !existing.ends_with('\n') {
             existing.push('\n');
@@ -1148,7 +1303,12 @@ pub fn patch_context(parent: &ClanFile, text: &str, append: bool) -> Result<Vec<
     } else {
         existing = text.to_string();
     }
-    repack_with_entry(parent, "agent/context.md", existing.into_bytes(), Some("patched agent/context.md".into()))
+    repack_with_entry(
+        parent,
+        "agent/context.md",
+        existing.into_bytes(),
+        Some("patched agent/context.md".into()),
+    )
 }
 
 /// Write or replace `agent/requirements.yaml` — declared tool/capability needs
@@ -1225,10 +1385,30 @@ mod tests {
             merge_policies: None,
             external: vec![],
             files: vec![
-                entry("canonical-data", "shared/data.yaml", "canonical-data", "application/yaml"),
-                entry("agent-context", "agent/context.md", "agent-context", "text/markdown"),
-                entry("agent-schema", "agent/output-schema.json", "agent-schema", "application/json"),
-                entry("agent-chain", "agent/decision-chain.yaml", "agent-chain", "application/yaml"),
+                entry(
+                    "canonical-data",
+                    "shared/data.yaml",
+                    "canonical-data",
+                    "application/yaml",
+                ),
+                entry(
+                    "agent-context",
+                    "agent/context.md",
+                    "agent-context",
+                    "text/markdown",
+                ),
+                entry(
+                    "agent-schema",
+                    "agent/output-schema.json",
+                    "agent-schema",
+                    "application/json",
+                ),
+                entry(
+                    "agent-chain",
+                    "agent/decision-chain.yaml",
+                    "agent-chain",
+                    "application/yaml",
+                ),
                 entry("human-view", "human/index.html", "human-view", "text/html"),
             ],
         };
@@ -1342,17 +1522,17 @@ mod tests {
             let clan = test_clan("vendor: Acme\n", PERMISSIVE_SCHEMA);
             let mut builder = ClanBuilder::new(clan.manifest().clone());
             for (path, bytes) in clan.read_all_entries().unwrap() {
-                if path == "manifest.yaml" { continue; }
+                if path == "manifest.yaml" {
+                    continue;
+                }
                 builder.add_entry(path, bytes);
             }
             builder.add_entry("agent/context.md", Vec::new());
             ClanFile::from_bytes(builder.build().unwrap()).unwrap()
         };
         let html = "---\nnext_task: \"start here\"\n---\n<p>doc</p>";
-        let next = ClanFile::from_bytes(
-            pack_html(&parent, html, None, None, None, None).unwrap(),
-        )
-        .unwrap();
+        let next = ClanFile::from_bytes(pack_html(&parent, html, None, None, None, None).unwrap())
+            .unwrap();
         assert_eq!(
             next.read_entry_string("agent/context.md").unwrap(),
             "start here"
@@ -1378,8 +1558,13 @@ mod tests {
             decision: None,
         };
 
-        let err = pack(&parent, payload("#does-not-exist"), PackOptions::default(), None)
-            .expect_err("zero-match selector must be an error");
+        let err = pack(
+            &parent,
+            payload("#does-not-exist"),
+            PackOptions::default(),
+            None,
+        )
+        .expect_err("zero-match selector must be an error");
         assert!(
             err.to_string().contains("matched no elements"),
             "unexpected error message: {err}"
@@ -1408,10 +1593,8 @@ mod tests {
             action: Some("append".into()),
             force_patch_mode: true,
         };
-        let bytes = pack_html_targeted(
-            &parent, fragment, None, None, None, None, targeting, None,
-        )
-        .expect("CLI selector should drive a patch-html DOM patch");
+        let bytes = pack_html_targeted(&parent, fragment, None, None, None, None, targeting, None)
+            .expect("CLI selector should drive a patch-html DOM patch");
         let next = ClanFile::from_bytes(bytes).unwrap();
         let view = next.read_entry_string("human/index.html").unwrap();
 
@@ -1421,7 +1604,10 @@ mod tests {
             view.contains("<div id=\"app\">x<tr><td>Vendor lock-in</td></tr></div>"),
             "row should be appended inside #app, got: {view}"
         );
-        assert!(view.contains("<body>"), "body must survive — not replaced: {view}");
+        assert!(
+            view.contains("<body>"),
+            "body must survive — not replaced: {view}"
+        );
     }
 
     // F16: the patch-html command must NEVER full-replace the view. A bare
@@ -1432,15 +1618,26 @@ mod tests {
     fn patch_html_force_mode_never_full_replaces() {
         let parent = test_clan("vendor: Acme\n", PERMISSIVE_SCHEMA);
         let fragment = "<tr><td>orphan</td></tr>";
-        let targeting = PatchTargeting { selector: None, action: None, force_patch_mode: true };
-        let bytes = pack_html_targeted(
-            &parent, fragment, None, None, None, None, targeting, None,
-        )
-        .unwrap();
-        let view = ClanFile::from_bytes(bytes).unwrap().read_entry_string("human/index.html").unwrap();
+        let targeting = PatchTargeting {
+            selector: None,
+            action: None,
+            force_patch_mode: true,
+        };
+        let bytes =
+            pack_html_targeted(&parent, fragment, None, None, None, None, targeting, None).unwrap();
+        let view = ClanFile::from_bytes(bytes)
+            .unwrap()
+            .read_entry_string("human/index.html")
+            .unwrap();
         // Original content survived AND the fragment was appended — not a wipe.
-        assert!(view.contains("<div id=\"app\">x</div>"), "original view must survive: {view}");
-        assert!(view.contains("<tr><td>orphan</td></tr>"), "fragment must be appended: {view}");
+        assert!(
+            view.contains("<div id=\"app\">x</div>"),
+            "original view must survive: {view}"
+        );
+        assert!(
+            view.contains("<tr><td>orphan</td></tr>"),
+            "fragment must be appended: {view}"
+        );
     }
 
     // F16: a CLI selector overrides a frontmatter patch_selector (flags win).
@@ -1448,14 +1645,22 @@ mod tests {
     fn patch_html_cli_selector_overrides_frontmatter() {
         let parent = test_clan("vendor: Acme\n", PERMISSIVE_SCHEMA);
         let with_fm = "---\nmode: patch-html\npatch_selector: \"body\"\n---\n<tr>r</tr>";
-        let targeting = PatchTargeting { selector: Some("#app".into()), action: None, force_patch_mode: true };
-        let bytes = pack_html_targeted(
-            &parent, with_fm, None, None, None, None, targeting, None,
-        )
-        .unwrap();
-        let view = ClanFile::from_bytes(bytes).unwrap().read_entry_string("human/index.html").unwrap();
+        let targeting = PatchTargeting {
+            selector: Some("#app".into()),
+            action: None,
+            force_patch_mode: true,
+        };
+        let bytes =
+            pack_html_targeted(&parent, with_fm, None, None, None, None, targeting, None).unwrap();
+        let view = ClanFile::from_bytes(bytes)
+            .unwrap()
+            .read_entry_string("human/index.html")
+            .unwrap();
         // Landed in #app (flag), not at end of body (frontmatter).
-        assert!(view.contains("<div id=\"app\">x<tr>r</tr></div>"), "flag selector must win: {view}");
+        assert!(
+            view.contains("<div id=\"app\">x<tr>r</tr></div>"),
+            "flag selector must win: {view}"
+        );
     }
 
     #[test]
@@ -1518,9 +1723,16 @@ mod tests {
         )
         .unwrap();
         let chain = chain_of(&next);
-        assert_eq!(chain.decisions.len(), 0, "no decision supplied → no chain entry (F1)");
+        assert_eq!(
+            chain.decisions.len(),
+            0,
+            "no decision supplied → no chain entry (F1)"
+        );
         assert!(
-            !next.read_entry_string("agent/decision-chain.yaml").unwrap().contains("unknown-agent"),
+            !next
+                .read_entry_string("agent/decision-chain.yaml")
+                .unwrap()
+                .contains("unknown-agent"),
             "the unknown-agent placeholder must be gone"
         );
     }
@@ -1541,7 +1753,8 @@ mod tests {
                 fields_changed: None,
             }),
         };
-        let next = ClanFile::from_bytes(pack(&parent, out, PackOptions::default(), None).unwrap()).unwrap();
+        let next = ClanFile::from_bytes(pack(&parent, out, PackOptions::default(), None).unwrap())
+            .unwrap();
         let chain = chain_of(&next);
         assert_eq!(chain.decisions.len(), 1);
         assert_eq!(chain.decisions[0].agent, "agent1");
@@ -1551,36 +1764,64 @@ mod tests {
     #[test]
     fn patch_data_append_concatenates_arrays() {
         let parent = test_clan("tags:\n  - a\n  - b\n", PERMISSIVE_SCHEMA);
-        let opts = PatchDataOptions { append_keys: vec!["tags".into()], decision: None };
+        let opts = PatchDataOptions {
+            append_keys: vec!["tags".into()],
+            decision: None,
+        };
         let next = ClanFile::from_bytes(
             patch_data_with(&parent, &serde_json::json!({"tags": ["c"]}), opts, None).unwrap(),
         )
         .unwrap();
-        let data: Value = serde_yaml::from_str(&next.read_entry_string("shared/data.yaml").unwrap()).unwrap();
+        let data: Value =
+            serde_yaml::from_str(&next.read_entry_string("shared/data.yaml").unwrap()).unwrap();
         let tags = data["tags"].as_array().unwrap();
         assert_eq!(tags.len(), 3, "append must keep all three: {tags:?}");
 
         // A non-append key on the same patch still replaces (RFC 7396 default).
-        let opts = PatchDataOptions { append_keys: vec!["tags".into()], decision: None };
+        let opts = PatchDataOptions {
+            append_keys: vec!["tags".into()],
+            decision: None,
+        };
         let next2 = ClanFile::from_bytes(
-            patch_data_with(&next, &serde_json::json!({"tags": ["d"], "vendor": "X"}), opts, None).unwrap(),
+            patch_data_with(
+                &next,
+                &serde_json::json!({"tags": ["d"], "vendor": "X"}),
+                opts,
+                None,
+            )
+            .unwrap(),
         )
         .unwrap();
-        let data2: Value = serde_yaml::from_str(&next2.read_entry_string("shared/data.yaml").unwrap()).unwrap();
+        let data2: Value =
+            serde_yaml::from_str(&next2.read_entry_string("shared/data.yaml").unwrap()).unwrap();
         assert_eq!(data2["tags"].as_array().unwrap().len(), 4, "tags appended");
-        assert_eq!(data2["vendor"], serde_json::json!("X"), "non-append key set normally");
+        assert_eq!(
+            data2["vendor"],
+            serde_json::json!("X"),
+            "non-append key set normally"
+        );
     }
 
     // F14: appending to a missing key creates the array.
     #[test]
     fn patch_data_append_creates_missing_array() {
         let parent = test_clan("vendor: Acme\n", PERMISSIVE_SCHEMA);
-        let opts = PatchDataOptions { append_keys: vec!["notes".into()], decision: None };
+        let opts = PatchDataOptions {
+            append_keys: vec!["notes".into()],
+            decision: None,
+        };
         let next = ClanFile::from_bytes(
-            patch_data_with(&parent, &serde_json::json!({"notes": ["first"]}), opts, None).unwrap(),
+            patch_data_with(
+                &parent,
+                &serde_json::json!({"notes": ["first"]}),
+                opts,
+                None,
+            )
+            .unwrap(),
         )
         .unwrap();
-        let data: Value = serde_yaml::from_str(&next.read_entry_string("shared/data.yaml").unwrap()).unwrap();
+        let data: Value =
+            serde_yaml::from_str(&next.read_entry_string("shared/data.yaml").unwrap()).unwrap();
         assert_eq!(data["notes"].as_array().unwrap().len(), 1);
     }
 
@@ -1596,7 +1837,10 @@ mod tests {
             pinned: false,
             fields_changed: Some(vec!["total".into()]),
         });
-        let opts = PatchDataOptions { append_keys: vec![], decision };
+        let opts = PatchDataOptions {
+            append_keys: vec![],
+            decision,
+        };
         let next = ClanFile::from_bytes(
             patch_data_with(&parent, &serde_json::json!({"total": 5}), opts, None).unwrap(),
         )
@@ -1605,7 +1849,8 @@ mod tests {
         assert_eq!(chain.decisions.len(), 1);
         assert_eq!(chain.decisions[0].fields_changed, vec!["total".to_string()]);
         // The untouched key survives (pass-through) but is NOT in fields_changed.
-        let data: Value = serde_yaml::from_str(&next.read_entry_string("shared/data.yaml").unwrap()).unwrap();
+        let data: Value =
+            serde_yaml::from_str(&next.read_entry_string("shared/data.yaml").unwrap()).unwrap();
         assert_eq!(data["existing"], serde_json::json!("keep"));
     }
 
@@ -1619,7 +1864,11 @@ mod tests {
             patch_data(&parent, &serde_json::json!({"total": 5}), None).unwrap(),
         )
         .unwrap();
-        assert_eq!(chain_of(&next).decisions.len(), before, "bare patch_data adds no entry");
+        assert_eq!(
+            chain_of(&next).decisions.len(),
+            before,
+            "bare patch_data adds no entry"
+        );
     }
 
     // F2: full-html marks the view agent-authored; data-update leaves no source.
@@ -1639,24 +1888,44 @@ mod tests {
             }),
             decision: None,
         };
-        let next = ClanFile::from_bytes(pack(&parent, out, PackOptions::default(), None).unwrap()).unwrap();
+        let next = ClanFile::from_bytes(pack(&parent, out, PackOptions::default(), None).unwrap())
+            .unwrap();
         // test_clan's manifest has no view block, so nothing to assert there;
         // build one that does.
         let mut m = parent.manifest().clone();
-        m.view = Some(crate::manifest::ViewState { present: true, renderable: true, stale: false, source: None });
+        m.view = Some(crate::manifest::ViewState {
+            present: true,
+            renderable: true,
+            stale: false,
+            source: None,
+        });
         // Rebuild parent carrying the view, then full-html pack it.
         let mut b = ClanBuilder::new(m);
-        for (p, by) in parent.read_all_entries().unwrap() { if p != "manifest.yaml" { b.add_entry(p, by); } }
+        for (p, by) in parent.read_all_entries().unwrap() {
+            if p != "manifest.yaml" {
+                b.add_entry(p, by);
+            }
+        }
         let parent2 = ClanFile::from_bytes(b.build().unwrap()).unwrap();
         let out2 = AgentOutput {
             mode: "full-html".into(),
             structured: serde_json::json!({}),
             design: None,
-            human: Some(HumanPayload { html: "<p>x</p>".into(), css: None, assets: HashMap::new(), patch_selector: None, patch_action: None }),
+            human: Some(HumanPayload {
+                html: "<p>x</p>".into(),
+                css: None,
+                assets: HashMap::new(),
+                patch_selector: None,
+                patch_action: None,
+            }),
             decision: None,
         };
-        let n2 = ClanFile::from_bytes(pack(&parent2, out2, PackOptions::default(), None).unwrap()).unwrap();
-        assert_eq!(n2.manifest().view.as_ref().unwrap().source.as_deref(), Some("agent"));
+        let n2 = ClanFile::from_bytes(pack(&parent2, out2, PackOptions::default(), None).unwrap())
+            .unwrap();
+        assert_eq!(
+            n2.manifest().view.as_ref().unwrap().source.as_deref(),
+            Some("agent")
+        );
         let _ = next;
     }
 
@@ -1666,7 +1935,12 @@ mod tests {
         let parent = test_clan("vendor: Acme\n", PERMISSIVE_SCHEMA);
         // Add a human patch via the patch model.
         let parent = ClanFile::from_bytes(
-            crate::patch::apply_patch_and_repack(&parent, "heading-0".into(), "Amended Title".into()).unwrap(),
+            crate::patch::apply_patch_and_repack(
+                &parent,
+                "heading-0".into(),
+                "Amended Title".into(),
+            )
+            .unwrap(),
         )
         .unwrap();
         assert!(parent.has_entry("human/patches.yaml"));
@@ -1677,15 +1951,25 @@ mod tests {
             design: None,
             human: Some(HumanPayload {
                 html: "<!DOCTYPE html><html><body><p>brand new doc</p></body></html>".into(),
-                css: None, assets: HashMap::new(), patch_selector: None, patch_action: None,
+                css: None,
+                assets: HashMap::new(),
+                patch_selector: None,
+                patch_action: None,
             }),
             decision: None,
         };
-        let next = ClanFile::from_bytes(pack(&parent, out, PackOptions::default(), None).unwrap()).unwrap();
+        let next = ClanFile::from_bytes(pack(&parent, out, PackOptions::default(), None).unwrap())
+            .unwrap();
         let chain = chain_of(&next);
         let human = chain.decisions.iter().find(|d| d.agent == "human");
-        assert!(human.is_some(), "human edit must be folded into the chain (F5)");
-        assert!(human.unwrap().rationale.contains("Amended Title"), "the edit content survives as provenance");
+        assert!(
+            human.is_some(),
+            "human edit must be folded into the chain (F5)"
+        );
+        assert!(
+            human.unwrap().rationale.contains("Amended Title"),
+            "the edit content survives as provenance"
+        );
         // The stale DOM patches were dropped from the new view.
         assert!(!next.has_entry("human/patches.yaml"));
     }
@@ -1699,7 +1983,10 @@ mod tests {
         )
         .unwrap();
         assert!(next.has_entry("agent/requirements.yaml"));
-        assert!(next.read_entry_string("agent/requirements.yaml").unwrap().contains("web_search"));
+        assert!(next
+            .read_entry_string("agent/requirements.yaml")
+            .unwrap()
+            .contains("web_search"));
         // Invalid YAML is rejected.
         assert!(patch_requirements(&parent, "requires: [unclosed\n").is_err());
     }
@@ -1709,10 +1996,9 @@ mod tests {
     fn full_html_carries_parent_assets() {
         let parent = test_clan("vendor: Acme\n", PERMISSIVE_SCHEMA);
         // Seed an asset on the parent.
-        let parent = ClanFile::from_bytes(
-            patch_asset(&parent, "logo.svg", b"<svg/>".to_vec()).unwrap(),
-        )
-        .unwrap();
+        let parent =
+            ClanFile::from_bytes(patch_asset(&parent, "logo.svg", b"<svg/>".to_vec()).unwrap())
+                .unwrap();
         assert!(parent.has_entry("human/assets/logo.svg"));
 
         let out = AgentOutput {
@@ -1720,17 +2006,25 @@ mod tests {
             structured: serde_json::json!({}),
             design: None,
             human: Some(HumanPayload {
-                html: "<!DOCTYPE html><html><body><img src=\"./assets/logo.svg\"></body></html>".into(),
-                css: None, assets: HashMap::new(), patch_selector: None, patch_action: None,
+                html: "<!DOCTYPE html><html><body><img src=\"./assets/logo.svg\"></body></html>"
+                    .into(),
+                css: None,
+                assets: HashMap::new(),
+                patch_selector: None,
+                patch_action: None,
             }),
             decision: None,
         };
-        let next = ClanFile::from_bytes(pack(&parent, out, PackOptions::default(), None).unwrap()).unwrap();
+        let next = ClanFile::from_bytes(pack(&parent, out, PackOptions::default(), None).unwrap())
+            .unwrap();
         assert!(
             next.has_entry("human/assets/logo.svg"),
             "parent asset must survive full-html replacement (F10)"
         );
         // The new view replaced the old index.html.
-        assert!(next.read_entry_string("human/index.html").unwrap().contains("logo.svg"));
+        assert!(next
+            .read_entry_string("human/index.html")
+            .unwrap()
+            .contains("logo.svg"));
     }
 }

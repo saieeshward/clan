@@ -55,7 +55,11 @@ pub fn create(opts: CreateOptions) -> Result<Vec<u8>> {
             renderable: true,
             stale: false,
             // The bootstrap placeholder is a generated stub, safe to replace.
-            source: if opts.no_render { None } else { Some("render".into()) },
+            source: if opts.no_render {
+                None
+            } else {
+                Some("render".into())
+            },
         }),
         fork: None,
         merge_policies: None,
@@ -107,10 +111,12 @@ pub fn create(opts: CreateOptions) -> Result<Vec<u8>> {
     let schema_bytes = match &opts.schema {
         Some(s) => {
             // Validate it parses + compiles before sealing it into the file.
-            let v: serde_json::Value = serde_json::from_str(s)
-                .map_err(|e| crate::error::Error::Schema(format!("seed schema is not valid JSON: {e}")))?;
-            jsonschema::validator_for(&v)
-                .map_err(|e| crate::error::Error::Schema(format!("seed schema does not compile: {e}")))?;
+            let v: serde_json::Value = serde_json::from_str(s).map_err(|e| {
+                crate::error::Error::Schema(format!("seed schema is not valid JSON: {e}"))
+            })?;
+            jsonschema::validator_for(&v).map_err(|e| {
+                crate::error::Error::Schema(format!("seed schema does not compile: {e}"))
+            })?;
             s.clone().into_bytes()
         }
         None => serde_json::to_vec_pretty(&serde_json::json!({
@@ -192,12 +198,42 @@ fn file_registry() -> Vec<FileEntry> {
     }
     vec![
         entry("spec-full", "spec/clan.md", "spec-full", "text/markdown"),
-        entry("spec-guide", "spec/agent-guide.md", "spec-agent-guide", "text/markdown"),
-        entry("canonical-data", "shared/data.yaml", "canonical-data", "application/yaml"),
-        entry("agent-context", "agent/context.md", "agent-context", "text/markdown"),
-        entry("agent-schema", "agent/output-schema.json", "agent-schema", "application/json"),
-        entry("agent-state", "agent/state.yaml", "agent-state", "application/yaml"),
-        entry("agent-chain", "agent/decision-chain.yaml", "agent-chain", "application/yaml"),
+        entry(
+            "spec-guide",
+            "spec/agent-guide.md",
+            "spec-agent-guide",
+            "text/markdown",
+        ),
+        entry(
+            "canonical-data",
+            "shared/data.yaml",
+            "canonical-data",
+            "application/yaml",
+        ),
+        entry(
+            "agent-context",
+            "agent/context.md",
+            "agent-context",
+            "text/markdown",
+        ),
+        entry(
+            "agent-schema",
+            "agent/output-schema.json",
+            "agent-schema",
+            "application/json",
+        ),
+        entry(
+            "agent-state",
+            "agent/state.yaml",
+            "agent-state",
+            "application/yaml",
+        ),
+        entry(
+            "agent-chain",
+            "agent/decision-chain.yaml",
+            "agent-chain",
+            "application/yaml",
+        ),
         entry("human-view", "human/index.html", "human-view", "text/html"),
     ]
 }

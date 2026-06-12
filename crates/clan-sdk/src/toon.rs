@@ -144,7 +144,9 @@ fn parse_columnar_rows(
         }
         let mut m = serde_yaml::Mapping::new();
         for (f, t) in fields.iter().zip(tokens.iter()) {
-            if m.insert(Value::String(f.to_string()), parse_scalar(t)).is_some() {
+            if m.insert(Value::String(f.to_string()), parse_scalar(t))
+                .is_some()
+            {
                 return None; // duplicate field name in header
             }
         }
@@ -222,11 +224,7 @@ fn parse_mapping(
 }
 
 /// Parse one mapping entry starting at `idx` (which sits at `depth`).
-fn parse_entry(
-    lines: &[(usize, &str)],
-    idx: &mut usize,
-    depth: usize,
-) -> Option<(String, Value)> {
+fn parse_entry(lines: &[(usize, &str)], idx: &mut usize, depth: usize) -> Option<(String, Value)> {
     let (_, line) = lines[*idx];
     if let Some((key, n, fields)) = columnar_header(line) {
         *idx += 1;
@@ -272,9 +270,7 @@ fn parse_seq_items(lines: &[(usize, &str)], idx: &mut usize, depth: usize) -> Op
         if spaces > indent {
             return None;
         }
-        let next_is_deeper = lines
-            .get(*idx + 1)
-            .map_or(false, |(s, _)| *s > indent);
+        let next_is_deeper = lines.get(*idx + 1).map_or(false, |(s, _)| *s > indent);
         if let Some(("", n, fields)) = columnar_header(line) {
             // Nested key-less columnar table item: "[n] @f1 f2" + value rows.
             if let Some(m) = current.take() {
@@ -587,7 +583,10 @@ line_items:
     amount: 2875.00
 "#;
         let toon = yaml_to_toon(yaml.as_bytes()).unwrap();
-        assert!(toon.starts_with("line_items [2]\n"), "should not be columnar: {toon}");
+        assert!(
+            toon.starts_with("line_items [2]\n"),
+            "should not be columnar: {toon}"
+        );
         assert!(!toon.contains(" @"), "no columnar header expected: {toon}");
     }
 
@@ -595,7 +594,10 @@ line_items:
     fn columnar_falls_back_on_heterogeneous_keys() {
         let yaml = "rows:\n  - a: 1\n  - b: 2\n";
         let toon = yaml_to_toon(yaml.as_bytes()).unwrap();
-        assert!(!toon.contains(" @"), "disjoint keys must not be columnar: {toon}");
+        assert!(
+            !toon.contains(" @"),
+            "disjoint keys must not be columnar: {toon}"
+        );
     }
 
     #[test]
@@ -607,9 +609,11 @@ line_items:
             {"id": 3, "cat": "A", "val": 20}
         ]});
         let toon = json_to_toon_verified(&v).expect("uniform scalar table must encode");
-        assert!(toon.contains("rows [3] @cat id val"), "columnar header missing: {toon}");
-        let back: serde_json::Value =
-            serde_json::to_value(&parse_toon(&toon).unwrap()).unwrap();
+        assert!(
+            toon.contains("rows [3] @cat id val"),
+            "columnar header missing: {toon}"
+        );
+        let back: serde_json::Value = serde_json::to_value(&parse_toon(&toon).unwrap()).unwrap();
         assert_eq!(back, v);
     }
 
@@ -625,7 +629,10 @@ line_items:
         }
         let v = serde_json::json!({ "rows": rows });
         let columnar = json_to_toon_verified(&v).expect("must encode columnar");
-        assert!(columnar.contains(" @cat flag id name val"), "header: {columnar}");
+        assert!(
+            columnar.contains(" @cat flag id name val"),
+            "header: {columnar}"
+        );
 
         // Build the old row-per-object form for the same data to compare.
         let yaml: Value = serde_yaml::to_value(&v).unwrap();
@@ -637,7 +644,11 @@ line_items:
             s.push_str(&format!("rows [{}]\n", arr.len()));
             for item in arr {
                 for (k, val) in item.as_mapping().unwrap() {
-                    s.push_str(&format!("  {}: {}\n", scalar_to_string(k), scalar_to_string(val)));
+                    s.push_str(&format!(
+                        "  {}: {}\n",
+                        scalar_to_string(k),
+                        scalar_to_string(val)
+                    ));
                 }
             }
             s.pop();
@@ -821,13 +832,13 @@ mod schema_roundtrip_tests {
         let after = jsonschema::validator_for(&recovered).unwrap();
 
         let payloads = [
-            json!({"title": "ok", "total": 5, "status": "draft"}),   // valid
-            json!({"title": "ok"}),                                   // valid
-            json!({}),                                                // missing required
-            json!({"title": "x"}),                                    // too short
-            json!({"title": "ok", "total": -1}),                      // below minimum
-            json!({"title": "ok", "status": "nope"}),                 // bad enum
-            json!({"title": "ok", "extra": 1}),                       // additionalProperties
+            json!({"title": "ok", "total": 5, "status": "draft"}), // valid
+            json!({"title": "ok"}),                                // valid
+            json!({}),                                             // missing required
+            json!({"title": "x"}),                                 // too short
+            json!({"title": "ok", "total": -1}),                   // below minimum
+            json!({"title": "ok", "status": "nope"}),              // bad enum
+            json!({"title": "ok", "extra": 1}),                    // additionalProperties
         ];
         for p in payloads {
             assert_eq!(
@@ -865,15 +876,56 @@ mod adversarial_tests {
     }
 
     const TRICKY_STRINGS: &[&str] = &[
-        "123", "1e5", "true", "false", "null", "", " padded ", "a: b", "[3]",
-        "key [2]", "naïve – ünïcode ✓", "line\nbreak", "tab\there", "-0",
-        "007", "  ", "0.5", "-1.5e-3", "NaN", "inf", "[0]", ": ", "x [1]",
-        "yes", "~", "-0.0", "1.0", "9223372036854775807", "carriage\rreturn",
-        "crlf\r\nline", "9223372036854775808", "\t", "a\n  b: 1",
+        "123",
+        "1e5",
+        "true",
+        "false",
+        "null",
+        "",
+        " padded ",
+        "a: b",
+        "[3]",
+        "key [2]",
+        "naïve – ünïcode ✓",
+        "line\nbreak",
+        "tab\there",
+        "-0",
+        "007",
+        "  ",
+        "0.5",
+        "-1.5e-3",
+        "NaN",
+        "inf",
+        "[0]",
+        ": ",
+        "x [1]",
+        "yes",
+        "~",
+        "-0.0",
+        "1.0",
+        "9223372036854775807",
+        "carriage\rreturn",
+        "crlf\r\nline",
+        "9223372036854775808",
+        "\t",
+        "a\n  b: 1",
     ];
     const TRICKY_KEYS: &[&str] = &[
-        "", "key [2]", "a: b", "decisions", "type", "properties", "x",
-        " lead", "trail ", "[2]", "k\nk", "ünï", "a:b", "items [1]", "enum",
+        "",
+        "key [2]",
+        "a: b",
+        "decisions",
+        "type",
+        "properties",
+        "x",
+        " lead",
+        "trail ",
+        "[2]",
+        "k\nk",
+        "ünï",
+        "a:b",
+        "items [1]",
+        "enum",
     ];
 
     /// The claim itself, checked independently of the implementation's own
@@ -900,7 +952,11 @@ mod adversarial_tests {
     }
 
     fn gen_value(rng: &mut Lcg, depth: u32) -> J {
-        let pick = if depth >= 4 { rng.below(7) } else { rng.below(10) };
+        let pick = if depth >= 4 {
+            rng.below(7)
+        } else {
+            rng.below(10)
+        };
         match pick {
             0 => J::Null,
             1 => J::Bool(rng.below(2) == 0),
@@ -944,8 +1000,7 @@ mod adversarial_tests {
                             let fields = 1 + rng.below(3) as usize;
                             let mut m = serde_json::Map::new();
                             for _ in 0..fields {
-                                let key =
-                                    TRICKY_KEYS[rng.below(TRICKY_KEYS.len() as u64) as usize];
+                                let key = TRICKY_KEYS[rng.below(TRICKY_KEYS.len() as u64) as usize];
                                 m.insert(key.into(), gen_value(rng, depth + 2));
                             }
                             J::Object(m)
@@ -983,50 +1038,53 @@ mod adversarial_tests {
         }
         // Sanity: the test must not be vacuous — a healthy share of values
         // should actually be encodable.
-        assert!(encoded > total / 20, "only {encoded}/{total} values encoded");
+        assert!(
+            encoded > total / 20,
+            "only {encoded}/{total} values encoded"
+        );
     }
 
     /// Hand-crafted nasty scalars and keys, each checked against the claim.
     #[test]
     fn handcrafted_nasty_values_never_corrupt() {
         let cases = vec![
-            json!({"": 1}),                                   // empty key
-            json!({"": {"a": 1}}),                            // empty key, mapping value
-            json!({"key [2]": "x"}),                          // key ending in " [2]", scalar
-            json!({"key [2]": {"a": 1, "b": 2}}),             // key ending in " [2]", object
-            json!({"key [1]": [{"a": 1}]}),                   // header-shaped key + real seq
-            json!({"key [1]": {"a": 1}}),                     // header-shaped key + object
-            json!({"a": "-0"}),                               // string "-0"
-            json!({"a": "007"}),                              // leading-zero numeric string
-            json!({"a": "  "}),                               // string equal to INDENT
-            json!({"a": ["  "]}),                             // INDENT string inside a sequence
-            json!({"decisions": [{"id": 1}, {"id": 2}]}),     // key "decisions"
-            json!({"a": [[1, 2], [3], []]}),                  // array of arrays
-            json!({"a": [[[1]], [[2], [3]]]}),                // array of arrays of arrays
-            json!({"x": {}, "y": 1}),                         // empty object next to scalar
-            json!({"a": [{"x": {}}, {"y": 1}]}),              // empty-object item collision
-            json!({"a": [{"x": {}, "y": 1}]}),                // flattened empty obj + scalar
-            json!({"a": ["x", {"y": 1}]}),                    // scalar/object item collision
-            json!({"a": "x\nb: 2", "b": 2}),                  // multiline forging a sibling
-            json!({"k\nk": 1}),                               // key containing newline
-            json!({"a": -0.0}),                               // negative zero
-            json!({"a": 0.0}),                                // positive zero
-            json!({"a": 1e300}),                              // huge float
-            json!({"a": 5e-324}),                             // smallest subnormal
+            json!({"": 1}),                               // empty key
+            json!({"": {"a": 1}}),                        // empty key, mapping value
+            json!({"key [2]": "x"}),                      // key ending in " [2]", scalar
+            json!({"key [2]": {"a": 1, "b": 2}}),         // key ending in " [2]", object
+            json!({"key [1]": [{"a": 1}]}),               // header-shaped key + real seq
+            json!({"key [1]": {"a": 1}}),                 // header-shaped key + object
+            json!({"a": "-0"}),                           // string "-0"
+            json!({"a": "007"}),                          // leading-zero numeric string
+            json!({"a": "  "}),                           // string equal to INDENT
+            json!({"a": ["  "]}),                         // INDENT string inside a sequence
+            json!({"decisions": [{"id": 1}, {"id": 2}]}), // key "decisions"
+            json!({"a": [[1, 2], [3], []]}),              // array of arrays
+            json!({"a": [[[1]], [[2], [3]]]}),            // array of arrays of arrays
+            json!({"x": {}, "y": 1}),                     // empty object next to scalar
+            json!({"a": [{"x": {}}, {"y": 1}]}),          // empty-object item collision
+            json!({"a": [{"x": {}, "y": 1}]}),            // flattened empty obj + scalar
+            json!({"a": ["x", {"y": 1}]}),                // scalar/object item collision
+            json!({"a": "x\nb: 2", "b": 2}),              // multiline forging a sibling
+            json!({"k\nk": 1}),                           // key containing newline
+            json!({"a": -0.0}),                           // negative zero
+            json!({"a": 0.0}),                            // positive zero
+            json!({"a": 1e300}),                          // huge float
+            json!({"a": 5e-324}),                         // smallest subnormal
             json!({"a": i64::MAX}),
             json!({"a": i64::MIN}),
             json!({"a": u64::MAX}),
             json!({"a": 1e15 + 0.5}),
-            json!({"a": ["[3]"]}),                            // string forging a seq header
+            json!({"a": ["[3]"]}), // string forging a seq header
             json!({"a": ["[0]"]}),
-            json!({"a": [[]]}),                               // genuine empty nested seq
+            json!({"a": [[]]}), // genuine empty nested seq
             json!({"a": [" lead", "trail ", "", "a: b"]}),
-            json!({"a [1]": [1]}),                            // key vs header collision
-            json!([1, 2, 3]),                                 // top-level array
+            json!({"a [1]": [1]}), // key vs header collision
+            json!([1, 2, 3]),      // top-level array
             json!([]),
             json!({}),
             json!(null),
-            json!("a: b"),                                    // top-level entry-shaped string
+            json!("a: b"), // top-level entry-shaped string
             json!("123"),
             json!(""),
         ];
@@ -1040,9 +1098,15 @@ mod adversarial_tests {
         assert!(assert_claim(&json!({"a": [[1, 2], [3], []]})).is_some());
         assert!(assert_claim(&json!({"decisions": [{"id": 1}, {"id": 2}]})).is_some());
         // Known-ambiguous ones must refuse.
-        assert_eq!(json_to_toon_verified(&json!({"a": [{"x": {}}, {"y": 1}]})), None);
+        assert_eq!(
+            json_to_toon_verified(&json!({"a": [{"x": {}}, {"y": 1}]})),
+            None
+        );
         assert_eq!(json_to_toon_verified(&json!({"a": ["[3]"]})), None);
-        assert_eq!(json_to_toon_verified(&json!({"a": "x\nb: 2", "b": 2})), None);
+        assert_eq!(
+            json_to_toon_verified(&json!({"a": "x\nb: 2", "b": 2})),
+            None
+        );
     }
 
     /// 50-level nesting in both objects and arrays must neither panic nor lie.
@@ -1052,14 +1116,20 @@ mod adversarial_tests {
         for i in 0..50 {
             obj = json!({ format!("level{i}"): obj });
         }
-        assert!(assert_claim(&obj).is_some(), "deep object should be lossless");
+        assert!(
+            assert_claim(&obj).is_some(),
+            "deep object should be lossless"
+        );
 
         let mut arr = json!([1]);
         for _ in 0..50 {
             arr = json!([arr]);
         }
         let wrapped = json!({"deep": arr});
-        assert!(assert_claim(&wrapped).is_some(), "deep array should be lossless");
+        assert!(
+            assert_claim(&wrapped).is_some(),
+            "deep array should be lossless"
+        );
     }
 
     /// Heterogeneous object arrays: every grouping the flattening could
@@ -1067,10 +1137,10 @@ mod adversarial_tests {
     #[test]
     fn heterogeneous_object_arrays_never_merge_or_split_silently() {
         let cases = vec![
-            json!({"s": [{"a": 1}, {"b": 2}]}),               // disjoint keys merge
+            json!({"s": [{"a": 1}, {"b": 2}]}), // disjoint keys merge
             json!({"s": [{"a": 1}, {"b": 2}, {"a": 3, "b": 4}]}),
             json!({"s": [{"a": 1, "b": 2}, {"a": 3}, {"b": 4}]}),
-            json!({"s": [{"a": 1}, {"a": 2, "b": 3}]}),       // legitimately splittable
+            json!({"s": [{"a": 1}, {"a": 2, "b": 3}]}), // legitimately splittable
             json!({"s": [{"a": 1, "b": 2}, {"b": 3}]}),
             json!({"s": [{"a": {"x": 1}}, {"a": {"x": 2}}]}), // nested mapping items
             json!({"s": [{"a": 1}, 5, {"a": 2}]}),            // scalars interleaved
@@ -1110,9 +1180,13 @@ mod adversarial_tests {
                 "properties": {"p": body},
                 "required": ["p"]
             });
-            let Some(toon) = assert_claim(&schema) else { continue };
+            let Some(toon) = assert_claim(&schema) else {
+                continue;
+            };
             let recovered: J = serde_json::to_value(&parse_toon(&toon).unwrap()).unwrap();
-            let Ok(before) = jsonschema::validator_for(&schema) else { continue };
+            let Ok(before) = jsonschema::validator_for(&schema) else {
+                continue;
+            };
             let after = jsonschema::validator_for(&recovered)
                 .expect("recovered schema failed to compile although original did");
             for p in &probes {
@@ -1124,6 +1198,9 @@ mod adversarial_tests {
             }
             checked += 1;
         }
-        assert!(checked > 10, "only {checked} schemas were actually compared");
+        assert!(
+            checked > 10,
+            "only {checked} schemas were actually compared"
+        );
     }
 }

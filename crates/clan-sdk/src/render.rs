@@ -191,8 +191,12 @@ mod tests {
     fn render_materialises_view_and_flips_flags() {
         let clan = agent_only_root();
         let clan = ClanFile::from_bytes(
-            crate::pack::patch_data(&clan, &serde_json::json!({"vendor": "Acme", "total": 12}), None)
-                .unwrap(),
+            crate::pack::patch_data(
+                &clan,
+                &serde_json::json!({"vendor": "Acme", "total": 12}),
+                None,
+            )
+            .unwrap(),
         )
         .unwrap();
 
@@ -242,7 +246,10 @@ mod tests {
         .unwrap();
         let view = next.manifest().view.as_ref().unwrap();
         assert!(view.present);
-        assert!(view.stale, "data change without view update must mark the view stale");
+        assert!(
+            view.stale,
+            "data change without view update must mark the view stale"
+        );
 
         // Re-rendering clears the flag.
         let rendered = ClanFile::from_bytes(render(&next).unwrap()).unwrap();

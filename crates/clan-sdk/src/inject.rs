@@ -93,9 +93,8 @@ pub fn assemble(clan: &ClanFile, opts: &InjectOptions) -> Result<AgentContext> {
             crate::merge::MergeReport::from_yaml(&clan.read_entry(crate::merge::MERGE_REPORT_PATH)?)
         {
             if report.unresolved > 0 {
-                let report_toon = toon::yaml_to_toon(
-                    &clan.read_entry(crate::merge::MERGE_REPORT_PATH)?,
-                )?;
+                let report_toon =
+                    toon::yaml_to_toon(&clan.read_entry(crate::merge::MERGE_REPORT_PATH)?)?;
                 parts.push(section(
                     "# Contested Keys (merge report — adjudication pending)",
                     &format!(
@@ -230,11 +229,36 @@ mod tests {
             merge_policies: None,
             external: vec![],
             files: vec![
-                entry("spec-guide", "spec/agent-guide.md", "spec-agent-guide", "text/markdown"),
-                entry("agent-context", "agent/context.md", "agent-context", "text/markdown"),
-                entry("agent-schema", "agent/output-schema.json", "agent-schema", "application/json"),
-                entry("canonical-data", "shared/data.yaml", "canonical-data", "application/yaml"),
-                entry("agent-chain", "agent/decision-chain.yaml", "agent-chain", "application/yaml"),
+                entry(
+                    "spec-guide",
+                    "spec/agent-guide.md",
+                    "spec-agent-guide",
+                    "text/markdown",
+                ),
+                entry(
+                    "agent-context",
+                    "agent/context.md",
+                    "agent-context",
+                    "text/markdown",
+                ),
+                entry(
+                    "agent-schema",
+                    "agent/output-schema.json",
+                    "agent-schema",
+                    "application/json",
+                ),
+                entry(
+                    "canonical-data",
+                    "shared/data.yaml",
+                    "canonical-data",
+                    "application/yaml",
+                ),
+                entry(
+                    "agent-chain",
+                    "agent/decision-chain.yaml",
+                    "agent-chain",
+                    "application/yaml",
+                ),
             ],
         };
         let mut builder = ClanBuilder::new(manifest);
@@ -265,8 +289,10 @@ mod tests {
         let clan = clan_with(SIMPLE_SCHEMA, "decisions: []\n");
         let ctx = assemble(&clan, &InjectOptions::default()).unwrap();
         assert!(
-            ctx.text.contains("# Output Schema (TOON-encoded JSON Schema"),
-            "{}", ctx.text
+            ctx.text
+                .contains("# Output Schema (TOON-encoded JSON Schema"),
+            "{}",
+            ctx.text
         );
         assert!(ctx.text.contains("type: object"), "{}", ctx.text);
         assert!(
@@ -285,10 +311,15 @@ mod tests {
         let clan = clan_with(schema, "decisions: []\n");
         let ctx = assemble(&clan, &InjectOptions::default()).unwrap();
         assert!(
-            ctx.text.contains("# Output Schema (return JSON matching this exactly)"),
-            "{}", ctx.text
+            ctx.text
+                .contains("# Output Schema (return JSON matching this exactly)"),
+            "{}",
+            ctx.text
         );
-        assert!(ctx.text.contains(schema), "raw schema must be injected verbatim");
+        assert!(
+            ctx.text.contains(schema),
+            "raw schema must be injected verbatim"
+        );
         assert_eq!(ctx.output_schema_json, schema);
     }
 
@@ -304,7 +335,10 @@ mod tests {
     #[test]
     fn skip_guide_replaces_body_with_digest_note() {
         let clan = clan_with(SIMPLE_SCHEMA, "decisions: []\n");
-        let opts = InjectOptions { skip_guide: true, ..Default::default() };
+        let opts = InjectOptions {
+            skip_guide: true,
+            ..Default::default()
+        };
         let ctx = assemble(&clan, &opts).unwrap();
 
         assert!(!ctx.text.contains(GUIDE), "guide body must be skipped");
@@ -323,7 +357,10 @@ mod tests {
     #[test]
     fn skip_guide_is_deterministic() {
         let clan = clan_with(SIMPLE_SCHEMA, "decisions: []\n");
-        let opts = InjectOptions { skip_guide: true, ..Default::default() };
+        let opts = InjectOptions {
+            skip_guide: true,
+            ..Default::default()
+        };
         assert_eq!(
             assemble(&clan, &opts).unwrap().text,
             assemble(&clan, &opts).unwrap().text
@@ -444,7 +481,8 @@ mod tests {
             );
         }
         assert!(
-            !ctx.text.contains(&format!("zq-sent-{FIELDS_CHANGED_WINDOW}")),
+            !ctx.text
+                .contains(&format!("zq-sent-{FIELDS_CHANGED_WINDOW}")),
             "entry {FIELDS_CHANGED_WINDOW} (first outside the window) must be pruned:\n{}",
             ctx.text
         );
@@ -560,12 +598,20 @@ mod tests {
     fn empty_mapping_chain_does_not_panic() {
         let clan = clan_with(SIMPLE_SCHEMA, "{}\n");
         let ctx = assemble(&clan, &InjectOptions::default()).unwrap();
-        assert!(ctx.text.contains("# Decision History (TOON)"), "{}", ctx.text);
+        assert!(
+            ctx.text.contains("# Decision History (TOON)"),
+            "{}",
+            ctx.text
+        );
     }
 
     #[test]
     fn non_sequence_decisions_value_does_not_panic() {
-        for chain in ["decisions: nope\n", "decisions: {a: 1}\n", "decisions: null\n"] {
+        for chain in [
+            "decisions: nope\n",
+            "decisions: {a: 1}\n",
+            "decisions: null\n",
+        ] {
             let clan = clan_with(SIMPLE_SCHEMA, chain);
             assemble(&clan, &InjectOptions::default())
                 .unwrap_or_else(|e| panic!("chain {chain:?} must assemble: {e}"));
@@ -601,12 +647,23 @@ mod tests {
 
     #[test]
     fn skip_guide_digest_tracks_guide_content() {
-        let opts = InjectOptions { skip_guide: true, ..Default::default() };
+        let opts = InjectOptions {
+            skip_guide: true,
+            ..Default::default()
+        };
 
         let guide_a = "guide version A";
         let guide_b = "guide version B — content changed";
-        let ctx_a = assemble(&clan_with_guide(guide_a, SIMPLE_SCHEMA, "decisions: []\n"), &opts).unwrap();
-        let ctx_b = assemble(&clan_with_guide(guide_b, SIMPLE_SCHEMA, "decisions: []\n"), &opts).unwrap();
+        let ctx_a = assemble(
+            &clan_with_guide(guide_a, SIMPLE_SCHEMA, "decisions: []\n"),
+            &opts,
+        )
+        .unwrap();
+        let ctx_b = assemble(
+            &clan_with_guide(guide_b, SIMPLE_SCHEMA, "decisions: []\n"),
+            &opts,
+        )
+        .unwrap();
 
         let digest_a = crate::hash::sha256_prefixed(guide_a.as_bytes());
         let digest_b = crate::hash::sha256_prefixed(guide_b.as_bytes());
@@ -631,8 +688,10 @@ mod tests {
         let clan = clan_with(schema, "decisions: []\n");
         let ctx = assemble(&clan, &InjectOptions::default()).unwrap();
         assert!(
-            ctx.text.contains("# Output Schema (return JSON matching this exactly)"),
-            "{}", ctx.text
+            ctx.text
+                .contains("# Output Schema (return JSON matching this exactly)"),
+            "{}",
+            ctx.text
         );
         assert!(ctx.text.contains(schema), "{}", ctx.text);
         assert_eq!(ctx.output_schema_json, schema);
@@ -645,8 +704,10 @@ mod tests {
         let clan = clan_with("{}", "decisions: []\n");
         let ctx = assemble(&clan, &InjectOptions::default()).unwrap();
         assert!(
-            ctx.text.contains("# Output Schema (return JSON matching this exactly)\n\n{}"),
-            "{}", ctx.text
+            ctx.text
+                .contains("# Output Schema (return JSON matching this exactly)\n\n{}"),
+            "{}",
+            ctx.text
         );
         assert_eq!(ctx.output_schema_json, "{}");
     }
@@ -680,7 +741,10 @@ mod tests {
             for skip_guide in [false, true] {
                 for include_patches in [false, true] {
                     let clan = clan_with(schema, "decisions: []\n");
-                    let opts = InjectOptions { include_patches, skip_guide };
+                    let opts = InjectOptions {
+                        include_patches,
+                        skip_guide,
+                    };
                     let ctx = assemble(&clan, &opts).unwrap();
                     assert_eq!(
                         ctx.output_schema_json, schema,
@@ -705,7 +769,9 @@ fn prune_chain_for_injection(mut chain: serde_yaml::Value) -> serde_yaml::Value 
     {
         // Newest-first ordering: index >= window means "old".
         for (i, decision) in decisions.iter_mut().enumerate() {
-            let Some(map) = decision.as_mapping_mut() else { continue };
+            let Some(map) = decision.as_mapping_mut() else {
+                continue;
+            };
             let empty = map
                 .get(&key)
                 .and_then(|v| v.as_sequence())

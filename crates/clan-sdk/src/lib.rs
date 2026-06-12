@@ -40,7 +40,11 @@ pub use merge::{
     fork, fork_with_contexts, merge, ConflictValue, MergeConflict, MergeOptions, MergeOutcome,
     MergeReport, MERGE_REPORT_PATH,
 };
-pub use pack::{pack, pack_html, pack_html_targeted, patch_data, patch_data_namespaced, patch_decision, patch_requirements, patch_state, patch_context, patch_asset, AgentOutput, DecisionEntry, HumanPayload, PackOptions, PatchTargeting};
+pub use pack::{
+    pack, pack_html, pack_html_targeted, patch_asset, patch_context, patch_data,
+    patch_data_namespaced, patch_decision, patch_requirements, patch_state, AgentOutput,
+    DecisionEntry, HumanPayload, PackOptions, PatchTargeting,
+};
 pub use patch::{apply_patch_and_repack, Patch, Patches};
 pub use render::render;
 pub use toon::{to_toon, yaml_to_toon};

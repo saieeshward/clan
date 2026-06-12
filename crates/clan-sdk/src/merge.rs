@@ -138,7 +138,9 @@ pub fn fork_with_contexts(
     let parent_manifest = parent.manifest();
     let parent_entries = parent.read_all_entries()?;
     let parent_sha = parent.sha256();
-    let parent_context = parent.read_entry_string("agent/context.md").unwrap_or_default();
+    let parent_context = parent
+        .read_entry_string("agent/context.md")
+        .unwrap_or_default();
 
     let mut branches = Vec::with_capacity(agent_ids.len());
     for agent_id in agent_ids {
@@ -204,7 +206,10 @@ pub fn fork_with_contexts(
         }
         builder.add_entry("agent/context.md", branch_context.into_bytes());
         builder.add_entry(format!("{namespace}data.yaml"), b"{}\n".to_vec());
-        builder.add_entry(format!("{namespace}decisions.yaml"), b"decisions: []\n".to_vec());
+        builder.add_entry(
+            format!("{namespace}decisions.yaml"),
+            b"decisions: []\n".to_vec(),
+        );
         branches.push((agent_id, builder.build()?));
     }
     Ok(branches)
@@ -256,9 +261,16 @@ pub fn merge(branches: &[ClanFile], opts: MergeOptions) -> Result<MergeOutcome> 
         .policies
         .or_else(|| base_manifest.merge_policies.clone())
         .unwrap_or_default();
-    let default_policy = policies.default.clone().unwrap_or_else(|| "last-write".into());
+    let default_policy = policies
+        .default
+        .clone()
+        .unwrap_or_else(|| "last-write".into());
     let policy_for = |key: &str| -> String {
-        policies.keys.get(key).cloned().unwrap_or_else(|| default_policy.clone())
+        policies
+            .keys
+            .get(key)
+            .cloned()
+            .unwrap_or_else(|| default_policy.clone())
     };
 
     // Collect every branch's namespace writes: key -> [(agent, value)] in
@@ -279,13 +291,18 @@ pub fn merge(branches: &[ClanFile], opts: MergeOptions) -> Result<MergeOutcome> 
             .unwrap_or(Value::Null);
         if let Value::Object(map) = value {
             for (key, val) in map {
-                writes.entry(key).or_default().push((fork.agent_id.clone(), val));
+                writes
+                    .entry(key)
+                    .or_default()
+                    .push((fork.agent_id.clone(), val));
             }
         }
     }
 
     // Fold into the shared data with per-key policies.
-    let base_data_text = base.read_entry_string("shared/data.yaml").unwrap_or_default();
+    let base_data_text = base
+        .read_entry_string("shared/data.yaml")
+        .unwrap_or_default();
     let mut data: Value = serde_yaml::from_str::<serde_yaml::Value>(&base_data_text)
         .ok()
         .and_then(|y| serde_json::to_value(y).ok())
@@ -325,17 +342,31 @@ pub fn merge(branches: &[ClanFile], opts: MergeOptions) -> Result<MergeOutcome> 
                     .filter_map(|(i, (_, v))| v.as_f64().map(|n| (i, n)))
                     .collect();
                 match numeric.iter().copied().reduce(|a, b| {
-                    let pick_b = if policy == "max" { b.1 >= a.1 } else { b.1 <= a.1 };
-                    if pick_b { b } else { a }
+                    let pick_b = if policy == "max" {
+                        b.1 >= a.1
+                    } else {
+                        b.1 <= a.1
+                    };
+                    if pick_b {
+                        b
+                    } else {
+                        a
+                    }
                 }) {
                     Some((idx, _)) => (writers[idx].1.clone(), Some(idx)),
                     // No numeric writer — fall back to last-write.
-                    None => (writers[writers.len() - 1].1.clone(), Some(writers.len() - 1)),
+                    None => (
+                        writers[writers.len() - 1].1.clone(),
+                        Some(writers.len() - 1),
+                    ),
                 }
             }
             // "last-write" and anything unknown (already flagged by
             // validation) fold deterministically as last-write.
-            _ => (writers[writers.len() - 1].1.clone(), Some(writers.len() - 1)),
+            _ => (
+                writers[writers.len() - 1].1.clone(),
+                Some(writers.len() - 1),
+            ),
         };
 
         // A conflict is a discarded value: >1 distinct value under a policy
@@ -505,7 +536,10 @@ pub fn merge(branches: &[ClanFile], opts: MergeOptions) -> Result<MergeOutcome> 
     }
 
     let data_yaml: serde_yaml::Value = serde_json::from_str(&serde_json::to_string(&data)?)?;
-    builder.add_entry("shared/data.yaml", serde_yaml::to_string(&data_yaml)?.into_bytes());
+    builder.add_entry(
+        "shared/data.yaml",
+        serde_yaml::to_string(&data_yaml)?.into_bytes(),
+    );
     builder.add_entry("agent/decision-chain.yaml", chain.to_yaml()?);
     builder.add_entry(MERGE_REPORT_PATH, report.to_yaml()?);
 
@@ -556,7 +590,10 @@ mod tests {
             let fork_info = branch.manifest().fork.as_ref().unwrap();
             assert_eq!(fork_info.agent_id, agent);
             assert_eq!(fork_info.namespace, format!("agents/{agent}/"));
-            assert_eq!(fork_info.forked_from.as_deref(), Some(parent.sha256().as_str()));
+            assert_eq!(
+                fork_info.forked_from.as_deref(),
+                Some(parent.sha256().as_str())
+            );
             // Pass-through: parent members intact, namespace created empty.
             assert!(branch.has_entry("shared/data.yaml"));
             assert!(branch.has_entry("agent/decision-chain.yaml"));
@@ -591,7 +628,10 @@ mod tests {
         let err = crate::pack::patch_data(&a, &patch, None).unwrap_err();
         let msg = err.to_string();
         assert!(msg.contains("alpha"), "{msg}");
-        assert!(msg.contains("--namespace"), "teaching error must name the fix: {msg}");
+        assert!(
+            msg.contains("--namespace"),
+            "teaching error must name the fix: {msg}"
+        );
         assert!(crate::pack::patch_context(&a, "x", false).is_err());
         assert!(crate::pack::patch_schema(&a, "{}", None).is_err());
         assert!(crate::pack::patch_asset(&a, "x.svg", vec![1]).is_err());
@@ -717,7 +757,10 @@ mod tests {
             ..Default::default()
         };
         let outcome = merge(&[a, b], opts).unwrap();
-        assert_eq!(outcome.report.conflicts[0].winner.value, serde_json::json!(7));
+        assert_eq!(
+            outcome.report.conflicts[0].winner.value,
+            serde_json::json!(7)
+        );
         assert_eq!(outcome.report.conflicts[0].winner.agent, "alpha");
     }
 
@@ -756,9 +799,12 @@ mod tests {
     fn merge_rejects_mismatched_fork_points_and_unforked_files() {
         let (a, _) = forked_pair();
         let other_parent = root();
-        let other =
-            ClanFile::from_bytes(fork(&other_parent, &["beta".into(), "gamma".into()]).unwrap()[0].1.clone())
-                .unwrap();
+        let other = ClanFile::from_bytes(
+            fork(&other_parent, &["beta".into(), "gamma".into()]).unwrap()[0]
+                .1
+                .clone(),
+        )
+        .unwrap();
         assert!(merge(&[a, other], MergeOptions::default()).is_err());
 
         let (a, _) = forked_pair();
@@ -781,12 +827,19 @@ mod tests {
     fn prune_namespaces_drops_branch_members() {
         let (a, b) = forked_pair();
         let a = with_namespace_data(&a, serde_json::json!({"x": 1}));
-        let opts = MergeOptions { prune_namespaces: true, ..Default::default() };
+        let opts = MergeOptions {
+            prune_namespaces: true,
+            ..Default::default()
+        };
         let outcome = merge(&[a, b], opts).unwrap();
         let merged = ClanFile::from_bytes(outcome.bytes).unwrap();
         assert!(!merged.has_entry("agents/alpha/data.yaml"));
         assert!(!merged.has_entry("agents/beta/data.yaml"));
-        assert!(!merged.manifest().files.iter().any(|f| f.path.starts_with("agents/")));
+        assert!(!merged
+            .manifest()
+            .files
+            .iter()
+            .any(|f| f.path.starts_with("agents/")));
     }
 
     // F7: branches get a branch-mode banner, and --context-dir overrides the task.
@@ -794,18 +847,31 @@ mod tests {
     fn fork_branches_carry_branch_banner_and_context_override() {
         let parent = root();
         let mut ctx = std::collections::BTreeMap::new();
-        ctx.insert("alpha".to_string(), "ALPHA SPECIFIC TASK: do the alpha thing.".to_string());
-        let branches = fork_with_contexts(&parent, &["alpha".into(), "beta".into()], Some(&ctx)).unwrap();
+        ctx.insert(
+            "alpha".to_string(),
+            "ALPHA SPECIFIC TASK: do the alpha thing.".to_string(),
+        );
+        let branches =
+            fork_with_contexts(&parent, &["alpha".into(), "beta".into()], Some(&ctx)).unwrap();
         for (agent, bytes) in branches {
             let b = ClanFile::from_bytes(bytes).unwrap();
             let context = b.read_entry_string("agent/context.md").unwrap();
-            assert!(context.contains("# Branch Mode"), "every branch gets the banner: {agent}");
+            assert!(
+                context.contains("# Branch Mode"),
+                "every branch gets the banner: {agent}"
+            );
             assert!(context.contains(&format!("agent `{agent}`")));
             if agent == "alpha" {
-                assert!(context.contains("ALPHA SPECIFIC TASK"), "override applied for alpha");
+                assert!(
+                    context.contains("ALPHA SPECIFIC TASK"),
+                    "override applied for alpha"
+                );
             } else {
                 // beta had no override → keeps the parent task below the banner.
-                assert!(context.contains("test brief"), "beta keeps parent task: {context}");
+                assert!(
+                    context.contains("test brief"),
+                    "beta keeps parent task: {context}"
+                );
             }
         }
     }
@@ -814,12 +880,29 @@ mod tests {
     #[test]
     fn prose_conflict_suggests_append() {
         let (a, b) = forked_pair();
-        let a = with_namespace_data(&a, serde_json::json!({"assumptions": "alpha's view of the world"}));
-        let b = with_namespace_data(&b, serde_json::json!({"assumptions": "beta's different framing"}));
+        let a = with_namespace_data(
+            &a,
+            serde_json::json!({"assumptions": "alpha's view of the world"}),
+        );
+        let b = with_namespace_data(
+            &b,
+            serde_json::json!({"assumptions": "beta's different framing"}),
+        );
         let outcome = merge(&[a, b], MergeOptions::default()).unwrap();
-        let conflict = outcome.report.conflicts.iter().find(|c| c.key == "assumptions").unwrap();
-        let suggestion = conflict.suggestion.as_ref().expect("prose conflict must carry a suggestion (F6)");
-        assert!(suggestion.contains("--policy assumptions=append"), "{suggestion}");
+        let conflict = outcome
+            .report
+            .conflicts
+            .iter()
+            .find(|c| c.key == "assumptions")
+            .unwrap();
+        let suggestion = conflict
+            .suggestion
+            .as_ref()
+            .expect("prose conflict must carry a suggestion (F6)");
+        assert!(
+            suggestion.contains("--policy assumptions=append"),
+            "{suggestion}"
+        );
     }
 
     #[test]
@@ -828,7 +911,10 @@ mod tests {
         let a = with_namespace_data(&a, serde_json::json!({"notes": "x"}));
         let b = with_namespace_data(&b, serde_json::json!({"notes": "y"}));
         let opts = MergeOptions {
-            policies: Some(MergePolicies { default: None, keys: [("notes".to_string(), "append".to_string())].into() }),
+            policies: Some(MergePolicies {
+                default: None,
+                keys: [("notes".to_string(), "append".to_string())].into(),
+            }),
             ..Default::default()
         };
         let outcome = merge(&[a, b], opts).unwrap();
@@ -852,7 +938,10 @@ mod tests {
             .collect();
         let outcome = merge(&branches, MergeOptions::default()).unwrap();
         // All agree → last-write picks the same value, no losers → no conflict.
-        assert_eq!(outcome.report.unresolved, 0, "all-agree must produce 0 conflicts");
+        assert_eq!(
+            outcome.report.unresolved, 0,
+            "all-agree must produce 0 conflicts"
+        );
         let merged = ClanFile::from_bytes(outcome.bytes).unwrap();
         let data = merged.read_entry_string("shared/data.yaml").unwrap();
         assert!(data.contains("approved"), "{data}");
@@ -937,7 +1026,10 @@ mod tests {
         };
         let outcome = merge(&[a, b], opts).unwrap();
         assert_eq!(outcome.report.conflicts[0].winner.agent, "alpha");
-        assert_eq!(outcome.report.conflicts[0].winner.value, serde_json::json!("reject"));
+        assert_eq!(
+            outcome.report.conflicts[0].winner.value,
+            serde_json::json!("reject")
+        );
     }
 
     // view.stale must be set to true on the merged file when there was an existing view.
@@ -988,7 +1080,10 @@ mod tests {
         let outcome = merge(&[p, q], MergeOptions::default()).unwrap();
         let merged = ClanFile::from_bytes(outcome.bytes).unwrap();
         let schema_after = merged.read_entry("agent/output-schema.json").unwrap();
-        assert_eq!(original_schema, schema_after, "schema must survive fork/merge unchanged");
+        assert_eq!(
+            original_schema, schema_after,
+            "schema must survive fork/merge unchanged"
+        );
     }
 
     // Five agents, all writing disjoint keys: 0 conflicts, all keys present in merged data.
@@ -1002,7 +1097,10 @@ mod tests {
             .enumerate()
             .map(|(i, (_, bytes))| {
                 let b = ClanFile::from_bytes(bytes).unwrap();
-                with_namespace_data(&b, serde_json::json!({format!("key{i}"): format!("val{i}")}))
+                with_namespace_data(
+                    &b,
+                    serde_json::json!({format!("key{i}"): format!("val{i}")}),
+                )
             })
             .collect();
         let outcome = merge(&branches, MergeOptions::default()).unwrap();
@@ -1021,13 +1119,19 @@ mod tests {
     #[test]
     fn unicode_values_survive_fork_merge() {
         let (a, b) = forked_pair();
-        let a = with_namespace_data(&a, serde_json::json!({
-            "emoji_key": "🎯 target",
-            "cjk": "日本語テスト",
-        }));
-        let b = with_namespace_data(&b, serde_json::json!({
-            "arabic": "مرحبا بالعالم",
-        }));
+        let a = with_namespace_data(
+            &a,
+            serde_json::json!({
+                "emoji_key": "🎯 target",
+                "cjk": "日本語テスト",
+            }),
+        );
+        let b = with_namespace_data(
+            &b,
+            serde_json::json!({
+                "arabic": "مرحبا بالعالم",
+            }),
+        );
         let outcome = merge(&[a, b], MergeOptions::default()).unwrap();
         assert_eq!(outcome.report.unresolved, 0);
         let merged = ClanFile::from_bytes(outcome.bytes).unwrap();
@@ -1041,16 +1145,22 @@ mod tests {
     #[test]
     fn mixed_per_key_policies_all_applied_correctly() {
         let (a, b) = forked_pair();
-        let a = with_namespace_data(&a, serde_json::json!({
-            "tags": ["alpha"],
-            "score": 8,
-            "status": "pending",
-        }));
-        let b = with_namespace_data(&b, serde_json::json!({
-            "tags": ["beta"],
-            "score": 5,
-            "status": "done",
-        }));
+        let a = with_namespace_data(
+            &a,
+            serde_json::json!({
+                "tags": ["alpha"],
+                "score": 8,
+                "status": "pending",
+            }),
+        );
+        let b = with_namespace_data(
+            &b,
+            serde_json::json!({
+                "tags": ["beta"],
+                "score": 5,
+                "status": "done",
+            }),
+        );
         let opts = MergeOptions {
             policies: Some(MergePolicies {
                 default: Some("last-write".into()),
@@ -1064,10 +1174,8 @@ mod tests {
         };
         let outcome = merge(&[a, b], opts).unwrap();
         let merged = ClanFile::from_bytes(outcome.bytes).unwrap();
-        let data: serde_json::Value = serde_yaml::from_str(
-            &merged.read_entry_string("shared/data.yaml").unwrap(),
-        )
-        .unwrap();
+        let data: serde_json::Value =
+            serde_yaml::from_str(&merged.read_entry_string("shared/data.yaml").unwrap()).unwrap();
         // tags → append: both present
         let tags = data["tags"].as_array().unwrap();
         assert_eq!(tags.len(), 2);
@@ -1090,19 +1198,19 @@ mod tests {
 
         let mut merged = ClanFile::from_bytes(outcome.bytes).unwrap();
         // Settle x.
-        let after_x = crate::pack::patch_data(&merged, &serde_json::json!({"x": 99}), None).unwrap();
+        let after_x =
+            crate::pack::patch_data(&merged, &serde_json::json!({"x": 99}), None).unwrap();
         merged = ClanFile::from_bytes(after_x).unwrap();
-        let report: MergeReport = MergeReport::from_yaml(
-            &merged.read_entry(MERGE_REPORT_PATH).unwrap(),
-        ).unwrap();
+        let report: MergeReport =
+            MergeReport::from_yaml(&merged.read_entry(MERGE_REPORT_PATH).unwrap()).unwrap();
         assert_eq!(report.unresolved, 1);
 
         // Settle y.
-        let after_y = crate::pack::patch_data(&merged, &serde_json::json!({"y": "final"}), None).unwrap();
+        let after_y =
+            crate::pack::patch_data(&merged, &serde_json::json!({"y": "final"}), None).unwrap();
         merged = ClanFile::from_bytes(after_y).unwrap();
-        let report: MergeReport = MergeReport::from_yaml(
-            &merged.read_entry(MERGE_REPORT_PATH).unwrap(),
-        ).unwrap();
+        let report: MergeReport =
+            MergeReport::from_yaml(&merged.read_entry(MERGE_REPORT_PATH).unwrap()).unwrap();
         assert_eq!(report.unresolved, 0, "all keys settled");
     }
 }

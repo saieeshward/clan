@@ -276,8 +276,7 @@ mod tests {
             let mut zip = ZipWriter::new(&mut out);
             let deflated =
                 SimpleFileOptions::default().compression_method(CompressionMethod::Deflated);
-            let stored =
-                SimpleFileOptions::default().compression_method(CompressionMethod::Stored);
+            let stored = SimpleFileOptions::default().compression_method(CompressionMethod::Stored);
             zip.start_file(MANIFEST_PATH, deflated).unwrap();
             zip.write_all(&manifest_yaml).unwrap();
             // Stored, so the payload appears verbatim in the archive bytes.

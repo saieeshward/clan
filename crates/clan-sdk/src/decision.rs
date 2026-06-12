@@ -26,11 +26,7 @@ pub struct Decision {
     pub fields_changed: Vec<String>,
     #[serde(default, skip_serializing_if = "is_false")]
     pub pinned: bool,
-    #[serde(
-        rename = "trace-ref",
-        default,
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "trace-ref", default, skip_serializing_if = "Option::is_none")]
     pub trace_ref: Option<TraceRef>,
 }
 

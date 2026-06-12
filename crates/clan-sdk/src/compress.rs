@@ -385,16 +385,15 @@ mod tests {
         let mut chain = DecisionChain::default();
         let long = "y".repeat(400);
         for _ in 0..7 {
-            chain
-                .decisions
-                .push(Decision::new("a", "act", long.clone(), "2026-05-31T10:00:00Z"));
+            chain.decisions.push(Decision::new(
+                "a",
+                "act",
+                long.clone(),
+                "2026-05-31T10:00:00Z",
+            ));
         }
         let compressor = |_a: &str, _r: &str, _b: usize| "OVERRIDDEN".to_string();
-        compress_chain(
-            &mut chain,
-            &CompressionConfig::default(),
-            Some(&compressor),
-        );
+        compress_chain(&mut chain, &CompressionConfig::default(), Some(&compressor));
         assert_eq!(chain.decisions[6].rationale, "OVERRIDDEN");
         assert_eq!(chain.decisions[0].rationale, long); // window preserved
     }
