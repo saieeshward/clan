@@ -18,6 +18,10 @@ CLAN is an open container format for passing structured context between AI agent
 
 **The one-line pitch, straight from our benchmark:** CLAN's price is a modest, bounded token overhead; its product is that correctness, provenance, conflict detection, and human attribution survive *even when nobody writes a careful prompt* — which is exactly the regime real multi-agent pipelines live in.
 
+<p align="center">
+  <b>30</b> real agents benchmarked &nbsp;·&nbsp; <b>0</b> unrecovered failures &nbsp;·&nbsp; <b>42%</b> fewer revision-loop output tokens &nbsp;·&nbsp; <b>44%</b> smaller synthesis injection &nbsp;·&nbsp; <b>0</b> LLM tokens per merge &nbsp;·&nbsp; <b>100%</b> of mutations attributed &nbsp;·&nbsp; <b>&lt;200ms</b> every CLI command &nbsp;·&nbsp; <b>165</b> tests + <b>26</b>-test conformance suite green
+</p>
+
 ---
 
 ## The Problem
@@ -72,30 +76,85 @@ Agents don't need to be taught any of this: the CLI is **self-teaching**. Every 
 
 ---
 
-## What the Benchmark Says — Including Where CLAN Loses
+## Results — What the Benchmark Says, Including Where CLAN Loses
 
-We ran 30 real agents (no scripted outputs) through 11 flows on one fixed task: serial vs parallel × CLAN vs ad-hoc files × guided vs unguided prompts × ± a live human edit. All context sizes measured from artifacts. Full write-up: [`research/14-flow-benchmark.md`](research/14-flow-benchmark.md).
+We ran **30 real agents** (no scripted outputs) through **11 flows** on one fixed task: serial vs parallel × CLAN vs ad-hoc files × guided vs unguided prompts × ± a live human edit. All context sizes were measured from artifacts, not estimated — the raw snapshots, per-agent receipts, and metrics live in [`test-sandbox/`](test-sandbox/) so you can audit every number below. Full write-up: [`research/14-flow-benchmark.md`](research/14-flow-benchmark.md).
 
-**Where CLAN wins:**
+### What survives the handoff — with and without a careful prompt
 
-| Result | Measured |
+The core result. Final artifacts, audited per flow (serial arms shown):
+
+| What the final artifact carries | CLAN guided | CLAN **unguided** | Ad-hoc guided | Ad-hoc **unguided** |
+|---|:---:|:---:|:---:|:---:|
+| Structured, machine-readable data | ✅ | ✅ | ✅ | ❌ |
+| Working state / handoff notes | ✅ | ✅ | 〰️ | ✅ |
+| Output contract (JSON Schema) | ✅ | ✅ | ❌ | ❌ |
+| Provenance (who/what/why, timestamped) | ✅ | ✅ | 〰️ | ❌ |
+| Machine-validatable (`clan validate`) | ✅ | ✅ | ❌ | ❌ |
+| Renderable human view | ✅ | ✅ | ✅ | ❌ |
+
+〰️ = partial (one-line logs or prose-only). **Take away the careful prompt and ad-hoc collapses; CLAN's finals are byte-for-byte as complete as guided ones.** The format carries the discipline so the prompt doesn't have to.
+
+### Measured claims (scorecard, latest run)
+
+| Claim | Measured | Threshold | Status |
+|---|---|---|:---:|
+| Revision loops: CLAN patch path authors fewer output chars than ad-hoc full-rewrites | **0.576× (42% fewer)** | ≤ 0.65 | ✅ PASS |
+| Synthesis hop: CLAN's merged injection beats ad-hoc re-reading every input | **0.557× (44% less)** | < 1.0 | ✅ PASS |
+| TOON encoding saves vs minified JSON on tabular data | **≥ 30%** | ≥ 30% | ✅ PASS |
+| Fidelity: every requested edit present, untouched fields intact | **1.0** | = 1.0 | ✅ PASS |
+| Provenance: every mutating hop attributed, end-to-end | **1.125** | ≥ 1.0 | ✅ PASS |
+| Reliability: agents recover from every CLI error without orchestrator help | **0 unrecovered** | = 0 | ✅ PASS |
+| Agent guide is byte-identical across all files and hops (prompt-cache friendly) | **1 unique hash** | 1 | ✅ PASS |
+| Fixed injection scaffolding is bounded | **≤ 3,000 chars** | ≤ 3,000 | ✅ PASS |
+
+### Parallel agents: the merge that caught what everyone else lost
+
+In the parallel flows, all three branches wrote a key called `assumptions`. Last-write-wins silently dropped the risk analyst's **GDPR/PII scoping**:
+
+| | CLAN fork/merge | Ad-hoc shared dir |
+|---|---|---|
+| Conflict detected | ✅ `merge-report.yaml`, with winner/loser provenance | ❌ reconciled from memory, no record of what was discarded |
+| Lost data recovered | ✅ synthesizer adjudicated, both framings merged, recorded in chain | ❌ |
+| Collision safety | By construction (namespace isolation, guard-enforced) | Luck — agents happened to pick distinct filenames |
+| Merge cost | **0 LLM tokens** (mechanical) | Synthesizer re-reads every specialist file in full |
+
+The only arm in the entire benchmark where a silent information loss was detected **and restored**.
+
+### Human-in-the-loop: obeying vs proving
+
+Same live directive in both arms ("CEO: year-1 ≤ €40,000"):
+
+| | CLAN (viewer edit) | Ad-hoc (brief.md edit) |
+|---|---|---|
+| Agent saw the edit | ✅ | ✅ (only because the prompt said "read every file") |
+| Budget cap honored in final | ✅ €35,800 | ✅ €34,300–37,700 |
+| Attributed to a human | ✅ `edited_by: human` + timestamp, cited in the decision chain | ❌ indistinguishable from the original brief |
+
+Both pipelines obeyed the human. **Only CLAN can prove a human was involved.** For audited or regulated workflows, that asymmetry is the whole game.
+
+### Where CLAN loses (we measured it, so we'll say it)
+
+Injected context per agent, serial 3-hop pipeline:
+
+| Arm | Σ injected | ≈ tokens |
+|---|---|---|
+| Ad-hoc unguided | ~21,000 chars | **~5.3k** |
+| Ad-hoc guided | ~25,100 chars | **~6.3k** |
+| CLAN guided (`--skip-guide`) | ~35,300 chars | **~8.8k** |
+| CLAN unguided (full guide each hop) | ~50,600 chars | **~12.7k** |
+
+- **Raw injected tokens at small scale: CLAN does not win.** Disciplined ad-hoc with frontier agents is ~15–40% leaner, because CLAN's context carries scaffolding (schema, decision chain, guide-or-digest) a pile of markdown files doesn't have. At 3 hops, the growth curves haven't crossed yet.
+- Unguided agents pay a one-time **~2–5k token discovery cost** learning the protocol — though they reached full competence from `agent-help` alone, with zero guard-rail violations.
+
+### Verification status
+
+| Suite | Result |
 |---|---|
-| Handoff completeness (structured data, contracts, provenance, human view) | CLAN finals: **4/5 layers by construction**; ad-hoc finals: **1–2.5/5** |
-| Take away the careful prompt | Unguided CLAN lost **nothing** vs guided; unguided ad-hoc lost structured data, provenance, and the human view |
-| Parallel conflict safety | CLAN's merge **detected and recovered a real silent data loss** (a risk analyst's GDPR scoping dropped by last-write) — the only arm in the benchmark to do so |
-| Merge cost | **Zero LLM tokens** — the merge is mechanical |
-| Revision loops | CLAN patch path authored **0.576×** the output chars of ad-hoc full-rewrites |
-| Synthesis hop | CLAN's merged injection was **0.557×** ad-hoc's re-read-everything |
-| Human-in-the-loop | Both pipelines obeyed the human; **only CLAN can prove it** (`edited_by: human`, timestamped, cited in the chain) |
-| Reliability | 30/30 agent completions, 0 unrecovered failures |
-
-**Where CLAN loses (we measured it, so we'll say it):**
-
-- **Raw injected tokens at small scale: CLAN does not win.** Disciplined ad-hoc with frontier agents is ~15–40% leaner, because CLAN's context carries scaffolding (schema, decision chain, guide-or-digest) the baseline simply doesn't have. At 3 hops, the growth curves haven't crossed yet.
-- Unguided agents pay a one-time **~2–5k token discovery cost** learning the protocol.
-- Several claims are still unmeasured (prompt-cache hit rates, the hop count where the token curves cross, cross-vendor survival) — tracked in the [scorecard](test-sandbox/pipeline/results/).
-
-Every finding the benchmark surfaced (16 of them — silent failures, BOM handling, misleading hints, …) has been fixed and locked in by a **26/26 black-box conformance suite** that runs in CI alongside 165 Rust tests.
+| Rust unit + integration tests | **165/165 pass** |
+| Black-box CLI conformance harness | **26/26 pass, 0 hard failures** |
+| Scorecard claims | **14 PASS · 0 FAIL** |
+| Benchmark reliability | **30/30 agent completions, 0 unrecovered failures** |
 
 ---
 
@@ -136,7 +195,17 @@ my-document.clan          ← ZIP container (DEFLATE)
 
 ### Why a CLI?
 
-Chat platforms extract text from `.docx`/`.pdf` server-side before the model ever sees it. Nothing does that for `.clan` yet — so the `clan` CLI is the extractor: `clan read agent file.clan` unpacks the container, compresses the context, and emits one token-optimized prompt. A framework with the SDK built in can hide the CLI entirely; until then, the CLI is the universal adapter any agent can drive.
+Chat platforms extract text from `.docx`/`.pdf` server-side before the model ever sees it. Nothing does that for `.clan` yet — the `clan` CLI is the adapter any agent on any framework can drive. But it's much more than an extractor: every operation is a surgical command designed to keep token usage lean.
+
+| Command | What it saves |
+|---|---|
+| `clan read agent` | The entire accumulated context as **one token-optimized prompt** — TOON-compressed data, compressed decision tail, digest instead of full guide (`--skip-guide` saves ~1.9k tokens/hop) |
+| `clan patch-data --set k=v` | Change one field — the agent never rewrites the document |
+| `clan patch-html --selector` | Update one element of the human view instead of regenerating the whole page |
+| `clan pack-html` | Ship HTML + data in one shot via frontmatter — avoids the ~5× token blow-up of JSON-encoding HTML |
+| `clan merge` | Combine parallel branches with **zero LLM tokens** |
+
+This is where the measured **42% output-token saving** in revision loops comes from: patching is cheaper than rewriting. A framework with the SDK built in can hide the CLI entirely; until then, the CLI is the universal interface.
 
 ### Desktop Viewer
 

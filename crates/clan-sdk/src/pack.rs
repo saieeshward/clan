@@ -490,7 +490,10 @@ pub fn frontmatter_has_decision(raw_html: &str) -> bool {
 /// `structured:` block. Used by the CLI write-path guard (F18).
 pub fn inspect_html_frontmatter(raw_html: &str) -> (bool, String) {
     let (_, structured, _, _, _, _, html_body) = parse_html_frontmatter(raw_html);
-    let has_structured = structured.as_object().map(|o| !o.is_empty()).unwrap_or(false);
+    let has_structured = structured
+        .as_object()
+        .map(|o| !o.is_empty())
+        .unwrap_or(false);
     (has_structured, html_body)
 }
 
