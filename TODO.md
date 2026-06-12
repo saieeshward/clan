@@ -114,6 +114,10 @@ Priority order: fix blockers first, then correctness, then packaging, then optim
 - [x] Viewer: attach `.dmg`, `.msi`, `.AppImage` to GitHub Release via `tauri-action`
 - [ ] Spec: host `spec/CLAN-SPEC.md` at a versioned URL and reference from crates.io docs
 - [ ] Packages on github for download : Discuss
+- [ ] Combined Installer for all the releases
+  - [x] Windows
+  - [ ] Linux
+  - [ ] MacOs
 
 ### Launch announcements (drafts ready 2026-06-12, kept local until posted)
 
