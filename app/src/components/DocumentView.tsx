@@ -184,7 +184,7 @@ export default function DocumentView({ htmlContent, hasHumanView, manifest, edit
   // Listen for patch messages from the Rust backend.
   useEffect(() => {
     const unlistenPromise = listen('clan-patch-saved', (event) => {
-      const payload = event.payload as any
+      const payload = event.payload as { id?: unknown; content?: unknown } | null
       if (payload && typeof payload.id === 'string' && typeof payload.content === 'string') {
         onPatch(payload.id, payload.content)
       }
@@ -203,7 +203,7 @@ export default function DocumentView({ htmlContent, hasHumanView, manifest, edit
     const isFullDoc = /^\s*<!doctype\s+html/i.test(htmlContent) || /^\s*<html/i.test(htmlContent)
     
     const bridge = `<script>${EDIT_BRIDGE}</script>`
-    let fullHtml = ''
+    let fullHtml: string
 
     if (isFullDoc) {
       if (/<\/body>/i.test(htmlContent)) {
