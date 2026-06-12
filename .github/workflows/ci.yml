@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, 'feature/**' ]
   pull_request:
 
 # Cancel superseded runs on the same ref (e.g. force-pushes to a PR branch).
