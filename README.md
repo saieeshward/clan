@@ -19,7 +19,7 @@ CLAN is an open container format for passing structured context between AI agent
 **The one-line pitch, straight from our benchmark:** CLAN's price is a modest, bounded token overhead; its product is that correctness, provenance, conflict detection, and human attribution survive *even when nobody writes a careful prompt* — which is exactly the regime real multi-agent pipelines live in.
 
 <p align="center">
-  <b>30</b> real agents benchmarked &nbsp;·&nbsp; <b>0</b> unrecovered failures &nbsp;·&nbsp; <b>42%</b> fewer revision-loop output tokens &nbsp;·&nbsp; <b>44%</b> smaller synthesis injection &nbsp;·&nbsp; <b>0</b> LLM tokens per merge &nbsp;·&nbsp; <b>100%</b> of mutations attributed &nbsp;·&nbsp; <b>&lt;200ms</b> every CLI command &nbsp;·&nbsp; <b>165</b> tests + <b>26</b>-test conformance suite green
+  <b>30</b> real agents benchmarked + <b>8/10-hop</b> head-to-head pipelines &nbsp;·&nbsp; <b>0</b> unrecovered failures &nbsp;·&nbsp; <b>36–42%</b> fewer revision-loop output tokens &nbsp;·&nbsp; <b>44–51%</b> smaller synthesis injection &nbsp;·&nbsp; <b>0</b> LLM tokens per merge &nbsp;·&nbsp; <b>100%</b> of mutations attributed &nbsp;·&nbsp; <b>&lt;200ms</b> every CLI command &nbsp;·&nbsp; <b>165</b> Rust tests + <b>26/26</b> conformance on macOS <i>and</i> Windows
 </p>
 
 ---
@@ -34,8 +34,10 @@ CLAN replaces that with a single, self-describing file.
 
 ## Quickstart
 
+**Install:** pre-built CLI binaries for Linux, macOS (Apple Silicon + Intel), and Windows — plus the desktop viewer (`.dmg` / `.msi` / `.AppImage`) — are on the [Releases page](https://github.com/saieeshward/clan/releases).
+
 ```bash
-# Install (from source; binaries on the Releases page)
+# Or build from source
 cargo install --path crates/clan-cli
 
 # Create a document
@@ -78,7 +80,7 @@ Agents don't need to be taught any of this: the CLI is **self-teaching**. Every 
 
 ## Results — What the Benchmark Says, Including Where CLAN Loses
 
-We ran **30 real agents** (no scripted outputs) through **11 flows** on one fixed task: serial vs parallel × CLAN vs ad-hoc files × guided vs unguided prompts × ± a live human edit. All context sizes were measured from artifacts, not estimated — the raw snapshots, per-agent receipts, and metrics live in [`test-sandbox/`](test-sandbox/) so you can audit every number below. Full write-up: [`research/14-flow-benchmark.md`](research/14-flow-benchmark.md).
+Two measurement campaigns back every number below. **Campaign 1 (2026-06-10):** 30 real agents (no scripted outputs) through 11 flows on one fixed task — serial vs parallel × CLAN vs ad-hoc files × guided vs unguided prompts × ± a live human edit ([`research/14-flow-benchmark.md`](research/14-flow-benchmark.md)). **Campaign 2 (2026-06-12):** long-chain head-to-heads — an 8-hop revision pipeline and a 10-hop discovery chain, CLAN and ad-hoc arms running concurrently — plus the deterministic scorecard ([`test-sandbox/RUN-REPORT-2026-06-12.md`](test-sandbox/RUN-REPORT-2026-06-12.md)). All context sizes were measured from artifacts, not estimated; raw snapshots, per-agent receipts, and metrics live in [`test-sandbox/`](test-sandbox/) so you can audit everything.
 
 ### What survives the handoff — with and without a careful prompt
 
@@ -95,18 +97,36 @@ The core result. Final artifacts, audited per flow (serial arms shown):
 
 〰️ = partial (one-line logs or prose-only). **Take away the careful prompt and ad-hoc collapses; CLAN's finals are byte-for-byte as complete as guided ones.** The format carries the discipline so the prompt doesn't have to.
 
-### Measured claims (scorecard, latest run)
+### Measured claims (scorecard run 2026-06-12 — [full report](test-sandbox/RUN-REPORT-2026-06-12.md))
 
 | Claim | Measured | Threshold | Status |
 |---|---|---|:---:|
-| Revision loops: CLAN patch path authors fewer output chars than ad-hoc full-rewrites | **0.576× (42% fewer)** | ≤ 0.65 | ✅ PASS |
-| Synthesis hop: CLAN's merged injection beats ad-hoc re-reading every input | **0.557× (44% less)** | < 1.0 | ✅ PASS |
-| TOON encoding saves vs minified JSON on tabular data | **≥ 30%** | ≥ 30% | ✅ PASS |
+| Revision loops: CLAN patch path authors fewer output chars than ad-hoc full-rewrites (8-hop) | **0.639× (36% fewer)** | ≤ 0.65 | ✅ PASS |
+| Synthesis hop: CLAN's merged injection beats ad-hoc re-reading every input (10-hop) | **0.487× (51% less)** | < 1.0 | ✅ PASS |
+| TOON encoding saves vs minified JSON on tabular data | **57.5%** | ≥ 30% | ✅ PASS |
 | Fidelity: every requested edit present, untouched fields intact | **1.0** | = 1.0 | ✅ PASS |
-| Provenance: every mutating hop attributed, end-to-end | **1.125** | ≥ 1.0 | ✅ PASS |
+| Provenance: every mutating hop attributed, end-to-end | **≥ 1.0** | ≥ 1.0 | ✅ PASS |
 | Reliability: agents recover from every CLI error without orchestrator help | **0 unrecovered** | = 0 | ✅ PASS |
 | Agent guide is byte-identical across all files and hops (prompt-cache friendly) | **1 unique hash** | 1 | ✅ PASS |
-| Fixed injection scaffolding is bounded | **≤ 3,000 chars** | ≤ 3,000 | ✅ PASS |
+| Fixed injection scaffolding is bounded | **a = 2,668 chars** | ≤ 3,000 | ✅ PASS |
+| Two-tier decision-chain compression (verbatim window, compressed tail, pinned preserved) | **correct** | — | ✅ PASS |
+| CLAN per-hop injection crosses below ad-hoc by hop 10 | **no crossover observed** | crossover | ❌ EXPECT-RED |
+| Capability-requirements layer (L5) populated in handoffs | **not exercised yet** | populated | ❌ EXPECT-RED |
+
+Run-to-run variance is real: the 2026-06-10 benchmark measured the revision ratio at 0.576× and the synthesis ratio at 0.557× on shorter chains. We report the latest run, not the best one. The two EXPECT-RED rows are known gaps, kept red on purpose — see [Where CLAN loses](#where-clan-loses-we-measured-it-so-well-say-it).
+
+### Long chains, head-to-head: 8 and 10 hops, both arms live
+
+Two full pipelines ran CLAN and ad-hoc arms concurrently on the same task — an 8-hop revision pipeline (H1) and a 10-hop specialist discovery chain ending in a synthesis hop (H2), plus a cold-resume test (H3):
+
+| Flow | Hops | CLAN total | Ad-hoc total | CLAN faster by |
+|---|:---:|:---:|:---:|:---:|
+| H1 — revision pipeline | 8 | **8:20** | 10:13 | 1:53 (~18%) |
+| H2 — discovery chain | 10 | **11:25** | 12:55 | 1:30 (~12%) |
+
+At the synthesis hop — where ad-hoc context is at its largest — CLAN finished in **1:23 vs 2:01**. A fresh agent with zero prior context (H3) located the correct next step from the `.clan` file alone in **3 orient reads**. Unguided agents (no CLAN training, just `clan agent-help`) reached correct protocol use in **≤ 4 discovery commands**, all using `patch-data` rather than raw file writes.
+
+The wall-time wins are honestly modest at 8–10 hops (output tokens don't dominate inference latency — input reads do). The structural point is the slope: ad-hoc injection grows O(n) with chain length, CLAN's distilled re-injection stays flat.
 
 ### Parallel agents: the merge that caught what everyone else lost
 
@@ -145,16 +165,20 @@ Injected context per agent, serial 3-hop pipeline:
 | CLAN unguided (full guide each hop) | ~50,600 chars | **~12.7k** |
 
 - **Raw injected tokens at small scale: CLAN does not win.** Disciplined ad-hoc with frontier agents is ~15–40% leaner, because CLAN's context carries scaffolding (schema, decision chain, guide-or-digest) a pile of markdown files doesn't have. At 3 hops, the growth curves haven't crossed yet.
+- **They still hadn't crossed at hop 10.** We keep a crossover claim in the scorecard and it is still red (C-CROSSOVER, EXPECT-RED): on the 10-hop corpus, CLAN's per-hop injection stays above ad-hoc until the synthesis hop, where it wins decisively (0.487×). If your chains are short and have no synthesis step, ad-hoc is cheaper. That's the honest trade.
 - Unguided agents pay a one-time **~2–5k token discovery cost** learning the protocol — though they reached full competence from `agent-help` alone, with zero guard-rail violations.
+- **Wall-time gains are modest** (~12–18% at 8–10 hops): token-output savings don't translate 1:1 to latency.
+- **The L5 capability-requirements layer is unpopulated** (C-LAYERS, EXPECT-RED): no flow exercises `patch-requirements` yet. L1–L4 (state, handoff, contracts, provenance) are all green.
 
 ### Verification status
 
 | Suite | Result |
 |---|---|
 | Rust unit + integration tests | **165/165 pass** |
-| Black-box CLI conformance harness | **26/26 pass, 0 hard failures** |
-| Scorecard claims | **14 PASS · 0 FAIL** |
+| Black-box CLI conformance harness | **26/26 pass, 0 hard failures — verified on macOS and Windows** |
+| Scorecard claims | **14 PASS · 0 FAIL · 2 EXPECT-RED** (documented gaps, kept red on purpose) |
 | Benchmark reliability | **30/30 agent completions, 0 unrecovered failures** |
+| Release pipeline | **v1.1.0 shipped from CI: 4 CLI targets + 7 viewer bundles, all green** |
 
 ---
 
@@ -237,7 +261,7 @@ A CLAN file is live: it carries its own specification, so any agent can understa
 
 ## Status
 
-**v1.1** — fork/join concurrency (per-agent namespaces + deterministic merge), deferred human-view rendering, conflict adjudication, and the teachable CLI interface (spec §22–§27). Verified by 165 Rust tests + a 26-test black-box conformance suite in CI.
+**v1.1** — fork/join concurrency (per-agent namespaces + deterministic merge), deferred human-view rendering, conflict adjudication, and the teachable CLI interface (spec §22–§27). Verified by 165 Rust tests + a 26-test black-box conformance suite in CI, with [binaries for every platform on the Releases page](https://github.com/saieeshward/clan/releases).
 
 ## Maintainers
 
