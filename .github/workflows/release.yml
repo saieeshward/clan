@@ -77,7 +77,7 @@ jobs:
           staging="clan-${{ github.ref_name }}-${{ matrix.target }}"
           mkdir "$staging"
           cp "target/${{ matrix.target }}/release/clan" "$staging/"
-          cp README.md LICENSE "$staging/" 2>/dev/null || true
+          cp README.md LICENSE NOTICE "$staging/" 2>/dev/null || true
           tar czf "$staging.tar.gz" "$staging"
           echo "ASSET=$staging.tar.gz" >> "$GITHUB_ENV"
 
@@ -88,7 +88,7 @@ jobs:
           $staging = "clan-${{ github.ref_name }}-${{ matrix.target }}"
           New-Item -ItemType Directory -Path $staging | Out-Null
           Copy-Item "target/${{ matrix.target }}/release/clan.exe" $staging
-          Copy-Item README.md, LICENSE $staging -ErrorAction SilentlyContinue
+          Copy-Item README.md, LICENSE, NOTICE $staging -ErrorAction SilentlyContinue
           Compress-Archive -Path $staging -DestinationPath "$staging.zip"
           "ASSET=$staging.zip" | Out-File -FilePath $env:GITHUB_ENV -Append
 
