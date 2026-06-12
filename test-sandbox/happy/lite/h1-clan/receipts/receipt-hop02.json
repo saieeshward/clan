@@ -1,25 +1,30 @@
 {
   "role": "risk-add",
   "hop": 2,
-  "arm": "h1-clan",
-  "flow": "happy/lite",
+  "arm": "clan",
+  "flow": "guided patch-first",
   "commands_run": [
-    "target/release/clan.exe read data test-sandbox/happy/lite/h1-clan/work/doc.clan",
-    "target/release/clan.exe patch-data test-sandbox/happy/lite/h1-clan/work/doc.clan <full-risks-json> --agent risk-add --action \"add vendor lock-in risk\"",
-    "target/release/clan.exe patch-html test-sandbox/happy/lite/h1-clan/work/doc.clan - --selector \"#risk-rows\" --patch-action append --agent risk-add --action \"add vendor lock-in risk row\"",
-    "target/release/clan.exe validate test-sandbox/happy/lite/h1-clan/work/doc.clan"
+    "clan read agent h1-clan/work/doc.clan --skip-guide",
+    "clan read data h1-clan/work/doc.clan",
+    "clan read human h1-clan/work/doc.clan",
+    "clan patch-data h1-clan/work/doc.clan --append risks '<one-entry array>' --agent risk-add --action ...",
+    "clan patch-html h1-clan/work/doc.clan /tmp/risk-tr.html --selector #risk-rows --patch-action append --agent risk-add --action ...",
+    "clan validate h1-clan/work/doc.clan",
+    "cp h1-clan/work/doc.clan h1-clan/snapshots/hop-02-risk-add.clan"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/lite/h1-clan/work/doc.clan", "approx_chars": 1800}
+    { "file": "test-sandbox/happy/lite/h1-clan/work/doc.clan", "approx_chars": 15253 }
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/lite/h1-clan/work/doc.clan", "chars": 1920},
-    {"file": "test-sandbox/happy/lite/h1-clan/snapshots/hop-02-risk-add.clan", "chars": 1920},
-    {"file": "test-sandbox/happy/lite/h1-clan/receipts/hop02-output/patch-data-payload.json", "chars": 340},
-    {"file": "test-sandbox/happy/lite/h1-clan/receipts/hop02-output/patch-html-fragment.html", "chars": 115}
+    { "file": "test-sandbox/happy/lite/h1-clan/work/doc.clan", "chars": 15253 },
+    { "file": "test-sandbox/happy/lite/h1-clan/snapshots/hop-02-risk-add.clan", "chars": 15253 },
+    { "file": "test-sandbox/happy/lite/h1-clan/receipts/hop02-output/patch-data.json", "chars": 113 },
+    { "file": "test-sandbox/happy/lite/h1-clan/receipts/hop02-output/patch-html.html", "chars": 96 }
   ],
-  "output_chars": 340,
-  "errors": [],
-  "problems_and_friction": "patch-data does not accept --key flag; correct usage is inline JSON string as positional argument",
-  "context_understood": "Hop 2 risk-add: append vendor lock-in risk to data array and matching <tr> to #risk-rows in HTML view; pack-html forbidden; validate after; snapshot to snapshots/hop-02-risk-add.clan"
+  "output_chars": 209,
+  "errors": [
+    { "what": "First patch-data attempt used non-existent --merge flag", "recovered_by": "Checked clan patch-data --help; used --append risks with a single-entry array (spec §24.3) instead" }
+  ],
+  "problems_and_friction": "patch-data merge-patch replaces arrays wholesale, but --append (spec §24.3) let me concatenate just the one new risk entry, keeping authored bytes minimal instead of re-typing the full 4-entry array. The HTML row is literal (not bound), so a one-line <tr> append to #risk-rows covered the view.",
+  "context_understood": "risks is a data-bound array plus a literal HTML risk table; adding a risk requires both an array append in data and a matching <tr> appended to the #risk-rows tbody, with pack-html forbidden."
 }

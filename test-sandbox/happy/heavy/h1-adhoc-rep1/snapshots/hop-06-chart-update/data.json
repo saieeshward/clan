@@ -4,8 +4,8 @@
   "prepared_by": "Vantage Advisory",
   "prepared_date": "2026-06-01",
   "vendor_shortlist": ["HubSpot", "Zoho CRM", "Salesforce"],
-  "verdict": "HubSpot",
-  "verdict_rationale": "HubSpot's onboarding speed and native marketing suite outweigh its higher per-seat cost for a 40-seat go-live.",
+  "verdict": "Zoho CRM",
+  "verdict_rationale": "On re-evaluation, Zoho CRM delivers equivalent time-to-value at a lower 40-seat cost, with EU data residency included rather than billed as an add-on — the per-seat saving compounds across the three-phase rollout.",
   "seat_count": 40,
   "hubspot_price_per_seat": 50,
   "zoho_price_per_seat": 38,
@@ -28,7 +28,7 @@
     {"risk": "Migration data quality", "severity": "High", "mitigation": "Two-pass dedupe before cutover"},
     {"risk": "User adoption", "severity": "Medium", "mitigation": "Champion program + 24h training"},
     {"risk": "Integration latency on NetSuite sync", "severity": "Medium", "mitigation": "Nightly batch fallback"},
-    {"risk": "Vendor lock-in", "severity": "Medium", "mitigation": "Quarterly data-export clause in contract"}
+    {"risk":"Vendor lock-in","severity":"Medium","mitigation":"Quarterly data-export clause in contract"}
   ],
   "success_metrics": ["Lead response < 2h", "90% adoption by week 6", "Pipeline visibility for all reps"],
   "annual_savings_vs_status_quo": 18500,

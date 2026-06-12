@@ -5,22 +5,26 @@
   "flow": "H2",
   "commands_run": [
     "clan read agent test-sandbox/happy/heavy/h2-clan-rep5/work/doc.clan --skip-guide",
-    "clan patch-data test-sandbox/happy/heavy/h2-clan-rep5/work/doc.clan test-sandbox/happy/lite/_inputs/h2-supplied/07-competitive-intel.json --agent 07-competitive-intel --action \"added 07-competitive-intel findings\" --rationale \"Zoho's quarterly export clause keeps switching cost low — a hedge against its maturity risk. Next: finance model.\"",
+    "clan patch-data test-sandbox/happy/heavy/h2-clan-rep5/work/doc.clan test-sandbox/happy/lite/_inputs/h2-supplied/07-competitive-intel.json --agent 07-competitive-intel --action \"added 07-competitive-intel findings\" --rationale \"<handoff>\"",
     "clan validate test-sandbox/happy/heavy/h2-clan-rep5/work/doc.clan",
     "cp test-sandbox/happy/heavy/h2-clan-rep5/work/doc.clan test-sandbox/happy/heavy/h2-clan-rep5/snapshots/hop-07-07-competitive-intel.clan"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep5/work/doc.clan", "approx_chars": 3200},
-    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/07-competitive-intel.handoff.txt", "approx_chars": 105},
-    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/07-competitive-intel.json", "approx_chars": 185}
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep5/work/doc.clan", "approx_chars": 21282},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/07-competitive-intel.handoff.txt", "approx_chars": 113},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/07-competitive-intel.json", "approx_chars": 218}
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep5/snapshots/hop-07-07-competitive-intel.clan", "chars": 3380},
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep5/receipts/hop07-output/patch-data.json", "chars": 185},
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep5/receipts/receipt-hop07.json", "chars": 1100}
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep5/work/doc.clan", "chars": 21282},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep5/snapshots/hop-07-07-competitive-intel.clan", "chars": 21282},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep5/receipts/hop07-output/patch-data.json", "chars": 218},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep5/receipts/hop07-output/rationale.txt", "chars": 115}
   ],
-  "output_chars": 185,
-  "errors": [],
-  "problems_and_friction": "The handoff.txt file contained a garbled character (replacement char for em-dash) in the first word; the rationale text was used verbatim with a clean em-dash substitution. No structural issues encountered.",
-  "context_understood": "Hop 7 adds competitive-intel findings (5 fields) to the CRM recommendation doc for Brightline Logistics, building on prior hops covering market research, pricing, risk, GDPR, integrations, and customer discovery."
+  "output_chars": 333,
+  "errors": [
+    {"what": "first clan read used a relative path and failed (agent cwd resets between bash calls)", "recovered_by": "re-running with the absolute path to doc.clan"},
+    {"what": "supplied handoff note contains a Windows-1252 em-dash byte (0x97) that is invalid UTF-8", "recovered_by": "authoring the --rationale as a proper UTF-8 em-dash (transcoded) so patch-data accepted it cleanly"}
+  ],
+  "problems_and_friction": "Two snags: the agent working directory resets between bash calls so the relative-path read failed once, and the supplied handoff note carries a Windows-1252 em-dash (0x97) that is not valid UTF-8. Both were resolved (absolute path + UTF-8 em-dash in the rationale); validation returned OK and the human view is flagged stale, which is fine since no view is required until hop 12.",
+  "context_understood": "Data-only patch-data merge adding five comp_* competitive-intel fields (HubSpot/Zoho/Salesforce strengths, Zoho's low switching cost and quarterly export clause) into the Brightline Logistics CRM doc, preserving all prior analysts' keys."
 }

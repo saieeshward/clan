@@ -1,0 +1,14 @@
+{
+  "agent": "analyst-c",
+  "namespace": "analyst_c",
+  "branch_file": "test-sandbox/happy/forkmerge/branches/analyst-c.clan",
+  "action": "risk analysis: recommends Buy",
+  "fields_written": {
+    "analyst_c_recommendation": "Buy",
+    "analyst_c_budget_eur": 310000,
+    "analyst_c_top_risks": ["scope creep", "resource contention", "regulatory compliance gaps"],
+    "analyst_c_assumptions": "Vendor solution achieves GDPR compliance out-of-box; EU data residency available"
+  },
+  "validation": "OK",
+  "timestamp": "2026-06-11T00:00:00Z"
+}

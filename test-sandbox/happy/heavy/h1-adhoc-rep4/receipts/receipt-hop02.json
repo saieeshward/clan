@@ -4,31 +4,32 @@
   "arm": "adhoc",
   "flow": "H1",
   "commands_run": [
-    "mkdir -p test-sandbox/happy/heavy/h1-adhoc-rep4/snapshots/hop-02-risk-add",
-    "cp work/report.html snapshots/hop-02-risk-add/report.html",
-    "cp work/data.json snapshots/hop-02-risk-add/data.json",
-    "cp work/decisions.log snapshots/hop-02-risk-add/decisions.log",
-    "mkdir -p test-sandbox/happy/heavy/h1-adhoc-rep4/receipts/hop02-output",
-    "python3 -c (char count)"
+    "grep -n 'risk-rows' work/report.html",
+    "mkdir -p snapshots/hop-02-risk-add receipts/hop02-output",
+    "cp work/report.html work/data.json work/decisions.log snapshots/hop-02-risk-add/",
+    "wc -c receipts/hop02-output/* work/report.html work/data.json work/decisions.log"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/work/data.json", "approx_chars": 1897},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/work/report.html", "approx_chars": 3820},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/work/decisions.log", "approx_chars": 90}
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/work/data.json", "approx_chars": 2113},
+    {"file": "test-sandbox/happy/lite/_inputs/h1-supplied/hop02-risk-fragment.html", "approx_chars": 96},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/work/report.html", "approx_chars": 4961},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/work/decisions.log", "approx_chars": 1075}
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/work/data.json", "chars": 1975},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/work/report.html", "chars": 3904},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/work/decisions.log", "chars": 264},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/snapshots/hop-02-risk-add/data.json", "chars": 1975},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/snapshots/hop-02-risk-add/report.html", "chars": 3904},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/snapshots/hop-02-risk-add/decisions.log", "chars": 264},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/receipts/hop02-output/patch-data.json", "chars": 106},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/receipts/hop02-output/patch-html.html", "chars": 97},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/receipts/hop02-output/decision.txt", "chars": 169}
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/work/data.json", "chars": 2113},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/work/report.html", "chars": 4961},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/work/decisions.log", "chars": 1075},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/receipts/hop02-output/patch-data.json", "chars": 110},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/receipts/hop02-output/patch-risk-fragment.html", "chars": 97},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/receipts/hop02-output/decision.txt", "chars": 98},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/snapshots/hop-02-risk-add/data.json", "chars": 2113},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/snapshots/hop-02-risk-add/report.html", "chars": 4961},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/snapshots/hop-02-risk-add/decisions.log", "chars": 1075}
   ],
-  "output_chars": 372,
-  "errors": [],
-  "problems_and_friction": "No friction. Files were straightforwardly structured JSON and HTML allowing surgical single-line splice at each site. Decisions.log required reading back before editing since content was confirmed from initial read.",
-  "context_understood": "Append a Vendor lock-in risk (Medium severity) to data.json risks array and add a matching table row to report.html risk register, then log and snapshot the change."
+  "output_chars": 305,
+  "errors": [
+    {"what": "Re-run found the change already present in all three work files and in two hop02-output payloads (idempotent state from a prior pass)", "recovered_by": "Verified existing content exactly matched the required risk object/row/log line; re-snapshotted current files and recorded the minimal authored payloads without duplicating rows"}
+  ],
+  "problems_and_friction": "No splice friction: the supplied HTML row dropped straight into the #risk-rows tbody and the JSON object appended cleanly as the last risks[] element. The only wrinkle was that the artifacts were already modified, so this pass was verify-and-snapshot rather than a fresh edit.",
+  "context_understood": "Append a Vendor lock-in Medium risk to risks[] in data.json and splice the supplied matching row into the report.html #risk-rows tbody, then log the decision and snapshot."
 }

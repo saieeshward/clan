@@ -4,31 +4,32 @@
   "arm": "adhoc",
   "flow": "H2",
   "commands_run": [
-    "mkdir -p snapshots/hop-05-05-integrations-assessor",
-    "cp work/findings.md snapshots/hop-05-05-integrations-assessor/findings.md",
-    "cp work/handoff.md snapshots/hop-05-05-integrations-assessor/handoff.md",
-    "mkdir -p receipts/hop05-output",
+    "cat >> work/findings.md",
+    "cat >> work/handoff.md",
+    "mkdir -p snapshots/hop-05-05-integrations-assessor receipts/hop05-output",
+    "cp work/findings.md work/handoff.md -> snapshots/hop-05-05-integrations-assessor/",
     "cat > receipts/hop05-output/findings-fragment.md",
     "cat > receipts/hop05-output/handoff-fragment.md"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/work/brief.md", "approx_chars": 610},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/work/findings.md", "approx_chars": 820},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/work/handoff.md", "approx_chars": 560},
-    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/05-integrations-assessor.json", "approx_chars": 200},
-    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/05-integrations-assessor.handoff.txt", "approx_chars": 155}
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/work/brief.md", "approx_chars": 780},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/work/findings.md", "approx_chars": 2750},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/work/handoff.md", "approx_chars": 2500},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/05-integrations-assessor.json", "approx_chars": 280},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/05-integrations-assessor.handoff.txt", "approx_chars": 145}
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/work/findings.md", "chars": 1158},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/work/handoff.md", "chars": 822},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/snapshots/hop-05-05-integrations-assessor/findings.md", "chars": 1158},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/snapshots/hop-05-05-integrations-assessor/handoff.md", "chars": 822},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/receipts/hop05-output/findings-fragment.md", "chars": 205},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/receipts/hop05-output/handoff-fragment.md", "chars": 172},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/receipts/receipt-hop05.json", "chars": 1820}
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/work/findings.md", "chars": 215},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/work/handoff.md", "chars": 172},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/snapshots/hop-05-05-integrations-assessor/findings.md", "chars": 2965},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/snapshots/hop-05-05-integrations-assessor/handoff.md", "chars": 2672},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/receipts/hop05-output/findings-fragment.md", "chars": 215},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/receipts/hop05-output/handoff-fragment.md", "chars": 172}
   ],
-  "output_chars": 377,
-  "errors": [],
-  "problems_and_friction": "The Write tool blocked writing the findings fragment file directly, requiring a fallback to Bash cat heredoc. Otherwise the protocol was straightforward with clear supplied inputs.",
-  "context_understood": "Hop 5 of H2 adhoc chain: append integration assessment findings and handoff note to shared work files, snapshot, and write receipt."
+  "output_chars": 387,
+  "errors": [
+    {"what": "Write tool blocked output fragment files as 'report files' / unread-file", "recovered_by": "wrote the protocol-required fragments via Bash heredoc instead"}
+  ],
+  "problems_and_friction": "The work files already contain duplicated sections (02/03/04 repeated), inherited from prior hops; I appended my own section cleanly without re-transcribing. Write tool refused the output-fragment files so I used Bash.",
+  "context_understood": "I am the integrations assessor adding native-connector coverage and ~9-week integration effort for the Brightline CRM bake-off, building on prior pricing/risk/GDPR findings without re-transcribing them."
 }

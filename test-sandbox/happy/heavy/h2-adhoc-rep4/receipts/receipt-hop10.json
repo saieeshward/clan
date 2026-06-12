@@ -4,28 +4,32 @@
   "arm": "adhoc",
   "flow": "H2",
   "commands_run": [
-    "mkdir -p snapshots/hop-10-10-procurement-reviewer",
-    "mkdir -p receipts/hop10-output",
-    "cp work/findings.md snapshots/hop-10-10-procurement-reviewer/findings.md",
-    "cp work/handoff.md snapshots/hop-10-10-procurement-reviewer/handoff.md",
-    "wc -c receipts/hop10-output/findings-fragment.md receipts/hop10-output/handoff-fragment.md"
+    "wc -c (budget checks on /tmp/proc_findings.json)",
+    "python3 json.load validation (6 fields)",
+    "cat >> work/findings.md (append section)",
+    "cat >> work/handoff.md (append note)",
+    "mkdir -p snapshots/hop-10-10-procurement-reviewer && cp findings.md handoff.md",
+    "mkdir -p receipts/hop10-output && cp payload + write fragments"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/work/brief.md", "approx_chars": 490},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/work/findings.md", "approx_chars": 1980},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/work/handoff.md", "approx_chars": 1100}
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/work/brief.md", "approx_chars": 760},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/work/findings.md", "approx_chars": 3550},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/work/handoff.md", "approx_chars": 3050}
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/work/findings.md", "chars": 1746},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/work/handoff.md", "chars": 235},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/snapshots/hop-10-10-procurement-reviewer/findings.md", "chars": 3726},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/snapshots/hop-10-10-procurement-reviewer/handoff.md", "chars": 1335},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/receipts/hop10-output/findings-fragment.md", "chars": 1746},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/receipts/hop10-output/handoff-fragment.md", "chars": 235},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/receipts/receipt-hop10.json", "chars": 1500}
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/work/findings.md", "chars": 281},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/work/handoff.md", "chars": 232},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/snapshots/hop-10-10-procurement-reviewer/findings.md", "chars": 3831},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/snapshots/hop-10-10-procurement-reviewer/handoff.md", "chars": 3282},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/receipts/hop10-output/findings.json", "chars": 295},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/receipts/hop10-output/findings-fragment.md", "chars": 281},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep4/receipts/hop10-output/handoff-fragment.md", "chars": 232}
   ],
-  "output_chars": 1981,
-  "errors": [],
-  "problems_and_friction": "PowerShell Copy-Item is not available via the Bash tool; switched to POSIX cp which worked fine. Write tool blocked report-file creation; used Bash heredoc workaround. No substantive data issues.",
-  "context_understood": "Brightline Logistics (40 seats, EU, Zoho vs HubSpot shortlist) needs procurement terms reviewed; prior hops established Zoho as cost/GDPR leader with a 3-year EUR 17,280 saving over HubSpot."
+  "output_chars": 513,
+  "errors": [
+    {"what": "first-cut findings JSON was 364 chars, over the 300-char hard budget", "recovered_by": "abbreviated key_commitments to short labels and dropped to one negotiation_leverage entry, keeping full required key names; landed at 295 chars"},
+    {"what": "Write to receipt-hop10.json failed (file existed from prior run, unread)", "recovered_by": "Read the existing receipt, then overwrote with this run's receipt"}
+  ],
+  "problems_and_friction": "The risks-object schema (risk/severity/mitigation keys) is byte-expensive, forcing trims on the array fields to fit 300 chars without abbreviating the required key names. Work/receipt files already held a prior run's hops 10-12; I appended a fresh hop-10 section and overwrote my own receipt rather than dedup.",
+  "context_understood": "The chain recommends a CRM for Brightline Logistics; prior hops converge on Zoho (cheapest at EUR18,240/yr, EU pinning included, quarterly export clause, 9wk rollout before the Oct peak), and my procurement layer adds a 1-yr term, ~4wk lead time, and a contractable renewal-uplift cap as the key term to negotiate."
 }

@@ -1,1 +1,0 @@
-hop-04 summary-rewrite: exec_summary replaced in data.json and <p id="exec-summary"> in report.html with supplied h1-supplied/exec-summary.txt (Zoho CRM now leads).

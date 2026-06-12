@@ -5,26 +5,23 @@
   "flow": "H1",
   "commands_run": [
     "clan read agent test-sandbox/happy/heavy/h1-clan-rep1/work/doc.clan --skip-guide",
-    "clan patch-data test-sandbox/happy/heavy/h1-clan-rep1/work/doc.clan C:\\Users\\syson\\AppData\\Local\\Temp\\h1patch7.json --agent verdict-agent --action \"flip verdict to Zoho CRM\" --rationale \"Re-scored: Zoho wins on 40-seat cost with EU residency\"",
+    "clan patch-data test-sandbox/happy/heavy/h1-clan-rep1/work/doc.clan /tmp/h1patch7.json --agent verdict-agent --action \"flip verdict to Zoho CRM\" --rationale \"Re-scored: Zoho wins on 40-seat cost with EU residency\"",
     "clan validate test-sandbox/happy/heavy/h1-clan-rep1/work/doc.clan",
-    "cp test-sandbox/happy/heavy/h1-clan-rep1/work/doc.clan test-sandbox/happy/heavy/h1-clan-rep1/snapshots/hop-07-verdict-flip.clan"
+    "cp test-sandbox/happy/heavy/h1-clan-rep1/work/doc.clan test-sandbox/happy/heavy/h1-clan-rep1/snapshots/hop-07-verdict-flip.clan",
+    "cp /tmp/h1patch7.json test-sandbox/happy/heavy/h1-clan-rep1/receipts/hop07-output/patch-data.json"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/lite/_inputs/h1-supplied/verdict-rationale.txt", "approx_chars": 213}
+    {"file": "test-sandbox/happy/lite/_inputs/h1-supplied/verdict-rationale.txt", "approx_chars": 205},
+    {"file": "/tmp/h1patch7.json", "approx_chars": 260}
   ],
   "files_written": [
-    {"file": "C:\\Users\\syson\\AppData\\Local\\Temp\\h1patch7.json", "chars": 263},
-    {"file": "test-sandbox/happy/heavy/h1-clan-rep1/snapshots/hop-07-verdict-flip.clan", "chars": -1},
-    {"file": "test-sandbox/happy/heavy/h1-clan-rep1/receipts/hop07-output/patch-data.json", "chars": 263},
-    {"file": "test-sandbox/happy/heavy/h1-clan-rep1/receipts/receipt-hop07.json", "chars": -1}
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep1/snapshots/hop-07-verdict-flip.clan", "chars": 0},
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep1/receipts/hop07-output/patch-data.json", "chars": 260}
   ],
-  "output_chars": 263,
+  "output_chars": 260,
   "errors": [
-    {
-      "what": "clan patch-data failed: could not read /tmp/h1patch7.json (wrote to C:\\tmp instead of Windows Temp)",
-      "recovered_by": "Resolved correct Windows Temp path via $env:TEMP and re-wrote patch file to C:\\Users\\syson\\AppData\\Local\\Temp\\h1patch7.json"
-    }
+    {"what": "Write to /tmp/h1patch7.json blocked because the file pre-existed and was unread this session", "recovered_by": "Read the existing file; it already held the exact required payload, so no rewrite was needed and the patch proceeded"}
   ],
-  "problems_and_friction": "The /tmp/h1patch7.json path in the protocol resolves to C:\\Users\\syson\\AppData\\Local\\Temp\\h1patch7.json on Windows, but the clan binary looks there natively; writing to C:\\tmp first caused a file-not-found error. One retry after correcting the path resolved it cleanly.",
-  "context_understood": "Flip the verdict field from its current value to 'Zoho CRM' and set verdict_rationale to the verbatim supplied text, then validate and snapshot."
+  "problems_and_friction": "The /tmp patch file and this receipt both pre-existed from a prior run, so writes were initially rejected until read. The target verdict and rationale were already at the desired values, making the patch effectively idempotent, but it was applied per protocol; validate returned OK.",
+  "context_understood": "Flip the document verdict to Zoho CRM and set verdict_rationale to the supplied text via a targeted clan patch-data, then validate and snapshot, leaving the human HTML view untouched (pack-html forbidden)."
 }

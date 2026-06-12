@@ -4,30 +4,26 @@
   "arm": "adhoc",
   "flow": "H1",
   "commands_run": [
-    "Read work/decisions.log",
-    "Read work/data.json (first 10 lines)",
-    "Edit work/decisions.log — appended sign-off entry",
-    "mkdir snapshots/hop-08-signoff",
-    "cp work/report.html snapshots/hop-08-signoff/",
-    "cp work/data.json snapshots/hop-08-signoff/",
-    "cp work/decisions.log snapshots/hop-08-signoff/",
-    "mkdir receipts/hop08-output",
-    "Write receipts/hop08-output/decision-append.txt"
+    "wc -c report.html data.json decisions.log",
+    "grep -n 'steering-committee | approved Zoho CRM' decisions.log",
+    "printf '...signoff audit line...' >> work/decisions.log",
+    "mkdir -p snapshots/hop-08-signoff && cp work/report.html work/data.json work/decisions.log snapshots/hop-08-signoff/",
+    "mkdir -p receipts/hop08-output"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/work/decisions.log", "approx_chars": 1100},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/work/data.json", "approx_chars": 300}
+    { "file": "test-sandbox/happy/heavy/h1-adhoc-rep3/work/decisions.log", "approx_chars": 2059 }
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/work/decisions.log", "chars": 1257},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/snapshots/hop-08-signoff/report.html", "chars": 5043},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/snapshots/hop-08-signoff/data.json", "chars": 2113},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/snapshots/hop-08-signoff/decisions.log", "chars": 1257},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/receipts/hop08-output/decision-append.txt", "chars": 155},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/receipts/receipt-hop08.json", "chars": 0}
+    { "file": "test-sandbox/happy/heavy/h1-adhoc-rep3/work/decisions.log", "chars": 2211 },
+    { "file": "test-sandbox/happy/heavy/h1-adhoc-rep3/snapshots/hop-08-signoff/report.html", "chars": 4961 },
+    { "file": "test-sandbox/happy/heavy/h1-adhoc-rep3/snapshots/hop-08-signoff/data.json", "chars": 2113 },
+    { "file": "test-sandbox/happy/heavy/h1-adhoc-rep3/snapshots/hop-08-signoff/decisions.log", "chars": 2211 },
+    { "file": "test-sandbox/happy/heavy/h1-adhoc-rep3/receipts/hop08-output/decision-audit.txt", "chars": 152 }
   ],
-  "output_chars": 155,
-  "errors": [],
-  "problems_and_friction": "No significant friction. Windows path quoting required using POSIX paths via Bash tool. The edit was a clean surgical append to decisions.log with no file rewrites needed.",
-  "context_understood": "Hop 8 sign-off: append steering-committee approval of Zoho CRM to decisions.log, snapshot all three work files, and record receipt with authored fragment only."
+  "output_chars": 152,
+  "errors": [
+    { "what": "Target sign-off line and a prior signoff audit line already existed (this hop had been run before); a verbatim re-append would duplicate the decision", "recovered_by": "grep-verified the line at decisions.log:9, then appended only a single idempotent re-confirmation audit line instead of re-adding the change" }
+  ],
+  "problems_and_friction": "The required steering-committee sign-off line was already present from an earlier run, so I did not re-append it; I added one audit line confirming presence. The substantive change is a pure decisions.log append, so report.html and data.json needed no splice.",
+  "context_understood": "Final sign-off hop: confirm and record the 2026-06-11 steering-committee approval of Zoho CRM in decisions.log idempotently, then snapshot the three work files."
 }

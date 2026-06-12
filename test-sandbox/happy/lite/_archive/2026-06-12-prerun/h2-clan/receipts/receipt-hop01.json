@@ -1,0 +1,33 @@
+{
+  "role": "01-market-researcher",
+  "hop": 1,
+  "arm": "h2",
+  "flow": "happy/lite",
+  "commands_run": [
+    "clan read agent test-sandbox/happy/lite/h2-clan/work/doc.clan --skip-guide",
+    "clan patch-data --agent 01-market-researcher --action \"added 01-market-researcher findings\" test-sandbox/happy/lite/h2-clan/work/doc.clan test-sandbox/happy/lite/_inputs/h2-supplied/01-market-researcher.json",
+    "clan patch-decision --agent 01-market-researcher --action \"added 01-market-researcher findings\" --rationale \"Market favours fast EU-resident go-lives. HubSpot leads mindshare but Zoho is gaining in mid-market on price. Next: get hard per-seat pricing.\" test-sandbox/happy/lite/h2-clan/work/doc.clan",
+    "clan validate test-sandbox/happy/lite/h2-clan/work/doc.clan",
+    "cp test-sandbox/happy/lite/h2-clan/work/doc.clan test-sandbox/happy/lite/h2-clan/snapshots/hop-01-01-market-researcher.clan"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/lite/h2-clan/work/doc.clan", "approx_chars": 900},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/01-market-researcher.json", "approx_chars": 300},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/01-market-researcher.handoff.txt", "approx_chars": 142}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/lite/h2-clan/work/doc.clan", "chars": 12288},
+    {"file": "test-sandbox/happy/lite/h2-clan/snapshots/hop-01-01-market-researcher.clan", "chars": 12288},
+    {"file": "test-sandbox/happy/lite/h2-clan/receipts/hop01-output/patch-data.json", "chars": 300},
+    {"file": "test-sandbox/happy/lite/h2-clan/receipts/hop01-output/decision.txt", "chars": 142}
+  ],
+  "output_chars": 442,
+  "errors": [
+    {
+      "what": "patch-data rejected without attribution flags",
+      "recovered_by": "re-ran with --agent and --action flags; patch-decision called separately as protocol step 3"
+    }
+  ],
+  "problems_and_friction": "The patch-data command required attribution flags (--agent, --action) not mentioned in the protocol steps, causing one failed attempt before recovery. Protocol step 2 says to call patch-data first then step 3 to record decision separately, but the tool enforced attribution at patch-data time — resolved by adding flags to the patch-data call and still running patch-decision for the explicit handoff decision.",
+  "context_understood": "Role 01-market-researcher adds EU mid-market CRM market data (TAM, growth, incumbent shares, buyer priorities) to a nascent CLAN doc for a 5-hop chain building toward a CRM recommendation for Brightline Logistics."
+}

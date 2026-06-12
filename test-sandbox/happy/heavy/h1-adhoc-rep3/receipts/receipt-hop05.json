@@ -4,29 +4,27 @@
   "arm": "adhoc",
   "flow": "H1",
   "commands_run": [
-    "mkdir -p snapshots/hop-05-residency-section",
-    "cp work/report.html snapshots/hop-05-residency-section/report.html",
-    "cp work/data.json snapshots/hop-05-residency-section/data.json",
-    "cp work/decisions.log snapshots/hop-05-residency-section/decisions.log",
-    "mkdir -p receipts/hop05-output"
+    "printf ... >> work/decisions.log",
+    "mkdir -p snapshots/hop-05-residency-section receipts/hop05-output",
+    "cp work/report.html work/data.json work/decisions.log snapshots/hop-05-residency-section/",
+    "wc -c ..."
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/lite/_inputs/h1-supplied/residency-section.html", "approx_chars": 910},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/work/report.html", "approx_chars": 4600},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/work/decisions.log", "approx_chars": 560},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/work/data.json", "approx_chars": 1200}
+    {"file": "test-sandbox/happy/lite/_inputs/h1-supplied/residency-section.html", "approx_chars": 911},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/work/report.html", "approx_chars": 3800},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/work/decisions.log", "approx_chars": 540}
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/work/report.html", "chars": 4938},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/work/decisions.log", "chars": 804},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/snapshots/hop-05-residency-section/report.html", "chars": 4938},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/snapshots/hop-05-residency-section/data.json", "chars": 1199},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/snapshots/hop-05-residency-section/decisions.log", "chars": 804},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/receipts/hop05-output/residency-fragment.html", "chars": 910},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/receipts/hop05-output/decision.txt", "chars": 201}
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/work/report.html", "chars": 4961},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/work/decisions.log", "chars": 1719},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/snapshots/hop-05-residency-section/report.html", "chars": 4961},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/snapshots/hop-05-residency-section/data.json", "chars": 2113},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/snapshots/hop-05-residency-section/decisions.log", "chars": 1719},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/receipts/hop05-output/patch-html.fragment", "chars": 911},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/receipts/hop05-output/decision.txt", "chars": 142}
   ],
-  "output_chars": 1111,
+  "output_chars": 1053,
   "errors": [],
-  "problems_and_friction": "No friction. The insertion point (before Projected impact, after Data governance) was unambiguous. The supplied fragment was verbatim-copied with no adaptation needed.",
-  "context_understood": "Hop 5 of the H1 ad-hoc arm: splice the supplied residency-section.html fragment into report.html after the existing Data governance section, log the decision, and snapshot."
+  "problems_and_friction": "None. The Data governance section was unambiguous and the supplied fragment spliced cleanly after its closing paragraph with a single surgical Edit; no whole-file rewrite needed.",
+  "context_understood": "Insert the supplied Data residency subsection into report.html immediately after the Data governance section, log it, and snapshot the work dir."
 }

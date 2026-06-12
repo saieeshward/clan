@@ -4,33 +4,26 @@
   "arm": "adhoc",
   "flow": "H1",
   "commands_run": [
-    "Edit data.json: rollout_phase2_date 2026-08-01 -> 2026-09-15",
-    "Edit report.html: id=phase2 cell 2026-08-01 -> 2026-09-15",
-    "Append to decisions.log",
-    "mkdir snapshots/hop-03-date-update && cp report.html data.json decisions.log",
-    "mkdir receipts/hop03-output",
-    "Write receipts/hop03-output/patch-data.txt",
-    "Write receipts/hop03-output/patch-html.txt",
-    "Write receipts/hop03-output/decision.txt"
+    "printf ... >> work/decisions.log",
+    "mkdir -p snapshots/hop-03-date-update receipts/hop03-output",
+    "cp work/report.html work/data.json work/decisions.log snapshots/hop-03-date-update/",
+    "printf authored payloads to receipts/hop03-output/"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/work/data.json", "approx_chars": 1250},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/work/report.html", "approx_chars": 2200},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/work/decisions.log", "approx_chars": 210}
+    {"file": "work/data.json", "approx_chars": 1730},
+    {"file": "work/report.html", "approx_chars": 3450},
+    {"file": "work/decisions.log", "approx_chars": 270}
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/work/data.json", "chars": 38},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/work/report.html", "chars": 74},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/work/decisions.log", "chars": 104},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/snapshots/hop-03-date-update/report.html", "chars": 2200},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/snapshots/hop-03-date-update/data.json", "chars": 1250},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/snapshots/hop-03-date-update/decisions.log", "chars": 210},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/receipts/hop03-output/patch-data.txt", "chars": 38},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/receipts/hop03-output/patch-html.txt", "chars": 74},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/receipts/hop03-output/decision.txt", "chars": 104}
+    {"file": "work/data.json", "chars": 38},
+    {"file": "work/report.html", "chars": 31},
+    {"file": "work/decisions.log", "chars": 104},
+    {"file": "snapshots/hop-03-date-update/report.html", "chars": 3450},
+    {"file": "snapshots/hop-03-date-update/data.json", "chars": 1730},
+    {"file": "snapshots/hop-03-date-update/decisions.log", "chars": 372}
   ],
-  "output_chars": 216,
+  "output_chars": 173,
   "errors": [],
-  "problems_and_friction": "No friction; both targets were straightforward single-line splices. The date appeared in exactly one location in each file (data.json field and report.html id=phase2 cell), making surgical edits trivial.",
-  "context_understood": "Hop-03 updates rollout_phase2_date from 2026-08-01 to 2026-09-15 in both data.json and report.html via minimal surgical edits, then snapshots and receipts the authored fragments."
+  "problems_and_friction": "No friction; both edits were unambiguous single-occurrence splices (data.json line 18, report.html #phase2 cell), so surgical Edit succeeded first try.",
+  "context_understood": "Change rollout_phase2_date from 2026-08-01 to 2026-09-15 in both the data.json source of truth and the rendered report.html phase2 cell, then log and snapshot."
 }

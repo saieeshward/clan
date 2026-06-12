@@ -1,0 +1,1 @@
+--selector "body" --patch-action append --agent residency-agent --action "add data residency section" --rationale "Legal requirement to document residency"

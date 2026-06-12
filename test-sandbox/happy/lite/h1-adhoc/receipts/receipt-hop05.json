@@ -1,33 +1,30 @@
 {
-  "role": "AD-HOC H1 revision agent",
+  "role": "residency-section",
   "hop": 5,
-  "arm": "h1-adhoc",
-  "flow": "residency-section",
+  "arm": "adhoc",
+  "flow": "guided",
   "commands_run": [
-    "mkdir -p snapshots/hop-05-residency-section",
-    "cp work/report.html snapshots/hop-05-residency-section/report.html",
-    "cp work/data.json snapshots/hop-05-residency-section/data.json",
-    "cp work/decisions.log snapshots/hop-05-residency-section/decisions.log",
-    "mkdir -p receipts/hop05-output",
-    "wc -c (file size checks)"
+    "printf ... >> work/decisions.log",
+    "mkdir -p snapshots/hop-05-residency-section receipts/hop05-output",
+    "cp work/report.html work/data.json work/decisions.log snapshots/hop-05-residency-section/",
+    "wc -c receipts/hop05-output/*"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/lite/h1-adhoc/work/report.html", "approx_chars": 3820},
-    {"file": "test-sandbox/happy/lite/_inputs/h1-supplied/residency-section.html", "approx_chars": 910},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/work/decisions.log", "approx_chars": 697},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/work/data.json", "approx_chars": 1045}
+    { "file": "test-sandbox/happy/lite/_inputs/h1-supplied/residency-section.html", "approx_chars": 900 },
+    { "file": "test-sandbox/happy/lite/h1-adhoc/work/report.html", "approx_chars": 3800 },
+    { "file": "test-sandbox/happy/lite/h1-adhoc/work/decisions.log", "approx_chars": 560 }
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/lite/h1-adhoc/work/report.html", "chars": 4994},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/work/decisions.log", "chars": 858},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-05-residency-section/report.html", "chars": 4994},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-05-residency-section/data.json", "chars": 1045},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-05-residency-section/decisions.log", "chars": 858},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/receipts/hop05-output/patch.html", "chars": 911},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/receipts/receipt-hop05.json", "chars": 0}
+    { "file": "test-sandbox/happy/lite/h1-adhoc/work/report.html", "chars": 4700 },
+    { "file": "test-sandbox/happy/lite/h1-adhoc/work/decisions.log", "chars": 725 },
+    { "file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-05-residency-section/report.html", "chars": 4700 },
+    { "file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-05-residency-section/data.json", "chars": 2048 },
+    { "file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-05-residency-section/decisions.log", "chars": 725 },
+    { "file": "test-sandbox/happy/lite/h1-adhoc/receipts/hop05-output/patch-html.fragment.html", "chars": 911 },
+    { "file": "test-sandbox/happy/lite/h1-adhoc/receipts/hop05-output/decision.txt", "chars": 162 }
   ],
-  "output_chars": 911,
+  "output_chars": 1073,
   "errors": [],
-  "problems_and_friction": "None. The insertion point was unambiguous — the Data governance h2 section was immediately followed by Projected impact, making the after-Data-governance insertion point clear.",
-  "context_understood": "Hop 05 inserts a supplied Data residency subsection (h2+p from residency-section.html) into report.html immediately after the existing Data governance section. No data.json changes required — the new section uses static text, not template variables. Snapshot and receipt written per protocol."
+  "problems_and_friction": "No friction. The supplied fragment slotted cleanly after the Data governance section via a single anchored Edit using the section's closing <p> plus the next <h2> as context.",
+  "context_understood": "Insert the supplied 'Data residency' subsection into report.html immediately after the Data governance section, log the change, and snapshot the work files."
 }

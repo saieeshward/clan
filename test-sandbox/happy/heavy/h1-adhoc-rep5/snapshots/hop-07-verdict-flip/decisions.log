@@ -1,8 +1,16 @@
-
-2026-06-11 hop-01 pricing-update: Zoho CRM per-seat price updated 45->38, annual total 21600->18240 (38x40x12).
-2026-06-11 hop-02 risk-add: Added risk "Vendor lock-in" (severity: Medium, mitigation: Quarterly data-export clause in contract) to risks[] in data.json and risk table in report.html.
-2026-06-11 hop-03 date-update: rollout_phase2_date updated 2026-08-01->2026-09-15 in data.json and id="phase2" in report.html.
-2026-06-11 hop-04 summary-rewrite: exec_summary replaced with h1-supplied text (Zoho CRM now leads) in data.json and id="exec-summary" in report.html.
-2026-06-11 hop-05 residency-section: Inserted h2#data-residency + p#residency-detail subsection into report.html after Data governance section (ad-hoc splice).
-2026-06-11 hop-06 chart-update: SVG #bar-zoho rect updated y=52->78 height=108->82 (Zoho is now cheapest).
-2026-06-11 hop-07 verdict-flip: verdict changed HubSpot->Zoho CRM, verdict_rationale updated to h1-supplied text in data.json and id="verdict-value"/id="verdict-rationale" in report.html.
+2026-06-10 | analyst | initial CRM recommendation report prepared
+2026-06-12 | pricing-update | Zoho CRM per-seat $45->$38; zoho_annual_total 21600->18240 (38x40x12) in data.json + report.html cost table
+2026-06-12 | risk-add | added "Vendor lock-in" (Medium) risk + mitigation to risks[] in data.json and risk-rows tbody in report.html
+2026-06-12 | date-update | rollout_phase2_date 2026-08-01->2026-09-15 in data.json + report.html (id="phase2")
+2026-06-12 | summary-rewrite | replaced exec_summary with supplied text (Zoho now leads on cost/time-to-value) in data.json + report.html (p id="exec-summary")
+2026-06-12 | residency-section | inserted supplied "Data residency" subsection (h2#data-residency + p#residency-detail) into report.html after Data governance section
+2026-06-12 | chart-update | spliced supplied #bar-zoho rect (y 52->78, height 108->82) in report.html cost-chart; Zoho now cheapest
+2026-06-12 | verdict-flip | flipped verdict HubSpot->Zoho CRM + replaced verdict_rationale with supplied text in data.json and report.html (span#verdict-value + span#verdict-rationale)
+2026-06-11 | steering-committee | approved Zoho CRM recommendation | Re-scored cost vs time-to-value; Zoho wins on 40-seat cost with EU residency included.
+2026-06-12 | signoff | recorded steering-committee approval of Zoho CRM (2026-06-11) appended to decisions.log
+2026-06-12 | pricing-update (rep5) | Zoho CRM per-seat $45->$38; zoho_annual_total 21600->18240 (38x40x12) in data.json + report.html cost table
+2026-06-12 | risk-add (rep5) | verified "Vendor lock-in" (Medium) risk present in risks[] in data.json and risk-rows tbody in report.html; supplied fragment matches
+2026-06-12 | date-update (rep5) | verified rollout_phase2_date 2026-09-15 present in data.json (was 2026-08-01) and report.html (id="phase2"); supplied value matches, no edit needed
+2026-06-12 | summary-rewrite (rep5) | verified exec_summary matches supplied text byte-for-byte in data.json and report.html (p id="exec-summary"); no edit needed
+2026-06-12 | residency-section (rep5) | verified supplied "Data residency" subsection (h2#data-residency + p#residency-detail) present byte-for-byte in report.html after Data governance section; no edit needed
+2026-06-12 | chart-update (rep5) | verified supplied #bar-zoho rect (y="78" height="82") present byte-for-byte in report.html cost-chart; Zoho cheapest, no edit needed

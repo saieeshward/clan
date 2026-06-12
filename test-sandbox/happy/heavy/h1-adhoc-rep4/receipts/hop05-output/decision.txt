@@ -1,1 +1,1 @@
-hop-05 residency-section: inserted h2#data-residency + p#residency-detail from h1-supplied fragment into report.html after Data governance section
+2026-06-12 | residency-section | verified "Data residency" subsection already present after Data governance, matches supplied fragment byte-for-byte; no splice needed (report.html #data-residency)

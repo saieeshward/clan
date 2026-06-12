@@ -8,19 +8,18 @@
     "clan read data test-sandbox/happy/heavy/h1-clan-rep2/work/doc.clan",
     "clan patch-data test-sandbox/happy/heavy/h1-clan-rep2/work/doc.clan /tmp/h1patch3.json --agent date-agent --action \"update phase-2 date\" --rationale \"Timeline slipped by 6 weeks\"",
     "clan validate test-sandbox/happy/heavy/h1-clan-rep2/work/doc.clan",
-    "cp work/doc.clan snapshots/hop-03-date-update.clan"
+    "cp test-sandbox/happy/heavy/h1-clan-rep2/work/doc.clan test-sandbox/happy/heavy/h1-clan-rep2/snapshots/hop-03-date-update.clan"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/heavy/h1-clan-rep2/work/doc.clan", "approx_chars": 2800}
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep2/work/doc.clan", "approx_chars": 6200}
   ],
   "files_written": [
-    {"file": "C:/Users/syson/AppData/Local/Temp/h1patch3.json", "chars": 38},
-    {"file": "test-sandbox/happy/heavy/h1-clan-rep2/snapshots/hop-03-date-update.clan", "chars": 2800},
-    {"file": "test-sandbox/happy/heavy/h1-clan-rep2/receipts/hop03-output/patch.json", "chars": 38},
-    {"file": "test-sandbox/happy/heavy/h1-clan-rep2/receipts/receipt-hop03.json", "chars": 900}
+    {"file": "/tmp/h1patch3.json", "chars": 35},
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep2/snapshots/hop-03-date-update.clan", "chars": 6200},
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep2/receipts/hop03-output/patch-data.json", "chars": 35}
   ],
-  "output_chars": 38,
+  "output_chars": 35,
   "errors": [],
-  "problems_and_friction": "The clan read command requires a subcommand (agent/data/etc.) rather than accepting the file path directly as the first argument, which required a quick --help check to correct. No other friction encountered; patch-data and validate both succeeded on first attempt.",
-  "context_understood": "Update rollout_phase2_date from 2026-08-01 to 2026-09-15 in the Brightline Logistics CRM recommendation doc using clan patch-data with proper attribution."
+  "problems_and_friction": "The doc data already read rollout_phase2_date as 2026-09-15 (the prompt stated it was 2026-08-01), making the patch effectively idempotent; the guided patch-data path applied the single-field change cleanly without touching the HTML view and validate printed OK.",
+  "context_understood": "Single data-bound field change setting rollout_phase2_date to 2026-09-15 via clan patch-data, then validate and snapshot, with pack-html forbidden."
 }

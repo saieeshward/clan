@@ -1,33 +1,31 @@
 {
-  "role": "AD-HOC H1 revision agent",
+  "role": "verdict-flip",
   "hop": 7,
-  "arm": "h1-adhoc",
-  "flow": "verdict-flip",
+  "arm": "adhoc",
+  "flow": "guided best-case: read files, surgical in-place edits, snapshot, receipt",
   "commands_run": [
+    "printf ... >> work/decisions.log",
     "mkdir -p snapshots/hop-07-verdict-flip",
-    "cp work/report.html snapshots/hop-07-verdict-flip/report.html",
-    "cp work/data.json snapshots/hop-07-verdict-flip/data.json",
-    "cp work/decisions.log snapshots/hop-07-verdict-flip/decisions.log",
-    "mkdir -p receipts/hop07-output"
+    "cp work/report.html work/data.json work/decisions.log snapshots/hop-07-verdict-flip/",
+    "mkdir -p receipts/hop07-output",
+    "wc -c patch-data.json.txt patch-html.fragment.txt decision.txt"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/lite/h1-adhoc/work/data.json", "approx_chars": 2111},
-    {"file": "test-sandbox/happy/lite/_inputs/h1-supplied/verdict-rationale.txt", "approx_chars": 213},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/work/report.html", "approx_chars": 5169},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/work/decisions.log", "approx_chars": 1229}
+    {"file": "test-sandbox/happy/lite/_inputs/h1-supplied/verdict-rationale.txt", "approx_chars": 230},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/data.json", "approx_chars": 1750},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/report.html", "approx_chars": 3900},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/decisions.log", "approx_chars": 700}
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/lite/h1-adhoc/work/data.json", "chars": 2111},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/work/report.html", "chars": 5169},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/work/decisions.log", "chars": 1229},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-07-verdict-flip/data.json", "chars": 2111},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-07-verdict-flip/report.html", "chars": 5169},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-07-verdict-flip/decisions.log", "chars": 1229},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/receipts/hop07-output/patch.txt", "chars": 957},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/receipts/receipt-hop07.json", "chars": 0}
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/data.json", "chars": 266},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/report.html", "chars": 333},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/decisions.log", "chars": 217},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-07-verdict-flip/report.html", "chars": 0},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-07-verdict-flip/data.json", "chars": 0},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-07-verdict-flip/decisions.log", "chars": 0}
   ],
-  "output_chars": 957,
+  "output_chars": 816,
   "errors": [],
-  "problems_and_friction": "Bash shell was POSIX (not PowerShell) so Add-Content failed; fell back to Edit tool for decisions.log append.",
-  "context_understood": "Flip data.json verdict+verdict_rationale from HubSpot to Zoho CRM using text from verdict-rationale.txt; mirror both changes in report.html verdict spans; append decisions.log line; snapshot work dir to hop-07-verdict-flip; write receipt and patch payload."
+  "problems_and_friction": "No friction. The change was a clean two-field flip plus one log line; existing exec_summary and residency section already referenced Zoho, so the verdict flip is now consistent with the rest of the report.",
+  "context_understood": "Ad-hoc arm flips the report verdict from HubSpot to Zoho CRM and updates the rationale to supplied text in both data.json and report.html via minimal surgical splices."
 }

@@ -5,23 +5,24 @@
   "flow": "H2",
   "commands_run": [
     "clan read agent test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan --skip-guide",
-    "clan patch-data test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan test-sandbox/happy/lite/_inputs/h2-supplied/09-rollout-planner.json --agent 09-rollout-planner --action \"added 09-rollout-planner findings\" --rationale \"Three phases land core CRM before the October peak with phase-2 marketing on 2026-09-15. Next: lead partner assembles the recommendation.\"",
+    "clan patch-data test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan test-sandbox/happy/lite/_inputs/h2-supplied/09-rollout-planner.json --agent 09-rollout-planner --action \"added 09-rollout-planner findings\" --rationale \"<handoff text>\"",
     "clan validate test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan",
     "cp test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan test-sandbox/happy/heavy/h2-clan-rep3/snapshots/hop-09-09-rollout-planner.clan"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan", "approx_chars": 3800},
-    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/09-rollout-planner.handoff.txt", "approx_chars": 120},
-    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/09-rollout-planner.json", "approx_chars": 216}
+    { "file": "test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan", "approx_chars": 1700 },
+    { "file": "test-sandbox/happy/lite/_inputs/h2-supplied/09-rollout-planner.handoff.txt", "approx_chars": 137 },
+    { "file": "test-sandbox/happy/lite/_inputs/h2-supplied/09-rollout-planner.json", "approx_chars": 217 }
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan", "chars": 4100},
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep3/snapshots/hop-09-09-rollout-planner.clan", "chars": 4100},
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep3/receipts/hop09-output/patch-data.json", "chars": 216},
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep3/receipts/receipt-hop09.json", "chars": 1200}
+    { "file": "test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan", "chars": 0 },
+    { "file": "test-sandbox/happy/heavy/h2-clan-rep3/snapshots/hop-09-09-rollout-planner.clan", "chars": 0 },
+    { "file": "test-sandbox/happy/heavy/h2-clan-rep3/receipts/hop09-output/decision-action.txt", "chars": 171 }
   ],
-  "output_chars": 216,
-  "errors": [],
-  "problems_and_friction": "No friction encountered. All commands succeeded on first attempt. The handoff.txt was a single line which served as the rationale verbatim.",
-  "context_understood": "Rollout planner hop 9 adds a 3-phase deployment schedule (Jul 1, Sep 15, Nov 1) with champion program support, ensuring go-live before the October peak season, using patch-data merge to preserve all prior analyst findings."
+  "output_chars": 171,
+  "errors": [
+    { "what": "first patch-data call failed: relative path not found because cwd resets between bash calls", "recovered_by": "re-running with absolute cd to repo root before the clan command" }
+  ],
+  "problems_and_friction": "The agent thread resets its working directory between bash calls, so the supplied relative input paths failed on the first patch-data attempt; prefixing each command with an absolute cd to the repo root resolved it. No clan tool issues otherwise.",
+  "context_understood": "I merged the supplied 09-rollout-planner phased-rollout findings (three phases, go-live before the October peak) into the rep3 agent-only doc via patch-data, then validated and snapshotted for the next hop."
 }

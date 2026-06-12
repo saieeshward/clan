@@ -1,29 +1,30 @@
 {
   "role": "01-market-researcher",
   "hop": 1,
-  "arm": "h2",
-  "flow": "happy/lite",
+  "arm": "lite",
+  "flow": "h2",
   "commands_run": [
-    "target/release/clan.exe read agent test-sandbox/happy/lite/h2-clan/work/doc.clan --skip-guide",
-    "target/release/clan.exe patch-data test-sandbox/happy/lite/h2-clan/work/doc.clan test-sandbox/happy/lite/_inputs/h2-supplied/01-market-researcher.json --agent 01-market-researcher --action \"added 01-market-researcher findings\"",
-    "target/release/clan.exe patch-decision --agent 01-market-researcher --action \"added 01-market-researcher findings\" --rationale \"Market favours fast EU-resident go-lives. HubSpot leads mindshare but Zoho is gaining in mid-market on price. Next: get hard per-seat pricing.\" test-sandbox/happy/lite/h2-clan/work/doc.clan",
-    "target/release/clan.exe validate test-sandbox/happy/lite/h2-clan/work/doc.clan",
-    "cp test-sandbox/happy/lite/h2-clan/work/doc.clan test-sandbox/happy/lite/h2-clan/snapshots/hop-01-01-market-researcher.clan"
+    "clan read agent test-sandbox/happy/lite/h2-clan/work/doc.clan --skip-guide",
+    "clan patch-data --agent 01-market-researcher --action \"added 01-market-researcher findings\" test-sandbox/happy/lite/h2-clan/work/doc.clan test-sandbox/happy/lite/_inputs/h2-supplied/01-market-researcher.json",
+    "clan patch-decision --agent 01-market-researcher --action \"added 01-market-researcher findings\" --rationale \"<handoff note>\" test-sandbox/happy/lite/h2-clan/work/doc.clan",
+    "clan validate test-sandbox/happy/lite/h2-clan/work/doc.clan",
+    "cp doc.clan snapshots/hop-01-01-market-researcher.clan"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/lite/h2-clan/work/doc.clan", "approx_chars": 800},
-    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/01-market-researcher.json", "approx_chars": 300},
-    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/01-market-researcher.handoff.txt", "approx_chars": 142}
+    { "file": "test-sandbox/happy/lite/h2-clan/work/doc.clan", "approx_chars": 1500 },
+    { "file": "test-sandbox/happy/lite/_inputs/h2-supplied/01-market-researcher.json", "approx_chars": 300 },
+    { "file": "test-sandbox/happy/lite/_inputs/h2-supplied/01-market-researcher.handoff.txt", "approx_chars": 210 }
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/lite/h2-clan/work/doc.clan", "chars": 12312},
-    {"file": "test-sandbox/happy/lite/h2-clan/snapshots/hop-01-01-market-researcher.clan", "chars": 12312},
-    {"file": "test-sandbox/happy/lite/h2-clan/receipts/hop01-output/patch-data.json", "chars": 300},
-    {"file": "test-sandbox/happy/lite/h2-clan/receipts/hop01-output/decision.txt", "chars": 142},
-    {"file": "test-sandbox/happy/lite/h2-clan/receipts/receipt-hop01.json", "chars": 1400}
+    { "file": "test-sandbox/happy/lite/h2-clan/work/doc.clan", "chars": 300 },
+    { "file": "test-sandbox/happy/lite/h2-clan/snapshots/hop-01-01-market-researcher.clan", "chars": 1800 },
+    { "file": "test-sandbox/happy/lite/h2-clan/receipts/hop01-output/patch-data.json", "chars": 300 },
+    { "file": "test-sandbox/happy/lite/h2-clan/receipts/hop01-output/decision.txt", "chars": 246 }
   ],
-  "output_chars": 442,
-  "errors": [],
-  "problems_and_friction": "Copy-Item (PowerShell) not available in bash shell; switched to cp. All other steps executed cleanly with no retries needed.",
-  "context_understood": "Hop 01 of a multi-hop CRM vendor analysis chain: market-researcher adds EU mid-market sizing/share data to the CLAN doc and hands off to the pricing specialist."
+  "output_chars": 246,
+  "errors": [
+    { "what": "patch-data refused without attribution flags", "recovered_by": "re-ran with --agent and --action" }
+  ],
+  "problems_and_friction": "patch-data required --agent/--action attribution; the protocol command sample omitted them, so the first run errored and I re-ran with the flags. patch-data also auto-records a decision, so the separate patch-decision step added a second decision entry.",
+  "context_understood": "Empty new CLAN doc for a CRM recommendation chain; I merge-patched my market findings (data-only, role-namespaced) and left a handoff for the pricing analyst without re-transcribing anything."
 }

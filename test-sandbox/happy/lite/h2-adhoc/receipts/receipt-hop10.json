@@ -1,35 +1,32 @@
 {
   "role": "lead-partner",
   "hop": 10,
-  "arm": "h2-adhoc",
-  "flow": "happy/lite",
+  "arm": "ad-hoc",
+  "flow": "H2",
   "commands_run": [
-    "ls /c/Users/syson/Documents/Code/clan/test-sandbox/happy/lite/h2-adhoc/",
-    "ls /c/Users/syson/Documents/Code/clan/test-sandbox/happy/lite/h2-adhoc/receipts/",
-    "ls /c/Users/syson/Documents/Code/clan/test-sandbox/happy/lite/h2-adhoc/snapshots/",
-    "mkdir -p snapshots/hop-10-lead-partner",
-    "mkdir -p receipts/hop10-output",
-    "cp findings.md handoff.md report.html decisions.log -> snapshots/hop-10-lead-partner/",
-    "wc -c report.html decisions.log",
-    "wc -c brief.md findings.md handoff.md"
+    "ls -la work/ receipts/ snapshots/",
+    "mkdir -p snapshots/hop-10-lead-partner receipts/hop10-output",
+    "cp work/{findings,handoff,report.html,decisions.log} snapshots/hop-10-lead-partner/",
+    "cp work/report.html work/decisions.log receipts/hop10-output/",
+    "wc -c receipts/hop10-output/*"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/lite/h2-adhoc/work/brief.md", "approx_chars": 746},
-    {"file": "test-sandbox/happy/lite/h2-adhoc/work/findings.md", "approx_chars": 3755},
-    {"file": "test-sandbox/happy/lite/h2-adhoc/work/handoff.md", "approx_chars": 2519}
+    { "file": "work/brief.md", "approx_chars": 746 },
+    { "file": "work/findings.md", "approx_chars": 1900 },
+    { "file": "work/handoff.md", "approx_chars": 1400 }
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/lite/h2-adhoc/work/report.html", "chars": 8849},
-    {"file": "test-sandbox/happy/lite/h2-adhoc/work/decisions.log", "chars": 90},
-    {"file": "test-sandbox/happy/lite/h2-adhoc/snapshots/hop-10-lead-partner/findings.md", "chars": 3755},
-    {"file": "test-sandbox/happy/lite/h2-adhoc/snapshots/hop-10-lead-partner/handoff.md", "chars": 2519},
-    {"file": "test-sandbox/happy/lite/h2-adhoc/snapshots/hop-10-lead-partner/report.html", "chars": 8849},
-    {"file": "test-sandbox/happy/lite/h2-adhoc/snapshots/hop-10-lead-partner/decisions.log", "chars": 90},
-    {"file": "test-sandbox/happy/lite/h2-adhoc/receipts/hop10-output/authored-fragments.txt", "chars": 590},
-    {"file": "test-sandbox/happy/lite/h2-adhoc/receipts/receipt-hop10.json", "chars": 1820}
+    { "file": "work/report.html", "chars": 3614 },
+    { "file": "work/decisions.log", "chars": 90 },
+    { "file": "snapshots/hop-10-lead-partner/report.html", "chars": 3614 },
+    { "file": "snapshots/hop-10-lead-partner/decisions.log", "chars": 90 },
+    { "file": "snapshots/hop-10-lead-partner/findings.md", "chars": 1900 },
+    { "file": "snapshots/hop-10-lead-partner/handoff.md", "chars": 1400 },
+    { "file": "receipts/hop10-output/report.html", "chars": 3614 },
+    { "file": "receipts/hop10-output/decision.txt", "chars": 90 }
   ],
-  "output_chars": 8939,
+  "output_chars": 3704,
   "errors": [],
-  "problems_and_friction": "No friction encountered. All prior analyst findings were consistently structured and converged clearly on Zoho CRM, making synthesis straightforward. Directory structure matched expected conventions from prior hops.",
-  "context_understood": "Nine specialist analysts evaluated HubSpot, Zoho CRM, and Salesforce for a 40-seat EU logistics firm; the lead partner synthesised their findings into a final recommendation of Zoho CRM at EUR 18,240/yr with top risks documented and a 9-week rollout plan."
+  "problems_and_friction": "No friction; all 9 analyst inputs were consistent and pointed unambiguously to Zoho on cost, EU residency, and timeline fit.",
+  "context_understood": "Final hop synthesising 9 specialist analyses into a CRM recommendation for Brightline Logistics: Zoho CRM at EUR 18,240 year-1, go-live before the October peak."
 }

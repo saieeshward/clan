@@ -10,18 +10,20 @@
     "cp test-sandbox/happy/heavy/h2-clan-rep4/work/doc.clan test-sandbox/happy/heavy/h2-clan-rep4/snapshots/hop-09-09-rollout-planner.clan"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/work/doc.clan", "approx_chars": 3800},
-    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/09-rollout-planner.handoff.txt", "approx_chars": 140},
-    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/09-rollout-planner.json", "approx_chars": 216}
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/09-rollout-planner.handoff.txt", "approx_chars": 137},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/09-rollout-planner.json", "approx_chars": 216},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/work/doc.clan", "approx_chars": 13500}
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/work/doc.clan", "chars": 3960},
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/snapshots/hop-09-09-rollout-planner.clan", "chars": 3960},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/work/doc.clan", "chars": 13743},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/snapshots/hop-09-09-rollout-planner.clan", "chars": 13743},
     {"file": "test-sandbox/happy/heavy/h2-clan-rep4/receipts/hop09-output/patch-data.json", "chars": 216},
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/receipts/receipt-hop09.json", "chars": 900}
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/receipts/hop09-output/decision-rationale.txt", "chars": 137}
   ],
-  "output_chars": 216,
-  "errors": [],
-  "problems_and_friction": "Bash tool requires POSIX paths (not Windows backslash paths) so the Copy-Item PowerShell command failed on first attempt; recovered by using cp with forward-slash paths. No other issues.",
-  "context_understood": "Hop 9 adds rollout-planner findings (3-phase schedule, 9-week duration, champion program) to the Brightline Logistics CRM doc, building on 8 prior analyst hops toward a lead-partner recommendation."
+  "output_chars": 353,
+  "errors": [
+    {"what": "relative paths resolved against cwd (.../happy/heavy) not repo root, so the rep4 tree first appeared missing and an erroneous clan create wrote a bogus .../happy/heavy/test-sandbox tree", "recovered_by": "cd to repo root for all clan calls; deleted the bogus test-sandbox tree; patched the real pre-existing rep4 doc idempotently"}
+  ],
+  "problems_and_friction": "Chain cwd is test-sandbox/happy/heavy while prompt paths are repo-root-relative, which initially looked like rep4 was missing and triggered a wrong clan create; once anchored to the repo root the real doc was located, patched, and validated OK.",
+  "context_understood": "Merge-patch my 6 namespaced rollout_* findings (three-phase schedule, go-live before the October peak, 9-week phase-2, champion program) into the rep4 CRM doc without re-transcribing prior analysts, using the handoff note as the rationale for the lead partner."
 }

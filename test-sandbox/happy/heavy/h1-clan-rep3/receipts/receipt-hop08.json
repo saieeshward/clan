@@ -5,19 +5,23 @@
   "flow": "H1",
   "commands_run": [
     "clan read agent test-sandbox/happy/heavy/h1-clan-rep3/work/doc.clan --skip-guide",
-    "clan read chain test-sandbox/happy/heavy/h1-clan-rep3/work/doc.clan",
+    "clan read data test-sandbox/happy/heavy/h1-clan-rep3/work/doc.clan",
     "clan patch-decision test-sandbox/happy/heavy/h1-clan-rep3/work/doc.clan --agent steering-committee --action \"approved Zoho CRM recommendation\" --rationale \"Re-scored cost vs time-to-value; Zoho wins on 40-seat cost with EU residency included.\" --pinned",
-    "clan validate test-sandbox/happy/heavy/h1-clan-rep3/work/doc.clan"
+    "clan validate test-sandbox/happy/heavy/h1-clan-rep3/work/doc.clan",
+    "cp test-sandbox/happy/heavy/h1-clan-rep3/work/doc.clan test-sandbox/happy/heavy/h1-clan-rep3/snapshots/hop-08-signoff.clan"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/heavy/h1-clan-rep3/work/doc.clan", "approx_chars": 14797}
+    { "file": "test-sandbox/happy/heavy/h1-clan-rep3/work/doc.clan", "approx_chars": 16286 }
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/heavy/h1-clan-rep3/snapshots/hop-08-signoff.clan", "chars": 14797},
-    {"file": "test-sandbox/happy/heavy/h1-clan-rep3/receipts/hop08-output/decision.yaml", "chars": 180}
+    { "file": "test-sandbox/happy/heavy/h1-clan-rep3/work/doc.clan", "chars": 16286 },
+    { "file": "test-sandbox/happy/heavy/h1-clan-rep3/snapshots/hop-08-signoff.clan", "chars": 16286 },
+    { "file": "test-sandbox/happy/heavy/h1-clan-rep3/receipts/hop08-output/decision.txt", "chars": 119 }
   ],
-  "output_chars": 180,
-  "errors": [],
-  "problems_and_friction": "Initial clan read syntax was wrong (passed file path as subcommand); corrected by using 'clan read agent' subcommand. PowerShell mkdir/copy commands failed in bash shell; used POSIX equivalents instead. No other issues.",
-  "context_understood": "Hop 8 is the final steering-committee sign-off recording approval of Zoho CRM on 2026-06-11, appended as a pinned decision entry to the existing decision chain."
+  "output_chars": 119,
+  "errors": [
+    { "what": "Initial clan read failed: prompt path was relative to repo root but cwd is the heavy/ subdir", "recovered_by": "Re-ran all clan commands using the absolute path to doc.clan" }
+  ],
+  "problems_and_friction": "The document path in the prompt resolves from repo root, but cwd is heavy/, so the first read hit a file-not-found error; switching to absolute paths fixed it. patch-decision appended the pinned sign-off in-place and validate printed OK on the first attempt; the stale-human-view hint was informational and out of scope for a decision-only sign-off.",
+  "context_understood": "I appended a pinned steering-committee final sign-off approving Zoho CRM to the decision history, validated the doc, and snapshotted it without altering the document data or HTML body."
 }

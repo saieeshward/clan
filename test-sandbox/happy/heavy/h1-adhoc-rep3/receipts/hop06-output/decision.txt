@@ -1,0 +1,1 @@
+2026-06-12 | chart-update | verified SVG #bar-zoho already y=78 height=82 (matches supplied hop06 fragment) in report.html — no edit needed

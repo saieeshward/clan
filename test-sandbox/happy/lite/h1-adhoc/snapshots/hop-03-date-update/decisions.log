@@ -1,3 +1,4 @@
-2026-06-12 hop-01 pricing-update: zoho_price_per_seat 45→38, zoho_annual_total 21600→18240 (38*40*12); source: vendor price drop notification.
-2026-06-12 hop-02 risk-add: added risk "Vendor lock-in" severity Medium mitigation "Quarterly data-export clause in contract" to data.json risks[] and report.html risk table.
-2026-06-12 hop-03 date-update: rollout_phase2_date changed 2026-08-01→2026-09-15 in data.json and report.html id="phase2".
+2026-06-10 | analyst | initial CRM recommendation report prepared
+2026-06-12 | pricing-update | Zoho CRM per-seat 45->38, zoho_annual_total 21600->18240 in data.json and report.html cost table
+2026-06-12 | risk-add | added "Vendor lock-in" (Medium) risk to data.json risks[] and report.html risk-table
+2026-06-12 | date-update | rollout_phase2_date 2026-08-01->2026-09-15 in data.json and report.html id="phase2"

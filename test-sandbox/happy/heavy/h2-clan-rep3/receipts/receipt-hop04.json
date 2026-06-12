@@ -5,23 +5,24 @@
   "flow": "H2",
   "commands_run": [
     "clan read agent test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan --skip-guide",
-    "clan patch-data test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan test-sandbox/happy/lite/_inputs/h2-supplied/04-gdpr-reviewer.json --agent 04-gdpr-reviewer --action \"added 04-gdpr-reviewer findings\" --rationale \"Zoho includes EU region pinning at no extra cost; HubSpot bills it as an add-on. Both sign a DPA. Next: assess integrations.\"",
+    "clan patch-data test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan test-sandbox/happy/lite/_inputs/h2-supplied/04-gdpr-reviewer.json --agent 04-gdpr-reviewer --action \"added 04-gdpr-reviewer findings\" --rationale \"<handoff.txt>\"",
     "clan validate test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan",
     "cp test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan test-sandbox/happy/heavy/h2-clan-rep3/snapshots/hop-04-04-gdpr-reviewer.clan"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan", "approx_chars": 2100},
-    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/04-gdpr-reviewer.handoff.txt", "approx_chars": 95},
-    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/04-gdpr-reviewer.json", "approx_chars": 196}
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan", "approx_chars": 18400},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/04-gdpr-reviewer.handoff.txt", "approx_chars": 142},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/04-gdpr-reviewer.json", "approx_chars": 190}
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan", "chars": 2400},
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep3/snapshots/hop-04-04-gdpr-reviewer.clan", "chars": 2400},
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep3/receipts/hop04-output/patch-data.json", "chars": 145},
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep3/receipts/receipt-hop04.json", "chars": 1100}
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan", "chars": 18400},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep3/snapshots/hop-04-04-gdpr-reviewer.clan", "chars": 18400},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep3/receipts/hop04-output/04-gdpr-reviewer.json", "chars": 190}
   ],
-  "output_chars": 145,
-  "errors": [],
-  "problems_and_friction": "No friction encountered. All commands succeeded on first attempt. The handoff note and JSON patch file were well-formed and consistent.",
-  "context_understood": "GDPR reviewer adds EU data residency findings for Brightline Logistics CRM shortlist: Zoho includes EU pinning, HubSpot charges extra, both sign DPAs with 30-day subprocessor notice."
+  "output_chars": 190,
+  "errors": [
+    {"what": "First clan read used the supplied relative path and failed because the agent thread resets cwd between bash calls", "recovered_by": "Re-ran with an absolute path to doc.clan and used absolute paths thereafter"}
+  ],
+  "problems_and_friction": "patch-data is a merge-patch, so I supplied only the 5 gdpr_-namespaced fields without re-transcribing prior analysts' data; the cwd reset between bash calls forced absolute paths throughout.",
+  "context_understood": "I merge-patched my GDPR data-residency findings (Zoho includes EU pinning free vs HubSpot add-on, both sign a DPA, 30-day sub-processor notice) into the shared data-only doc for the lead partner to synthesise at hop 12."
 }

@@ -5,33 +5,25 @@
   "flow": "H1",
   "commands_run": [
     "clan read agent test-sandbox/happy/heavy/h1-clan-rep2/work/doc.clan --skip-guide",
-    "clan read human test-sandbox/happy/heavy/h1-clan-rep2/work/doc.clan (grep bar-zoho)",
-    "clan patch-html test-sandbox/happy/heavy/h1-clan-rep2/work/doc.clan patch-hop06.html --agent chart-agent --action 'shrink Zoho bar to reflect lower cost' --rationale 'Price drop from hop 1 reflected in chart'",
+    "clan read data test-sandbox/happy/heavy/h1-clan-rep2/work/doc.clan",
+    "clan patch-html test-sandbox/happy/heavy/h1-clan-rep2/work/doc.clan test-sandbox/happy/lite/_inputs/h1-supplied/hop06-svg-fragment.html --selector \"#bar-zoho\" --patch-action replace --agent chart-agent --action \"shrink Zoho bar to reflect lower cost\" --rationale \"Price drop from hop 1 reflected in chart\"",
     "clan validate test-sandbox/happy/heavy/h1-clan-rep2/work/doc.clan",
-    "cp hop-05-residency-section.clan doc.clan (restore after failed attempt)",
-    "clan patch-html (second attempt with correct frontmatter keys)",
-    "clan validate (final)",
-    "cp doc.clan snapshots/hop-06-chart-update.clan"
+    "cp test-sandbox/happy/heavy/h1-clan-rep2/work/doc.clan test-sandbox/happy/heavy/h1-clan-rep2/snapshots/hop-06-chart-update.clan"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/heavy/h1-clan-rep2/work/doc.clan", "approx_chars": 3200},
-    {"file": "spec/CLAN-SPEC.md", "approx_chars": 800},
-    {"file": "spec/agent-guide.md", "approx_chars": 400}
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep2/work/doc.clan", "approx_chars": 16241},
+    {"file": "test-sandbox/happy/lite/_inputs/h1-supplied/hop06-svg-fragment.html", "approx_chars": 80}
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/heavy/h1-clan-rep2/work/patch-hop06.html", "chars": 156},
-    {"file": "test-sandbox/happy/heavy/h1-clan-rep2/work/doc.clan", "chars": 0},
-    {"file": "test-sandbox/happy/heavy/h1-clan-rep2/snapshots/hop-06-chart-update.clan", "chars": 0},
-    {"file": "test-sandbox/happy/heavy/h1-clan-rep2/receipts/hop06-output/patch-hop06.html", "chars": 156},
-    {"file": "test-sandbox/happy/heavy/h1-clan-rep2/receipts/receipt-hop06.json", "chars": 0}
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep2/work/doc.clan", "chars": 16241},
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep2/snapshots/hop-06-chart-update.clan", "chars": 16241},
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep2/receipts/hop06-output/hop06-svg-fragment.html", "chars": 80}
   ],
-  "output_chars": 156,
+  "output_chars": 0,
   "errors": [
-    {
-      "what": "patch-html rejected --selector flag; first attempt used wrong frontmatter keys (selector/action instead of patch_selector/patch_action), causing the rect to be appended instead of replaced, also direct zip edit invalidated manifest checksum",
-      "recovered_by": "Checked spec/CLAN-SPEC.md for correct frontmatter keys; restored doc from hop-05 snapshot; re-ran patch-html with correct patch_selector/patch_action frontmatter"
-    }
+    {"what": "First clan read failed (No such file or directory) due to a relative path against a reset cwd", "recovered_by": "Re-ran with the repo root as cwd"},
+    {"what": "Could not locate #bar-zoho via grep in the raw .clan (HTML stored escaped inside the JSON)", "recovered_by": "clan patch-html located it via the selector (1 match) and replaced it"}
   ],
-  "problems_and_friction": "The task instructions specified --selector and --action as CLI flags which do not exist; clan patch-html takes a patch file instead. Using wrong frontmatter keys (selector/action) caused append instead of replace, and a direct zip edit to recover invalidated the manifest checksum. Checking the spec revealed the correct keys (patch_selector, patch_action) and restoring from the prior snapshot allowed a clean second attempt.",
-  "context_understood": "Update SVG rect#bar-zoho to y=78 height=82 (Zoho cheapest after hop-1 price drop) via clan patch-html with correct YAML frontmatter."
+  "problems_and_friction": "The bar-zoho rect was not greppable in the raw .clan because HTML is stored escaped inside the JSON structure, which briefly looked like no SVG existed; the selector-based patch-html resolved it cleanly with 1 match. I authored zero new payload bytes — the change is effected entirely by the supplied 80-char fragment passed by path.",
+  "context_understood": "Replaced the supplied SVG fragment for #bar-zoho (y=78, height=82) via clan patch-html so the chart reflects Zoho as the now-cheapest option, then validated OK and snapshotted to hop-06-chart-update.clan."
 }

@@ -4,30 +4,30 @@
   "arm": "adhoc",
   "flow": "H1",
   "commands_run": [
-    "mkdir -p test-sandbox/happy/heavy/h1-adhoc-rep5/snapshots/hop-05-residency-section",
-    "cp work/report.html snapshots/hop-05-residency-section/report.html",
-    "cp work/data.json snapshots/hop-05-residency-section/data.json",
-    "cp work/decisions.log snapshots/hop-05-residency-section/decisions.log",
-    "mkdir -p receipts/hop05-output"
+    "diff <(sed -n '75,76p' work/report.html) _inputs/h1-supplied/residency-section.html  # identical",
+    "printf '...residency-section (rep5)...' >> work/decisions.log",
+    "mkdir -p snapshots/hop-05-residency-section receipts/hop05-output",
+    "cp work/report.html work/data.json work/decisions.log snapshots/hop-05-residency-section/",
+    "wc -c work/* snapshots/hop-05-residency-section/* receipts/hop05-output/*"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/lite/_inputs/h1-supplied/residency-section.html", "approx_chars": 910},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/work/report.html", "approx_chars": 3971},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/work/decisions.log", "approx_chars": 574},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/work/data.json", "approx_chars": 1072}
+    {"file": "test-sandbox/happy/lite/_inputs/h1-supplied/residency-section.html", "approx_chars": 920},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/work/report.html", "approx_chars": 4961},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/work/decisions.log", "approx_chars": 2030},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/receipts/hop05-output/patch-html-fragment.html", "approx_chars": 911},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/receipts/hop05-output/decision-text.txt", "approx_chars": 167}
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/work/report.html", "chars": 4843},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/work/decisions.log", "chars": 735},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/snapshots/hop-05-residency-section/report.html", "chars": 4843},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/snapshots/hop-05-residency-section/data.json", "chars": 1072},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/snapshots/hop-05-residency-section/decisions.log", "chars": 735},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/receipts/hop05-output/residency-fragment.html", "chars": 910},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/receipts/hop05-output/decision-line.txt", "chars": 159},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/receipts/receipt-hop05.json", "chars": 1892}
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/work/decisions.log", "chars": 2224},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/snapshots/hop-05-residency-section/report.html", "chars": 4961},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/snapshots/hop-05-residency-section/data.json", "chars": 2113},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/snapshots/hop-05-residency-section/decisions.log", "chars": 2224},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/receipts/hop05-output/decision.txt", "chars": 210}
   ],
-  "output_chars": 1069,
-  "errors": [],
-  "problems_and_friction": "No friction. The Data governance section was clearly identifiable in report.html, and the residency-section.html fragment could be spliced directly after it by inserting before the next h2 (Projected impact). The ad-hoc approach required reading the source file and the target file, then performing a surgical single-point insert.",
-  "context_understood": "Insert the h1-supplied Data residency HTML subsection after the existing Data governance section in report.html, log the change, snapshot all work files, and write a receipt with authored-output bytes only."
+  "output_chars": 210,
+  "errors": [
+    {"what": "receipt-hop05.json and hop05-output/ already existed from a prior run of this hop", "recovered_by": "read existing files, verified the splice was already applied byte-for-byte, and recorded this run as a no-edit verification rather than re-splicing"}
+  ],
+  "problems_and_friction": "The supplied Data residency subsection was already present byte-for-byte in report.html (lines 75-76, directly after the Data governance section) and a prior receipt already captured the splice in patch-html-fragment.html (911 chars). No HTML edit was needed this run; the only newly authored text was a single one-line verification entry appended to decisions.log.",
+  "context_understood": "Insert the supplied Data residency subsection into report.html immediately after the Data governance section; on this rep it was already applied, so I verified the exact match and logged a no-edit verification."
 }

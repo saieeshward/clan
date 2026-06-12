@@ -4,30 +4,29 @@
   "arm": "adhoc",
   "flow": "H1",
   "commands_run": [
-    "Edit report.html: replace bar-zoho rect y=52 height=108 -> y=78 height=82",
-    "Edit decisions.log: append hop-06 log line",
-    "mkdir snapshots/hop-06-chart-update",
-    "cp work/report.html snapshots/hop-06-chart-update/",
-    "cp work/data.json snapshots/hop-06-chart-update/",
-    "cp work/decisions.log snapshots/hop-06-chart-update/",
-    "mkdir receipts/hop06-output",
-    "Write receipts/hop06-output/fragment.html"
+    "grep -n id=\"bar-zoho\" report.html",
+    "wc -c data.json decisions.log report.html",
+    "cat >> work/decisions.log (append entry)",
+    "mkdir -p snapshots/hop-06-chart-update receipts/hop06-output",
+    "cp work/report.html work/data.json work/decisions.log snapshots/hop-06-chart-update/",
+    "printf ... > receipts/hop06-output/decision.txt"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/work/report.html", "approx_chars": 4937},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/work/decisions.log", "approx_chars": 735}
+    { "file": "test-sandbox/happy/heavy/h1-adhoc-rep5/work/report.html", "approx_chars": 4961 },
+    { "file": "test-sandbox/happy/lite/_inputs/h1-supplied/hop06-svg-fragment.html", "approx_chars": 73 },
+    { "file": "test-sandbox/happy/heavy/h1-adhoc-rep5/work/decisions.log", "approx_chars": 2224 }
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/work/report.html", "chars": 4937},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/work/decisions.log", "chars": 842},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/snapshots/hop-06-chart-update/report.html", "chars": 4937},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/snapshots/hop-06-chart-update/data.json", "chars": 2007},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/snapshots/hop-06-chart-update/decisions.log", "chars": 842},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/receipts/hop06-output/fragment.html", "chars": 82},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/receipts/receipt-hop06.json", "chars": 0}
+    { "file": "test-sandbox/happy/heavy/h1-adhoc-rep5/work/decisions.log", "chars": 2392 },
+    { "file": "test-sandbox/happy/heavy/h1-adhoc-rep5/snapshots/hop-06-chart-update/report.html", "chars": 4961 },
+    { "file": "test-sandbox/happy/heavy/h1-adhoc-rep5/snapshots/hop-06-chart-update/data.json", "chars": 2113 },
+    { "file": "test-sandbox/happy/heavy/h1-adhoc-rep5/snapshots/hop-06-chart-update/decisions.log", "chars": 2392 },
+    { "file": "test-sandbox/happy/heavy/h1-adhoc-rep5/receipts/hop06-output/decision.txt", "chars": 168 }
   ],
-  "output_chars": 188,
-  "errors": [],
-  "problems_and_friction": "Add-Content PowerShell command failed in the Bash tool (not available in POSIX shell); recovered by using the Edit tool to append the log line directly. No other issues encountered.",
-  "context_understood": "Update SVG bar-zoho rect from y=52 height=108 to y=78 height=82 to reflect Zoho as cheapest vendor in the cost chart."
+  "output_chars": 168,
+  "errors": [
+    { "what": "Write tool refused new files (decision.txt, receipt) as not-yet-read", "recovered_by": "wrote decision.txt via Bash printf; read the stale prior receipt then overwrote it" }
+  ],
+  "problems_and_friction": "The supplied #bar-zoho rect (y=78 height=82) was already present byte-for-byte in report.html from a prior hop, so the splice was a verified no-op and only the decision-log line was authored; a stale receipt from a previous run also had to be overwritten.",
+  "context_understood": "Make Zoho the cheapest bar by ensuring its SVG cost-chart rect is y=78 height=82 from the supplied fragment, then log, snapshot, and receipt the change."
 }

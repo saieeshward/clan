@@ -6,26 +6,23 @@
   "commands_run": [
     "clan read agent test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan --skip-guide",
     "clan read data test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan",
-    "clan patch-data test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan C:\\Users\\syson\\AppData\\Local\\Temp\\h2-r3-hop11.json --agent 11-legal-reviewer --action \"added 11-legal-reviewer findings\" --rationale \"Zoho DPA requires SCCs + DSR SLA clause; liability cap at EUR 18,240 is inadequate for GDPR exposure — must renegotiate to EUR 50,000 minimum\"",
+    "clan patch-data test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan /tmp/h2-r3-hop11.json --agent 11-legal-reviewer --action \"added 11-legal-reviewer findings\" --rationale \"DPA req'd; SCC for US transfer; EUR250k cap; IP clear but indemnity weak-renegotiate\"",
     "clan validate test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan",
     "cp test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan test-sandbox/happy/heavy/h2-clan-rep3/snapshots/hop-11-11-legal-reviewer.clan"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan", "approx_chars": 3800}
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan", "approx_chars": 7800}
   ],
   "files_written": [
-    {"file": "C:\\Users\\syson\\AppData\\Local\\Temp\\h2-r3-hop11.json", "chars": 1997},
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep3/snapshots/hop-11-11-legal-reviewer.clan", "chars": 0},
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep3/receipts/hop11-output/patch-data.json", "chars": 1997},
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep3/receipts/receipt-hop11.json", "chars": 0}
+    {"file": "/tmp/h2-r3-hop11.json", "chars": 276},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan", "chars": 7800},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep3/snapshots/hop-11-11-legal-reviewer.clan", "chars": 7800},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep3/receipts/hop11-output/patch-data.json", "chars": 276}
   ],
-  "output_chars": 1997,
+  "output_chars": 276,
   "errors": [
-    {
-      "what": "clan patch-data rejected /tmp path — Bash /tmp is a WSL/POSIX mount not visible to Windows clan binary",
-      "recovered_by": "Wrote JSON to Windows native temp path C:\\Users\\syson\\AppData\\Local\\Temp\\h2-r3-hop11.json instead"
-    }
+    {"what": "Initial clan read failed: doc.clan not found via prompt-relative path because cwd was already inside test-sandbox/happy/heavy", "recovered_by": "Resolved repo root with git rev-parse --show-toplevel and ran clan from there with the repo-relative paths"}
   ],
-  "problems_and_friction": "The Write tool uses POSIX /tmp which is inaccessible to the Windows clan binary; had to redirect to the Windows %TEMP% path. No other friction encountered; prior analyst data was well-structured and the gdpr_* fields provided a solid factual foundation for legal analysis.",
-  "context_understood": "Brightline Logistics (EU, 40 seats) is evaluating Zoho CRM as preferred vendor; legal review focused on GDPR compliance gaps, DPA adequacy, liability cap insufficiency, and data subject rights obligations that must be negotiated into the Zoho contract before go-live."
+  "problems_and_friction": "cwd sat deep inside the sandbox while prompt paths are repo-root-relative, so the first orient command errored until I ran from the repo root. legal_ fields already existed from a prior run, so patch-data updated them in place. 300-char budget was tight; merged the legal risk into a single combined entry to land at 276.",
+  "context_understood": "Data-only multi-analyst CRM evaluation for Brightline Logistics (40 seats, leaning Zoho); as legal reviewer I added terse legal_ findings: adequate DPA/SCC posture and clear IP, but weak indemnification and a US-transfer risk requiring renegotiation."
 }

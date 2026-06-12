@@ -4,31 +4,30 @@
   "arm": "adhoc",
   "flow": "H2",
   "commands_run": [
-    "New-Item -ItemType Directory -Force ...snapshots/hop-10-10-procurement-reviewer",
-    "Copy-Item work/findings.md -> snapshots/hop-10-10-procurement-reviewer/findings.md",
-    "Copy-Item work/handoff.md -> snapshots/hop-10-10-procurement-reviewer/handoff.md",
-    "New-Item -ItemType Directory -Force receipts/hop10-output",
-    "Get-Content receipts/hop10-output/authored-fragment.md -Raw (char count)",
-    "Get-Content receipts/hop10-output/handoff-fragment.md -Raw (char count)"
+    "ls receipts dir",
+    "build + validate findings.json (python3 json.load), wc -c budget checks",
+    "cat >> work/findings.md and work/handoff.md (append fragments)",
+    "mkdir snapshot + cp findings.md handoff.md",
+    "write receipts/hop10-output fragments + findings.json"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/work/brief.md", "approx_chars": 510},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/work/findings.md", "approx_chars": 1680},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/work/handoff.md", "approx_chars": 1050}
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/work/brief.md", "approx_chars": 780},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/work/findings.md", "approx_chars": 3700},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/work/handoff.md", "approx_chars": 3400}
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/work/findings.md", "chars": 3228},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/work/handoff.md", "chars": 1309},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/snapshots/hop-10-10-procurement-reviewer/findings.md", "chars": 3228},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/snapshots/hop-10-10-procurement-reviewer/handoff.md", "chars": 1309},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/receipts/hop10-output/authored-fragment.md", "chars": 1548},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/receipts/hop10-output/handoff-fragment.md", "chars": 259},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/receipts/receipt-hop10.json", "chars": 1750}
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/work/findings.md", "chars": 279},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/work/handoff.md", "chars": 222},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/snapshots/hop-10-10-procurement-reviewer/findings.md", "chars": 3979},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/snapshots/hop-10-10-procurement-reviewer/handoff.md", "chars": 3622},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/receipts/hop10-output/findings-fragment.md", "chars": 278},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/receipts/hop10-output/handoff-fragment.md", "chars": 221},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/receipts/hop10-output/findings.json", "chars": 294}
   ],
-  "output_chars": 1807,
+  "output_chars": 793,
   "errors": [
-    {"what": "Bash tool invoked for PowerShell commands (New-Item/Copy-Item not found in bash)", "recovered_by": "Switched to PowerShell tool for directory creation and file copy"}
+    {"what": "findings JSON drafts were 445/402/326/302 chars, over the 300-char budget", "recovered_by": "iteratively trimmed arrays to 2 items each and cut to a single risk object until it measured 294 chars and still validated"}
   ],
-  "problems_and_friction": "Initial snapshot copy attempt used the Bash tool instead of PowerShell, causing command-not-found errors for New-Item and Copy-Item; recovered immediately by switching to the PowerShell tool. No substantive content issues; all prior analyst data was well-structured and straightforward to build on.",
-  "context_understood": "Brightline Logistics (40-seat, EU-based) is choosing between Zoho and HubSpot CRM with Zoho consistently favoured on cost, GDPR residency inclusion, and 3-year savings; procurement review needed to solidify contract terms, negotiation levers, and risks before the lead partner assembles the final recommendation."
+  "problems_and_friction": "The 300-char budget is tight against the required risks array of {risk,severity,mitigation} objects whose key names dominate; reduced to one risk and two-item arrays to fit. findings.md/handoff.md already held a prior rep's 10-11 sections plus a duplicated 01-09 block, so I appended my own fresh section instead of editing existing ones.",
+  "context_understood": "Building on hops 1-9 Zoho is the cost/EU-residency front-runner; my procurement view sets a 1-yr term, ~4wk lead time, prepay+EU-pinning commitments, HubSpot-quote/volume leverage to cap renewal uplift, and confirms the quarterly export clause is feasible."
 }

@@ -5,29 +5,23 @@
   "flow": "H1",
   "commands_run": [
     "clan read agent test-sandbox/happy/heavy/h1-clan-rep5/work/doc.clan --skip-guide",
-    "clan read human test-sandbox/happy/heavy/h1-clan-rep5/work/doc.clan",
-    "clan patch-html test-sandbox/happy/heavy/h1-clan-rep5/work/doc.clan - --agent chart-agent --action 'shrink Zoho bar to reflect lower cost' --rationale 'Price drop from hop 1 reflected in chart' (first attempt, wrong frontmatter keys — appended stray rect)",
-    "python inline: remove stray appended rect from human/index.html",
-    "clan patch-html test-sandbox/happy/heavy/h1-clan-rep5/work/doc.clan - --agent chart-agent --action 'shrink Zoho bar to reflect lower cost' --rationale 'Price drop from hop 1 reflected in chart' (correct patch_selector/patch_action)",
+    "clan patch-html test-sandbox/happy/heavy/h1-clan-rep5/work/doc.clan test-sandbox/happy/lite/_inputs/h1-supplied/hop06-svg-fragment.html --selector \"#bar-zoho\" --patch-action replace --agent chart-agent --action \"shrink Zoho bar to reflect lower cost\" --rationale \"Price drop from hop 1 reflected in chart\"",
     "clan validate test-sandbox/happy/heavy/h1-clan-rep5/work/doc.clan",
     "cp test-sandbox/happy/heavy/h1-clan-rep5/work/doc.clan test-sandbox/happy/heavy/h1-clan-rep5/snapshots/hop-06-chart-update.clan"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/heavy/h1-clan-rep5/work/doc.clan (agent view)", "approx_chars": 3200},
-    {"file": "test-sandbox/happy/heavy/h1-clan-rep5/work/doc.clan (human view grep)", "approx_chars": 400}
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep5/work/doc.clan", "approx_chars": 15800},
+    {"file": "test-sandbox/happy/lite/_inputs/h1-supplied/hop06-svg-fragment.html", "approx_chars": 80}
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/heavy/h1-clan-rep5/work/doc.clan", "chars": 0},
-    {"file": "test-sandbox/happy/heavy/h1-clan-rep5/snapshots/hop-06-chart-update.clan", "chars": 0},
-    {"file": "test-sandbox/happy/heavy/h1-clan-rep5/receipts/hop06-output/fragment.html", "chars": 156}
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep5/work/doc.clan", "chars": 16241},
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep5/snapshots/hop-06-chart-update.clan", "chars": 16241},
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep5/receipts/hop06-output/hop06-svg-fragment.html", "chars": 80}
   ],
-  "output_chars": 156,
+  "output_chars": 0,
   "errors": [
-    {
-      "what": "First patch-html attempt used wrong frontmatter keys (selector/action instead of patch_selector/patch_action), causing fragment to be appended to body rather than replacing target element",
-      "recovered_by": "Inspected zip contents directly, removed stray rect via Python, then re-applied patch with correct patch_selector/patch_action frontmatter keys"
-    }
+    {"what": "Initial clan read returned 'No such file or directory' because cwd was not the repo root", "recovered_by": "re-ran with cwd pinned to repo root; relative paths then resolved"}
   ],
-  "problems_and_friction": "The clan agent-help schema for patch-html frontmatter uses patch_selector and patch_action, but this was not known before checking agent-help; the first attempt used wrong keys causing an append instead of replace. Recovery required direct zip manipulation to remove the stray element before re-applying the correct patch.",
-  "context_understood": "Update rect#bar-zoho in the SVG cost chart to y=78/height=82 to reflect Zoho becoming the cheapest CRM option after the hop-1 price drop."
+  "problems_and_friction": "No friction with the change itself. I authored no HTML; the patch used the supplied 80-char fragment verbatim, so true authored output is 0 chars. The fragment file is copied into hop06-output only as ground-truth for the measure pass.",
+  "context_understood": "Replace the #bar-zoho rect with the supplied fragment (y=78, height=82) so the chart shows Zoho as the now-cheapest CRM after the hop-1 price drop."
 }

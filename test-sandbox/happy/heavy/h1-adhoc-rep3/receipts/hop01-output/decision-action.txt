@@ -1,0 +1,1 @@
+2026-06-12 | pricing-update | Zoho CRM per-seat $45->$38, annual $21600->$18240 (38x40x12)

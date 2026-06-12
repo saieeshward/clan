@@ -1,27 +1,31 @@
 {
   "role": "06-customer-discovery",
   "hop": 6,
-  "arm": "h2-clan",
-  "flow": "happy/lite",
+  "arm": "h2",
+  "flow": "guided patch-first --skip-guide",
   "commands_run": [
-    "target/release/clan.exe read agent test-sandbox/happy/lite/h2-clan/work/doc.clan --skip-guide",
-    "target/release/clan.exe patch-data test-sandbox/happy/lite/h2-clan/work/doc.clan test-sandbox/happy/lite/_inputs/h2-supplied/06-customer-discovery.json --agent 06-customer-discovery --action \"added 06-customer-discovery findings\"",
-    "target/release/clan.exe patch-decision --agent 06-customer-discovery --action \"added 06-customer-discovery findings\" --rationale \"Reps want fast lead response and minimal clicks. Split preference: cost-conscious ops lean Zoho. Next: competitive intel.\" test-sandbox/happy/lite/h2-clan/work/doc.clan",
-    "target/release/clan.exe validate test-sandbox/happy/lite/h2-clan/work/doc.clan",
-    "cp test-sandbox/happy/lite/h2-clan/work/doc.clan test-sandbox/happy/lite/h2-clan/snapshots/hop-06-06-customer-discovery.clan"
+    "clan read agent test-sandbox/happy/lite/h2-clan/work/doc.clan --skip-guide",
+    "clan patch-data --agent 06-customer-discovery --action \"added 06-customer-discovery findings\" test-sandbox/happy/lite/h2-clan/work/doc.clan test-sandbox/happy/lite/_inputs/h2-supplied/06-customer-discovery.json",
+    "clan patch-decision --agent 06-customer-discovery --action \"added 06-customer-discovery findings\" --rationale \"...\" test-sandbox/happy/lite/h2-clan/work/doc.clan",
+    "clan validate test-sandbox/happy/lite/h2-clan/work/doc.clan",
+    "cp doc.clan snapshots/hop-06-06-customer-discovery.clan"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/06-customer-discovery.json", "approx_chars": 185},
-    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/06-customer-discovery.handoff.txt", "approx_chars": 118}
+    { "file": "test-sandbox/happy/lite/_inputs/h2-supplied/06-customer-discovery.json", "approx_chars": 209 },
+    { "file": "test-sandbox/happy/lite/_inputs/h2-supplied/06-customer-discovery.handoff.txt", "approx_chars": 120 },
+    { "file": "test-sandbox/happy/lite/h2-clan/work/doc.clan (agent view, --skip-guide)", "approx_chars": 4200 }
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/lite/h2-clan/snapshots/hop-06-06-customer-discovery.clan", "chars": 0},
-    {"file": "test-sandbox/happy/lite/h2-clan/receipts/hop06-output/patch-data.json", "chars": 185},
-    {"file": "test-sandbox/happy/lite/h2-clan/receipts/hop06-output/decision.txt", "chars": 118},
-    {"file": "test-sandbox/happy/lite/h2-clan/receipts/receipt-hop06.json", "chars": 1380}
+    { "file": "test-sandbox/happy/lite/h2-clan/work/doc.clan", "chars": 14000 },
+    { "file": "test-sandbox/happy/lite/h2-clan/snapshots/hop-06-06-customer-discovery.clan", "chars": 14000 },
+    { "file": "test-sandbox/happy/lite/h2-clan/receipts/hop06-output/patch-data.json", "chars": 197 },
+    { "file": "test-sandbox/happy/lite/h2-clan/receipts/hop06-output/decision.txt", "chars": 120 }
   ],
-  "output_chars": 303,
-  "errors": [],
-  "problems_and_friction": "No friction encountered. All four clan commands completed cleanly on first attempt. The supplied JSON had 6 fields (under the 15-field limit) and the handoff text was a single sentence.",
-  "context_understood": "Hop 06 adds customer-discovery interview findings (6 fields) to the Brightline Logistics CRM analysis chain and records the handoff rationale for the next hop (competitive intel)."
+  "output_chars": 317,
+  "errors": [
+    { "what": "first `clan read` failed (No such file or directory) due to cwd reset between bash calls using a relative path", "recovered_by": "re-running with `cd <repo-root> &&` prefix so the relative path resolved" },
+    { "what": "first patch-data attempt without --agent/--action failed: change needs attribution", "recovered_by": "re-ran patch-data with --agent and --action flags" }
+  ],
+  "problems_and_friction": "The cwd resets between bash calls so relative paths needed an explicit cd to repo root. patch-data enforces attribution by default, which would duplicate the protocol's separate patch-decision; I let patch-data record the fields_changed entry and patch-decision carry the rationale, matching prior hops' two-entry pattern.",
+  "context_understood": "I added bounded customer-discovery findings (6 interviews, top need fast lead response, 90% adoption target, split cost/UI preference) to the Brightline CRM decision doc and handed off to competitive intel."
 }

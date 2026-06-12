@@ -1,0 +1,1 @@
+2026-06-12 | residency-section | inserted "Data residency" subsection (h2#data-residency + p#residency-detail) into report.html after the Data governance section

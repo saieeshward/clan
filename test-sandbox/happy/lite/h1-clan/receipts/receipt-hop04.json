@@ -1,22 +1,25 @@
 {
   "role": "summary-rewrite",
-  "hop": "04",
-  "arm": "h1-clan",
-  "flow": "happy/lite",
+  "hop": 4,
+  "arm": "clan",
+  "flow": "guided-patch-first",
   "commands_run": [
-    "clan.exe patch-data test-sandbox/happy/lite/h1-clan/work/doc.clan --set exec_summary=<value> --agent summary-rewrite --action \"rewrite exec summary\"",
-    "clan.exe validate test-sandbox/happy/lite/h1-clan/work/doc.clan"
+    "clan read agent test-sandbox/happy/lite/h1-clan/work/doc.clan --skip-guide",
+    "clan patch-data --help",
+    "clan patch-data test-sandbox/happy/lite/h1-clan/work/doc.clan receipts/hop04-output/patch-data.json --agent summary-rewrite --action ... --quiet",
+    "clan validate test-sandbox/happy/lite/h1-clan/work/doc.clan",
+    "cp work/doc.clan snapshots/hop-04-summary-rewrite.clan"
   ],
   "files_read": [
-    { "file": "test-sandbox/happy/lite/_inputs/h1-supplied/exec-summary.txt", "approx_chars": 330 }
+    { "file": "test-sandbox/happy/lite/_inputs/h1-supplied/exec-summary.txt", "approx_chars": 324 },
+    { "file": "test-sandbox/happy/lite/h1-clan/work/doc.clan", "approx_chars": 4200 }
   ],
   "files_written": [
-    { "file": "test-sandbox/happy/lite/h1-clan/work/doc.clan", "chars": -1 },
-    { "file": "test-sandbox/happy/lite/h1-clan/snapshots/hop-04-summary-rewrite.clan", "chars": -1 },
-    { "file": "test-sandbox/happy/lite/h1-clan/receipts/hop04-output/exec-summary-patch.txt", "chars": 330 }
+    { "file": "test-sandbox/happy/lite/h1-clan/receipts/hop04-output/patch-data.json", "chars": 344 },
+    { "file": "test-sandbox/happy/lite/h1-clan/snapshots/hop-04-summary-rewrite.clan", "chars": 0 }
   ],
-  "output_chars": 330,
+  "output_chars": 20,
   "errors": [],
-  "problems_and_friction": "None. patch-data --set handled single-key scalar update cleanly.",
-  "context_understood": "exec_summary is a data-bound field; patched via patch-data (not pack-html). Validated OK. Snapshot written."
+  "problems_and_friction": "exec_summary is data-bound, so a single patch-data with the supplied text was sufficient; authored chars are only the JSON wrapper since the value was read verbatim. The post-validate next: hint pushed pack-html, which the protocol correctly forbids for a data-bound field that re-renders from its binding.",
+  "context_understood": "Replace the data-bound exec_summary with the verbatim supplied text via patch-data alone (no pack-html), then validate and snapshot."
 }

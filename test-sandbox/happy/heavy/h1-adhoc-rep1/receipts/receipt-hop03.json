@@ -4,33 +4,32 @@
   "arm": "adhoc",
   "flow": "H1",
   "commands_run": [
-    "Edit data.json: rollout_phase2_date 2026-08-01→2026-09-15",
-    "Edit report.html: id=phase2 cell 2026-08-01→2026-09-15",
-    "Append to decisions.log",
-    "mkdir snapshots/hop-03-date-update",
-    "cp report.html data.json decisions.log to snapshots/hop-03-date-update/",
-    "Write receipts/hop03-output/patch-data.txt",
-    "Write receipts/hop03-output/patch-html.txt",
-    "Write receipts/hop03-output/decision.txt"
+    "grep -n 'phase2|2026-08-01|2026-09-15|Phase 2' work/report.html",
+    "wc -c work/report.html work/data.json work/decisions.log",
+    "sed -n 54,58p work/report.html",
+    "printf '...' >> work/decisions.log",
+    "mkdir -p snapshots/hop-03-date-update receipts/hop03-output",
+    "cp work/report.html work/data.json work/decisions.log snapshots/hop-03-date-update/",
+    "printf authored fragments -> receipts/hop03-output/"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/work/data.json", "approx_chars": 1120},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/work/report.html", "approx_chars": 2350},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/work/decisions.log", "approx_chars": 230}
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/work/data.json", "approx_chars": 2108},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/work/decisions.log", "approx_chars": 1547},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/work/report.html", "approx_chars": 4961}
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/work/data.json", "chars": 1120},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/work/report.html", "chars": 2350},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/work/decisions.log", "chars": 357},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/snapshots/hop-03-date-update/data.json", "chars": 1120},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/snapshots/hop-03-date-update/report.html", "chars": 2350},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/snapshots/hop-03-date-update/decisions.log", "chars": 357},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/receipts/hop03-output/patch-data.txt", "chars": 38},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/receipts/hop03-output/patch-html.txt", "chars": 76},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/receipts/hop03-output/decision.txt", "chars": 127}
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/work/decisions.log", "chars": 1699},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/snapshots/hop-03-date-update/report.html", "chars": 4961},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/snapshots/hop-03-date-update/data.json", "chars": 2108},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/snapshots/hop-03-date-update/decisions.log", "chars": 1699},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/receipts/hop03-output/patch-data.json", "chars": 38},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/receipts/hop03-output/patch-html.fragment", "chars": 31},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/receipts/hop03-output/decision.txt", "chars": 152}
   ],
-  "output_chars": 241,
-  "errors": [],
-  "problems_and_friction": "No friction. Both edit targets were unambiguous single-occurrence strings. The Bash tool is not PowerShell so the char-count command failed once and was retried via PowerShell tool.",
-  "context_understood": "Phase 2 rollout date changed from 2026-08-01 to 2026-09-15 in both data.json (rollout_phase2_date field) and report.html (id=phase2 table cell), with log entry appended and snapshot captured."
+  "output_chars": 221,
+  "errors": [
+    {"what": "report.html and data.json already held target value 2026-09-15 (prior run applied this hop)", "recovered_by": "verified target value present, authored minimal splice fragments and appended log idempotently"}
+  ],
+  "problems_and_friction": "Both data.json (rollout_phase2_date) and report.html (id=\"phase2\") already held 2026-09-15, so the change was an idempotent confirmation rather than a fresh splice. I authored the minimal surgical fragments anyway and logged the change honestly.",
+  "context_understood": "Move rollout_phase2_date from 2026-08-01 to 2026-09-15 in data.json and the matching report.html timeline cell (id=phase2), then log and snapshot."
 }

@@ -1,1 +1,1 @@
-hop-05 residency-section: inserted <h2 id="data-residency"> + <p id="residency-detail"> from h1-supplied/residency-section.html into report.html after Data governance section (before Projected impact).
+2026-06-12 | residency-section | added "Data residency" subsection (#data-residency + #residency-detail) after Data governance in report.html

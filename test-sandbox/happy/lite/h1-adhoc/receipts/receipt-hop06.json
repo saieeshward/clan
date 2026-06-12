@@ -1,31 +1,29 @@
 {
   "role": "chart-update",
-  "hop": "06",
-  "arm": "h1-adhoc",
-  "flow": "happy/lite",
+  "hop": 6,
+  "arm": "ad-hoc",
+  "flow": "lite",
   "commands_run": [
-    "Edit report.html bar-zoho rect y/height attributes",
-    "Edit decisions.log append hop-06 entry",
-    "Copy work/ files to snapshots/hop-06-chart-update/",
-    "Write receipts/hop06-output/patch.txt",
-    "Write receipts/receipt-hop06.json"
+    "printf '... | chart-update | ...' >> work/decisions.log",
+    "mkdir -p snapshots/hop-06-chart-update receipts/hop06-output",
+    "cp work/report.html work/data.json work/decisions.log snapshots/hop-06-chart-update/",
+    "ls -la snapshots/hop-06-chart-update/"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/lite/h1-adhoc/work/report.html", "approx_chars": 4993},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/work/decisions.log", "approx_chars": 785},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/work/data.json", "approx_chars": 1060}
+    { "file": "work/report.html", "approx_chars": 4700 },
+    { "file": "work/decisions.log", "approx_chars": 730 }
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/lite/h1-adhoc/work/report.html", "chars": 4993},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/work/decisions.log", "chars": 1012},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-06-chart-update/report.html", "chars": 4993},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-06-chart-update/data.json", "chars": 1060},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-06-chart-update/decisions.log", "chars": 1012},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/receipts/hop06-output/patch.txt", "chars": 233},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/receipts/receipt-hop06.json", "chars": 0}
+    { "file": "work/report.html", "chars": 31 },
+    { "file": "work/decisions.log", "chars": 102 },
+    { "file": "snapshots/hop-06-chart-update/report.html", "chars": 4700 },
+    { "file": "snapshots/hop-06-chart-update/data.json", "chars": 2000 },
+    { "file": "snapshots/hop-06-chart-update/decisions.log", "chars": 834 },
+    { "file": "receipts/hop06-output/patch-html-fragment.txt", "chars": 31 },
+    { "file": "receipts/hop06-output/decision.txt", "chars": 102 }
   ],
-  "output_chars": 233,
+  "output_chars": 133,
   "errors": [],
-  "problems_and_friction": "Bash tool is not available on this Windows/PowerShell environment; used PowerShell tool for file operations instead.",
-  "context_understood": "Hop 06 of h1-adhoc flow: update bar-zoho SVG rect from y=52 height=108 to y=78 height=82 in report.html cost chart, log the change in decisions.log, snapshot work dir to hop-06-chart-update, write receipt and patch payload."
+  "problems_and_friction": "None. The bar-zoho rect was a single unambiguous line, so a surgical Edit of only the y/width/height attribute run sufficed; snapshot copy was a straight cp.",
+  "context_understood": "Zoho became the cheapest CRM option, so its SVG bar shrinks to y=78 height=82 in the cost chart, with the change logged and snapshotted for hop 6."
 }

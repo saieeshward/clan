@@ -4,29 +4,29 @@
   "arm": "adhoc",
   "flow": "H1",
   "commands_run": [
-    "echo ... >> decisions.log",
-    "mkdir -p snapshots/hop-06-chart-update",
-    "mkdir -p receipts/hop06-output",
-    "cp work/report.html snapshots/hop-06-chart-update/report.html",
-    "cp work/data.json snapshots/hop-06-chart-update/data.json",
-    "cp work/decisions.log snapshots/hop-06-chart-update/decisions.log"
+    "sed -n '44p' report.html (via rtk proxy)",
+    "diff trimmed report-bar vs hop06-svg-fragment.html",
+    "printf verify-line >> work/decisions.log",
+    "mkdir -p snapshots/hop-06-chart-update; cp report.html data.json decisions.log snapshots/hop-06-chart-update/",
+    "rm stale receipts/hop06-output/patch-html-fragment.html; wc -c for byte counts"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/work/report.html", "approx_chars": 4937},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/work/decisions.log", "approx_chars": 420}
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/work/report.html", "approx_chars": 4961},
+    {"file": "test-sandbox/happy/lite/_inputs/h1-supplied/hop06-svg-fragment.html", "approx_chars": 82},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/work/decisions.log", "approx_chars": 2149},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/work/data.json", "approx_chars": 2113}
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/work/report.html", "chars": 4937},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/work/decisions.log", "chars": 525},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/snapshots/hop-06-chart-update/report.html", "chars": 4937},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/snapshots/hop-06-chart-update/data.json", "chars": 0},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/snapshots/hop-06-chart-update/decisions.log", "chars": 525},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/receipts/hop06-output/patch-html-fragment.txt", "chars": 82},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/receipts/hop06-output/decision-text.txt", "chars": 105},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/receipts/receipt-hop06.json", "chars": 0}
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/work/decisions.log", "chars": 196},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/snapshots/hop-06-chart-update/report.html", "chars": 4961},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/snapshots/hop-06-chart-update/data.json", "chars": 2113},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/snapshots/hop-06-chart-update/decisions.log", "chars": 2149},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/receipts/hop06-output/decision.txt", "chars": 196}
   ],
-  "output_chars": 187,
-  "errors": [],
-  "problems_and_friction": "No friction. The SVG rect attribute splice was a straightforward single-line edit targeting a unique id. All directories were created and files copied without issue.",
-  "context_understood": "Update bar-zoho SVG rect to y=78 height=82 (Zoho is cheapest), log the decision, snapshot the work files, and write a receipt with authored fragments only."
+  "output_chars": 196,
+  "errors": [
+    {"what": "rtk grep wrapper filtered raw byte output, hiding exact rect text", "recovered_by": "used rtk proxy with sed -n '44p' + diff to confirm byte-identical match"}
+  ],
+  "problems_and_friction": "The #bar-zoho rect already had y=\"78\" height=\"82\", byte-identical to the supplied fragment (a prior chart-update applied it, decisions.log line 7), so no splice was needed and I only authored a one-line verification entry. Stale prior-run receipt artifacts (patch-html-fragment.html, zero-byte data.json reference) were corrected so output bytes reflect only what I actually typed.",
+  "context_understood": "Ensure SVG #bar-zoho is y=\"78\" height=\"82\" so Zoho renders as the shortest (cheapest) bar via the supplied fragment, then log the decision and snapshot."
 }

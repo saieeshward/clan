@@ -1,0 +1,1 @@
+hop-07 verdict-flip: changed verdict HubSpot→Zoho CRM and updated verdict_rationale in data.json; replaced {{verdict}} and {{verdict_rationale}} placeholders in report.html with supplied values

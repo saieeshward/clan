@@ -1,32 +1,33 @@
-﻿{
+{
   "role": "10-procurement-reviewer",
   "hop": 10,
   "arm": "adhoc",
   "flow": "H2",
   "commands_run": [
-    "New-Item -ItemType Directory -Force snapshots/hop-10-10-procurement-reviewer",
-    "Copy-Item work/findings.md snapshots/hop-10-10-procurement-reviewer/findings.md",
-    "Copy-Item work/handoff.md snapshots/hop-10-10-procurement-reviewer/handoff.md",
-    "New-Item -ItemType Directory -Force receipts/hop10-output",
-    "Set-Content receipts/hop10-output/findings-fragment.md",
-    "Set-Content receipts/hop10-output/handoff-fragment.md"
+    "cat >> work/findings.md (append procurement block)",
+    "cat >> work/handoff.md (append handoff line)",
+    "mkdir -p snapshots/hop-10-10-procurement-reviewer receipts/hop10-output",
+    "cp work/findings.md work/handoff.md snapshots/hop-10-10-procurement-reviewer/",
+    "node -e (measure findings JSON char budget)"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/work/brief.md", "approx_chars": 520},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/work/findings.md", "approx_chars": 1820},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/work/handoff.md", "approx_chars": 1080}
+    {"file": "/Users/saieeshwar/Projects/Work/work/napkin/ADF/clan/test-sandbox/happy/heavy/h2-adhoc-rep2/work/brief.md", "approx_chars": 780},
+    {"file": "/Users/saieeshwar/Projects/Work/work/napkin/ADF/clan/test-sandbox/happy/heavy/h2-adhoc-rep2/work/findings.md", "approx_chars": 3600},
+    {"file": "/Users/saieeshwar/Projects/Work/work/napkin/ADF/clan/test-sandbox/happy/heavy/h2-adhoc-rep2/work/handoff.md", "approx_chars": 3400}
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/work/findings.md", "chars": 2960},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/work/handoff.md", "chars": 1290},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/snapshots/hop-10-10-procurement-reviewer/findings.md", "chars": 2960},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/snapshots/hop-10-10-procurement-reviewer/handoff.md", "chars": 1290},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/receipts/hop10-output/findings-fragment.md", "chars": 1482},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/receipts/hop10-output/handoff-fragment.md", "chars": 275},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/receipts/receipt-hop10.json", "chars": 1680}
+    {"file": "/Users/saieeshwar/Projects/Work/work/napkin/ADF/clan/test-sandbox/happy/heavy/h2-adhoc-rep2/work/findings.md", "chars": 309},
+    {"file": "/Users/saieeshwar/Projects/Work/work/napkin/ADF/clan/test-sandbox/happy/heavy/h2-adhoc-rep2/work/handoff.md", "chars": 262},
+    {"file": "/Users/saieeshwar/Projects/Work/work/napkin/ADF/clan/test-sandbox/happy/heavy/h2-adhoc-rep2/snapshots/hop-10-10-procurement-reviewer/findings.md", "chars": 4860},
+    {"file": "/Users/saieeshwar/Projects/Work/work/napkin/ADF/clan/test-sandbox/happy/heavy/h2-adhoc-rep2/snapshots/hop-10-10-procurement-reviewer/handoff.md", "chars": 3670},
+    {"file": "/Users/saieeshwar/Projects/Work/work/napkin/ADF/clan/test-sandbox/happy/heavy/h2-adhoc-rep2/receipts/hop10-output/findings.json", "chars": 287},
+    {"file": "/Users/saieeshwar/Projects/Work/work/napkin/ADF/clan/test-sandbox/happy/heavy/h2-adhoc-rep2/receipts/hop10-output/findings-fragment.md", "chars": 309},
+    {"file": "/Users/saieeshwar/Projects/Work/work/napkin/ADF/clan/test-sandbox/happy/heavy/h2-adhoc-rep2/receipts/hop10-output/handoff-fragment.md", "chars": 262}
   ],
-  "output_chars": 1757,
-  "errors": [],
-  "problems_and_friction": "Bash tool not available on Windows PATH; switched to PowerShell for all file/directory operations. Write tool blocked report-style files so fragment files written via PowerShell Set-Content instead. No functional blockers.",
-  "context_understood": "Brightline Logistics CRM selection chain for 40-seat EU firm; prior hops narrowed to Zoho vs HubSpot with Zoho leading on cost, GDPR, and 3-yr savings; procurement hop adds contract terms, risks, and negotiation levers."
+  "output_chars": 571,
+  "errors": [
+    {"what": "first findings JSON was 445 chars, over the 300-char hard budget", "recovered_by": "iteratively trimmed array entries to terse tokens and cut to one material risk until JSON measured 287 chars while keeping spec subkeys risk/severity/mitigation"}
+  ],
+  "problems_and_friction": "The mandatory procurement_ namespace plus six required keys consumed ~180 fixed chars, leaving little room within the 300-char budget; I reduced commitments/leverage to short tokens and kept a single top risk to comply. A receipt-hop10.json and findings/handoff blocks from a prior run already existed, so I overwrote the receipt and appended a fresh block per protocol.",
+  "context_understood": "Prior nine analysts converged on Zoho (cheapest at EUR18,240/yr, EU pinning included, low switching cost via export clause, ~9wk rollout before the October peak), so my procurement terms target locking those advantages on a 1yr term with prepay, a Y2 price cap, and a 60-day auto-renew opt-out."
 }

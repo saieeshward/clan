@@ -1,0 +1,1 @@
+2026-06-12 | chart-update | verified report.html SVG #bar-zoho is y="78" height="82" (Zoho cheapest bar), byte-identical to h1-supplied/hop06-svg-fragment.html; no splice needed (already applied)

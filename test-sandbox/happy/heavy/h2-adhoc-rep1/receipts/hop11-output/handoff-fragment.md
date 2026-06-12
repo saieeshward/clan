@@ -1,3 +1,3 @@
-## 11-legal-reviewer
 
-Legal framework is sound for Zoho: DPA required and already conditioned on go-live, EU SCC transfer mechanism valid with EU pinning minimising cross-border flows, liability cap set to 1x annual fees (recommend 2x uplift), IP and indemnification terms standard and adequate. Next: lead partner assembles final recommendation.
+## 11-legal-reviewer
+Zoho is EU-resident so SCCs cover any transfer; DPA required and available. Liability cap is 1x annual fees (EUR18,240) and IP indemnity is thin — negotiate a 2x breach super-cap plus an IP indemnity clause. Next: lead partner assembles the recommendation.

@@ -1,0 +1,1 @@
+hop02 risk-add: appended Vendor lock-in risk (Medium) to data.json risks[] and spliced supplied row into report.html #risk-rows (already present; idempotent).

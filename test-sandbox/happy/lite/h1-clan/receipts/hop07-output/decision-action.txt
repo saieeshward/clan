@@ -1,0 +1,1 @@
+Flip verdict HubSpot->Zoho CRM; set verdict_rationale

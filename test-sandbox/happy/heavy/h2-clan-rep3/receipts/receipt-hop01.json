@@ -5,22 +5,24 @@
   "flow": "H2",
   "commands_run": [
     "clan read agent test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan --skip-guide",
-    "clan patch-data test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan test-sandbox/happy/lite/_inputs/h2-supplied/01-market-researcher.json --agent 01-market-researcher --action \"added 01-market-researcher findings\" --rationale \"Market favours fast EU-resident go-lives. HubSpot leads mindshare but Zoho is gaining in mid-market on price. Next: get hard per-seat pricing.\"",
+    "clan patch-data test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan test-sandbox/happy/lite/_inputs/h2-supplied/01-market-researcher.json --agent 01-market-researcher --action \"added 01-market-researcher findings\" --rationale \"<handoff text>\"",
     "clan validate test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan",
     "cp test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan test-sandbox/happy/heavy/h2-clan-rep3/snapshots/hop-01-01-market-researcher.clan"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan", "approx_chars": 11200},
-    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/01-market-researcher.handoff.txt", "approx_chars": 120},
-    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/01-market-researcher.json", "approx_chars": 314}
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan", "approx_chars": 18786},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/01-market-researcher.handoff.txt", "approx_chars": 190},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/01-market-researcher.json", "approx_chars": 300}
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan", "chars": 11586},
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep3/snapshots/hop-01-01-market-researcher.clan", "chars": 11586},
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep3/receipts/hop01-output/patch-data-payload.json", "chars": 314}
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan", "chars": 18786},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep3/snapshots/hop-01-01-market-researcher.clan", "chars": 18786},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep3/receipts/hop01-output/patch-data.json", "chars": 300}
   ],
-  "output_chars": 314,
-  "errors": [],
-  "problems_and_friction": "No errors encountered. Protocol was clear and all commands succeeded on first attempt. The receipts directory did not pre-exist and required creation.",
-  "context_understood": "Hop 1 of the H2 multi-agent CRM recommendation chain: the market-researcher role patches structured market data (TAM, segment, growth, incumbent share, buyer priorities) into the agent-only clan doc for Brightline Logistics."
+  "output_chars": 490,
+  "errors": [
+    {"what": "Initial 'clan read' failed with 'No such file or directory' because cwd is the heavy/ subdir while prompt paths are repo-root-relative", "recovered_by": "Prefixed every clan/cp invocation with a cd to the repo root so the repo-root-relative paths resolve"}
+  ],
+  "problems_and_friction": "The supplied paths are repo-root-relative while cwd is the heavy/ subdirectory, so the first read failed and every bash call needed a cd to the repo root. The doc.clan was already seeded with prior analysts' data, so this hop was a clean merge-patch; patch-data, validate, and snapshot all succeeded.",
+  "context_understood": "Data-only multi-analyst CRM recommendation for Brightline Logistics: I merge-patched my role-namespaced market_* findings (TAM, EU mid-market segment, 12% growth, incumbent share, buyer priorities) without re-transcribing prior analysts' data, handing off to 02-pricing-analyst for hard per-seat pricing."
 }

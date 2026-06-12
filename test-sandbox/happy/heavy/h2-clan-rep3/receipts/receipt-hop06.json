@@ -5,22 +5,25 @@
   "flow": "H2",
   "commands_run": [
     "clan read agent test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan --skip-guide",
-    "clan patch-data test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan test-sandbox/happy/lite/_inputs/h2-supplied/06-customer-discovery.json --agent 06-customer-discovery --action \"added 06-customer-discovery findings\" --rationale \"Reps want fast lead response and minimal clicks. Split preference: cost-conscious ops lean Zoho. Next: competitive intel.\"",
-    "clan validate test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan",
-    "cp test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan test-sandbox/happy/heavy/h2-clan-rep3/snapshots/hop-06-06-customer-discovery.clan"
+    "clan patch-data h2-clan-rep3/work/doc.clan <06-customer-discovery.json> --agent 06-customer-discovery --action \"added 06-customer-discovery findings\" --rationale \"<handoff text>\"",
+    "clan validate h2-clan-rep3/work/doc.clan",
+    "cp h2-clan-rep3/work/doc.clan h2-clan-rep3/snapshots/hop-06-06-customer-discovery.clan"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan", "approx_chars": 2800},
-    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/06-customer-discovery.handoff.txt", "approx_chars": 97},
-    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/06-customer-discovery.json", "approx_chars": 180}
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan", "approx_chars": 18864},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/06-customer-discovery.handoff.txt", "approx_chars": 121},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/06-customer-discovery.json", "approx_chars": 209}
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep3/snapshots/hop-06-06-customer-discovery.clan", "chars": 2900},
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep3/receipts/hop06-output/patch-data.json", "chars": 181},
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep3/receipts/receipt-hop06.json", "chars": 1100}
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan", "chars": 18864},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep3/snapshots/hop-06-06-customer-discovery.clan", "chars": 18864},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep3/receipts/hop06-output/06-customer-discovery.json", "chars": 209},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep3/receipts/hop06-output/rationale.txt", "chars": 121}
   ],
-  "output_chars": 181,
-  "errors": [],
-  "problems_and_friction": "No errors encountered. Protocol was straightforward: read, patch, validate, snapshot. All commands succeeded on first attempt.",
-  "context_understood": "Customer discovery findings (6 interviews, lead-response need, 90% adoption target, 4 champions, 24 training hours, Zoho/HubSpot split preference) patched into the CRM recommendation chain doc for Brightline Logistics."
+  "output_chars": 330,
+  "errors": [
+    {"what": "clan read with the prompt's repo-root-relative path failed (No such file or directory) because actual cwd is .../test-sandbox/happy/heavy, not repo root", "recovered_by": "Used cwd-relative target h2-clan-rep3/work/doc.clan for patch/validate/snapshot and absolute paths for reads; confirmed the live doc was the correct target"}
+  ],
+  "problems_and_friction": "Working directory is .../test-sandbox/happy/heavy, so the supplied repo-root-relative paths did not resolve directly and had to be rebased to cwd-relative/absolute. The live doc already carried the 6 cust_* fields from a prior run, so the patch-data merge was idempotent and downstream analyst data was preserved.",
+  "context_understood": "Hop 6 merges 6 namespaced customer-discovery findings (interviews, top need, adoption target, champions, training hours, vendor lean) into the data-only CRM-evaluation CLAN doc with the handoff rationale, leaving prior analysts' data intact."
 }

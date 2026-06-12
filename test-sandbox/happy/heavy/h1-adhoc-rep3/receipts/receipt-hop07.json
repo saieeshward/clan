@@ -4,39 +4,29 @@
   "arm": "adhoc",
   "flow": "H1",
   "commands_run": [
-    "Read verdict-rationale.txt",
-    "Read data.json",
-    "Read report.html",
-    "Read decisions.log",
-    "Edit data.json (verdict + verdict_rationale)",
-    "Edit report.html (verdict-value + verdict-rationale spans)",
-    "Append to decisions.log",
-    "mkdir snapshots/hop-07-verdict-flip",
-    "cp report.html data.json decisions.log to snapshot dir",
-    "mkdir receipts/hop07-output",
-    "Write patch-data.json",
-    "Write patch-html.html",
-    "Write decision.txt"
+    "printf ... >> work/decisions.log",
+    "mkdir -p snapshots/hop-07-verdict-flip receipts/hop07-output",
+    "cp work/report.html work/data.json work/decisions.log snapshots/hop-07-verdict-flip/",
+    "printf ... > receipts/hop07-output/decision.txt",
+    "wc -c receipts/hop07-output/decision.txt"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/lite/_inputs/h1-supplied/verdict-rationale.txt", "approx_chars": 196},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/work/data.json", "approx_chars": 2113},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/work/report.html", "approx_chars": 5043},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/work/decisions.log", "approx_chars": 1097}
+    {"file": "test-sandbox/happy/lite/_inputs/h1-supplied/verdict-rationale.txt", "approx_chars": 215},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/work/data.json", "approx_chars": 1850},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/work/report.html", "approx_chars": 4100},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/work/decisions.log", "approx_chars": 1500}
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/work/data.json", "chars": 2113},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/work/report.html", "chars": 5043},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/work/decisions.log", "chars": 1097},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/snapshots/hop-07-verdict-flip/data.json", "chars": 2113},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/snapshots/hop-07-verdict-flip/report.html", "chars": 5043},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/snapshots/hop-07-verdict-flip/decisions.log", "chars": 1097},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/receipts/hop07-output/patch-data.json", "chars": 266},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/receipts/hop07-output/patch-html.html", "chars": 333},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/receipts/hop07-output/decision.txt", "chars": 196}
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/work/decisions.log", "chars": 198},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/receipts/hop07-output/decision.txt", "chars": 198},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/snapshots/hop-07-verdict-flip/report.html", "chars": 4100},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/snapshots/hop-07-verdict-flip/data.json", "chars": 1850},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/snapshots/hop-07-verdict-flip/decisions.log", "chars": 1850}
   ],
-  "output_chars": 795,
-  "errors": [],
-  "problems_and_friction": "No friction encountered. The verdict and rationale fields were cleanly identified in both data.json and report.html by their id attributes, enabling surgical splices without rewriting whole files. The decisions.log append used a shell echo due to lack of a direct append API.",
-  "context_understood": "Flip verdict from HubSpot to Zoho CRM in data.json and report.html using the supplied rationale text, append to decisions.log, snapshot the work directory, and record authored fragments in receipts."
+  "output_chars": 198,
+  "errors": [
+    {"what": "Stale receipt-hop07.json from a prior run claimed splices were applied, but the target was already at goal", "recovered_by": "Re-reading the actual work files, confirming target state, and overwriting the receipt to honestly reflect a verify-only hop"}
+  ],
+  "problems_and_friction": "No edit was required this run: data.json verdict=\"Zoho CRM\" and verdict_rationale already match the supplied text, and report.html #verdict-value/#verdict-rationale already match; a prior verdict-flip log entry (line 8) was already present. Authored output is the single verify decision line only.",
+  "context_understood": "Flip the H1 verdict to Zoho CRM with the supplied rationale across data.json and report.html, but the target state was already in place so only verification, a log entry, and a snapshot were needed."
 }

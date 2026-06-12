@@ -4,30 +4,24 @@
   "arm": "adhoc",
   "flow": "H1",
   "commands_run": [
-    "mkdir -p snapshots/hop-05-residency-section",
-    "cp work/report.html snapshots/hop-05-residency-section/report.html",
-    "cp work/data.json snapshots/hop-05-residency-section/data.json",
-    "cp work/decisions.log snapshots/hop-05-residency-section/decisions.log",
-    "mkdir -p receipts/hop05-output"
+    "wc -c work/*.html work/*.json work/*.log _inputs/h1-supplied/residency-section.html",
+    "mkdir -p snapshots/hop-05-residency-section receipts/hop05-output",
+    "cp work/report.html work/data.json work/decisions.log snapshots/hop-05-residency-section/"
   ],
   "files_read": [
     {"file": "test-sandbox/happy/lite/_inputs/h1-supplied/residency-section.html", "approx_chars": 910},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/work/report.html", "approx_chars": 4856},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/work/decisions.log", "approx_chars": 660},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/work/data.json", "approx_chars": 2007}
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/work/report.html", "approx_chars": 4961},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/work/decisions.log", "approx_chars": 1903}
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/work/report.html", "chars": 4856},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/work/decisions.log", "chars": 853},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/snapshots/hop-05-residency-section/report.html", "chars": 4856},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/snapshots/hop-05-residency-section/data.json", "chars": 2007},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/snapshots/hop-05-residency-section/decisions.log", "chars": 853},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/receipts/hop05-output/residency-splice.html", "chars": 911},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/receipts/hop05-output/decision-entry.txt", "chars": 193},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/receipts/receipt-hop05.json", "chars": 0}
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/work/decisions.log", "chars": 2139},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/snapshots/hop-05-residency-section/report.html", "chars": 4961},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/snapshots/hop-05-residency-section/data.json", "chars": 2108},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/snapshots/hop-05-residency-section/decisions.log", "chars": 2139},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/receipts/hop05-output/decision.txt", "chars": 235}
   ],
-  "output_chars": 1104,
+  "output_chars": 235,
   "errors": [],
-  "problems_and_friction": "No friction. The Data governance section was a clear anchor point in report.html for the surgical splice. The supplied fragment matched exactly and was inserted without modification. data.json already contains residency fields so no JSON update was needed.",
-  "context_understood": "Insert the h1-supplied Data residency subsection (h2 + p) into report.html immediately after the existing Data governance h2 block, log the decision, and snapshot all three work files."
+  "problems_and_friction": "The Data residency subsection was already present in report.html (h2#data-residency + p#residency-detail) matching the supplied fragment exactly, so the insert was a no-op; only the idempotent decisions.log entry was authored.",
+  "context_understood": "Add the supplied Data residency subsection after the Data governance section in report.html; it was already present, so the change reduced to an idempotent log entry plus snapshot."
 }

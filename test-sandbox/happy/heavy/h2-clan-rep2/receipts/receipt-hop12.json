@@ -4,25 +4,29 @@
   "arm": "clan",
   "flow": "H2",
   "commands_run": [
-    "clan read agent test-sandbox/happy/heavy/h2-clan-rep2/work/doc.clan --skip-guide",
-    "clan read chain test-sandbox/happy/heavy/h2-clan-rep2/work/doc.clan",
-    "clan patch-data test-sandbox/happy/heavy/h2-clan-rep2/work/doc.clan C:/tmp/h2-r2-lead.json --agent lead-partner --action \"final recommendation: Zoho CRM\" --rationale \"Synthesised 11 analyst inputs\"",
-    "clan render test-sandbox/happy/heavy/h2-clan-rep2/work/doc.clan",
-    "clan validate test-sandbox/happy/heavy/h2-clan-rep2/work/doc.clan",
-    "clan patch-decision test-sandbox/happy/heavy/h2-clan-rep2/work/doc.clan --agent lead-partner --action \"final recommendation: Zoho CRM\" --rationale \"Synthesised 11 analyst inputs.\" --pinned",
-    "cp test-sandbox/happy/heavy/h2-clan-rep2/work/doc.clan test-sandbox/happy/heavy/h2-clan-rep2/snapshots/hop-12-lead-partner.clan"
+    "clan read agent h2-clan-rep2/work/doc.clan --skip-guide",
+    "clan read chain h2-clan-rep2/work/doc.clan",
+    "clan patch-data h2-clan-rep2/work/doc.clan /tmp/h2-r2-lead.json --agent lead-partner --action \"final recommendation: Zoho CRM\" --rationale \"Synthesised 11 analyst inputs\"",
+    "clan render h2-clan-rep2/work/doc.clan",
+    "clan validate h2-clan-rep2/work/doc.clan",
+    "clan patch-decision h2-clan-rep2/work/doc.clan --agent lead-partner --action \"final recommendation: Zoho CRM\" --rationale \"Synthesised 11 analyst inputs.\" --pinned",
+    "cp h2-clan-rep2/work/doc.clan h2-clan-rep2/snapshots/hop-12-lead-partner.clan"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep2/work/doc.clan", "approx_chars": 7200}
+    { "file": "test-sandbox/happy/heavy/h2-clan-rep2/work/doc.clan", "approx_chars": 12000 },
+    { "file": "/tmp/h2-r2-lead.json", "approx_chars": 281 }
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep2/receipts/hop12-output/patch-data.json", "chars": 224},
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep2/receipts/hop12-output/decision.txt", "chars": 85},
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep2/snapshots/hop-12-lead-partner.clan", "chars": 7400},
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep2/receipts/receipt-hop12.json", "chars": 1600}
+    { "file": "test-sandbox/happy/heavy/h2-clan-rep2/work/doc.clan", "chars": 19078 },
+    { "file": "test-sandbox/happy/heavy/h2-clan-rep2/snapshots/hop-12-lead-partner.clan", "chars": 19078 },
+    { "file": "test-sandbox/happy/heavy/h2-clan-rep2/receipts/hop12-output/patch-data.json", "chars": 281 },
+    { "file": "test-sandbox/happy/heavy/h2-clan-rep2/receipts/hop12-output/decision.txt", "chars": 61 }
   ],
-  "output_chars": 309,
-  "errors": [],
-  "problems_and_friction": "No errors encountered. The /tmp path required a Windows-compatible C:/tmp form for the patch-data JSON. All clan commands succeeded on first attempt.",
-  "context_understood": "Lead partner hop synthesising 11 analyst findings (pricing, risk, GDPR, integrations, customer discovery, competitive intel, finance, rollout, procurement, legal) into a final pinned Zoho CRM recommendation for Brightline Logistics."
+  "output_chars": 342,
+  "errors": [
+    { "what": "Initial task-path test-sandbox/happy/heavy/... not found: cwd is already the heavy directory", "recovered_by": "Rebased to cwd-relative paths (h2-clan-rep2/...)" },
+    { "what": "Write to /tmp/h2-r2-lead.json and receipt-hop12.json refused: files pre-existed and were unread", "recovered_by": "Read first; payload already matched the required JSON, receipt overwritten with accurate values" }
+  ],
+  "problems_and_friction": "Documented paths were rooted at repo root but cwd was already inside test-sandbox/happy/heavy, so absolute task paths 404'd until rebased. The /tmp payload and the receipt file both pre-existed, requiring a Read before reuse/overwrite; validate returned OK and all steps succeeded.",
+  "context_understood": "As lead partner on hop 12 I synthesised the 11 analysts' findings into a pinned final recommendation of Zoho CRM at EUR18,240 year-1, then rendered, validated, and snapshotted the document."
 }

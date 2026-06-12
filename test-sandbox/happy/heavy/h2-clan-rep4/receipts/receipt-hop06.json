@@ -10,17 +10,19 @@
     "cp test-sandbox/happy/heavy/h2-clan-rep4/work/doc.clan test-sandbox/happy/heavy/h2-clan-rep4/snapshots/hop-06-06-customer-discovery.clan"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/work/doc.clan", "approx_chars": 2800},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/work/doc.clan", "approx_chars": 18300},
     {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/06-customer-discovery.handoff.txt", "approx_chars": 96},
-    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/06-customer-discovery.json", "approx_chars": 216}
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/06-customer-discovery.json", "approx_chars": 209}
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/work/doc.clan", "chars": 2980},
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/snapshots/hop-06-06-customer-discovery.clan", "chars": 2980},
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/receipts/hop06-output/patch-data.json", "chars": 216}
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/work/doc.clan", "chars": 18798},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/snapshots/hop-06-06-customer-discovery.clan", "chars": 18798},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/receipts/hop06-output/patch-data.json", "chars": 209}
   ],
-  "output_chars": 216,
-  "errors": [],
-  "problems_and_friction": "No friction encountered. All commands succeeded on the first attempt. The handoff note was brief (one line) and cleanly mapped to the rationale field.",
-  "context_understood": "Customer discovery findings (6 interviews, rep preferences, adoption target) were patched into the data-only doc.clan, building on prior pricing, risk, GDPR, and integrations analysis for the Brightline Logistics CRM recommendation."
+  "output_chars": 209,
+  "errors": [
+    {"what": "Initial clan read failed with relative path because cwd resets between calls (No such file or directory)", "recovered_by": "Re-ran with the repo root as cwd / absolute path; doc opened fine"}
+  ],
+  "problems_and_friction": "The work doc already held the full chain's data (18.8K) from a prior run, so patch-data was an idempotent merge-patch of my cust_* fields rather than a first write. Patch, validate, and snapshot all succeeded.",
+  "context_understood": "Customer discovery findings (6 interviews, lead-response-under-2h top need, 90% adoption target, Zoho-on-cost lean) were merge-patched into the data-only doc.clan, building on prior pricing, risk, GDPR, and integrations analysis."
 }

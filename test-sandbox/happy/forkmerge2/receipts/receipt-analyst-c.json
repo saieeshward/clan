@@ -1,0 +1,26 @@
+{
+  "role": "analyst-c",
+  "commands_run": [
+    "clan read context (failed: invalid subcommand)",
+    "clan read --help",
+    "clan agent-help",
+    "clan read agent test-sandbox/happy/forkmerge2/branches/analyst-c.clan",
+    "clan patch-data test-sandbox/happy/forkmerge2/branches/analyst-c.clan /tmp/analyst-c.json --namespace --agent analyst-c --action \"wrote build-vs-buy assessment\"",
+    "clan validate test-sandbox/happy/forkmerge2/branches/analyst-c.clan"
+  ],
+  "files_read": [
+    { "file": "test-sandbox/happy/forkmerge2/branches/analyst-c.clan (agent context)", "approx_chars": 9500 },
+    { "file": "/tmp/analyst-c.json", "approx_chars": 190 }
+  ],
+  "files_written": [
+    { "file": "/tmp/analyst-c.json", "chars": 191 },
+    { "file": "test-sandbox/happy/forkmerge2/receipts/receipt-analyst-c.json", "chars": 1100 }
+  ],
+  "output_chars": 191,
+  "errors": [
+    { "what": "`clan read context` rejected (no such subcommand)", "recovered_by": "ran `clan read --help`, used `clan read agent` instead" },
+    { "what": "/tmp/analyst-c.json existed with a stale `assumptions` value (out-of-box wording, missing period)", "recovered_by": "read it, then overwrote with exact task values" }
+  ],
+  "problems_and_friction": "Task instruction said `clan read context` but the actual subcommand is `clan read agent`. Pre-existing /tmp/analyst-c.json had drifted text. Resolved both quickly.",
+  "context_understood": "Branch agent analyst-c, BUY assessment. Wrote four keys (recommendation=Buy, budget_eur=310000, top_risks 3-item array, assumptions string) into own namespace via patch-data --namespace; shared/human writes locked until merge. Aware assumptions key may be flagged contested at merge if a sibling also writes it."
+}

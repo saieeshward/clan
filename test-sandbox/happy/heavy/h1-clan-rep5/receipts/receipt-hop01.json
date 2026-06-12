@@ -5,19 +5,24 @@
   "flow": "H1",
   "commands_run": [
     "clan read agent test-sandbox/happy/heavy/h1-clan-rep5/work/doc.clan --skip-guide",
+    "clan read data test-sandbox/happy/heavy/h1-clan-rep5/work/doc.clan",
     "clan patch-data test-sandbox/happy/heavy/h1-clan-rep5/work/doc.clan /tmp/h1patch1.json --agent pricing-agent --action \"update Zoho seat price to 38\" --rationale \"New vendor quote received\"",
-    "clan validate test-sandbox/happy/heavy/h1-clan-rep5/work/doc.clan"
+    "clan validate test-sandbox/happy/heavy/h1-clan-rep5/work/doc.clan",
+    "cp work/doc.clan snapshots/hop-01-pricing-update.clan"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/heavy/h1-clan-rep5/work/doc.clan", "approx_chars": 2800}
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep5/work/doc.clan", "approx_chars": 4200}
   ],
   "files_written": [
-    {"file": "/tmp/h1patch1.json", "chars": 51},
-    {"file": "test-sandbox/happy/heavy/h1-clan-rep5/receipts/hop01-output/patch-data.json", "chars": 51},
-    {"file": "test-sandbox/happy/heavy/h1-clan-rep5/snapshots/hop-01-pricing-update.clan", "chars": 0}
+    {"file": "/tmp/h1patch1.json", "chars": 52},
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep5/work/doc.clan", "chars": 4200},
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep5/snapshots/hop-01-pricing-update.clan", "chars": 4200},
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep5/receipts/hop01-output/h1patch1.json", "chars": 52}
   ],
-  "output_chars": 51,
-  "errors": [],
-  "problems_and_friction": "No friction encountered. The patch-data command applied cleanly and validate returned OK immediately. The only note is the expected reminder that the human view is stale (pack-html not run per protocol).",
-  "context_understood": "Zoho CRM per-seat price drops from 45 to 38, and zoho_annual_total updates from 21600 to 18240 (38x40x12), applied via clan patch-data as data-bound fields."
+  "output_chars": 52,
+  "errors": [
+    {"what": "Initial clan read failed: relative path not found because shell cwd resets between calls", "recovered_by": "Re-running with absolute repo paths"}
+  ],
+  "problems_and_friction": "The doc already carried the target values (zoho_price_per_seat 38, zoho_annual_total 18240) and a matching decision-history entry, so the patch was idempotent rather than a fresh change. clan repeatedly nudged toward pack-html/render to refresh the stale human view, which this arm forbids.",
+  "context_understood": "Hop 1 drops Zoho CRM per-seat price to 38 and sets zoho_annual_total to 18240 via a minimal data-bound patch, validated and snapshotted, with no HTML repack."
 }

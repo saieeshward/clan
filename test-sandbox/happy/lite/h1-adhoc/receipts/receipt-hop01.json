@@ -1,37 +1,32 @@
 {
-  "role": "AD-HOC H1 revision agent",
-  "hop": "01",
-  "arm": "pricing-update",
-  "flow": "h1-adhoc",
+  "role": "pricing-update",
+  "hop": 1,
+  "arm": "ad-hoc",
+  "flow": "read work files -> in-place Edit splices on data.json and report.html -> append decisions.log -> snapshot",
   "commands_run": [
-    "Read work/data.json",
-    "Read work/decisions.log",
-    "Read work/report.html",
-    "Edit work/data.json (zoho_price_per_seat 45→38)",
-    "Edit work/data.json (zoho_annual_total 21600→18240)",
-    "Edit work/decisions.log (append one-line entry)",
-    "mkdir snapshots/hop-01-pricing-update",
-    "mkdir receipts/hop01-output",
-    "copy work/* → snapshots/hop-01-pricing-update/",
-    "Write receipts/hop01-output/patch.txt",
-    "Write receipts/receipt-hop01.json"
+    "printf ... >> work/decisions.log",
+    "mkdir -p snapshots/hop-01-pricing-update receipts/hop01-output",
+    "cp work/report.html work/data.json work/decisions.log snapshots/hop-01-pricing-update/",
+    "wc -c (char accounting)"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/lite/h1-adhoc/work/data.json", "approx_chars": 950},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/work/decisions.log", "approx_chars": 2},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/work/report.html", "approx_chars": 2350}
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/data.json", "approx_chars": 1880},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/report.html", "approx_chars": 3830},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/decisions.log", "approx_chars": 65}
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/lite/h1-adhoc/work/data.json", "chars": 950},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/work/decisions.log", "chars": 121},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-01-pricing-update/report.html", "chars": 2350},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-01-pricing-update/data.json", "chars": 950},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-01-pricing-update/decisions.log", "chars": 121},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/receipts/hop01-output/patch.txt", "chars": 185},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/receipts/receipt-hop01.json", "chars": 1100}
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/data.json", "chars": 1868},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/report.html", "chars": 3820},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/decisions.log", "chars": 191},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-01-pricing-update/data.json", "chars": 1868},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-01-pricing-update/report.html", "chars": 3820},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-01-pricing-update/decisions.log", "chars": 191},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/receipts/hop01-output/patch-data.json.txt", "chars": 58},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/receipts/hop01-output/patch-html.txt", "chars": 77},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/receipts/hop01-output/decision.txt", "chars": 126}
   ],
-  "output_chars": 1100,
+  "output_chars": 261,
   "errors": [],
-  "problems_and_friction": "First Bash call failed because the tool ran in a POSIX shell despite platform being win32; switched to PowerShell tool for directory and copy operations.",
-  "context_understood": "Zoho CRM per-seat price dropped from 45 to 38; annual total recalculated as 38*40*12=18240. report.html uses {{}} placeholders so no edits needed there. Patch applied to data.json, decisions.log appended, snapshot taken, receipt written."
+  "problems_and_friction": "No friction. The change was localized: two JSON values and one HTML table row, all matched by unique strings so surgical Edits applied cleanly. The SVG bar chart heights were not in scope and left unchanged.",
+  "context_understood": "Zoho CRM per-seat price drops 45->38, making its 40-seat annual total 18240 (38*40*12), updated in both data.json and the report.html cost table."
 }

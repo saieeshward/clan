@@ -4,37 +4,26 @@
   "arm": "adhoc",
   "flow": "H1",
   "commands_run": [
-    "Read test-sandbox/happy/lite/_inputs/h1-supplied/exec-summary.txt",
-    "Read test-sandbox/happy/heavy/h1-adhoc-rep2/work/data.json",
-    "Read test-sandbox/happy/heavy/h1-adhoc-rep2/work/report.html",
-    "Read test-sandbox/happy/heavy/h1-adhoc-rep2/work/decisions.log",
-    "Edit data.json exec_summary field",
-    "Edit report.html #exec-summary paragraph",
-    "Edit decisions.log append hop-04 entry",
-    "mkdir snapshots/hop-04-summary-rewrite",
-    "cp work/report.html snapshots/hop-04-summary-rewrite/",
-    "cp work/data.json snapshots/hop-04-summary-rewrite/",
-    "cp work/decisions.log snapshots/hop-04-summary-rewrite/"
+    "python3 (byte-compare supplied exec-summary.txt vs data.json exec_summary and report.html id=exec-summary)",
+    "printf ... >> work/decisions.log",
+    "mkdir -p snapshots/hop-04-summary-rewrite && cp work/report.html work/data.json work/decisions.log snapshots/hop-04-summary-rewrite/",
+    "wc -c (verify byte counts)"
   ],
   "files_read": [
     {"file": "test-sandbox/happy/lite/_inputs/h1-supplied/exec-summary.txt", "approx_chars": 324},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/work/data.json", "approx_chars": 1050},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/work/report.html", "approx_chars": 2600},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/work/decisions.log", "approx_chars": 340}
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/work/data.json", "approx_chars": 1990},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/work/report.html", "approx_chars": 4700},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/work/decisions.log", "approx_chars": 1540}
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/work/data.json", "chars": 1065},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/work/report.html", "chars": 2625},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/work/decisions.log", "chars": 487},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/snapshots/hop-04-summary-rewrite/data.json", "chars": 1065},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/snapshots/hop-04-summary-rewrite/report.html", "chars": 2625},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/snapshots/hop-04-summary-rewrite/decisions.log", "chars": 487},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/receipts/hop04-output/patch-data-exec-summary.txt", "chars": 324},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/receipts/hop04-output/patch-html-exec-summary.txt", "chars": 349},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/receipts/hop04-output/decision-line.txt", "chars": 146}
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/work/decisions.log", "chars": 1726},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/snapshots/hop-04-summary-rewrite/data.json", "chars": 2113},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/snapshots/hop-04-summary-rewrite/report.html", "chars": 4961},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/snapshots/hop-04-summary-rewrite/decisions.log", "chars": 1726},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/receipts/hop04-output/decision.txt", "chars": 198}
   ],
-  "output_chars": 819,
+  "output_chars": 198,
   "errors": [],
-  "problems_and_friction": "No friction. The exec-summary source file was clean plain text with no trailing newline issues. Surgical splice into both data.json and report.html was straightforward as the old text was unique and easily targeted.",
-  "context_understood": "Replace exec_summary in data.json and the #exec-summary paragraph in report.html with the supplied text verbatim, then log the change and snapshot the work directory."
+  "problems_and_friction": "The supplied exec-summary text was already byte-for-byte identical to both data.json exec_summary and the report.html id=exec-summary paragraph (applied by a prior hop), so no splice was needed; only a verification decision-log line was authored. Stale patch files from an earlier run sat in hop04-output and were removed so the measure pass reflects only this hop's authored output.",
+  "context_understood": "Replace exec_summary in data.json and the report.html exec-summary paragraph with the exact supplied text; it was already present, so this hop verified the exact match and logged it."
 }

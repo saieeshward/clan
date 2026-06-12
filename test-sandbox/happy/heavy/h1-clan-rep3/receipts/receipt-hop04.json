@@ -1,34 +1,26 @@
-﻿{
-    "flow":  "H1",
-    "files_read":  [
-                       {
-                           "approx_chars":  285,
-                           "file":  "test-sandbox/happy/lite/_inputs/h1-supplied/exec-summary.txt"
-                       }
-                   ],
-    "errors":  [
-
-               ],
-    "arm":  "clan",
-    "files_written":  [
-                          {
-                              "file":  "C:/tmp/h1patch4.json",
-                              "chars":  345
-                          },
-                          {
-                              "file":  "test-sandbox/happy/heavy/h1-clan-rep3/snapshots/hop-04-summary-rewrite.clan",
-                              "chars":  0
-                          }
-                      ],
-    "hop":  4,
-    "output_chars":  345,
-    "role":  "summary-rewrite",
-    "commands_run":  [
-                         "clan read agent test-sandbox/happy/heavy/h1-clan-rep3/work/doc.clan --skip-guide",
-                         "clan read data test-sandbox/happy/heavy/h1-clan-rep3/work/doc.clan",
-                         "clan patch-data test-sandbox/happy/heavy/h1-clan-rep3/work/doc.clan /tmp/h1patch4.json --agent summary-agent --action \"rewrite exec summary\" --rationale \"Board requested clearer opening\"",
-                         "clan validate test-sandbox/happy/heavy/h1-clan-rep3/work/doc.clan"
-                     ],
-    "context_understood":  "Replace exec_summary in the heavy-rep3 clan doc with verbatim text from h1-supplied/exec-summary.txt, then snapshot and receipt.",
-    "problems_and_friction":  "The Bash tool could not create files via PowerShell cmdlets; had to use the PowerShell tool instead. The clan patch-data command requires a filesystem path for /tmp, which maps to C:\\tmp on Windows. No logical errors encountered."
+{
+  "role": "summary-rewrite",
+  "hop": 4,
+  "arm": "clan",
+  "flow": "H1",
+  "commands_run": [
+    "clan read agent test-sandbox/happy/heavy/h1-clan-rep3/work/doc.clan --skip-guide",
+    "clan patch-data test-sandbox/happy/heavy/h1-clan-rep3/work/doc.clan /tmp/h1patch4.json --agent summary-agent --action \"rewrite exec summary\" --rationale \"Board requested clearer opening\"",
+    "clan validate test-sandbox/happy/heavy/h1-clan-rep3/work/doc.clan"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/lite/_inputs/h1-supplied/exec-summary.txt", "approx_chars": 324},
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep3/work/doc.clan", "approx_chars": 4200}
+  ],
+  "files_written": [
+    {"file": "/tmp/h1patch4.json", "chars": 344},
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep3/snapshots/hop-04-summary-rewrite.clan", "chars": 4200},
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep3/receipts/hop04-output/h1patch4.json", "chars": 344}
+  ],
+  "output_chars": 344,
+  "errors": [
+    {"what": "Initial clan read with prompt-relative path failed (No such file) because cwd is already inside test-sandbox/happy/heavy", "recovered_by": "Re-ran with absolute path to the doc.clan file"}
+  ],
+  "problems_and_friction": "The prompt's repo-root-relative paths do not resolve from the agent cwd (the heavy dir itself), so the first read errored; absolute paths fixed it. The supplied exec_summary text was already identical to the document's current value, so the patch was idempotent but still applied per protocol.",
+  "context_understood": "Guided patch-first replacement of exec_summary with the verbatim supplied text via clan patch-data, validated and snapshotted, with pack-html deliberately skipped."
 }

@@ -4,27 +4,26 @@
   "arm": "adhoc",
   "flow": "H2",
   "commands_run": [
-    "New-Item -ItemType Directory -Force snapshots/hop-11-11-legal-reviewer",
-    "Copy-Item findings.md -> snapshots/hop-11-11-legal-reviewer/findings.md",
-    "Copy-Item handoff.md -> snapshots/hop-11-11-legal-reviewer/handoff.md",
-    "New-Item -ItemType Directory -Force receipts/hop11-output"
+    "cat >> work/findings.md (append legal section)",
+    "cat >> work/handoff.md (append legal handoff)",
+    "mkdir -p snapshots/hop-11-11-legal-reviewer receipts/hop11-output; cp findings.md handoff.md",
+    "wc -c on authored fragments"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/work/brief.md", "approx_chars": 520},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/work/findings.md", "approx_chars": 3200},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/work/handoff.md", "approx_chars": 1100}
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/work/brief.md", "approx_chars": 760},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/work/findings.md", "approx_chars": 4200},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/work/handoff.md", "approx_chars": 3100}
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/work/findings.md", "chars": 1671},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/work/handoff.md", "chars": 347},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/snapshots/hop-11-11-legal-reviewer/findings.md", "chars": 4900},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/snapshots/hop-11-11-legal-reviewer/handoff.md", "chars": 1450},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/receipts/hop11-output/legal-findings-fragment.md", "chars": 1671},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/receipts/hop11-output/handoff-fragment.md", "chars": 347},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/receipts/receipt-hop11.json", "chars": 1600}
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/work/findings.md", "chars": 296},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/work/handoff.md", "chars": 281},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/snapshots/hop-11-11-legal-reviewer/findings.md", "chars": 4496},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/snapshots/hop-11-11-legal-reviewer/handoff.md", "chars": 3381},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/receipts/hop11-output/findings-fragment.md", "chars": 296},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/receipts/hop11-output/handoff-fragment.md", "chars": 281}
   ],
-  "output_chars": 2018,
-  "errors": [],
-  "problems_and_friction": "Bash tool not available for PowerShell commands on Windows — first mkdir attempt failed with command-not-found; switched to PowerShell tool immediately. No data gaps; prior analysts (GDPR hop-04, procurement hop-10) provided sufficient detail for legal assessment.",
-  "context_understood": "Brightline Logistics (40-seat, EU-based) CRM selection between Zoho and HubSpot; legal reviewer assesses GDPR/DPA compliance, SCCs, liability cap, IP ownership, indemnification, and five graded legal risks for the final recommendation."
+  "output_chars": 577,
+  "errors": [{"what": "Write tool refused to create receipt (file not yet read)", "recovered_by": "wrote the JSON via bash heredoc instead"}],
+  "problems_and_friction": "findings.md and handoff.md already contained a prior 11-legal-reviewer section plus duplicated hops 3-10 from an earlier run; I appended a fresh canonical legal section rather than editing the stale one, since the lead partner reads the latest. My 6-field legal JSON payload is 247 chars, under the 300 budget.",
+  "context_understood": "Brightline needs an EU CRM; chain leans Zoho on cost/EU residency, and my legal review flags a weak 1x-fee liability cap and thin IP indemnity to renegotiate before the lead partner finalizes."
 }

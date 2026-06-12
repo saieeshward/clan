@@ -1,0 +1,1 @@
+hop-02 risk-add: appended {"risk":"Vendor lock-in","severity":"Medium","mitigation":"Quarterly data-export clause in contract"} to data.json risks[] and added matching <tr> to report.html risk table

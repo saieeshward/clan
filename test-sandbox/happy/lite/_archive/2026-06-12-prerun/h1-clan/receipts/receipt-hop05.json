@@ -1,0 +1,30 @@
+{
+  "role": "residency-section",
+  "hop": 5,
+  "arm": "guided",
+  "flow": "patch-html",
+  "commands_run": [
+    "clan read agent test-sandbox/happy/lite/h1-clan/work/doc.clan --skip-guide",
+    "clan patch-html test-sandbox/happy/lite/h1-clan/work/doc.clan test-sandbox/happy/lite/_inputs/h1-supplied/residency-section.html --selector body --patch-action append --agent hop-05-residency-section --action 'Add Data residency subsection'",
+    "clan validate test-sandbox/happy/lite/h1-clan/work/doc.clan",
+    "cp test-sandbox/happy/lite/h1-clan/work/doc.clan test-sandbox/happy/lite/h1-clan/snapshots/hop-05-residency-section.clan"
+  ],
+  "files_read": [
+    { "file": "test-sandbox/happy/lite/h1-clan/work/doc.clan", "approx_chars": 3200 },
+    { "file": "test-sandbox/happy/lite/_inputs/h1-supplied/residency-section.html", "approx_chars": 910 }
+  ],
+  "files_written": [
+    { "file": "test-sandbox/happy/lite/h1-clan/work/doc.clan", "chars": 910 },
+    { "file": "test-sandbox/happy/lite/h1-clan/snapshots/hop-05-residency-section.clan", "chars": 910 },
+    { "file": "test-sandbox/happy/lite/h1-clan/receipts/hop05-output/residency-section.html", "chars": 910 }
+  ],
+  "output_chars": 910,
+  "errors": [
+    {
+      "what": "patch-html rejected --position flag (not a valid option)",
+      "recovered_by": "checked --help, used --patch-action append instead"
+    }
+  ],
+  "problems_and_friction": "The --position flag used initially was not valid; --patch-action is the correct flag for controlling append/prepend behaviour. One --help lookup resolved it immediately. No other friction.",
+  "context_understood": "Hop 5 appends a new static 'Data residency' HTML subsection (not a bound field) to the document body via patch-html, then validates and snapshots."
+}

@@ -4,30 +4,32 @@
   "arm": "adhoc",
   "flow": "H1",
   "commands_run": [
-    "mkdir -p test-sandbox/happy/heavy/h1-adhoc-rep5/snapshots/hop-02-risk-add",
-    "cp work/report.html snapshots/hop-02-risk-add/report.html",
-    "cp work/data.json snapshots/hop-02-risk-add/data.json",
-    "cp work/decisions.log snapshots/hop-02-risk-add/decisions.log",
-    "mkdir -p test-sandbox/happy/heavy/h1-adhoc-rep5/receipts/hop02-output"
+    "printf ... >> work/decisions.log",
+    "mkdir -p snapshots/hop-02-risk-add receipts/hop02-output",
+    "cp report.html data.json decisions.log snapshots/hop-02-risk-add/",
+    "wc -c receipts/hop02-output/*"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/work/data.json", "approx_chars": 1869},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/work/report.html", "approx_chars": 3807},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/work/decisions.log", "approx_chars": 113}
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/work/data.json", "approx_chars": 1850},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/work/report.html", "approx_chars": 3300},
+    {"file": "test-sandbox/happy/lite/_inputs/h1-supplied/hop02-risk-fragment.html", "approx_chars": 96},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/work/decisions.log", "approx_chars": 280}
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/work/data.json", "chars": 1980},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/work/report.html", "chars": 3904},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/work/decisions.log", "chars": 297},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/snapshots/hop-02-risk-add/data.json", "chars": 1980},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/snapshots/hop-02-risk-add/report.html", "chars": 3904},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/snapshots/hop-02-risk-add/decisions.log", "chars": 297},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/receipts/hop02-output/patch-data.json", "chars": 111},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/receipts/hop02-output/patch-html.fragment", "chars": 97},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/receipts/hop02-output/decision.txt", "chars": 184}
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/work/data.json", "chars": 2113},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/work/report.html", "chars": 4961},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/work/decisions.log", "chars": 1669},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/snapshots/hop-02-risk-add/data.json", "chars": 2113},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/snapshots/hop-02-risk-add/report.html", "chars": 4961},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/snapshots/hop-02-risk-add/decisions.log", "chars": 1669},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/receipts/hop02-output/patch-data.json", "chars": 112},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/receipts/hop02-output/patch-report.html", "chars": 96},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/receipts/hop02-output/decision-action.txt", "chars": 132}
   ],
-  "output_chars": 392,
-  "errors": [],
-  "problems_and_friction": "No friction encountered. The existing risks array and HTML table were cleanly structured, making surgical splice insertion straightforward. All three work files were modified minimally.",
-  "context_understood": "Hop 02 of the H1 ad-hoc arm: append a new Vendor lock-in risk to data.json risks[] and matching <tr> to the HTML risk table, log the decision, snapshot, and write authored fragments to receipts."
+  "output_chars": 340,
+  "errors": [
+    {"what": "First report.html edit failed: assumed id=\"risk-rows\" was a separate opening tbody tag after the last row", "recovered_by": "Re-anchored the splice on the existing last risk row plus the </tbody></table> boundary, since id=\"risk-rows\" sits on the tbody opening tag (line 64), and inserted the supplied row before </tbody>"}
+  ],
+  "problems_and_friction": "The risk-rows id is on the tbody opening tag rather than wrapping after the rows, so the first targeted edit missed; a single re-anchor on the real last-row boundary fixed it. Both splices were surgical with no whole-file rewrites.",
+  "context_understood": "Append a Vendor lock-in Medium risk to risks[] in data.json and splice the supplied matching row into the risk-rows tbody of report.html, then log, snapshot, and emit receipts."
 }

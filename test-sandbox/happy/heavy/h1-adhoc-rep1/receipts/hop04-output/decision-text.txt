@@ -1,1 +1,0 @@
-2026-06-11 hop-04 summary-rewrite: exec_summary replaced with h1-supplied text (Zoho CRM now leads); updated data.json exec_summary and report.html #exec-summary paragraph.

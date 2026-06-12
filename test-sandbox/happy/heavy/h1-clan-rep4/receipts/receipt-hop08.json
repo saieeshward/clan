@@ -4,22 +4,23 @@
   "arm": "clan",
   "flow": "H1",
   "commands_run": [
-    "clan read agent test-sandbox/happy/heavy/h1-clan-rep4/work/doc.clan",
+    "clan read agent test-sandbox/happy/heavy/h1-clan-rep4/work/doc.clan --skip-guide",
     "clan read data test-sandbox/happy/heavy/h1-clan-rep4/work/doc.clan",
     "clan patch-decision test-sandbox/happy/heavy/h1-clan-rep4/work/doc.clan --agent steering-committee --action \"approved Zoho CRM recommendation\" --rationale \"Re-scored cost vs time-to-value; Zoho wins on 40-seat cost with EU residency included.\" --pinned",
     "clan validate test-sandbox/happy/heavy/h1-clan-rep4/work/doc.clan",
-    "copy test-sandbox/happy/heavy/h1-clan-rep4/work/doc.clan to test-sandbox/happy/heavy/h1-clan-rep4/snapshots/hop-08-signoff.clan"
+    "cp test-sandbox/happy/heavy/h1-clan-rep4/work/doc.clan test-sandbox/happy/heavy/h1-clan-rep4/snapshots/hop-08-signoff.clan"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/heavy/h1-clan-rep4/work/doc.clan", "approx_chars": 3800}
+    { "file": "test-sandbox/happy/heavy/h1-clan-rep4/work/doc.clan", "approx_chars": 15700 }
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/heavy/h1-clan-rep4/snapshots/hop-08-signoff.clan", "chars": 3800},
-    {"file": "test-sandbox/happy/heavy/h1-clan-rep4/receipts/hop08-output/decision.yaml", "chars": 186},
-    {"file": "test-sandbox/happy/heavy/h1-clan-rep4/receipts/receipt-hop08.json", "chars": 0}
+    { "file": "test-sandbox/happy/heavy/h1-clan-rep4/snapshots/hop-08-signoff.clan", "chars": 15900 },
+    { "file": "test-sandbox/happy/heavy/h1-clan-rep4/receipts/hop08-output/decision.txt", "chars": 180 }
   ],
-  "output_chars": 186,
-  "errors": [],
-  "problems_and_friction": "clan read syntax requires a subcommand (agent/data/chain) rather than accepting a file path directly; this required a quick --help check before proceeding. No other friction encountered.",
-  "context_understood": "Record final steering-committee sign-off approving the Zoho CRM recommendation on 2026-06-11, appending a pinned decision entry to the chain."
+  "output_chars": 180,
+  "errors": [
+    { "what": "Initial relative-path clan read failed: cwd was not repo root", "recovered_by": "Running commands from absolute repo root /Users/saieeshwar/Projects/Work/work/napkin/ADF/clan" }
+  ],
+  "problems_and_friction": "The env-reported cwd (test-sandbox/happy/heavy) did not match the repo root, so the first relative-path command failed; prefixing an absolute cd fixed it. patch-decision then handled the sign-off in one guided step with no manual JSON editing.",
+  "context_understood": "Record the steering committee's 2026-06-11 final sign-off approving Zoho CRM as a pinned decision entry in the CLAN doc via the guided patch-decision command."
 }

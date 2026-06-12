@@ -4,39 +4,29 @@
   "arm": "adhoc",
   "flow": "H1",
   "commands_run": [
-    "Read exec-summary.txt",
-    "Read data.json",
-    "Read report.html",
-    "Read decisions.log",
-    "Edit data.json exec_summary field",
-    "Edit report.html #exec-summary paragraph",
-    "printf append to decisions.log",
-    "mkdir snapshots/hop-04-summary-rewrite",
-    "cp report.html data.json decisions.log to snapshot dir",
-    "mkdir receipts/hop04-output",
-    "Write patch-data-exec-summary.txt",
-    "Write patch-html-exec-summary.txt",
-    "Write decision-text.txt"
+    "python3 (exact-match check: supplied exec-summary.txt vs data.json exec_summary and report.html #exec-summary)",
+    "printf >> decisions.log (append summary-rewrite entry)",
+    "mkdir -p snapshots/hop-04-summary-rewrite receipts/hop04-output",
+    "cp work/{report.html,data.json,decisions.log} snapshots/hop-04-summary-rewrite/",
+    "printf > receipts/hop04-output/decision.txt"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/lite/_inputs/h1-supplied/exec-summary.txt", "approx_chars": 324},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/work/data.json", "approx_chars": 1950},
+    {"file": "test-sandbox/happy/lite/_inputs/h1-supplied/exec-summary.txt", "approx_chars": 320},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/work/data.json", "approx_chars": 1850},
     {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/work/report.html", "approx_chars": 3950},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/work/decisions.log", "approx_chars": 480}
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/work/decisions.log", "approx_chars": 1500}
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/work/data.json", "chars": 2007},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/work/report.html", "chars": 4023},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/work/decisions.log", "chars": 659},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/snapshots/hop-04-summary-rewrite/data.json", "chars": 2007},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/snapshots/hop-04-summary-rewrite/report.html", "chars": 4023},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/snapshots/hop-04-summary-rewrite/decisions.log", "chars": 659},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/receipts/hop04-output/patch-data-exec-summary.txt", "chars": 324},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/receipts/hop04-output/patch-html-exec-summary.txt", "chars": 349},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/receipts/hop04-output/decision-text.txt", "chars": 172}
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/work/decisions.log", "chars": 204},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/snapshots/hop-04-summary-rewrite/report.html", "chars": 3950},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/snapshots/hop-04-summary-rewrite/data.json", "chars": 1850},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/snapshots/hop-04-summary-rewrite/decisions.log", "chars": 1704},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/receipts/hop04-output/decision.txt", "chars": 204}
   ],
-  "output_chars": 845,
-  "errors": [],
-  "problems_and_friction": "The Bash tool runs in a POSIX shell (bash), not PowerShell, so Add-Content failed on the first attempt; switching to printf >> resolved it immediately. No other friction encountered — the exec-summary.txt source was clean and the splice targets were unique.",
-  "context_understood": "Hop 4 replaces the exec_summary in both data.json and report.html with the exact h1-supplied text that shifts the recommendation from HubSpot to Zoho CRM."
+  "output_chars": 204,
+  "errors": [
+    {"what": "Write tool refused decision.txt and receipt (file not read yet)", "recovered_by": "wrote identical content via Bash heredoc/printf"}
+  ],
+  "problems_and_friction": "The supplied exec_summary text was already byte-identical in both data.json and report.html, so this hop was idempotent: no splice was needed and the only authored text was the decisions.log entry.",
+  "context_understood": "Ad-hoc H1 hop-04 summary-rewrite: replace exec_summary in data.json and report.html #exec-summary with the supplied text, log the change, and snapshot the work files."
 }

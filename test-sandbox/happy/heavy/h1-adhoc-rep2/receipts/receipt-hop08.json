@@ -4,27 +4,23 @@
   "arm": "adhoc",
   "flow": "H1",
   "commands_run": [
-    "mkdir -p test-sandbox/happy/heavy/h1-adhoc-rep2/snapshots/hop-08-signoff",
-    "cp work/report.html snapshots/hop-08-signoff/report.html",
-    "cp work/data.json snapshots/hop-08-signoff/data.json",
-    "cp work/decisions.log snapshots/hop-08-signoff/decisions.log",
-    "mkdir -p test-sandbox/happy/heavy/h1-adhoc-rep2/receipts/hop08-output"
+    "wc -c report.html data.json decisions.log",
+    "printf '...signoff line...' >> work/decisions.log",
+    "mkdir -p snapshots/hop-08-signoff receipts/hop08-output",
+    "cp report.html data.json decisions.log snapshots/hop-08-signoff/"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/work/decisions.log", "approx_chars": 620},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/work/report.html", "approx_chars": 2900},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/work/data.json", "approx_chars": 1400}
+    { "file": "test-sandbox/happy/heavy/h1-adhoc-rep2/work/decisions.log", "approx_chars": 2377 }
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/work/decisions.log", "chars": 777},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/snapshots/hop-08-signoff/report.html", "chars": 2900},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/snapshots/hop-08-signoff/data.json", "chars": 1400},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/snapshots/hop-08-signoff/decisions.log", "chars": 777},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/receipts/hop08-output/decision-entry.txt", "chars": 156},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/receipts/receipt-hop08.json", "chars": 1200}
+    { "file": "test-sandbox/happy/heavy/h1-adhoc-rep2/work/decisions.log", "chars": 142 },
+    { "file": "test-sandbox/happy/heavy/h1-adhoc-rep2/snapshots/hop-08-signoff/report.html", "chars": 4961 },
+    { "file": "test-sandbox/happy/heavy/h1-adhoc-rep2/snapshots/hop-08-signoff/data.json", "chars": 2113 },
+    { "file": "test-sandbox/happy/heavy/h1-adhoc-rep2/snapshots/hop-08-signoff/decisions.log", "chars": 2519 },
+    { "file": "test-sandbox/happy/heavy/h1-adhoc-rep2/receipts/hop08-output/decision-line.txt", "chars": 142 }
   ],
-  "output_chars": 156,
+  "output_chars": 142,
   "errors": [],
-  "problems_and_friction": "No friction encountered. The decisions.log had a clean trailing newline, so the surgical append was straightforward. All prior hops were well-structured, making the signoff entry trivial to place.",
-  "context_understood": "Steering committee final sign-off on Zoho CRM appended to decisions.log as a single pipe-delimited entry, then work files snapshotted to hop-08-signoff."
+  "problems_and_friction": "The required sign-off line (steering-committee approved Zoho CRM 2026-06-11) was already present at decisions.log line 9 from an earlier hop, so the core change needed no splice; I appended only a one-line signoff confirmation. The receipt and output files also already existed from a prior signoff run and were overwritten with this run's actual values.",
+  "context_understood": "Record the steering-committee final sign-off approving Zoho CRM (2026-06-11) into decisions.log and snapshot report.html, data.json, and decisions.log for hop-08."
 }

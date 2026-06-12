@@ -1,23 +1,24 @@
 {
-  "role": "revision-agent",
+  "role": "signoff",
   "hop": 8,
-  "arm": "h1-clan",
-  "flow": "happy/lite",
+  "arm": "clan",
+  "flow": "guided-patch-first",
   "commands_run": [
-    "clan.exe patch-decision --agent steering-committee --action \"approved Zoho CRM recommendation\" --rationale \"Re-scored cost vs time-to-value; Zoho wins on 40-seat cost with EU residency included.\" --pinned test-sandbox/happy/lite/h1-clan/work/doc.clan",
-    "clan.exe validate test-sandbox/happy/lite/h1-clan/work/doc.clan"
+    "clan read agent work/doc.clan --skip-guide",
+    "clan patch-decision --help",
+    "clan patch-decision --agent steering-committee --action \"approved Zoho CRM recommendation\" --rationale \"Re-scored cost vs time-to-value; Zoho wins on 40-seat cost with EU residency included.\" --pinned work/doc.clan",
+    "clan validate work/doc.clan",
+    "cp work/doc.clan snapshots/hop-08-signoff.clan"
   ],
   "files_read": [
-    { "file": "test-sandbox/happy/lite/h1-clan/work/doc.clan", "approx_chars": 15997 }
+    { "file": "test-sandbox/happy/lite/h1-clan/work/doc.clan", "approx_chars": 4200 }
   ],
   "files_written": [
-    { "file": "test-sandbox/happy/lite/h1-clan/work/doc.clan", "chars": 15997 },
-    { "file": "test-sandbox/happy/lite/h1-clan/snapshots/hop-08-signoff.clan", "chars": 15997 },
-    { "file": "test-sandbox/happy/lite/h1-clan/receipts/hop08-output/patch-payload.json", "chars": 130 },
-    { "file": "test-sandbox/happy/lite/h1-clan/receipts/receipt-hop08.json", "chars": 0 }
+    { "file": "test-sandbox/happy/lite/h1-clan/work/doc.clan", "chars": 16077 },
+    { "file": "test-sandbox/happy/lite/h1-clan/snapshots/hop-08-signoff.clan", "chars": 16077 }
   ],
-  "output_chars": 130,
+  "output_chars": 137,
   "errors": [],
-  "problems_and_friction": "",
-  "context_understood": "Record steering committee final signoff approving Zoho CRM recommendation on 2026-06-11 via patch-decision, validate OK, snapshot to hop-08-signoff.clan"
+  "problems_and_friction": "None. patch-decision appended cleanly and validation passed first try; the only output was the expected stale-human-view hint, which does not affect the .clan integrity.",
+  "context_understood": "Final steering-committee sign-off recorded as a pinned decision-chain entry approving the Zoho CRM recommendation, without touching the data-bound fields."
 }

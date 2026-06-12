@@ -5,23 +5,25 @@
   "flow": "H2",
   "commands_run": [
     "clan read agent test-sandbox/happy/heavy/h2-clan-rep4/work/doc.clan --skip-guide",
-    "clan patch-data test-sandbox/happy/heavy/h2-clan-rep4/work/doc.clan test-sandbox/happy/lite/_inputs/h2-supplied/01-market-researcher.json --agent 01-market-researcher --action \"added 01-market-researcher findings\" --rationale \"Market favours fast EU-resident go-lives. HubSpot leads mindshare but Zoho is gaining in mid-market on price. Next: get hard per-seat pricing.\"",
+    "clan patch-data test-sandbox/happy/heavy/h2-clan-rep4/work/doc.clan test-sandbox/happy/lite/_inputs/h2-supplied/01-market-researcher.json --agent 01-market-researcher --action \"added 01-market-researcher findings\" --rationale \"<handoff.txt>\"",
     "clan validate test-sandbox/happy/heavy/h2-clan-rep4/work/doc.clan",
     "cp test-sandbox/happy/heavy/h2-clan-rep4/work/doc.clan test-sandbox/happy/heavy/h2-clan-rep4/snapshots/hop-01-01-market-researcher.clan"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/work/doc.clan", "approx_chars": 1800},
-    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/01-market-researcher.handoff.txt", "approx_chars": 130},
-    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/01-market-researcher.json", "approx_chars": 314}
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/work/doc.clan", "approx_chars": 17600},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/01-market-researcher.handoff.txt", "approx_chars": 190},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/01-market-researcher.json", "approx_chars": 300}
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/work/doc.clan", "chars": 11584},
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/snapshots/hop-01-01-market-researcher.clan", "chars": 11584},
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/receipts/hop01-output/patch-data.json", "chars": 314},
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/receipts/receipt-hop01.json", "chars": 900}
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/work/doc.clan", "chars": 17600},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/snapshots/hop-01-01-market-researcher.clan", "chars": 17600},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/receipts/hop01-output/01-market-researcher.json", "chars": 300},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/receipts/hop01-output/rationale.txt", "chars": 190}
   ],
-  "output_chars": 314,
-  "errors": [],
-  "problems_and_friction": "No errors encountered. Protocol was straightforward: orient, read handoff, patch, validate, snapshot. All commands succeeded on first attempt.",
-  "context_understood": "Market researcher role adds EU mid-market CRM landscape data (TAM, growth, incumbent shares, buyer priorities) to the doc as the first hop in a multi-analyst chain building toward a CRM vendor recommendation for Brightline Logistics."
+  "output_chars": 490,
+  "errors": [
+    {"what": "First clan read failed with 'No such file or directory' because the bash cwd resets between calls while the supplied paths are repo-root-relative", "recovered_by": "Prefixing every command with cd to the repo root resolved via git rev-parse --show-toplevel"}
+  ],
+  "problems_and_friction": "The work dir was pre-populated with a complete prior run (hops 1-10 in the decision log plus a leftover hop10-patch.json), so hop 1 re-applied the market_* keys; because patch-data is a merge-patch with identical values, this was idempotent and validate passed cleanly.",
+  "context_understood": "As hop 1 market researcher I merge-patched my role-namespaced market_* findings (EUR2.4M TAM, EU mid-market logistics, 12% growth, incumbent shares, buyer priorities) into the data-only CLAN doc with the handoff note as rationale, handing off to the pricing analyst."
 }

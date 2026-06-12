@@ -1,184 +1,64 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CRM Recommendation — Brightline Logistics</title>
-  <style>
-    body { font-family: Arial, sans-serif; max-width: 860px; margin: 40px auto; color: #1a1a1a; line-height: 1.6; }
-    h1 { border-bottom: 3px solid #2b4d8f; padding-bottom: 8px; }
-    h2 { color: #2b4d8f; margin-top: 32px; }
-    .verdict { background: #eaf2ff; border-left: 5px solid #2b4d8f; padding: 16px 20px; margin: 24px 0; border-radius: 3px; }
-    .verdict strong { font-size: 1.2em; }
-    table { border-collapse: collapse; width: 100%; margin: 16px 0; }
-    th { background: #2b4d8f; color: #fff; text-align: left; padding: 8px 12px; }
-    td { border: 1px solid #d0d8e8; padding: 8px 12px; }
-    tr:nth-child(even) td { background: #f5f8ff; }
-    .risk-high { color: #c0392b; font-weight: bold; }
-    .risk-med  { color: #e67e22; font-weight: bold; }
-    .risk-low  { color: #27ae60; font-weight: bold; }
-    .phase { background: #f0f4fa; border: 1px solid #c8d4e8; border-radius: 4px; padding: 10px 16px; margin: 8px 0; }
-    .meta { font-size: 0.85em; color: #666; margin-top: 40px; border-top: 1px solid #ddd; padding-top: 12px; }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CRM Recommendation — Brightline Logistics</title>
+<style>
+  body { font-family: -apple-system, Segoe UI, Roboto, sans-serif; max-width: 820px; margin: 40px auto; padding: 0 20px; color: #1d2433; line-height: 1.55; }
+  h1 { font-size: 1.8rem; margin-bottom: 0; }
+  .sub { color: #5a6478; margin-top: 4px; }
+  .verdict { background: #0d6e4f; color: #fff; padding: 18px 22px; border-radius: 10px; margin: 24px 0; }
+  .verdict strong { font-size: 1.3rem; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid #e3e7ee; }
+  th { background: #f4f6fa; }
+  .winner { font-weight: 700; color: #0d6e4f; }
+  .risk-high { color: #b3261e; font-weight: 600; }
+  .risk-med { color: #b06a00; font-weight: 600; }
+  ul { margin-top: 6px; }
+  footer { margin-top: 36px; color: #8a93a6; font-size: 0.85rem; border-top: 1px solid #e3e7ee; padding-top: 12px; }
+</style>
 </head>
 <body>
+  <h1>CRM Platform Recommendation</h1>
+  <p class="sub">Brightline Logistics &middot; 40 seats &middot; EU-based &middot; prepared by Lead Partner, synthesising 9 specialist analyses</p>
 
-<h1>CRM Platform Recommendation<br><small style="font-size:0.6em;color:#555;">Brightline Logistics — Final Lead-Partner Report</small></h1>
+  <div class="verdict">
+    <div>Recommendation</div>
+    <strong>Adopt Zoho CRM</strong>
+    <div>Year-1 cost: <strong>EUR 18,240</strong> &middot; Go-live before October peak</div>
+  </div>
 
-<p><strong>Prepared:</strong> 2026-06-11 &nbsp;|&nbsp; <strong>Decision scope:</strong> 40 seats, EU-based, peak season October &nbsp;|&nbsp; <strong>Shortlist evaluated:</strong> HubSpot, Zoho CRM, Salesforce</p>
+  <h2>Cost comparison (40 seats)</h2>
+  <table>
+    <tr><th>Vendor</th><th>Per seat / yr</th><th>Year-1 total</th><th>3-year total</th></tr>
+    <tr class="winner"><td>Zoho CRM</td><td>EUR 38</td><td>EUR 18,240</td><td>EUR 54,720</td></tr>
+    <tr><td>HubSpot</td><td>EUR 50</td><td>EUR 24,000</td><td>EUR 72,000</td></tr>
+    <tr><td>Salesforce</td><td>EUR 75</td><td>EUR 36,000</td><td>—</td></tr>
+  </table>
+  <p>Zoho saves ~EUR 17,280 over three years versus HubSpot, with a 7-month payback.</p>
 
-<div class="verdict">
-  <strong>Recommendation: Zoho CRM</strong><br>
-  Year-1 cost: <strong>EUR 18,240</strong> (40 seats &times; EUR 38/seat/mo &times; 12)<br>
-  3-year saving vs HubSpot: <strong>EUR 17,280</strong> &nbsp;|&nbsp; Financial payback: <strong>7 months</strong>
-</div>
+  <h2>Rationale</h2>
+  <ul>
+    <li><strong>Lowest cost</strong> by a clear margin; Salesforce eliminated on price.</li>
+    <li><strong>EU data residency included</strong> (Frankfurt region pinning at no extra cost; HubSpot bills it as an add-on). Both vendors sign a DPA.</li>
+    <li><strong>Low switching cost</strong> — Zoho's quarterly export clause hedges against maturity risk.</li>
+    <li><strong>Fits the timeline</strong> — a 3-phase, ~9-week rollout lands core CRM before the October peak (Phase 1 2026-07-01, Phase 2 2026-09-15, Phase 3 2026-11-01).</li>
+    <li><strong>Buyer priorities met</strong> — fast time-to-value, EU residency, and sub-2h lead response for reps.</li>
+  </ul>
 
-<h2>1. Vendor Comparison Summary</h2>
-<table>
-  <tr>
-    <th>Criterion</th>
-    <th>Zoho CRM</th>
-    <th>HubSpot</th>
-    <th>Salesforce</th>
-  </tr>
-  <tr>
-    <td>Year-1 cost (40 seats)</td>
-    <td><strong>EUR 18,240</strong></td>
-    <td>EUR 24,000</td>
-    <td>EUR 36,000</td>
-  </tr>
-  <tr>
-    <td>EU data residency (Frankfurt)</td>
-    <td>Included</td>
-    <td>Chargeable add-on</td>
-    <td>N/A — eliminated</td>
-  </tr>
-  <tr>
-    <td>GDPR DPA</td>
-    <td>Yes</td>
-    <td>Yes</td>
-    <td>—</td>
-  </tr>
-  <tr>
-    <td>Native integrations (of 6 required)</td>
-    <td>5 of 6 (NetSuite via connector)</td>
-    <td>6 of 6 (all native)</td>
-    <td>—</td>
-  </tr>
-  <tr>
-    <td>NetSuite gap cost</td>
-    <td>~EUR 1,200/yr + ~1 wk effort</td>
-    <td>None</td>
-    <td>—</td>
-  </tr>
-  <tr>
-    <td>UI / champion preference (4 of 6)</td>
-    <td>Ops-side preference</td>
-    <td>Sales-champion preference</td>
-    <td>—</td>
-  </tr>
-  <tr>
-    <td>Maturity risk (advanced workflows)</td>
-    <td class="risk-med">Medium</td>
-    <td class="risk-low">Low</td>
-    <td>—</td>
-  </tr>
-  <tr>
-    <td>Switching cost / exit clause</td>
-    <td>Low (quarterly export)</td>
-    <td>Moderate</td>
-    <td>—</td>
-  </tr>
-  <tr>
-    <td>Market share (EU mid-market)</td>
-    <td>21 %</td>
-    <td>34 %</td>
-    <td>29 %</td>
-  </tr>
-</table>
+  <h2>Top risks</h2>
+  <table>
+    <tr><th>Risk</th><th>Severity</th><th>Mitigation</th></tr>
+    <tr><td>Migration data quality</td><td class="risk-high">High</td><td>Dedicated migration validation in Phase 1; staged cutover.</td></tr>
+    <tr><td>User adoption</td><td class="risk-med">Medium</td><td>4 champions, 24h training, 90% adoption target.</td></tr>
+    <tr><td>Zoho maturity on advanced workflows</td><td class="risk-med">Medium</td><td>Low switching cost + quarterly export clause as exit hedge.</td></tr>
+    <tr><td>NetSuite integration gap</td><td class="risk-med">Medium</td><td>Supported via connector; folded into the 9-week effort.</td></tr>
+  </table>
 
-<p><em>Salesforce eliminated in hop 02 on cost (EUR 36,000/yr) and enterprise over-specification for a 40-seat logistics firm.</em></p>
-
-<h2>2. Rationale</h2>
-
-<p>Nine specialist analysts reviewed pricing, risk, GDPR compliance, integrations, customer discovery, competitive positioning, finance modelling, and rollout planning. Their composite signals converge on <strong>Zoho CRM</strong> for the following reasons:</p>
-
-<ol>
-  <li><strong>Cost leadership.</strong> At EUR 18,240/yr Zoho is EUR 5,760 cheaper than HubSpot in year 1 and EUR 17,280 cheaper over three years. Finance modelling shows a 7-month payback on migration costs.</li>
-  <li><strong>GDPR bundled.</strong> EU Frankfurt data residency is included at no extra charge. HubSpot's equivalent is a paid add-on that further widens the cost gap.</li>
-  <li><strong>Acceptable integration gap.</strong> The only missing native connector is NetSuite; a supported third-party connector adds ~EUR 1,200/yr and ~1 week of effort. Even after this surcharge, Zoho's effective year-1 cost (EUR 19,440) remains EUR 4,560 below HubSpot's base price.</li>
-  <li><strong>Low switching cost.</strong> Zoho's quarterly data-export clause provides a low-cost exit if the platform underperforms — a material hedge against its medium maturity risk.</li>
-  <li><strong>Rollout feasibility.</strong> A 9-week phased plan (July 1 start, September 15 full onboarding, go-live before October peak) is achievable. A champion program across 4 identified leads and 24h training budget targets the 90% adoption goal.</li>
-</ol>
-
-<p><strong>Why not HubSpot?</strong> HubSpot wins on UI preference among sales champions and native integration completeness. However, at a EUR 5,760 year-1 premium (rising to EUR 17,280 over three years) and with GDPR add-on costs not yet fully priced, the cost delta is not justified by the integration convenience or UX margin for a mid-market logistics operator of this scale. If the 90% adoption target were missed and re-platforming became necessary, Zoho's low exit cost makes that scenario substantially less costly than abandoning HubSpot.</p>
-
-<h2>3. Top Risks and Mitigations</h2>
-<table>
-  <tr>
-    <th>#</th>
-    <th>Risk</th>
-    <th>Severity</th>
-    <th>Mitigation</th>
-  </tr>
-  <tr>
-    <td>1</td>
-    <td>Migration data quality</td>
-    <td class="risk-high">High</td>
-    <td>Dedicate phase 1 (July 1–Sep 14) specifically to configuration and data migration; include admin-level validation gates before phase 2 onboarding begins.</td>
-  </tr>
-  <tr>
-    <td>2</td>
-    <td>User adoption (90% target)</td>
-    <td class="risk-med">Medium</td>
-    <td>Champion program with 4 identified internal leads; 24h training budget; phased rollout ensures issues are caught before peak season.</td>
-  </tr>
-  <tr>
-    <td>3</td>
-    <td>Zoho advanced-workflow maturity</td>
-    <td class="risk-med">Medium</td>
-    <td>Phase-3 post-peak review (Nov 1) specifically targets advanced workflow enablement. Quarterly export clause limits lock-in if gaps prove material.</td>
-  </tr>
-  <tr>
-    <td>4</td>
-    <td>NetSuite connector dependency</td>
-    <td class="risk-low">Low</td>
-    <td>Third-party connector is a supported, production-grade integration. Budget EUR 1,200/yr and 1 additional week in project plan. Validate in phase 1.</td>
-  </tr>
-  <tr>
-    <td>5</td>
-    <td>Integration latency</td>
-    <td class="risk-med">Medium</td>
-    <td>Load-test integrations during phase 1; confirm SLAs with Zoho and connector vendor before phase 2 go-live.</td>
-  </tr>
-</table>
-
-<h2>4. Rollout Plan (Summary)</h2>
-<div class="phase"><strong>Phase 1 — Configuration, Data Migration, Admin Training</strong><br>Start: 2026-07-01 &nbsp;|&nbsp; Duration: ~11 weeks to phase-2 start</div>
-<div class="phase"><strong>Phase 2 — Marketing Suite Activation, Full-Team Onboarding</strong><br>Start: 2026-09-15 &nbsp;|&nbsp; Core CRM live before October peak season</div>
-<div class="phase"><strong>Phase 3 — Post-Peak Review, Optimisation, Advanced Workflows</strong><br>Start: 2026-11-01 &nbsp;|&nbsp; Closes maturity risk; positions for year-2 optimisation</div>
-<p>Total rollout: <strong>9 weeks</strong> to full live. Champion program: 4 leads, 24h training. Go-live confirmed before October peak.</p>
-
-<h2>5. Financial Summary</h2>
-<table>
-  <tr><th>Metric</th><th>Value</th></tr>
-  <tr><td>Year-1 base cost (Zoho, 40 seats)</td><td>EUR 18,240</td></tr>
-  <tr><td>NetSuite connector (year 1)</td><td>EUR 1,200</td></tr>
-  <tr><td>Year-1 all-in estimate</td><td><strong>EUR 19,440</strong></td></tr>
-  <tr><td>HubSpot year-1 (base, no GDPR add-on)</td><td>EUR 24,000</td></tr>
-  <tr><td>Year-1 saving vs HubSpot</td><td>EUR 4,560</td></tr>
-  <tr><td>3-year saving vs HubSpot (base prices)</td><td>EUR 17,280</td></tr>
-  <tr><td>Financial payback period</td><td>7 months</td></tr>
-</table>
-
-<h2>6. Decision</h2>
-<p><strong>Zoho CRM is recommended</strong> for Brightline Logistics. The platform delivers EU GDPR compliance at no surcharge, a 7-month financial payback, a rollout plan that clears the October peak, and a low-cost exit option that hedges against the medium maturity risk. The integration gap on NetSuite is closed by a supported connector at modest cost.</p>
-
-<div class="meta">
-  Report assembled by: Lead Partner (hop 10) &nbsp;|&nbsp; Date: 2026-06-11 &nbsp;|&nbsp;
-  Analyst chain: market-researcher, pricing-analyst, risk-analyst, gdpr-reviewer,
-  integrations-assessor, customer-discovery, competitive-intel, finance-modeler, rollout-planner
-</div>
-
+  <footer>
+    Decision: Zoho CRM &middot; Year-1 EUR 18,240 &middot; 2026-06-11 &middot; Lead Partner, synthesising market, pricing, risk, GDPR, integrations, customer discovery, competitive intel, finance, and rollout analyses.
+  </footer>
 </body>
 </html>

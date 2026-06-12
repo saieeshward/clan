@@ -4,32 +4,30 @@
   "arm": "adhoc",
   "flow": "H2",
   "commands_run": [
-    "ls /c/Users/syson/Documents/Code/clan/test-sandbox/happy/heavy/h2-adhoc-rep3/",
-    "ls /c/Users/syson/Documents/Code/clan/test-sandbox/happy/heavy/h2-adhoc-rep3/receipts/",
-    "ls /c/Users/syson/Documents/Code/clan/test-sandbox/happy/heavy/h2-adhoc-rep3/snapshots/",
-    "mkdir -p snapshots/hop-12-lead-partner",
-    "mkdir -p receipts/hop12-output",
-    "cp findings.md handoff.md report.html decisions.log -> snapshots/hop-12-lead-partner/",
-    "wc -c report.html decisions.log"
+    "ls -la (inspect rep3 dirs, receipts, work, decisions.log)",
+    "ls receipts/hop12-output + snapshots + cat receipt-hop11.json",
+    "mkdir -p snapshots/hop-12-lead-partner receipts/hop12-output + cp findings/handoff/report/decisions + wc -c"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep3/work/brief.md", "approx_chars": 620},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep3/work/findings.md", "approx_chars": 3200},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep3/work/handoff.md", "approx_chars": 1700}
+    {"file": "work/brief.md", "approx_chars": 746},
+    {"file": "work/findings.md", "approx_chars": 5288},
+    {"file": "work/handoff.md", "approx_chars": 3828},
+    {"file": "receipts/receipt-hop11.json", "approx_chars": 1600}
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep3/work/report.html", "chars": 16074},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep3/work/decisions.log", "chars": 91},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep3/receipts/hop12-output/report.html", "chars": 16074},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep3/receipts/hop12-output/decisions.log-entry.txt", "chars": 91},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep3/receipts/receipt-hop12.json", "chars": 1600},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep3/snapshots/hop-12-lead-partner/findings.md", "chars": 3200},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep3/snapshots/hop-12-lead-partner/handoff.md", "chars": 1700},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep3/snapshots/hop-12-lead-partner/report.html", "chars": 16074},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep3/snapshots/hop-12-lead-partner/decisions.log", "chars": 91}
+    {"file": "work/report.html", "chars": 9056},
+    {"file": "work/decisions.log", "chars": 91},
+    {"file": "snapshots/hop-12-lead-partner/findings.md", "chars": 5288},
+    {"file": "snapshots/hop-12-lead-partner/handoff.md", "chars": 3828},
+    {"file": "snapshots/hop-12-lead-partner/report.html", "chars": 9056},
+    {"file": "snapshots/hop-12-lead-partner/decisions.log", "chars": 91},
+    {"file": "receipts/hop12-output/report.html", "chars": 9056},
+    {"file": "receipts/hop12-output/decision.txt", "chars": 91}
   ],
-  "output_chars": 16165,
-  "errors": [],
-  "problems_and_friction": "Backslash/forward-slash path mixing in a single cp command caused one cp failure that was immediately retried with separate commands on the next attempt. No data loss or logic errors resulted. All 11 analyst inputs were fully available in findings.md and handoff.md — no missing data.",
-  "context_understood": "Lead partner hop synthesising 11 specialist analyst inputs into a final Zoho CRM recommendation page (report.html) with vendor comparison, risk table, rollout timeline, contract conditions, and full rationale for Brightline Logistics."
+  "output_chars": 9147,
+  "errors": [
+    {"what": "Write to work/report.html and receipt-hop12.json failed first (files existed from a prior partial run, unread)", "recovered_by": "Read each file, then overwrote it fresh with the authored content"}
+  ],
+  "problems_and_friction": "A prior run had left partial/duplicated artifacts (findings.md and handoff.md each contained two full hop 1-11 passes, plus a stale hop-12 snapshot truncated to 2.7K). I treated my authored report.html and decisions.log as authoritative and rebuilt the snapshot from the current full work files rather than trusting the stale copies.",
+  "context_understood": "As lead partner I synthesised all 11 analyst inputs into a final recommendation for Brightline Logistics: adopt Zoho CRM at EUR 18,240 year-1 (cheapest, EU residency included, low switching cost), with migration data quality as the top risk and procurement/legal mitigations before signature."
 }

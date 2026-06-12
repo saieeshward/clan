@@ -1,28 +1,29 @@
 {
   "role": "08-finance-modeler",
   "hop": 8,
-  "arm": "h2-clan",
-  "flow": "happy/lite",
+  "arm": "h2",
+  "flow": "guided patch-first --skip-guide",
   "commands_run": [
-    "clan.exe read agent doc.clan --skip-guide",
-    "clan.exe patch-data doc.clan 08-finance-modeler.json --agent 08-finance-modeler --action \"added 08-finance-modeler findings\"",
-    "clan.exe patch-decision --agent 08-finance-modeler --action \"added 08-finance-modeler findings\" --rationale \"<handoff text>\" doc.clan",
-    "clan.exe validate doc.clan",
-    "Copy-Item doc.clan snapshots/hop-08-08-finance-modeler.clan"
+    "clan read agent h2-clan/work/doc.clan --skip-guide",
+    "clan patch-data --agent 08-finance-modeler --action \"added 08-finance-modeler findings\" h2-clan/work/doc.clan _inputs/h2-supplied/08-finance-modeler.json",
+    "clan patch-decision --agent 08-finance-modeler --action \"added 08-finance-modeler findings\" --rationale \"...\" h2-clan/work/doc.clan",
+    "clan validate h2-clan/work/doc.clan",
+    "cp h2-clan/work/doc.clan h2-clan/snapshots/hop-08-08-finance-modeler.clan"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/08-finance-modeler.json", "approx_chars": 210},
-    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/08-finance-modeler.handoff.txt", "approx_chars": 97}
+    { "file": "test-sandbox/happy/lite/_inputs/h2-supplied/08-finance-modeler.json", "approx_chars": 210 },
+    { "file": "test-sandbox/happy/lite/_inputs/h2-supplied/08-finance-modeler.handoff.txt", "approx_chars": 98 }
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/lite/h2-clan/work/doc.clan", "chars": 0},
-    {"file": "test-sandbox/happy/lite/h2-clan/snapshots/hop-08-08-finance-modeler.clan", "chars": 0},
-    {"file": "test-sandbox/happy/lite/h2-clan/receipts/hop08-output/patch-data.json", "chars": 211},
-    {"file": "test-sandbox/happy/lite/h2-clan/receipts/hop08-output/decision.txt", "chars": 97},
-    {"file": "test-sandbox/happy/lite/h2-clan/receipts/receipt-hop08.json", "chars": 1350}
+    { "file": "test-sandbox/happy/lite/h2-clan/work/doc.clan", "chars": 14300 },
+    { "file": "test-sandbox/happy/lite/h2-clan/snapshots/hop-08-08-finance-modeler.clan", "chars": 14300 },
+    { "file": "test-sandbox/happy/lite/h2-clan/receipts/hop08-output/patch-data.json", "chars": 210 },
+    { "file": "test-sandbox/happy/lite/h2-clan/receipts/hop08-output/decision-rationale.txt", "chars": 98 }
   ],
   "output_chars": 308,
-  "errors": [],
-  "problems_and_friction": "clan.exe writes to stderr for success messages causing PowerShell to surface NativeCommandError even on success; all operations completed correctly. No logic errors or data issues encountered.",
-  "context_understood": "Hop 8 finance-modeler adds 7 financial fields (Y1 totals, 3-yr totals, savings, payback, lean recommendation) confirming Zoho as the financially preferred option before the rollout-plan hop."
+  "errors": [
+    { "what": "combined patch-data lacked attribution flags and exited 1", "recovered_by": "re-ran patch-data with --agent/--action, then patch-decision separately" }
+  ],
+  "problems_and_friction": "patch-data required --agent/--action attribution which the combined one-liner omitted; splitting into separate attributed calls resolved it cleanly.",
+  "context_understood": "Eighth specialist in the CRM-recommendation chain; added bounded finance-model fields (3yr cost, savings, payback, lean) namespaced fin_* via merge-patch and left a handoff for the rollout planner."
 }

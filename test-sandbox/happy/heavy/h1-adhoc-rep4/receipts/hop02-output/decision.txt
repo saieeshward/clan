@@ -1,1 +1,1 @@
-hop-02 risk-add: appended risk "Vendor lock-in" (severity Medium, mitigation "Quarterly data-export clause in contract") to data.json risks[] and report.html risk table
+2026-06-12 | risk-add | added risk "Vendor lock-in" (Medium) with quarterly data-export mitigation

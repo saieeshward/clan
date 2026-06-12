@@ -1,0 +1,25 @@
+{
+  "agent": "synthesizer",
+  "timestamp": "2026-06-11T22:26:00.000Z",
+  "merge": {
+    "branches": [
+      "test-sandbox/happy/forkmerge/branches/analyst-a.clan",
+      "test-sandbox/happy/forkmerge/branches/analyst-b.clan",
+      "test-sandbox/happy/forkmerge/branches/analyst-c.clan",
+      "test-sandbox/happy/forkmerge/branches/analyst-d.clan"
+    ],
+    "output": "test-sandbox/happy/forkmerge/work/merged.clan",
+    "contested_keys": 0
+  },
+  "adjudication": {
+    "final_recommendation": "Buy",
+    "final_budget_eur": 295000,
+    "final_rationale": "2 of 4 analysts recommend Buy; weighted average budget EUR 295k; vendor GDPR compliance reduces risk profile",
+    "votes": {
+      "Buy": ["analyst-b", "analyst-c"],
+      "Build": ["analyst-a", "analyst-d"]
+    }
+  },
+  "validation": "OK",
+  "final_output": "test-sandbox/happy/forkmerge/work/final.clan"
+}

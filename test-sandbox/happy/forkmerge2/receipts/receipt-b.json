@@ -1,1 +1,0 @@
-{"agent":"analyst-b","recommendation":"Buy","budget_eur":280000,"top_risks":["vendor lock-in","customization limits","data migration"],"assumptions":"Off-the-shelf covers 90% of requirements; 6-month implementation","action":"assessed build-vs-buy: recommends Buy at EUR 280k","status":"complete","branch":"test-sandbox/happy/forkmerge2/branches/analyst-b.clan","validate":"OK"}

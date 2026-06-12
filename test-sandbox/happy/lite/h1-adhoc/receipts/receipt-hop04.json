@@ -1,40 +1,33 @@
 {
-  "role": "AD-HOC H1 revision agent",
-  "hop": "04",
-  "arm": "summary-rewrite",
+  "role": "summary-rewrite",
+  "hop": 4,
+  "arm": "ad-hoc",
   "flow": "h1-adhoc",
   "commands_run": [
-    "read exec-summary.txt",
-    "read data.json",
-    "read report.html",
-    "read decisions.log",
-    "edit data.json exec_summary field",
-    "edit report.html #exec-summary paragraph",
-    "append to decisions.log",
-    "mkdir snapshots/hop-04-summary-rewrite",
-    "cp report.html data.json decisions.log to snapshot dir",
-    "mkdir receipts/hop04-output",
-    "write hop04-output/exec-summary-patch.txt",
-    "write receipt-hop04.json"
+    "printf ... >> work/decisions.log",
+    "mkdir -p snapshots/hop-04-summary-rewrite receipts/hop04-output",
+    "cp work/report.html work/data.json work/decisions.log snapshots/hop-04-summary-rewrite/",
+    "wc -c patch-data.txt patch-html.txt decision.txt"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/lite/_inputs/h1-supplied/exec-summary.txt", "approx_chars": 324},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/work/data.json", "approx_chars": 1987},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/work/report.html", "approx_chars": 4046},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/work/decisions.log", "approx_chars": 397}
+    {"file": "test-sandbox/happy/lite/_inputs/h1-supplied/exec-summary.txt", "approx_chars": 360},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/data.json", "approx_chars": 1700},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/report.html", "approx_chars": 3500},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/decisions.log", "approx_chars": 430}
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/lite/h1-adhoc/work/data.json", "chars": 2007},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/work/report.html", "chars": 4069},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/work/decisions.log", "chars": 634},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-04-summary-rewrite/data.json", "chars": 2007},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-04-summary-rewrite/report.html", "chars": 4069},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-04-summary-rewrite/decisions.log", "chars": 634},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/receipts/hop04-output/exec-summary-patch.txt", "chars": 323},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/receipts/receipt-hop04.json", "chars": 0}
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/data.json", "chars": 345},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/report.html", "chars": 349},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/decisions.log", "chars": 150},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/receipts/hop04-output/patch-data.txt", "chars": 345},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/receipts/hop04-output/patch-html.txt", "chars": 349},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/receipts/hop04-output/decision.txt", "chars": 150},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-04-summary-rewrite/data.json", "chars": 2048},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-04-summary-rewrite/report.html", "chars": 3993},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-04-summary-rewrite/decisions.log", "chars": 563}
   ],
-  "output_chars": 323,
+  "output_chars": 844,
   "errors": [],
-  "problems_and_friction": "PowerShell Add-Content failed due to shell quoting conflict with embedded double-quotes in the log line; resolved by switching to Bash printf redirect.",
-  "context_understood": "Replace exec_summary in data.json and <p id=exec-summary> in report.html with verbatim text from exec-summary.txt; append decisions.log entry; snapshot work/ files; write receipt and hop output."
+  "problems_and_friction": "No friction; the exec_summary appeared exactly once in each file so two surgical Edits sufficed. The supplied text was a single line, making the splice trivial.",
+  "context_understood": "Ad-hoc arm: surgically replaced the exec_summary in data.json and the exec-summary paragraph in report.html with the supplied Zoho-leading text, logged it, and snapshotted."
 }

@@ -1,0 +1,31 @@
+{
+  "role": "09-rollout-planner",
+  "hop": 9,
+  "arm": "h2-adhoc",
+  "flow": "happy/lite",
+  "commands_run": [
+    "mkdir -p test-sandbox/happy/lite/h2-adhoc/snapshots/hop-09-09-rollout-planner",
+    "cp work/findings.md snapshots/hop-09-09-rollout-planner/findings.md",
+    "cp work/handoff.md snapshots/hop-09-09-rollout-planner/handoff.md",
+    "mkdir -p test-sandbox/happy/lite/h2-adhoc/receipts/hop09-output"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/lite/h2-adhoc/work/brief.md", "approx_chars": 570},
+    {"file": "test-sandbox/happy/lite/h2-adhoc/work/findings.md", "approx_chars": 1520},
+    {"file": "test-sandbox/happy/lite/h2-adhoc/work/handoff.md", "approx_chars": 760},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/09-rollout-planner.json", "approx_chars": 200},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/09-rollout-planner.handoff.txt", "approx_chars": 120}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/lite/h2-adhoc/work/findings.md", "chars": 164},
+    {"file": "test-sandbox/happy/lite/h2-adhoc/work/handoff.md", "chars": 147},
+    {"file": "test-sandbox/happy/lite/h2-adhoc/snapshots/hop-09-09-rollout-planner/findings.md", "chars": 1684},
+    {"file": "test-sandbox/happy/lite/h2-adhoc/snapshots/hop-09-09-rollout-planner/handoff.md", "chars": 907},
+    {"file": "test-sandbox/happy/lite/h2-adhoc/receipts/hop09-output/authored-fragment.md", "chars": 311},
+    {"file": "test-sandbox/happy/lite/h2-adhoc/receipts/receipt-hop09.json", "chars": 1200}
+  ],
+  "output_chars": 458,
+  "errors": [],
+  "problems_and_friction": "No friction encountered. Supplied JSON and handoff text matched expected format exactly, making the append straightforward. Snapshot and receipt directories needed creation but that was routine.",
+  "context_understood": "09-rollout-planner appends a 3-phase go-live timeline (July-November 2026) ensuring Zoho CRM is live before the October peak season, with a champion program to drive adoption."
+}

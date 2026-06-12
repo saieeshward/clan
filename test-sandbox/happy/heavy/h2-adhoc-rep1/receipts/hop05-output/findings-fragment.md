@@ -1,0 +1,7 @@
+
+## 05-integrations-assessor
+integ_required: NetSuite, Slack, Twilio, DocuSign, Outlook, Shopify
+integ_hubspot_native: 5
+integ_zoho_native: 4
+integ_zoho_gap: NetSuite (via connector)
+integ_effort_weeks: 9

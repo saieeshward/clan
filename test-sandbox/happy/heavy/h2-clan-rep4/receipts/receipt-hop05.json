@@ -10,17 +10,19 @@
     "cp test-sandbox/happy/heavy/h2-clan-rep4/work/doc.clan test-sandbox/happy/heavy/h2-clan-rep4/snapshots/hop-05-05-integrations-assessor.clan"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/work/doc.clan", "approx_chars": 2800},
-    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/05-integrations-assessor.handoff.txt", "approx_chars": 110},
-    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/05-integrations-assessor.json", "approx_chars": 272}
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/work/doc.clan", "approx_chars": 2900},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/05-integrations-assessor.handoff.txt", "approx_chars": 145},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/05-integrations-assessor.json", "approx_chars": 257}
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/work/doc.clan", "chars": 12673},
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/snapshots/hop-05-05-integrations-assessor.clan", "chars": 12673},
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/receipts/hop05-output/patch-data.json", "chars": 272}
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/work/doc.clan", "chars": 18775},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/snapshots/hop-05-05-integrations-assessor.clan", "chars": 18775},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/receipts/hop05-output/patch-data.json", "chars": 257}
   ],
-  "output_chars": 272,
-  "errors": [],
-  "problems_and_friction": "No friction encountered. Protocol was straightforward: read doc, read handoff, patch, validate, snapshot. All commands succeeded on first attempt.",
-  "context_understood": "As integrations assessor (hop 5), I patched 5 integration fields (required list, native connector counts for HubSpot/Zoho, Zoho gap, and effort estimate) into the CRM recommendation chain document for Brightline Logistics."
+  "output_chars": 257,
+  "errors": [
+    {"what": "clan read failed with relative path under sandboxed shell (no such file or directory)", "recovered_by": "re-ran with absolute path to the .clan file"}
+  ],
+  "problems_and_friction": "The relative path passed to clan read failed because the sandboxed shell resets cwd between calls; switching to the absolute .clan path resolved it. The patch was an idempotent merge-patch (integ_* fields already present from a prior run), so no data churn occurred.",
+  "context_understood": "As integrations assessor (hop 5) I merge-patched the integ_* findings (required integrations, HubSpot/Zoho native connector counts, Zoho NetSuite-connector gap, ~9wk effort) into the Brightline CRM chain doc without re-transcribing prior analysts' data."
 }
