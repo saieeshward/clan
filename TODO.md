@@ -116,8 +116,8 @@ Priority order: fix blockers first, then correctness, then packaging, then optim
 - [ ] Packages on github for download : Discuss
 - [ ] Combined Installer for all the releases
   - [x] Windows
-  - [ ] Linux
-  - [ ] MacOs
+  - [x] Linux
+  - [x] MacOs
 
 ### Launch announcements (drafts ready 2026-06-12, kept local until posted)
 

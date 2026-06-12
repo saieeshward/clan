@@ -171,6 +171,17 @@ jobs:
           New-Item -ItemType Directory -Force -Path app/src-tauri/binaries | Out-Null
           Copy-Item target/release/clan.exe app/src-tauri/binaries/clan-x86_64-pc-windows-msvc.exe
 
+      # Linux .deb / .rpm install the `clan` CLI to /usr/bin (on PATH) alongside
+      # the viewer. tauri.linux.conf.json maps binaries/clan -> /usr/bin/clan via
+      # deb.files / rpm.files. The AppImage stays viewer-only (it can't place
+      # files on the host PATH), so the standalone CLI tarball is kept above.
+      - name: Stage CLI into Linux packages (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          cargo build -p clan-cli --release
+          mkdir -p app/src-tauri/binaries
+          cp target/release/clan app/src-tauri/binaries/clan
+
       - name: Build & publish desktop bundles
         uses: tauri-apps/tauri-action@v0
         env:
