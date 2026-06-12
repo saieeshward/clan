@@ -1034,7 +1034,11 @@ fn cmd_pack(
     std::fs::write(&output, &bytes)
         .with_context(|| format!("could not write {}", output.display()))?;
     eprintln!("packed {} ({} bytes)", output.display(), bytes.len());
-    hints.emit(&file_state_hints(&ClanFile::from_bytes(bytes)?, &output, None));
+    hints.emit(&file_state_hints(
+        &ClanFile::from_bytes(bytes)?,
+        &output,
+        None,
+    ));
     Ok(())
 }
 
@@ -1132,7 +1136,11 @@ fn cmd_pack_html(
     if let Some(h) = structured_hint {
         hint_lines.push(h);
     }
-    hint_lines.extend(file_state_hints(&ClanFile::from_bytes(bytes)?, &output, None));
+    hint_lines.extend(file_state_hints(
+        &ClanFile::from_bytes(bytes)?,
+        &output,
+        None,
+    ));
     hints.emit(&hint_lines);
     Ok(())
 }

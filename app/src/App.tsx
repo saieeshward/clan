@@ -2,8 +2,9 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { invoke } from '@tauri-apps/api/core'
+import { listen } from '@tauri-apps/api/event'
 import { open as openDialog } from '@tauri-apps/plugin-dialog'
 import Toolbar from './components/Toolbar'
 import Sidebar from './components/Sidebar'
@@ -73,6 +74,21 @@ export default function App() {
       setLoading(false)
     }
   }
+
+  useEffect(() => {
+    // On launch the OS may have handed us a .clan file (double-click /
+    // "Open with"). Pull it from the backend and open it.
+    invoke<string | null>('take_launch_file')
+      .then(path => { if (path) handleOpenFile(path) })
+      .catch(() => {})
+
+    // If the viewer is already running and the user opens another .clan file,
+    // the single-instance plugin re-routes the path here as an event.
+    const unlisten = listen<string>('open-file', e => {
+      if (e.payload) handleOpenFile(e.payload)
+    })
+    return () => { unlisten.then(f => f()) }
+  }, [])
 
   function handlePatch(_id: string, _content: string) {
     // The protocol handler already saved the patch. The user's edit is already

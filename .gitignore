@@ -7,3 +7,6 @@
 target/
 target-gnu/
 Cargo.lock
+
+# CLI sidecar staged into the viewer MSI during the release build (see release.yml).
+app/src-tauri/binaries/

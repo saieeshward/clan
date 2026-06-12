@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Adds the viewer install directory to the system PATH so the bundled `clan`
+  CLI sidecar works from any terminal after a combined-MSI install.
+
+  Wired up in tauri.windows.conf.json:
+    bundle.externalBin                    -> ["binaries/clan"]   (puts clan.exe in INSTALLDIR)
+    bundle.windows.wix.fragmentPaths      -> ["wix/cli-path.wxs"]
+    bundle.windows.wix.componentGroupRefs -> ["ClanCliPath"]
+
+  INSTALLDIR is the directory id Tauri's WiX template installs the app into.
+  The <Environment> element is core MSI (no WiX extension required) and is
+  removed on uninstall (Permanent="no"). System="yes" writes the machine PATH,
+  which requires the per-machine elevation the Tauri MSI already performs.
+-->
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Fragment>
+    <ComponentGroup Id="ClanCliPath">
+      <Component Id="ClanCliPathEnvironment" Directory="INSTALLDIR" Guid="7C9B2E14-3A6D-4F58-B1E0-9D2C4A7F8E51">
+        <Environment Id="ClanCliPathEnvVar"
+                     Name="PATH"
+                     Value="[INSTALLDIR]"
+                     Action="set"
+                     Part="last"
+                     System="yes"
+                     Permanent="no" />
+        <!-- A component needs a keypath; a PATH entry can't be one, so anchor
+             to a small HKLM marker that owns this component. -->
+        <RegistryValue Root="HKLM"
+                       Key="Software\CLAN\Viewer"
+                       Name="CliOnPath"
+                       Type="integer"
+                       Value="1"
+                       KeyPath="yes" />
+      </Component>
+    </ComponentGroup>
+  </Fragment>
+</Wix>

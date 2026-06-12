@@ -2,6 +2,8 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+import { ClanMark } from './ClanMark'
+
 interface Props {
   title?: string
   onOpen: () => void
@@ -13,20 +15,6 @@ interface Props {
   validation?: string
   hasFile: boolean
 }
-
-const ClanMark = () => (
-  <svg width="22" height="22" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
-    <line x1="70" y1="24" x2="37" y2="21" stroke="rgba(120,160,230,0.42)" strokeWidth="2.8" strokeLinecap="round"/>
-    <line x1="37" y1="21" x2="18" y2="50" stroke="rgba(120,160,230,0.42)" strokeWidth="2.8" strokeLinecap="round"/>
-    <line x1="18" y1="50" x2="37" y2="79" stroke="rgba(120,160,230,0.42)" strokeWidth="2.8" strokeLinecap="round"/>
-    <line x1="37" y1="79" x2="70" y2="76" stroke="rgba(120,160,230,0.42)" strokeWidth="2.8" strokeLinecap="round"/>
-    <circle cx="70" cy="24" r="5.6" fill="#6366f1"/>
-    <circle cx="37" cy="21" r="5.6" fill="#5682e9"/>
-    <circle cx="18" cy="50" r="7" fill="#489de0"/>
-    <circle cx="37" cy="79" r="5.6" fill="#3bb9d8"/>
-    <circle cx="70" cy="76" r="5.6" fill="#2dd4cf"/>
-  </svg>
-)
 
 const s: Record<string, React.CSSProperties> = {
   bar: {
@@ -61,7 +49,7 @@ export default function Toolbar({
   const valid = validation === 'OK'
   return (
     <div style={s.bar}>
-      <span style={s.logo}><ClanMark /><span style={s.logoText}>CLAN</span></span>
+      <span style={s.logo}><ClanMark size={22} animated={loading} style={{ flexShrink: 0 }} /><span style={s.logoText}>CLAN</span></span>
       <span style={s.title}>{loading ? 'Loading…' : (title ?? 'No file open')}</span>
       {validation && (
         <span
