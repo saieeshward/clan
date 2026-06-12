@@ -364,8 +364,8 @@ const repResults = await pipeline(
 // ---- Measure pass ----
 log('All reps complete — running measure pass')
 const measure = await agent(
-  `You are the HEAVY measure agent. Repo root is cwd; PowerShell is available.
-Run: powershell -NonInteractive -File test-sandbox/happy/heavy/measure-heavy.ps1
+  `You are the HEAVY measure agent. Repo root is cwd; Node.js is available (no PowerShell on this host).
+Run: node test-sandbox/happy/heavy/measure-heavy.mjs
 Read the output and the resulting test-sandbox/happy/heavy/metrics-heavy.json.
 Report the following as JSON: H1 ratio mean/stdev/win (target <=0.50), H2 crossover hop mean/stdev/win (target <=10), total errors across all receipts, and any critical failures (chains that produced zero authored chars or validation failures).`,
   { label: 'measure', phase: 'Measure' }
