@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.2] - 2026-06-12
+
+### Added
+
+- **`.clan` file associations** — double-clicking a `.clan` file (or "Open with")
+  now launches the CLAN Viewer with the file loaded, on macOS, Windows, and Linux.
+
+### Fixed
+
+- **Viewer file opening** — files passed via OS launch events open correctly.
+
 ## [1.1.1] - 2026-06-12
 
 ### Added
@@ -45,7 +56,8 @@ First public release of CLAN — Context and Live Agent Notation.
 - **`clan-cli`** — the `clan` command-line tool to create, validate, read, pack, and export `.clan` files.
 - **CLAN Viewer** — Tauri desktop app for rendering the human view of a `.clan` file.
 
-[Unreleased]: https://github.com/saieeshward/clan/compare/v1.1.1...HEAD
+[Unreleased]: https://github.com/saieeshward/clan/compare/v1.1.2...HEAD
+[1.1.2]: https://github.com/saieeshward/clan/releases/tag/v1.1.2
 [1.1.1]: https://github.com/saieeshward/clan/releases/tag/v1.1.1
 [1.1.0]: https://github.com/saieeshward/clan/releases/tag/v1.1.0
 [1.0.0]: https://github.com/saieeshward/clan/releases/tag/v1.0.0
