@@ -1,3 +1,4 @@
+
 ## 01-market-researcher
 
 Market favours fast EU-resident go-lives. HubSpot leads mindshare but Zoho is gaining in mid-market on price. Next: get hard per-seat pricing.
@@ -12,19 +13,19 @@ Migration quality is the top risk for either vendor. Zoho carries slightly highe
 
 ## 04-gdpr-reviewer
 
-Zoho includes EU region pinning at no extra cost; HubSpot bills it as an add-on. Both sign a DPA. Next: assess integrations.
+Both vendors sign a DPA and give 30-day subprocessor notice. Zoho includes EU Frankfurt pinning in the base price; HubSpot charges extra for it. GDPR compliance tilts toward Zoho. Next: assess integration depth for logistics workflows.
 
 ## 05-integrations-assessor
 
-HubSpot has one more native connector; Zoho needs a NetSuite connector but it is supported. ~9 wk effort either way. Next: customer discovery.
+HubSpot has native connectors for all 6 required systems (NetSuite, Slack, Twilio, DocuSign, Outlook, Shopify). Zoho covers 5 natively but needs a third-party connector for NetSuite, adding ~1 wk and ~EUR 1,200/yr. Integration score favours HubSpot. Combined with GDPR and risk findings the decision is now finely balanced: Zoho wins on price and GDPR bundling, HubSpot wins on integration completeness and maturity. Next: customer discovery / references to break the tie.
 
 ## 06-customer-discovery
 
-Reps want fast lead response and minimal clicks. Split preference: cost-conscious ops lean Zoho. Next: competitive intel.
+6 interviews conducted. Reps prioritise sub-2h lead response and low-click workflows. 4 of 6 champions prefer HubSpot UI; ops team leans Zoho on cost. Training budget is 24h — both vendors fit. The 90% adoption target is ambitious; HubSpot's UX edge reduces adoption risk. Decision now: HubSpot leads on UI/adoption/integrations; Zoho leads on price/GDPR. Next: lead partner to synthesise final recommendation.
 
 ## 07-competitive-intel
 
-Zoho's quarterly export clause keeps switching cost low — a hedge against its maturity risk. Next: finance model.
+Zoho's quarterly export clause keeps switching cost low — a hedge against its maturity risk. Salesforce is eliminated (enterprise depth overkill, highest cost). Competitive framing: HubSpot vs Zoho is a quality-vs-cost trade-off. Zoho's portability makes it lower risk if it underperforms. Next: finance model / lead partner final recommendation.
 
 ## 08-finance-modeler
 
@@ -32,4 +33,4 @@ Zoho saves ~EUR17,280 over 3 years with a 7-month payback. Finance leans Zoho. N
 
 ## 09-rollout-planner
 
-Three phases land core CRM before the October peak with phase-2 marketing on 2026-09-15. Next: lead partner assembles the recommendation.
+9-week phased rollout: phase-1 config/migration 2026-07-01, phase-2 marketing+onboarding 2026-09-15, phase-3 post-peak optimisation 2026-11-01. Core CRM goes live before the October peak. Champion program (4 leads, 24h training budget) targets 90% adoption. Next: lead partner to assemble the final recommendation.

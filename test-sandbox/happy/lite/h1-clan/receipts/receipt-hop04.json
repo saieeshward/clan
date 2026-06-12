@@ -1,31 +1,22 @@
 {
   "role": "summary-rewrite",
-  "hop": 4,
-  "arm": "clan",
-  "flow": "patch-data",
+  "hop": "04",
+  "arm": "h1-clan",
+  "flow": "happy/lite",
   "commands_run": [
-    "clan read agent test-sandbox/happy/lite/h1-clan/work/doc.clan --skip-guide",
-    "clan read data test-sandbox/happy/lite/h1-clan/work/doc.clan",
-    "clan patch-data test-sandbox/happy/lite/h1-clan/work/doc.clan --set exec_summary=... --agent hop-04-summary-rewrite --action 'Replace exec_summary with supplied text'",
-    "clan validate test-sandbox/happy/lite/h1-clan/work/doc.clan",
-    "cp test-sandbox/happy/lite/h1-clan/work/doc.clan test-sandbox/happy/lite/h1-clan/snapshots/hop-04-summary-rewrite.clan"
+    "clan.exe patch-data test-sandbox/happy/lite/h1-clan/work/doc.clan --set exec_summary=<value> --agent summary-rewrite --action \"rewrite exec summary\"",
+    "clan.exe validate test-sandbox/happy/lite/h1-clan/work/doc.clan"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/lite/_inputs/h1-supplied/exec-summary.txt", "approx_chars": 283},
-    {"file": "test-sandbox/happy/lite/h1-clan/work/doc.clan", "approx_chars": 2200}
+    { "file": "test-sandbox/happy/lite/_inputs/h1-supplied/exec-summary.txt", "approx_chars": 330 }
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/lite/h1-clan/work/doc.clan", "chars": 14251},
-    {"file": "test-sandbox/happy/lite/h1-clan/snapshots/hop-04-summary-rewrite.clan", "chars": 14251},
-    {"file": "test-sandbox/happy/lite/h1-clan/receipts/hop04-output/patch-data.json", "chars": 343}
+    { "file": "test-sandbox/happy/lite/h1-clan/work/doc.clan", "chars": -1 },
+    { "file": "test-sandbox/happy/lite/h1-clan/snapshots/hop-04-summary-rewrite.clan", "chars": -1 },
+    { "file": "test-sandbox/happy/lite/h1-clan/receipts/hop04-output/exec-summary-patch.txt", "chars": 330 }
   ],
-  "output_chars": 343,
-  "errors": [
-    {
-      "what": "First patch-data attempt used --attribution flag which does not exist",
-      "recovered_by": "Ran clan patch-data --help and used correct --agent/--action flags"
-    }
-  ],
-  "problems_and_friction": "The --attribution flag does not exist; one help lookup needed to identify correct flags (--agent, --action). Otherwise the flow was direct: exec_summary is data-bound, patch-data alone suffices, validate returned OK immediately.",
-  "context_understood": "Hop 4 replaces exec_summary verbatim with the supplied text from exec-summary.txt via patch-data only (pack-html forbidden for data-bound fields)."
+  "output_chars": 330,
+  "errors": [],
+  "problems_and_friction": "None. patch-data --set handled single-key scalar update cleanly.",
+  "context_understood": "exec_summary is a data-bound field; patched via patch-data (not pack-html). Validated OK. Snapshot written."
 }

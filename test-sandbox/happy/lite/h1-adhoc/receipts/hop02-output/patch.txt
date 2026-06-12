@@ -1,0 +1,8 @@
+--- data.json patch ---
++    {"risk": "Vendor lock-in", "severity": "Medium", "mitigation": "Quarterly data-export clause in contract"}
+
+--- report.html patch ---
++<tr><td>Vendor lock-in</td><td>Medium</td><td>Quarterly data-export clause in contract</td></tr>
+
+--- decisions.log patch ---
++2026-06-12 hop-02 risk-add: added risk "Vendor lock-in" severity Medium mitigation "Quarterly data-export clause in contract" to data.json risks[] and report.html risk table.

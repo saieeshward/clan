@@ -1,30 +1,23 @@
 {
   "role": "pricing-update",
-  "hop": 1,
-  "arm": "guided/patch-first",
-  "flow": "patch-data only (both fields are data-bound {{}} — no pack-html needed)",
+  "hop": "01",
+  "arm": "h1-clan",
+  "flow": "happy/lite",
   "commands_run": [
-    "clan read agent test-sandbox/happy/lite/h1-clan/work/doc.clan --skip-guide",
-    "clan read data test-sandbox/happy/lite/h1-clan/work/doc.clan",
-    "clan patch-data test-sandbox/happy/lite/h1-clan/work/doc.clan /tmp/zoho-patch.json --agent pricing-update --action \"Zoho CRM per-seat price drops to 38 (from 45); zoho_annual_total updated to 18240 (=38*40*12)\"",
-    "clan validate test-sandbox/happy/lite/h1-clan/work/doc.clan",
-    "cp test-sandbox/happy/lite/h1-clan/work/doc.clan test-sandbox/happy/lite/h1-clan/snapshots/hop-01-pricing-update.clan"
+    "target/release/clan.exe patch-data test-sandbox/happy/lite/h1-clan/work/doc.clan tmp-pricing-patch.json --agent pricing-update --action \"update zoho price\"",
+    "target/release/clan.exe validate test-sandbox/happy/lite/h1-clan/work/doc.clan"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/lite/h1-clan/work/doc.clan", "approx_chars": 13996}
+    {"file": "test-sandbox/happy/lite/h1-clan/work/doc.clan", "approx_chars": 15359}
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/lite/h1-clan/work/doc.clan", "chars": 13996},
-    {"file": "test-sandbox/happy/lite/h1-clan/snapshots/hop-01-pricing-update.clan", "chars": 13996},
-    {"file": "test-sandbox/happy/lite/h1-clan/receipts/hop01-output/patch-data.json", "chars": 51}
+    {"file": "test-sandbox/happy/lite/h1-clan/work/doc.clan", "chars": 15359},
+    {"file": "test-sandbox/happy/lite/h1-clan/snapshots/hop-01-pricing-update.clan", "chars": 15359},
+    {"file": "test-sandbox/happy/lite/h1-clan/receipts/hop01-output/patch-payload.json", "chars": 52},
+    {"file": "test-sandbox/happy/lite/h1-clan/receipts/receipt-hop01.json", "chars": 0}
   ],
-  "output_chars": 51,
-  "errors": [
-    {
-      "what": "clan patch-data rejected without attribution",
-      "recovered_by": "Re-ran with --agent and --action flags as required by v1.1.0 attribution enforcement"
-    }
-  ],
-  "problems_and_friction": "The patch-data command required --agent and --action attribution flags that were not mentioned in the protocol; this caused one failed attempt before recovery. Otherwise the guided arm worked cleanly with a single patch-data call updating both fields atomically. pack-html was correctly avoided as both fields are data-bound {{}} placeholders.",
-  "context_understood": "Zoho CRM per-seat price dropped from 45 to 38 and annual total recalculated to 18240 (38*40*12); both are data-bound fields so patch-data alone suffices."
+  "output_chars": 52,
+  "errors": [],
+  "problems_and_friction": "none",
+  "context_understood": "zoho_price_per_seat updated from 45 to 38; zoho_annual_total updated from previous value to 18240 (38*40*12); patch-data wrote in-place; validate returned OK"
 }

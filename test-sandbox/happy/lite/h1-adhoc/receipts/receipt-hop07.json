@@ -1,35 +1,33 @@
 {
-  "role": "verdict-flip",
+  "role": "AD-HOC H1 revision agent",
   "hop": 7,
   "arm": "h1-adhoc",
-  "flow": "happy/lite",
+  "flow": "verdict-flip",
   "commands_run": [
-    "cat test-sandbox/happy/lite/_inputs/h1-supplied/verdict-rationale.txt",
-    "grep -n verdict|HubSpot test-sandbox/happy/lite/h1-adhoc/work/report.html",
     "mkdir -p snapshots/hop-07-verdict-flip",
-    "cp work/report.html work/data.json work/decisions.log snapshots/hop-07-verdict-flip/",
-    "mkdir -p receipts/hop07-output",
-    "wc -c receipts/hop07-output/*"
+    "cp work/report.html snapshots/hop-07-verdict-flip/report.html",
+    "cp work/data.json snapshots/hop-07-verdict-flip/data.json",
+    "cp work/decisions.log snapshots/hop-07-verdict-flip/decisions.log",
+    "mkdir -p receipts/hop07-output"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/lite/_inputs/h1-supplied/verdict-rationale.txt", "approx_chars": 196},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/work/data.json", "approx_chars": 1180},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/work/report.html", "approx_chars": 2950},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/work/decisions.log", "approx_chars": 680}
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/data.json", "approx_chars": 2111},
+    {"file": "test-sandbox/happy/lite/_inputs/h1-supplied/verdict-rationale.txt", "approx_chars": 213},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/report.html", "approx_chars": 5169},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/decisions.log", "approx_chars": 1229}
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/lite/h1-adhoc/work/data.json", "chars": 266},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/work/report.html", "chars": 333},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/work/decisions.log", "chars": 195},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-07-verdict-flip/report.html", "chars": 2950},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-07-verdict-flip/data.json", "chars": 1220},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-07-verdict-flip/decisions.log", "chars": 875},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/receipts/hop07-output/patch-data.json", "chars": 266},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/receipts/hop07-output/patch-html.fragment", "chars": 333},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/receipts/hop07-output/decision.txt", "chars": 195}
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/data.json", "chars": 2111},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/report.html", "chars": 5169},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/decisions.log", "chars": 1229},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-07-verdict-flip/data.json", "chars": 2111},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-07-verdict-flip/report.html", "chars": 5169},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-07-verdict-flip/decisions.log", "chars": 1229},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/receipts/hop07-output/patch.txt", "chars": 957},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/receipts/receipt-hop07.json", "chars": 0}
   ],
-  "output_chars": 794,
+  "output_chars": 957,
   "errors": [],
-  "problems_and_friction": "The report.html uses template placeholders ({{verdict}}, {{verdict_rationale}}) that were never pre-rendered, so the edit target was the raw placeholder text rather than a previously rendered value. This is consistent with all prior hops in this arm. No friction beyond the expected surgical splice approach.",
-  "context_understood": "Flip verdict from HubSpot to Zoho CRM in both data.json and the verdict spans in report.html, using the supplied rationale text, then snapshot and receipt."
+  "problems_and_friction": "Bash shell was POSIX (not PowerShell) so Add-Content failed; fell back to Edit tool for decisions.log append.",
+  "context_understood": "Flip data.json verdict+verdict_rationale from HubSpot to Zoho CRM using text from verdict-rationale.txt; mirror both changes in report.html verdict spans; append decisions.log line; snapshot work dir to hop-07-verdict-flip; write receipt and patch payload."
 }

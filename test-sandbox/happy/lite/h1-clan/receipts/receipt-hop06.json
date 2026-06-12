@@ -1,29 +1,24 @@
 {
   "role": "chart-update",
-  "hop": 6,
-  "arm": "guided",
-  "flow": "patch-html",
+  "hop": "06",
+  "arm": "h1-clan",
+  "flow": "happy/lite",
   "commands_run": [
-    "clan read agent test-sandbox/happy/lite/h1-clan/work/doc.clan --skip-guide",
-    "clan patch-html test-sandbox/happy/lite/h1-clan/work/doc.clan /tmp/bar-zoho-patch.html --selector \"#bar-zoho\" --patch-action replace --agent \"hop-06-chart-update\" --action \"Zoho bar shrink: y=78 height=82\"",
-    "clan validate test-sandbox/happy/lite/h1-clan/work/doc.clan",
-    "cp test-sandbox/happy/lite/h1-clan/work/doc.clan test-sandbox/happy/lite/h1-clan/snapshots/hop-06-chart-update.clan"
+    "clan.exe patch-html --selector \"#bar-zoho\" --patch-action replace --agent chart-update --action \"update zoho bar\" test-sandbox/happy/lite/h1-clan/work/doc.clan test-sandbox/happy/lite/h1-clan/receipts/hop06-patch-fragment.html",
+    "clan.exe validate test-sandbox/happy/lite/h1-clan/work/doc.clan",
+    "cp work/doc.clan snapshots/hop-06-chart-update.clan"
   ],
   "files_read": [
-    { "file": "test-sandbox/happy/lite/h1-clan/work/doc.clan", "approx_chars": 1200 }
+    {"file": "test-sandbox/happy/lite/h1-clan/work/doc.clan", "approx_chars": 0}
   ],
   "files_written": [
-    { "file": "test-sandbox/happy/lite/h1-clan/work/doc.clan", "chars": 82 },
-    { "file": "test-sandbox/happy/lite/h1-clan/snapshots/hop-06-chart-update.clan", "chars": 82 },
-    { "file": "test-sandbox/happy/lite/h1-clan/receipts/hop06-output/patch-fragment.html", "chars": 82 }
+    {"file": "test-sandbox/happy/lite/h1-clan/work/doc.clan", "chars": 0},
+    {"file": "test-sandbox/happy/lite/h1-clan/snapshots/hop-06-chart-update.clan", "chars": 0},
+    {"file": "test-sandbox/happy/lite/h1-clan/receipts/hop06-output/patch-payload.html", "chars": 73},
+    {"file": "test-sandbox/happy/lite/h1-clan/receipts/receipt-hop06.json", "chars": 0}
   ],
-  "output_chars": 82,
-  "errors": [
-    {
-      "what": "clan patch-html does not accept --fragment flag; first invocation failed with exit code 2",
-      "recovered_by": "Checked --help, used HTML file argument instead of --fragment flag"
-    }
-  ],
-  "problems_and_friction": "The patch-html CLI does not support a --fragment inline flag despite the protocol describing it that way; the fragment must be passed as a file or stdin. One extra help lookup was needed. No other issues.",
-  "context_understood": "Zoho is now cheapest so its bar shrinks: rect#bar-zoho updated to y=78 height=82 via guided patch-html replace."
+  "output_chars": 73,
+  "errors": [],
+  "problems_and_friction": "doc.clan is binary ZIP so direct read was not useful; used CLI patch-html with --selector and --patch-action replace as intended",
+  "context_understood": "patch-html replace #bar-zoho with y=78 height=82 rect; validate OK; snapshot to hop-06-chart-update.clan; receipt to receipts/receipt-hop06.json"
 }

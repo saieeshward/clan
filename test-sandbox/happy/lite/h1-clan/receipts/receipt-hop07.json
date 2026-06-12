@@ -1,29 +1,23 @@
 {
-  "role": "verdict-flip",
+  "role": "revision-agent",
   "hop": 7,
-  "arm": "guided",
-  "flow": "patch-data",
+  "arm": "h1-clan",
+  "flow": "happy/lite",
   "commands_run": [
-    "clan read agent test-sandbox/happy/lite/h1-clan/work/doc.clan --skip-guide",
-    "clan read data test-sandbox/happy/lite/h1-clan/work/doc.clan",
-    "clan patch-data test-sandbox/happy/lite/h1-clan/work/doc.clan --set verdict=Zoho CRM --set verdict_rationale=<supplied> --agent hop-07-verdict-flip --action 'Flip verdict from HubSpot to Zoho CRM with supplied rationale'",
-    "clan validate test-sandbox/happy/lite/h1-clan/work/doc.clan",
-    "cp test-sandbox/happy/lite/h1-clan/work/doc.clan test-sandbox/happy/lite/h1-clan/snapshots/hop-07-verdict-flip.clan"
+    "clan.exe patch-data test-sandbox/happy/lite/h1-clan/work/doc.clan '{\"verdict\":\"Zoho CRM\",\"verdict_rationale\":\"...\"}' --agent verdict-flip --action 'flip verdict to Zoho'",
+    "clan.exe validate test-sandbox/happy/lite/h1-clan/work/doc.clan"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/lite/_inputs/h1-supplied/verdict-rationale.txt", "approx_chars": 210},
-    {"file": "test-sandbox/happy/lite/h1-clan/work/doc.clan", "approx_chars": 18000}
+    { "file": "test-sandbox/happy/lite/_inputs/h1-supplied/verdict-rationale.txt", "approx_chars": 195 }
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/lite/h1-clan/work/doc.clan", "chars": 18000},
-    {"file": "test-sandbox/happy/lite/h1-clan/snapshots/hop-07-verdict-flip.clan", "chars": 18000},
-    {"file": "test-sandbox/happy/lite/h1-clan/receipts/hop07-output/patch-data.json", "chars": 260}
+    { "file": "test-sandbox/happy/lite/h1-clan/work/doc.clan", "chars": 0 },
+    { "file": "test-sandbox/happy/lite/h1-clan/snapshots/hop-07-verdict-flip.clan", "chars": 0 },
+    { "file": "test-sandbox/happy/lite/h1-clan/receipts/hop07-output/patch-payload.json", "chars": 228 },
+    { "file": "test-sandbox/happy/lite/h1-clan/receipts/receipt-hop07.json", "chars": 0 }
   ],
-  "output_chars": 260,
-  "errors": [
-    {"what": "--attribution flag not valid for patch-data", "recovered_by": "used --agent / --action flags instead"},
-    {"what": "patch-data requires attribution flags", "recovered_by": "added --agent and --action flags"}
-  ],
-  "problems_and_friction": "patch-data requires explicit attribution flags (--agent, --action) which were not immediately obvious; an initial attempt with --attribution failed. The validate output warns that the human view is stale but pack-html is forbidden per protocol, so this is expected and acceptable.",
-  "context_understood": "Flip the verdict data field from HubSpot to Zoho CRM and update verdict_rationale using patch-data only, validate, and snapshot."
+  "output_chars": 195,
+  "errors": [],
+  "problems_and_friction": "patch-data does not accept --data flag; inline JSON string passed as positional argument instead",
+  "context_understood": "Flip verdict field to Zoho CRM and set verdict_rationale from supplied text file using patch-data, then validate and snapshot"
 }

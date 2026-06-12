@@ -1,2 +1,0 @@
-2026-06-11 | steering-committee | approved Zoho CRM recommendation | committee reviewed final report and ratified Zoho CRM as the chosen CRM platform for Brightline Logistics
-hop-08 signoff: appended steering-committee approval line to decisions.log

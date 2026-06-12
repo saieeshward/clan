@@ -1,1 +1,0 @@
-hop-01 pricing-update: zoho_price_per_seat 45→38, zoho_annual_total 21600→18240 in data.json (report.html uses template placeholders, no literal substitution needed)

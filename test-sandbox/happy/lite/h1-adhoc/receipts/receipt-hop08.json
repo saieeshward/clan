@@ -1,29 +1,30 @@
 {
   "role": "signoff",
-  "hop": 8,
-  "arm": "adhoc",
+  "hop": "08",
+  "arm": "h1-adhoc",
   "flow": "happy/lite",
   "commands_run": [
-    "mkdir -p snapshots/hop-08-signoff",
+    "mkdir snapshots/hop-08-signoff",
+    "mkdir receipts/hop08-output",
     "cp work/report.html snapshots/hop-08-signoff/",
     "cp work/data.json snapshots/hop-08-signoff/",
     "cp work/decisions.log snapshots/hop-08-signoff/"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/lite/h1-adhoc/work/decisions.log", "approx_chars": 1208},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/decisions.log", "approx_chars": 1241},
     {"file": "test-sandbox/happy/lite/h1-adhoc/work/data.json", "approx_chars": 2113},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/work/report.html", "approx_chars": 1800}
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/report.html", "approx_chars": 5184}
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/lite/h1-adhoc/work/decisions.log", "chars": 1458},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-08-signoff/decisions.log", "chars": 1458},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/decisions.log", "chars": 1397},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-08-signoff/report.html", "chars": 5184},
     {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-08-signoff/data.json", "chars": 2113},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-08-signoff/report.html", "chars": 5189},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/receipts/hop08-output/decisions-log-splice.txt", "chars": 250},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-08-signoff/decisions.log", "chars": 1397},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/receipts/hop08-output/decisions-log-append.txt", "chars": 156},
     {"file": "test-sandbox/happy/lite/h1-adhoc/receipts/receipt-hop08.json", "chars": 0}
   ],
-  "output_chars": 250,
+  "output_chars": 156,
   "errors": [],
-  "problems_and_friction": "No friction. The task was a straightforward append to decisions.log with a structured sign-off line and a self-describing meta-log line. Snapshot copy and receipt creation were routine.",
-  "context_understood": "Hop 8 records steering-committee approval of the Zoho CRM recommendation dated 2026-06-11 by appending a sign-off entry to decisions.log, then snapshots all work files."
+  "problems_and_friction": "Backslash in cp command caused a path parse error on first attempt; corrected to forward-slash POSIX path for Bash tool.",
+  "context_understood": "Hop 8 is the final sign-off step. The steering committee approved the Zoho CRM recommendation on 2026-06-11. Task was to append a structured log entry to decisions.log, snapshot all three work files to snapshots/hop-08-signoff/, save the authored patch text to receipts/hop08-output/, and write this receipt JSON."
 }

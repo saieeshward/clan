@@ -1,3 +1,4 @@
+
 ## 01-market-researcher
 
 market_tam_eur: 2400000
@@ -23,8 +24,12 @@ pricing_cheapest: Zoho
 
 ## 03-risk-analyst
 
-risk_top: migration data quality, user adoption, integration latency
+risk_top_1: migration data quality
+risk_top_2: user adoption
+risk_top_3: integration latency
 risk_migration_sev: High
 risk_adoption_sev: Medium
 risk_zoho_maturity_sev: Medium
 risk_hubspot_maturity_sev: Low
+risk_finalists: HubSpot, Zoho
+risk_recommendation: HubSpot preferred on maturity; Zoho viable if budget is primary constraint

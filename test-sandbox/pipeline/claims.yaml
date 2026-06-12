@@ -41,7 +41,7 @@ claims:
     stage: conformance
     tests: [T20]
     threshold: all pass
-    expect: red          # F2b designed, not yet implemented (pack.rs:333 unconditional stale)
+    note: "F2b implemented. T20 green as of 2026-06-12-G (was expect-red). pack.rs:333 bound-key check now suppresses stale hint correctly."
 
   # ---- token-efficiency claims (deterministic, stage 1 / TESTBOOK D-*) ----
   - id: C-TOON

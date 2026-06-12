@@ -1,33 +1,28 @@
 {
   "role": "08-finance-modeler",
   "hop": 8,
-  "arm": "h2",
+  "arm": "h2-clan",
   "flow": "happy/lite",
   "commands_run": [
-    "clan read agent test-sandbox/happy/lite/h2-clan/work/doc.clan --skip-guide",
-    "clan patch-data --agent 08-finance-modeler --action \"added 08-finance-modeler findings\" --rationale \"Zoho saves ~EUR17,280 over 3 years with a 7-month payback. Finance leans Zoho. Next: rollout plan.\" test-sandbox/happy/lite/h2-clan/work/doc.clan test-sandbox/happy/lite/_inputs/h2-supplied/08-finance-modeler.json",
-    "clan validate test-sandbox/happy/lite/h2-clan/work/doc.clan",
-    "cp test-sandbox/happy/lite/h2-clan/work/doc.clan test-sandbox/happy/lite/h2-clan/snapshots/hop-08-08-finance-modeler.clan"
+    "clan.exe read agent doc.clan --skip-guide",
+    "clan.exe patch-data doc.clan 08-finance-modeler.json --agent 08-finance-modeler --action \"added 08-finance-modeler findings\"",
+    "clan.exe patch-decision --agent 08-finance-modeler --action \"added 08-finance-modeler findings\" --rationale \"<handoff text>\" doc.clan",
+    "clan.exe validate doc.clan",
+    "Copy-Item doc.clan snapshots/hop-08-08-finance-modeler.clan"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/lite/h2-clan/work/doc.clan", "approx_chars": 3800},
-    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/08-finance-modeler.json", "approx_chars": 194},
-    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/08-finance-modeler.handoff.txt", "approx_chars": 98}
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/08-finance-modeler.json", "approx_chars": 210},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/08-finance-modeler.handoff.txt", "approx_chars": 97}
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/lite/h2-clan/work/doc.clan", "chars": 14100},
-    {"file": "test-sandbox/happy/lite/h2-clan/snapshots/hop-08-08-finance-modeler.clan", "chars": 14100},
-    {"file": "test-sandbox/happy/lite/h2-clan/receipts/hop08-output/patch-data.json", "chars": 194},
-    {"file": "test-sandbox/happy/lite/h2-clan/receipts/hop08-output/decision.txt", "chars": 98},
+    {"file": "test-sandbox/happy/lite/h2-clan/work/doc.clan", "chars": 0},
+    {"file": "test-sandbox/happy/lite/h2-clan/snapshots/hop-08-08-finance-modeler.clan", "chars": 0},
+    {"file": "test-sandbox/happy/lite/h2-clan/receipts/hop08-output/patch-data.json", "chars": 211},
+    {"file": "test-sandbox/happy/lite/h2-clan/receipts/hop08-output/decision.txt", "chars": 97},
     {"file": "test-sandbox/happy/lite/h2-clan/receipts/receipt-hop08.json", "chars": 1350}
   ],
-  "output_chars": 292,
-  "errors": [
-    {
-      "what": "clan patch-data without attribution flags returned exit code 1",
-      "recovered_by": "re-ran with --agent, --action, and --rationale flags"
-    }
-  ],
-  "problems_and_friction": "patch-data requires attribution flags (--agent, --action) even when planning to record a separate decision; the first call failed with an error. Recovered immediately by adding the required flags. No other friction.",
-  "context_understood": "Finance modeler adds 7-field cost model comparing Zoho vs HubSpot 3-year TCO, confirming Zoho as the financially preferred choice with EUR17,280 savings and a 7-month payback period."
+  "output_chars": 308,
+  "errors": [],
+  "problems_and_friction": "clan.exe writes to stderr for success messages causing PowerShell to surface NativeCommandError even on success; all operations completed correctly. No logic errors or data issues encountered.",
+  "context_understood": "Hop 8 finance-modeler adds 7 financial fields (Y1 totals, 3-yr totals, savings, payback, lean recommendation) confirming Zoho as the financially preferred option before the rollout-plan hop."
 }

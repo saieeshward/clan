@@ -1,39 +1,37 @@
 {
-  "role": "pricing-update",
-  "hop": 1,
-  "arm": "h1-adhoc",
-  "flow": "happy/lite",
+  "role": "AD-HOC H1 revision agent",
+  "hop": "01",
+  "arm": "pricing-update",
+  "flow": "h1-adhoc",
   "commands_run": [
-    "Read test-sandbox/happy/lite/h1-adhoc/work/data.json",
-    "Read test-sandbox/happy/lite/h1-adhoc/work/report.html",
-    "Read test-sandbox/happy/lite/h1-adhoc/work/decisions.log",
-    "Edit data.json: zoho_price_per_seat 45→38",
-    "Edit data.json: zoho_annual_total 21600→18240",
-    "Append to decisions.log",
+    "Read work/data.json",
+    "Read work/decisions.log",
+    "Read work/report.html",
+    "Edit work/data.json (zoho_price_per_seat 45→38)",
+    "Edit work/data.json (zoho_annual_total 21600→18240)",
+    "Edit work/decisions.log (append one-line entry)",
     "mkdir snapshots/hop-01-pricing-update",
-    "cp work/* snapshots/hop-01-pricing-update/",
     "mkdir receipts/hop01-output",
-    "Write receipts/hop01-output/patch-data.txt",
-    "Write receipts/hop01-output/decision.txt"
+    "copy work/* → snapshots/hop-01-pricing-update/",
+    "Write receipts/hop01-output/patch.txt",
+    "Write receipts/receipt-hop01.json"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/lite/h1-adhoc/work/data.json", "approx_chars": 1868},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/work/report.html", "approx_chars": 3690},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/work/decisions.log", "approx_chars": 0}
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/data.json", "approx_chars": 950},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/decisions.log", "approx_chars": 2},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/report.html", "approx_chars": 2350}
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/lite/h1-adhoc/work/data.json", "chars": 1868},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/work/decisions.log", "chars": 170},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/receipts/hop01-output/patch-data.txt", "chars": 59},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/receipts/hop01-output/decision.txt", "chars": 170}
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/data.json", "chars": 950},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/decisions.log", "chars": 121},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-01-pricing-update/report.html", "chars": 2350},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-01-pricing-update/data.json", "chars": 950},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-01-pricing-update/decisions.log", "chars": 121},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/receipts/hop01-output/patch.txt", "chars": 185},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/receipts/receipt-hop01.json", "chars": 1100}
   ],
-  "output_chars": 229,
-  "errors": [
-    {
-      "what": "report.html has no literal '$45' or '$21600' — uses template placeholders {{zoho_price_per_seat}} / {{zoho_annual_total}}",
-      "recovered_by": "Updated only data.json; HTML will render correct values via template at render time"
-    }
-  ],
-  "problems_and_friction": "The protocol specifies editing literal '$45'/'$21600' in report.html, but the file uses Mustache-style template placeholders that reference data.json values — there are no literal dollar amounts to replace. The data.json edits are sufficient for the values to be correct when rendered. No other friction encountered.",
-  "context_understood": "Zoho CRM per-seat price drops from 45 to 38, annual total from 21600 to 18240, applied surgically to data.json with snapshot and receipt created."
+  "output_chars": 1100,
+  "errors": [],
+  "problems_and_friction": "First Bash call failed because the tool ran in a POSIX shell despite platform being win32; switched to PowerShell tool for directory and copy operations.",
+  "context_understood": "Zoho CRM per-seat price dropped from 45 to 38; annual total recalculated as 38*40*12=18240. report.html uses {{}} placeholders so no edits needed there. Patch applied to data.json, decisions.log appended, snapshot taken, receipt written."
 }
