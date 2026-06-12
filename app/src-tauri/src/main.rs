@@ -29,6 +29,18 @@ struct AppState {
     current: Mutex<Option<LoadedClan>>,
     edit_mode: Mutex<bool>,
     preview_html: Mutex<String>,
+    // A `.clan` path the OS handed us at launch (double-click / "Open with"),
+    // waiting for the frontend to pull it via `take_launch_file`.
+    pending_open: Mutex<Option<String>>,
+}
+
+/// Pick the first `.clan` file path out of a set of process arguments.
+/// Works for both our own launch args and the argv a second instance is
+/// started with; the executable path and any flags are ignored since they
+/// don't end in `.clan`.
+fn clan_path_from_args<I: IntoIterator<Item = String>>(args: I) -> Option<String> {
+    args.into_iter()
+        .find(|a| a.to_lowercase().ends_with(".clan"))
 }
 
 struct LoadedClan {
@@ -69,6 +81,13 @@ struct OpenResult {
 #[tauri::command]
 fn open_clan(path: String, state: State<AppState>) -> Result<OpenResult, String> {
     do_open_clan(path, &state)
+}
+
+/// Returns (and clears) the `.clan` path the app was launched with, if any.
+/// The frontend calls this once on mount to open a double-clicked file.
+#[tauri::command]
+fn take_launch_file(state: State<AppState>) -> Option<String> {
+    state.pending_open.lock().unwrap().take()
 }
 
 fn do_open_clan(path: String, state: &AppState) -> Result<OpenResult, String> {
@@ -564,7 +583,23 @@ fn save_patch(id: String, content: String, state: State<AppState>) -> Result<(),
 }
 
 fn main() {
+    // The OS launches us with the clicked file as an argument; stash it so the
+    // frontend can pull it once it's ready.
+    let launch_file = clan_path_from_args(std::env::args());
+
     tauri::Builder::default()
+        // Must be the first plugin. When a second instance is started (e.g. the
+        // user double-clicks another .clan file while the viewer is open), this
+        // re-focuses our window and forwards the new path instead of opening a
+        // duplicate window.
+        .plugin(tauri_plugin_single_instance::init(|app, argv, _cwd| {
+            if let Some(w) = app.get_webview_window("main") {
+                let _ = w.set_focus();
+            }
+            if let Some(path) = clan_path_from_args(argv) {
+                let _ = app.emit("open-file", path);
+            }
+        }))
         .register_uri_scheme_protocol("clan", |app, request| {
             let uri = request.uri().to_string();
             let state = app.app_handle().state::<AppState>();
@@ -610,14 +645,15 @@ fn main() {
             }
         })
         .plugin(tauri_plugin_dialog::init())
-        .manage(AppState { 
-            current: Mutex::new(None), 
+        .manage(AppState {
+            current: Mutex::new(None),
             edit_mode: Mutex::new(false),
             preview_html: Mutex::new(String::new()),
+            pending_open: Mutex::new(launch_file),
         })
         .invoke_handler(tauri::generate_handler![
             open_clan, get_human_html, get_data, get_chain, get_agent_state, get_context,
-            save_patch, set_edit_mode, update_preview_html
+            save_patch, set_edit_mode, update_preview_html, take_launch_file
         ])
         .run(tauri::generate_context!())
         .expect("error while running CLAN Viewer");
