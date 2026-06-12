@@ -1470,6 +1470,201 @@ fn pack_html_on_forked_branch_is_teaching_error() {
     );
 }
 
+/// F17: pack-html --agent/--action records an inline attribution entry.
+#[test]
+fn pack_html_attribution_records_decision() {
+    let dir = tempfile::tempdir().unwrap();
+    let parent = create_parent(dir.path());
+    let html = dir.path().join("view.html");
+    std::fs::write(
+        &html,
+        "<!DOCTYPE html><html><body><p>v2</p></body></html>",
+    )
+    .unwrap();
+    let next = dir.path().join("next.clan");
+
+    let out = clan(&[
+        "pack-html",
+        parent.to_str().unwrap(),
+        html.to_str().unwrap(),
+        "--output",
+        next.to_str().unwrap(),
+        "--agent",
+        "design-bot",
+        "--action",
+        "refresh layout",
+    ]);
+    assert!(out.status.success(), "pack-html with attribution failed: {}", stderr(&out));
+
+    let chain = clan(&["read", "chain", next.to_str().unwrap()]);
+    let chain_out = String::from_utf8_lossy(&chain.stdout).into_owned();
+    assert!(chain_out.contains("design-bot"), "agent not in chain: {chain_out}");
+    assert!(chain_out.contains("refresh layout"), "action not in chain: {chain_out}");
+    assert!(chain_out.contains("human/index.html"), "fields_changed missing: {chain_out}");
+}
+
+/// F17: --agent without --action (or vice versa) is an error.
+#[test]
+fn pack_html_partial_attribution_is_error() {
+    let dir = tempfile::tempdir().unwrap();
+    let parent = create_parent(dir.path());
+    let html = dir.path().join("view.html");
+    std::fs::write(&html, "<!DOCTYPE html><html><body><p>x</p></body></html>").unwrap();
+    let next = dir.path().join("next.clan");
+
+    let out = clan(&[
+        "pack-html",
+        parent.to_str().unwrap(),
+        html.to_str().unwrap(),
+        "--output",
+        next.to_str().unwrap(),
+        "--agent",
+        "bot",
+        // --action intentionally omitted
+    ]);
+    assert!(!out.status.success(), "partial attribution must fail");
+    assert!(
+        stderr(&out).contains("--action"),
+        "error must name the missing flag: {}",
+        stderr(&out)
+    );
+}
+
+/// F18: pack-html with structured: data + unchanged view is blocked without --force.
+#[test]
+fn pack_html_data_only_write_is_blocked() {
+    let dir = tempfile::tempdir().unwrap();
+    let parent = create_parent(dir.path());
+
+    // Seed a view so the parent has human/index.html.
+    let seed_html = dir.path().join("seed.html");
+    std::fs::write(
+        &seed_html,
+        "<!DOCTYPE html><html><body><p>seed</p></body></html>",
+    )
+    .unwrap();
+    let seeded = dir.path().join("seeded.clan");
+    clan(&[
+        "pack-html",
+        parent.to_str().unwrap(),
+        seed_html.to_str().unwrap(),
+        "--output",
+        seeded.to_str().unwrap(),
+    ]);
+
+    // Now try to write structured data without changing the view.
+    let data_patch = dir.path().join("patch.html");
+    std::fs::write(
+        &data_patch,
+        "---\nstructured:\n  price: 99\n---\n<!DOCTYPE html><html><body><p>seed</p></body></html>",
+    )
+    .unwrap();
+    let next = dir.path().join("next.clan");
+    let out = clan(&[
+        "pack-html",
+        seeded.to_str().unwrap(),
+        data_patch.to_str().unwrap(),
+        "--output",
+        next.to_str().unwrap(),
+    ]);
+    assert!(!out.status.success(), "data-only write must be blocked");
+    let err = stderr(&out);
+    assert!(
+        err.contains("patch-data") && err.contains("--force"),
+        "error must teach patch-data and --force: {err}"
+    );
+}
+
+/// F18: --force bypasses the guard and emits a tiny note.
+#[test]
+fn pack_html_data_only_write_with_force_succeeds() {
+    let dir = tempfile::tempdir().unwrap();
+    let parent = create_parent(dir.path());
+
+    let seed_html = dir.path().join("seed.html");
+    std::fs::write(
+        &seed_html,
+        "<!DOCTYPE html><html><body><p>seed</p></body></html>",
+    )
+    .unwrap();
+    let seeded = dir.path().join("seeded.clan");
+    clan(&[
+        "pack-html",
+        parent.to_str().unwrap(),
+        seed_html.to_str().unwrap(),
+        "--output",
+        seeded.to_str().unwrap(),
+    ]);
+
+    let data_patch = dir.path().join("patch.html");
+    std::fs::write(
+        &data_patch,
+        "---\nstructured:\n  price: 99\n---\n<!DOCTYPE html><html><body><p>seed</p></body></html>",
+    )
+    .unwrap();
+    let next = dir.path().join("next.clan");
+    let out = clan(&[
+        "pack-html",
+        seeded.to_str().unwrap(),
+        data_patch.to_str().unwrap(),
+        "--output",
+        next.to_str().unwrap(),
+        "--force",
+    ]);
+    assert!(out.status.success(), "--force must allow the write: {}", stderr(&out));
+    let err = stderr(&out);
+    assert!(
+        err.contains("note:"),
+        "must emit a tiny note even with --force: {err}"
+    );
+    assert!(next.exists());
+}
+
+/// F18: pack-html with structured: + genuinely changed view emits a hint but succeeds.
+#[test]
+fn pack_html_structured_with_changed_view_hints_but_succeeds() {
+    let dir = tempfile::tempdir().unwrap();
+    let parent = create_parent(dir.path());
+
+    let seed_html = dir.path().join("seed.html");
+    std::fs::write(
+        &seed_html,
+        "<!DOCTYPE html><html><body><p>old</p></body></html>",
+    )
+    .unwrap();
+    let seeded = dir.path().join("seeded.clan");
+    clan(&[
+        "pack-html",
+        parent.to_str().unwrap(),
+        seed_html.to_str().unwrap(),
+        "--output",
+        seeded.to_str().unwrap(),
+    ]);
+
+    // View is genuinely different — should succeed with a hint on stderr.
+    let combo = dir.path().join("combo.html");
+    std::fs::write(
+        &combo,
+        "---\nstructured:\n  price: 99\n---\n<!DOCTYPE html><html><body><p>new</p></body></html>",
+    )
+    .unwrap();
+    let next = dir.path().join("next.clan");
+    let out = clan(&[
+        "pack-html",
+        seeded.to_str().unwrap(),
+        combo.to_str().unwrap(),
+        "--output",
+        next.to_str().unwrap(),
+    ]);
+    assert!(out.status.success(), "combined view+data write must succeed: {}", stderr(&out));
+    assert!(
+        stderr(&out).contains("patch-data"),
+        "must emit the hint: {}",
+        stderr(&out)
+    );
+    assert!(next.exists());
+}
+
 /// After merging, the resulting file can be forked again for a second parallel pass.
 #[test]
 fn fork_merge_then_fork_again_works() {

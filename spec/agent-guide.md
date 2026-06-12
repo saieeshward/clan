@@ -81,6 +81,19 @@ You have full design control. Provide a complete `<!DOCTYPE html>` document for 
 
 ---
 
+## Write-path decision tree
+
+Pick the command that matches what you are actually changing:
+
+| Changing | Command | Notes |
+|---|---|---|
+| Structured data only | `patch-data` | Surgical, branch-safe, lowest token cost |
+| HTML view only | `pack-html` | Full view replacement — expensive, use sparingly |
+| Both data and view | `pack-html` with `structured:` frontmatter | Legitimate but heavier; consider splitting |
+| Decision / rationale only | `patch-decision` | No data or view change |
+
+`pack-html` blocks with an error when `structured:` data is present but the HTML view is unchanged (you are doing a data-only write the expensive way). Use `patch-data` instead, or pass `--force` to override.
+
 ## Surgical Patching (Lowest token cost, in-place mutation)
 
 If you only need to update a small part of the document, do not output the full JSON or full HTML. Instead, output the precise patch and instruct the operator to use one of the `clan patch-*` commands. These commands mutate the document in-place, preserving all other context automatically.
@@ -91,6 +104,7 @@ If you only need to update a small part of the document, do not output the full 
 - **`clan patch-decision`**: Cleanly appends a standalone decision; for changes tied to data, prefer the inline `--agent`/`--action` on `patch-data`.
 - **`clan patch-context`**: Overwrites or appends to `agent/context.md` (e.g. for agent handoffs).
 - **`clan patch-asset`**: Injects or replaces a binary asset natively. **Attribution is required** (`--agent`/`--action`, or `--no-decision`) — an asset swap is a document change.
+- **`clan pack-html`**: Full view replacement from an HTML file. Add `--agent`/`--action` for inline attribution (records `human/index.html` as the changed field).
 
 See `clan agent-help` for the exact syntax of these commands.
 

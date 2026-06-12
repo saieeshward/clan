@@ -335,6 +335,23 @@ enum Commands {
         /// Human-readable description of what changed.
         #[arg(long)]
         delta: Option<String>,
+        /// Agent recording this view change; enables inline attribution without
+        /// a separate `clan patch-decision` call (F17). Must be paired with --action.
+        #[arg(long)]
+        agent: Option<String>,
+        /// Short description of the view change (F17). Must be paired with --agent.
+        #[arg(long)]
+        action: Option<String>,
+        /// Detailed rationale for the change (optional).
+        #[arg(long)]
+        rationale: Option<String>,
+        /// Pin the recorded decision so it stays highly visible.
+        #[arg(long)]
+        pinned: bool,
+        /// Proceed even when `structured:` data is present but the HTML view is
+        /// unchanged — overrides the data-only-write guard (F18).
+        #[arg(long)]
+        force: bool,
     },
     /// Print a compact agent-oriented quick reference (< 200 tokens).
     /// Use this instead of --help when operating as an AI agent.
@@ -571,7 +588,15 @@ fn main() -> Result<()> {
             assets,
             schema,
             delta,
-        } => cmd_pack_html(parent, html_file, output, assets, schema, delta, &hints),
+            agent,
+            action,
+            rationale,
+            pinned,
+            force,
+        } => cmd_pack_html(
+            parent, html_file, output, assets, schema, delta, agent, action, rationale, pinned,
+            force, &hints,
+        ),
         Commands::AgentHelp => {
             cmd_agent_help();
             Ok(())
@@ -960,6 +985,7 @@ fn cmd_export_static(file: PathBuf, output: Option<PathBuf>) -> Result<()> {
     Ok(())
 }
 
+#[allow(clippy::too_many_arguments)]
 fn cmd_pack_html(
     parent_path: PathBuf,
     html_file: String,
@@ -967,11 +993,33 @@ fn cmd_pack_html(
     assets_dir: Option<PathBuf>,
     schema_path: Option<PathBuf>,
     delta: Option<String>,
+    agent: Option<String>,
+    action: Option<String>,
+    rationale: Option<String>,
+    pinned: bool,
+    force: bool,
     hints: &Hints,
 ) -> Result<()> {
     let parent = open(&parent_path)?;
-
     let raw_html = read_source(&html_file)?;
+
+    // F18: guard against pack-html being used as a data-only write path.
+    let structured_hint = check_pack_html_write_path(&raw_html, &parent, force)?;
+
+    // F17: inline attribution — both flags required together, or neither.
+    let decision = match (agent, action) {
+        (Some(agent_name), Some(act)) => Some(DecisionEntry {
+            agent_name,
+            action: act,
+            rationale: rationale.unwrap_or_default(),
+            pinned,
+            fields_changed: Some(vec!["human/index.html".to_string()]),
+        }),
+        (Some(_), None) | (None, Some(_)) => {
+            anyhow::bail!("--agent and --action must be provided together");
+        }
+        (None, None) => None,
+    };
 
     let mut assets_map = std::collections::HashMap::new();
     if let Some(dir) = assets_dir {
@@ -998,20 +1046,60 @@ fn cmd_pack_html(
         None
     };
 
-    let bytes = pack_html(
+    let bytes = clan_sdk::pack::pack_html_with(
         &parent,
         &raw_html,
         Some(assets_map),
         schema_override,
         delta,
+        decision,
         None,
     )
     .context("pack-html failed")?;
     std::fs::write(&output, &bytes)
         .with_context(|| format!("could not write {}", output.display()))?;
     eprintln!("packed {} ({} bytes)", output.display(), bytes.len());
-    hints.emit(&file_state_hints(&ClanFile::from_bytes(bytes)?, &output));
+
+    let mut hint_lines: Vec<String> = Vec::new();
+    if let Some(h) = structured_hint {
+        hint_lines.push(h);
+    }
+    hint_lines.extend(file_state_hints(&ClanFile::from_bytes(bytes)?, &output));
+    hints.emit(&hint_lines);
     Ok(())
+}
+
+/// F18 write-path guard. Returns:
+/// - `Ok(None)`        — no structured data, proceed silently
+/// - `Ok(Some(hint))`  — view changing + structured data; proceed with a hint
+/// - `Err`             — structured data but view unchanged and --force not given; block
+fn check_pack_html_write_path(
+    raw_html: &str,
+    parent: &ClanFile,
+    force: bool,
+) -> Result<Option<String>> {
+    let (has_structured, html_body) = clan_sdk::pack::inspect_html_frontmatter(raw_html);
+    if !has_structured {
+        return Ok(None);
+    }
+    let existing_view = parent
+        .read_entry_string("human/index.html")
+        .unwrap_or_default();
+    if html_body.trim() == existing_view.trim() {
+        if !force {
+            anyhow::bail!(
+                "pack-html carries `structured:` data but the HTML view is unchanged — \
+                 use `patch-data` for data-only writes (faster, safe on branches)\n\
+                 pass --force to use pack-html anyway"
+            );
+        }
+        eprintln!("note: pack-html used for data-only write; prefer `patch-data` next time");
+        Ok(None)
+    } else {
+        Ok(Some(
+            "structured: data in pack-html; for data-only fields `patch-data` is faster and branch-safe".to_string(),
+        ))
+    }
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -1148,7 +1236,7 @@ API Input Wrapper:
 {{"mode":"full-html","structured":{{...}},"human":{{"html":"...","css":"...","assets":{{"img.png":"..."}}}},"decision":{{"agent":"X","action":"Y","rationale":"Z"}}}}
 *(Note: output-schema.json ONLY validates the 'structured' payload object, not this API wrapper)*
 
-2. HTML Mode (Token-efficient): clan pack-html --output <out> [--schema <schema>] <in> <html_file>
+2. HTML Mode (Token-efficient): clan pack-html --output <out> [--schema <schema>] [--agent X --action Y] <in> <html_file>
 API Input Wrapper:
 ---
 structured: {{...}}
@@ -1157,6 +1245,14 @@ decision: {{agent: X, action: Y, rationale: Z}}
 <!DOCTYPE html><html>...
 (Hint: Use {{{{key}}}} for templating, or window.__CLAN__.data in JS)
 (Hint: frontmatter `structured:` MERGE-PATCHES shared/data.yaml — fields you OMIT are KEPT from prior hops. Only restate what you change; do NOT re-transcribe carried data.)
+(Hint: --agent/--action on pack-html records an inline attribution entry — same as patch-data; or put `decision:` in frontmatter.)
+
+# WRITE PATH — pick the right command
+data only       → patch-data   (surgical, branch-safe, lowest cost)
+view only       → pack-html    (full HTML replacement, expensive — use sparingly)
+data + view     → pack-html with structured: frontmatter  (legitimate but heavier)
+decision only   → patch-decision
+pack-html blocks if structured: is present but the view is unchanged; pass --force to override.
 
 # PATCH (In-place, Lowest Token Cost, Preferred)
 1. DOM: clan patch-html <file> <patch_file> --selector '#id' [--patch-action append|prepend|replace|before|after] --agent X --action Y

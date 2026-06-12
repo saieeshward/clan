@@ -1,0 +1,194 @@
+{
+  "ran_at": "2026-06-12T00:18:05.617Z",
+  "clan_binary": "C:\\Users\\syson\\Documents\\Code\\clan\\target\\release\\clan.exe",
+  "clan_version": "clan 1.1.0",
+  "total": 26,
+  "passed": 26,
+  "hard_failures": 0,
+  "expected_red": [],
+  "unexpected_green": [],
+  "tests": [
+    {
+      "id": "T01a",
+      "name": "create --output",
+      "pass": true,
+      "expect_red": false,
+      "detail": ""
+    },
+    {
+      "id": "T01b",
+      "name": "validate fresh file",
+      "pass": true,
+      "expect_red": false,
+      "detail": ""
+    },
+    {
+      "id": "T01c",
+      "name": "info",
+      "pass": true,
+      "expect_red": false,
+      "detail": ""
+    },
+    {
+      "id": "T02",
+      "name": "create --schema seeds schema (F9)",
+      "pass": true,
+      "expect_red": false,
+      "detail": ""
+    },
+    {
+      "id": "T03",
+      "name": "patch-data --set key=value (F13)",
+      "pass": true,
+      "expect_red": false,
+      "detail": ""
+    },
+    {
+      "id": "T04",
+      "name": "patch-data inline JSON (F13)",
+      "pass": true,
+      "expect_red": false,
+      "detail": ""
+    },
+    {
+      "id": "T05",
+      "name": "patch-data w/o --agent/--action rejected (F15)",
+      "pass": true,
+      "expect_red": false,
+      "detail": ""
+    },
+    {
+      "id": "T06",
+      "name": "--no-decision: no entry, no unknown-agent (F1/F15)",
+      "pass": true,
+      "expect_red": false,
+      "detail": ""
+    },
+    {
+      "id": "T07",
+      "name": "attributed patch -> chain entry + fields_changed (F15)",
+      "pass": true,
+      "expect_red": false,
+      "detail": ""
+    },
+    {
+      "id": "T08",
+      "name": "patch-data --append grows array (F14)",
+      "pass": true,
+      "expect_red": false,
+      "detail": ""
+    },
+    {
+      "id": "T09",
+      "name": "BOM-prefixed JSON accepted (F3)",
+      "pass": true,
+      "expect_red": false,
+      "detail": ""
+    },
+    {
+      "id": "T10",
+      "name": "skip-guide saves >1k chars",
+      "pass": true,
+      "expect_red": false,
+      "detail": ""
+    },
+    {
+      "id": "T11",
+      "name": "patch-html non-matching selector exits non-zero",
+      "pass": true,
+      "expect_red": false,
+      "detail": ""
+    },
+    {
+      "id": "T12",
+      "name": "patch-html append applies",
+      "pass": true,
+      "expect_red": false,
+      "detail": ""
+    },
+    {
+      "id": "T24",
+      "name": "patch-html --selector lands fragment inside element (F16)",
+      "pass": true,
+      "expect_red": false,
+      "detail": ""
+    },
+    {
+      "id": "T13",
+      "name": "fork creates branch per agent",
+      "pass": true,
+      "expect_red": false,
+      "detail": ""
+    },
+    {
+      "id": "T14",
+      "name": "branch rejects direct shared write (guard)",
+      "pass": true,
+      "expect_red": false,
+      "detail": ""
+    },
+    {
+      "id": "T15",
+      "name": "namespace writes accepted on branches",
+      "pass": true,
+      "expect_red": false,
+      "detail": ""
+    },
+    {
+      "id": "T16",
+      "name": "merge detects contested key with provenance (verdict)",
+      "pass": true,
+      "expect_red": false,
+      "detail": ""
+    },
+    {
+      "id": "T17",
+      "name": "merge --policy notes=append folds both",
+      "pass": true,
+      "expect_red": false,
+      "detail": ""
+    },
+    {
+      "id": "T18",
+      "name": "patch-decision appends pinned entry",
+      "pass": true,
+      "expect_red": false,
+      "detail": ""
+    },
+    {
+      "id": "T19",
+      "name": "create --no-render + render materialises view",
+      "pass": true,
+      "expect_red": false,
+      "detail": ""
+    },
+    {
+      "id": "T20",
+      "name": "no stale-view hint for bound-key patch (F2b)",
+      "pass": true,
+      "expect_red": false,
+      "detail": ""
+    },
+    {
+      "id": "T23",
+      "name": "patch-requirements surfaced in read agent (F8/L5)",
+      "pass": true,
+      "expect_red": false,
+      "detail": ""
+    },
+    {
+      "id": "T21",
+      "name": "read decisions == read chain (F12)",
+      "pass": true,
+      "expect_red": false,
+      "detail": ""
+    },
+    {
+      "id": "T22",
+      "name": "export-static keys complete",
+      "pass": true,
+      "expect_red": false,
+      "detail": ""
+    }
+  ]
+}
