@@ -78,7 +78,7 @@ Agents don't need to be taught any of this: the CLI is **self-teaching**. Every 
 
 ## Results — What the Benchmark Says, Including Where CLAN Loses
 
-We ran **30 real agents** (no scripted outputs) through **11 flows** on one fixed task: serial vs parallel × CLAN vs ad-hoc files × guided vs unguided prompts × ± a live human edit. All context sizes were measured from artifacts, not estimated. Full write-up: [`research/14-flow-benchmark.md`](research/14-flow-benchmark.md).
+We ran **30 real agents** (no scripted outputs) through **11 flows** on one fixed task: serial vs parallel × CLAN vs ad-hoc files × guided vs unguided prompts × ± a live human edit. All context sizes were measured from artifacts, not estimated — the raw snapshots, per-agent receipts, and metrics live in [`test-sandbox/`](test-sandbox/) so you can audit every number below. Full write-up: [`research/14-flow-benchmark.md`](research/14-flow-benchmark.md).
 
 ### What survives the handoff — with and without a careful prompt
 
