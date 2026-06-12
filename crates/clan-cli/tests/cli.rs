@@ -1665,6 +1665,100 @@ fn pack_html_structured_with_changed_view_hints_but_succeeds() {
     assert!(next.exists());
 }
 
+/// Run the binary with hints explicitly enabled (CLAN_NO_HINTS="").
+fn clan_hints(args: &[&str]) -> Output {
+    Command::new(env!("CARGO_BIN_EXE_clan"))
+        .args(args)
+        .env("CLAN_NO_BANNER", "1")
+        .env("CLAN_NO_HINTS", "")
+        .output()
+        .expect("failed to run clan binary")
+}
+
+/// F2b: patching a key that is {{bound}} in the HTML view suppresses the stale hint.
+#[test]
+fn patch_data_bound_key_suppresses_stale_hint() {
+    let dir = tempfile::tempdir().unwrap();
+    let parent = create_parent(dir.path());
+
+    // Seed a view that binds {{price}}.
+    let html = dir.path().join("bound.html");
+    std::fs::write(
+        &html,
+        "<!DOCTYPE html><html><body><p>Price: {{price}}</p></body></html>",
+    )
+    .unwrap();
+    let seeded = dir.path().join("seeded.clan");
+    clan(&[
+        "pack-html",
+        parent.to_str().unwrap(),
+        html.to_str().unwrap(),
+        "--output",
+        seeded.to_str().unwrap(),
+    ]);
+
+    // Patch only the bound key — view will auto-render, no stale hint.
+    let out = clan_hints(&[
+        "patch-data",
+        seeded.to_str().unwrap(),
+        r#"{"price":99}"#,
+        "--agent",
+        "test-bot",
+        "--action",
+        "update price",
+    ]);
+    assert!(out.status.success());
+    assert!(
+        !stderr(&out).contains("stale"),
+        "stale hint must be suppressed for bound key: {}",
+        stderr(&out)
+    );
+}
+
+/// F2b: patching an unbound key names it in the hint rather than emitting a generic stale message.
+#[test]
+fn patch_data_unbound_key_names_orphan_in_hint() {
+    let dir = tempfile::tempdir().unwrap();
+    let parent = create_parent(dir.path());
+
+    // Seed a view that binds {{price}} but NOT {{discount}}.
+    let html = dir.path().join("bound.html");
+    std::fs::write(
+        &html,
+        "<!DOCTYPE html><html><body><p>Price: {{price}}</p></body></html>",
+    )
+    .unwrap();
+    let seeded = dir.path().join("seeded.clan");
+    clan(&[
+        "pack-html",
+        parent.to_str().unwrap(),
+        html.to_str().unwrap(),
+        "--output",
+        seeded.to_str().unwrap(),
+    ]);
+
+    // Patch an unbound key — hint must name it, not give a generic stale message.
+    let out = clan_hints(&[
+        "patch-data",
+        seeded.to_str().unwrap(),
+        r#"{"discount":5}"#,
+        "--agent",
+        "test-bot",
+        "--action",
+        "add discount",
+    ]);
+    assert!(out.status.success());
+    let err = stderr(&out);
+    assert!(
+        err.contains("discount"),
+        "hint must name the unbound key: {err}"
+    );
+    assert!(
+        !err.contains("stale — `clan render"),
+        "must not emit generic stale hint: {err}"
+    );
+}
+
 /// After merging, the resulting file can be forked again for a second parallel pass.
 #[test]
 fn fork_merge_then_fork_again_works() {

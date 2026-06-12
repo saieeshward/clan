@@ -616,7 +616,7 @@ struct Hints {
 impl Hints {
     fn new(quiet: bool) -> Self {
         Self {
-            enabled: !quiet && std::env::var_os("CLAN_NO_HINTS").is_none(),
+            enabled: !quiet && std::env::var("CLAN_NO_HINTS").map_or(true, |v| v.is_empty()),
         }
     }
 
@@ -632,7 +632,14 @@ impl Hints {
 
 /// Hints derived purely from a written file's state (spec §27.1): each line's
 /// precondition is the manifest/member state that makes it actionable.
-fn file_state_hints(clan: &ClanFile, path: &std::path::Path) -> Vec<String> {
+///
+/// `patch_keys`: when `Some`, the stale-view hint is filtered by F2b binding
+/// coverage — keys that are `{{bound}}` in the HTML auto-render, so no hint.
+fn file_state_hints(
+    clan: &ClanFile,
+    path: &std::path::Path,
+    patch_keys: Option<&[String]>,
+) -> Vec<String> {
     let mut hints = Vec::new();
     let m = clan.manifest();
     let p = path.display();
@@ -661,19 +668,80 @@ fn file_state_hints(clan: &ClanFile, path: &std::path::Path) -> Vec<String> {
                 "file is agent-only; `clan render {p}` materialises the human view when needed"
             ));
         } else if view.present && view.stale {
-            // Don't suggest a destructive `render` over a hand-authored view (F2).
-            if view.source.as_deref() == Some("agent") {
-                hints.push(format!(
-                    "human view is stale and hand-authored — re-run `clan pack-html` to refresh it (or `clan render {p}` to REPLACE it with the default theme, discarding the custom design)"
-                ));
+            // F2b: when we know which keys changed, suppress the hint if every
+            // changed key has a {{key}} binding in the HTML view (it auto-renders).
+            let suppress = if let Some(keys) = patch_keys {
+                if keys.is_empty() {
+                    false
+                } else {
+                    let html = clan
+                        .read_entry_string("human/index.html")
+                        .unwrap_or_default();
+                    let bound = extract_binding_keys(&html);
+                    keys.iter().all(|k| bound.contains(k.as_str()))
+                }
             } else {
-                hints.push(format!(
-                    "human view is stale — `clan render {p}` to refresh"
-                ));
+                false
+            };
+
+            if suppress {
+                // All changed keys are bound — view will auto-render, no hint needed.
+            } else if let Some(keys) = patch_keys {
+                // Some keys are unbound — name them specifically (F2b).
+                let html = clan
+                    .read_entry_string("human/index.html")
+                    .unwrap_or_default();
+                let bound = extract_binding_keys(&html);
+                let unbound: Vec<&str> = keys
+                    .iter()
+                    .filter(|k| !bound.contains(k.as_str()))
+                    .map(String::as_str)
+                    .collect();
+                if !unbound.is_empty() {
+                    let names = unbound.join(", ");
+                    hints.push(format!(
+                        "data key(s) not reflected in view ({names}) — use pack-html or patch-html to show them"
+                    ));
+                }
+            } else {
+                // No key context — generic stale hint (F2, hand-authored aware).
+                if view.source.as_deref() == Some("agent") {
+                    hints.push(format!(
+                        "human view is stale and hand-authored — re-run `clan pack-html` to refresh it (or `clan render {p}` to REPLACE it with the default theme, discarding the custom design)"
+                    ));
+                } else {
+                    hints.push(format!(
+                        "human view is stale — `clan render {p}` to refresh"
+                    ));
+                }
             }
         }
     }
     hints
+}
+
+/// Extract top-level key names referenced by `{{key}}` or `{{key.path}}` in HTML.
+fn extract_binding_keys(html: &str) -> std::collections::HashSet<String> {
+    let mut keys = std::collections::HashSet::new();
+    let mut rest = html;
+    while let Some(start) = rest.find("{{") {
+        rest = &rest[start + 2..];
+        if let Some(end) = rest.find("}}") {
+            let binding = &rest[..end];
+            let key = binding.split('.').next().unwrap_or("").trim();
+            if !key.is_empty()
+                && key
+                    .chars()
+                    .all(|c| c.is_alphanumeric() || c == '_' || c == '-')
+            {
+                keys.insert(key.to_string());
+            }
+            rest = &rest[end + 2..];
+        } else {
+            break;
+        }
+    }
+    keys
 }
 
 fn cmd_create(
@@ -722,7 +790,7 @@ fn cmd_create(
         clan.manifest().id
     );
     let mut lines = vec![format!("clan read agent {}", output.display())];
-    lines.extend(file_state_hints(&clan, &output));
+    lines.extend(file_state_hints(&clan, &output, None));
     hints.emit(&lines);
     Ok(())
 }
@@ -863,7 +931,7 @@ fn cmd_validate(file: PathBuf, strict: bool, hints: &Hints) -> Result<()> {
     if strict && !report.is_content_valid() {
         std::process::exit(2);
     }
-    hints.emit(&file_state_hints(&clan, &file));
+    hints.emit(&file_state_hints(&clan, &file, None));
     Ok(())
 }
 
@@ -966,7 +1034,7 @@ fn cmd_pack(
     std::fs::write(&output, &bytes)
         .with_context(|| format!("could not write {}", output.display()))?;
     eprintln!("packed {} ({} bytes)", output.display(), bytes.len());
-    hints.emit(&file_state_hints(&ClanFile::from_bytes(bytes)?, &output));
+    hints.emit(&file_state_hints(&ClanFile::from_bytes(bytes)?, &output, None));
     Ok(())
 }
 
@@ -1064,7 +1132,7 @@ fn cmd_pack_html(
     if let Some(h) = structured_hint {
         hint_lines.push(h);
     }
-    hint_lines.extend(file_state_hints(&ClanFile::from_bytes(bytes)?, &output));
+    hint_lines.extend(file_state_hints(&ClanFile::from_bytes(bytes)?, &output, None));
     hints.emit(&hint_lines);
     Ok(())
 }
@@ -1496,7 +1564,12 @@ fn cmd_patch_data(
             }
         }
     }
-    lines.extend(file_state_hints(&next, &file));
+    // F2b: pass changed top-level keys so the stale hint can check {{binding}} coverage.
+    let changed_keys: Vec<String> = patch
+        .as_object()
+        .map(|o| o.keys().cloned().collect())
+        .unwrap_or_default();
+    lines.extend(file_state_hints(&next, &file, Some(&changed_keys)));
     hints.emit(&lines);
     Ok(())
 }
