@@ -1,1 +1,0 @@
-2026-06-11 hop-05 residency-section: Inserted h2#data-residency + p#residency-detail after Data governance section in report.html (h1-supplied fragment verbatim).

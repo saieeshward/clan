@@ -80,7 +80,7 @@ Agents don't need to be taught any of this: the CLI is **self-teaching**. Every 
 
 ## Results — What the Benchmark Says, Including Where CLAN Loses
 
-Two measurement campaigns back every number below. **Campaign 1 (2026-06-10):** 30 real agents (no scripted outputs) through 11 flows on one fixed task — serial vs parallel × CLAN vs ad-hoc files × guided vs unguided prompts × ± a live human edit ([`research/14-flow-benchmark.md`](research/14-flow-benchmark.md)). **Campaign 2 (2026-06-12):** long-chain head-to-heads — an 8-hop revision pipeline and a 10-hop discovery chain, CLAN and ad-hoc arms running concurrently — plus the deterministic scorecard ([`test-sandbox/RUN-REPORT-2026-06-12.md`](test-sandbox/RUN-REPORT-2026-06-12.md)). All context sizes were measured from artifacts, not estimated; raw snapshots, per-agent receipts, and metrics live in [`test-sandbox/`](test-sandbox/) so you can audit everything.
+Two measurement campaigns back every number below. **Campaign 1 (2026-06-10):** 30 real agents (no scripted outputs) through 11 flows on one fixed task — serial vs parallel × CLAN vs ad-hoc files × guided vs unguided prompts × ± a live human edit. **Campaign 2 (2026-06-12):** long-chain head-to-heads — an 8-hop revision pipeline and a 10-hop discovery chain, CLAN and ad-hoc arms running concurrently — plus the deterministic scorecard. All context sizes were measured from artifacts, not estimated.
 
 ### What survives the handoff — with and without a careful prompt
 
@@ -97,7 +97,7 @@ The core result. Final artifacts, audited per flow (serial arms shown):
 
 〰️ = partial (one-line logs or prose-only). **Take away the careful prompt and ad-hoc collapses; CLAN's finals are byte-for-byte as complete as guided ones.** The format carries the discipline so the prompt doesn't have to.
 
-### Measured claims (scorecard run 2026-06-12 — [full report](test-sandbox/RUN-REPORT-2026-06-12.md))
+### Measured claims (scorecard run 2026-06-12)
 
 | Claim | Measured | Threshold | Status |
 |---|---|---|:---:|
@@ -245,7 +245,6 @@ A Tauri app (`app/`) renders the human view of any `.clan` file with click-to-ed
 | [spec/SEQUENCE-DIAGRAMS.md](spec/SEQUENCE-DIAGRAMS.md) | All key interaction flows |
 | [spec/clan.md](spec/clan.md) | Embedded spec (travels inside every .clan file) |
 | [spec/agent-guide.md](spec/agent-guide.md) | Agent injection guide (travels inside every .clan file) |
-| [research/](research/) | Benchmarks, comparisons, and findings — including the negative results |
 | [CHANGELOG.md](CHANGELOG.md) | Release history |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | How to contribute |
 
@@ -261,7 +260,7 @@ A CLAN file is live: it carries its own specification, so any agent can understa
 
 ## Status
 
-**v1.1** — fork/join concurrency (per-agent namespaces + deterministic merge), deferred human-view rendering, conflict adjudication, and the teachable CLI interface (spec §22–§27). Verified by 165 Rust tests + a 26-test black-box conformance suite in CI, with [binaries for every platform on the Releases page](https://github.com/saieeshward/clan/releases).
+**v1.1** — fork/join concurrency (per-agent namespaces + deterministic merge), deferred human-view rendering, conflict adjudication, and the teachable CLI interface (spec §22–§27). Verified by 165 Rust tests + a 26-test black-box conformance suite, with [binaries for every platform on the Releases page](https://github.com/saieeshward/clan/releases).
 
 ## Maintainers
 

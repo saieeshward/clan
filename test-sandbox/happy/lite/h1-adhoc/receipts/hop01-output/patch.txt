@@ -1,6 +1,0 @@
-data.json patch:
-  "zoho_price_per_seat": 45  →  38
-  "zoho_annual_total": 21600  →  18240
-
-decisions.log append:
-2026-06-12 hop-01 pricing-update: zoho_price_per_seat 45→38, zoho_annual_total 21600→18240 (38*40*12); source: vendor price drop notification.
