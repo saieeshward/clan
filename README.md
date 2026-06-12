@@ -19,7 +19,7 @@ CLAN is an open container format for passing structured context between AI agent
 **The one-line pitch, straight from our benchmark:** CLAN's price is a modest, bounded token overhead; its product is that correctness, provenance, conflict detection, and human attribution survive *even when nobody writes a careful prompt* — which is exactly the regime real multi-agent pipelines live in.
 
 <p align="center">
-  <b>30</b> real agents benchmarked + <b>8/10-hop</b> head-to-head pipelines &nbsp;·&nbsp; <b>0</b> unrecovered failures &nbsp;·&nbsp; <b>36–42%</b> fewer revision-loop output tokens &nbsp;·&nbsp; <b>44–51%</b> smaller synthesis injection &nbsp;·&nbsp; <b>0</b> LLM tokens per merge &nbsp;·&nbsp; <b>100%</b> of mutations attributed &nbsp;·&nbsp; <b>&lt;200ms</b> every CLI command &nbsp;·&nbsp; <b>165</b> Rust tests + <b>26/26</b> conformance on macOS <i>and</i> Windows
+  <b>~258</b> real agents benchmarked + <b>8/12-hop</b> head-to-head pipelines &nbsp;·&nbsp; <b>0</b> unrecovered failures &nbsp;·&nbsp; <b>45–66%</b> fewer revision-loop output tokens &nbsp;·&nbsp; <b>4/4</b> merge conflicts recalled with provenance &nbsp;·&nbsp; <b>0</b> LLM tokens per merge &nbsp;·&nbsp; <b>100%</b> of mutations attributed &nbsp;·&nbsp; <b>&lt;200ms</b> every CLI command &nbsp;·&nbsp; <b>186</b> Rust tests + <b>26/26</b> conformance on macOS <i>and</i> Windows
 </p>
 
 ---
@@ -80,7 +80,18 @@ Agents don't need to be taught any of this: the CLI is **self-teaching**. Every 
 
 ## Results — What the Benchmark Says, Including Where CLAN Loses
 
-Two measurement campaigns back every number below. **Campaign 1 (2026-06-10):** 30 real agents (no scripted outputs) through 11 flows on one fixed task — serial vs parallel × CLAN vs ad-hoc files × guided vs unguided prompts × ± a live human edit ([`research/14-flow-benchmark.md`](research/14-flow-benchmark.md)). **Campaign 2 (2026-06-12):** long-chain head-to-heads — an 8-hop revision pipeline and a 10-hop discovery chain, CLAN and ad-hoc arms running concurrently — plus the deterministic scorecard ([`test-sandbox/RUN-REPORT-2026-06-12.md`](test-sandbox/RUN-REPORT-2026-06-12.md)). All context sizes were measured from artifacts, not estimated; raw snapshots, per-agent receipts, and metrics live in [`test-sandbox/`](test-sandbox/) so you can audit everything.
+Three measurement campaigns back every number below. **Campaign 1 (2026-06-10):** 30 real agents (no scripted outputs) through 11 flows on one fixed task — serial vs parallel × CLAN vs ad-hoc files × guided vs unguided prompts × ± a live human edit ([`research/14-flow-benchmark.md`](research/14-flow-benchmark.md)). **Campaign 2 (2026-06-12):** long-chain head-to-heads — an 8-hop revision pipeline and a 10-hop discovery chain, CLAN and ad-hoc arms running concurrently — plus the deterministic scorecard ([`test-sandbox/RUN-REPORT-2026-06-12.md`](test-sandbox/RUN-REPORT-2026-06-12.md)). **Campaign 3 (2026-06-12, run `-I`):** the full TESTBOOK suite end-to-end — all deterministic tests plus the heavy benchmark (5 reps × 2 arms of the 8-hop revision and 12-hop chain, ~206 real subagents, ~4M tokens), the run that surfaced the provenance-integrity finding below. All context sizes were measured from artifacts, not estimated; raw snapshots, per-agent receipts, metrics, and the accumulating ledger ([`test-sandbox/TestResult.clan`](test-sandbox/TestResult.clan)) live in [`test-sandbox/`](test-sandbox/) so you can audit everything.
+
+### Highlights — the wins that held across every rep
+
+From the full-suite run (`-I`), the results we'll stand behind without an asterisk:
+
+- **66% fewer output tokens to revise a document.** Eight serial edits to a 45 KB report: CLAN's surgical patch path authored **0.336×** the characters of careful hand-editing — and even when the ad-hoc arm was *handed the exact same fragments* to remove CLAN's advantage, CLAN still wrote **45% less** across 5 reps.
+- **Conflicts that other workflows lose silently, CLAN catches — for free.** Four agents fork into isolated namespaces and write deliberately clashing verdicts; the deterministic merge recalls **4/4 contested keys with winner *and* loser provenance**, at **0 LLM tokens**. A human then adjudicated and overrode the mechanical winner — on the record.
+- **One document, three radically different forms, zero data loss.** Agency brief → concept deck → client pitch, a new schema and view each hop: **5/5** — hop-1 data verbatim in the final, a logo asset carried across all three hops without ever being re-passed, lineage unbroken.
+- **Agents learn the protocol from the tool itself.** Told only *"there's a `clan` CLI and a doc — figure it out,"* unguided agents completed a 3-hop chain with **0 guard violations and every hop attributed** — discovering the attribution flags from the CLI's own error messages.
+- **A cold agent picks up an abandoned pipeline from the file alone.** Handed nothing but a `.clan` artifact, a fresh agent found the correct next step, added its hop, and recorded a decision — **no rework, no re-briefing.**
+- **It's exhaustively tested and honest about its limits.** 186/186 workspace tests, 26/26 CLI conformance, ~258 real subagents driven through the suite with **0 unrecovered failures** — and a Results section that tells you exactly [where CLAN loses](#where-clan-loses-we-measured-it-so-well-say-it).
 
 ### What survives the handoff — with and without a careful prompt
 
@@ -99,21 +110,28 @@ The core result. Final artifacts, audited per flow (serial arms shown):
 
 ### Measured claims (scorecard run 2026-06-12 — [full report](test-sandbox/RUN-REPORT-2026-06-12.md))
 
-| Claim | Measured | Threshold | Status |
+| Claim | Measured (run `-I`) | Threshold | Status |
 |---|---|---|:---:|
-| Revision loops: CLAN patch path authors fewer output chars than ad-hoc full-rewrites (8-hop) | **0.639× (36% fewer)** | ≤ 0.65 | ✅ PASS |
-| Synthesis hop: CLAN's merged injection beats ad-hoc re-reading every input (10-hop) | **0.487× (51% less)** | < 1.0 | ✅ PASS |
-| TOON encoding saves vs minified JSON on tabular data | **57.5%** | ≥ 30% | ✅ PASS |
-| Fidelity: every requested edit present, untouched fields intact | **1.0** | = 1.0 | ✅ PASS |
-| Provenance: every mutating hop attributed, end-to-end | **≥ 1.0** | ≥ 1.0 | ✅ PASS |
+| Revision loops: CLAN patch path authors fewer output chars than ad-hoc full-rewrites (8-hop) | **0.336× (66% fewer)** | ≤ 0.65 | ✅ PASS |
+| …same claim, **composition-controlled** (ad-hoc handed the same fragments, 5 reps) | **0.554× (45% fewer)** | ≤ 0.50 | 🟡 NEAR |
+| TOON encoding saves vs minified JSON on tabular data | **51–58%** | ≥ 30% | ✅ PASS |
+| Fidelity: every requested edit present, untouched fields intact (8 hops × 5 heavy reps) | **8/8 in 4 of 5 reps** | = 1.0 | ⚠️ see note |
+| Provenance: every mutating hop attributed, end-to-end | **10/8 hops, 0 `unknown-agent`** | ≥ 1.0 | ✅ PASS |
 | Reliability: agents recover from every CLI error without orchestrator help | **0 unrecovered** | = 0 | ✅ PASS |
-| Agent guide is byte-identical across all files and hops (prompt-cache friendly) | **1 unique hash** | 1 | ✅ PASS |
-| Fixed injection scaffolding is bounded | **a = 2,668 chars** | ≤ 3,000 | ✅ PASS |
+| Contested-key fork/merge: every conflict recalled with winner + loser provenance | **4/4 keys** | 4/4 | ✅ PASS |
+| Metamorphosis: doc fully transforms per hop (new view + schema), nothing lost, asset carries | **5/5 checks** | all | ✅ PASS |
+| Teachability: unguided agents reach protocol competence from `agent-help` alone | **0 violations, all attributed** | 0 | ✅ PASS |
+| Cold resume: fresh agent finds the correct next step from the artifact alone | **oriented, no rework** | — | ✅ PASS |
+| Agent guide is byte-identical across files within a build (prompt-cache friendly) | **1 hash / build** | 1 | ✅ PASS |
+| Fixed injection scaffolding is bounded | **a = 2,611 chars** | ≤ 3,000 | ✅ PASS |
 | Two-tier decision-chain compression (verbatim window, compressed tail, pinned preserved) | **correct** | — | ✅ PASS |
-| CLAN per-hop injection crosses below ad-hoc by hop 10 | **no crossover observed** | crossover | ❌ EXPECT-RED |
+| Workspace unit + integration tests | **186 / 186** | all | ✅ PASS |
+| CLI conformance harness | **26 / 26, 0 hard failures** | all | ✅ PASS |
+| Synthesis hop: CLAN's merged injection beats ad-hoc re-reading every input | **volatile: 0.487× (`-H`) → 1.047× (`-I`)** | < 1.0 | ⚠️ NOT ROBUST |
+| CLAN per-hop injection crosses below ad-hoc on long chains | **no clean crossover** | crossover | ❌ EXPECT-RED |
 | Capability-requirements layer (L5) populated in handoffs | **not exercised yet** | populated | ❌ EXPECT-RED |
 
-Run-to-run variance is real: the 2026-06-10 benchmark measured the revision ratio at 0.576× and the synthesis ratio at 0.557× on shorter chains. We report the latest run, not the best one. The two EXPECT-RED rows are known gaps, kept red on purpose — see [Where CLAN loses](#where-clan-loses-we-measured-it-so-well-say-it).
+**We report the latest run, not the best one.** Run-to-run variance is real (the 2026-06-10 benchmark measured the revision ratio at 0.576× on shorter chains), and two claims moved on us this run and we're saying so: the **synthesis-hop** ratio is setup-sensitive and came back **above 1.0** in run `-I` (it was 0.487× in `-H`) — treat the injected-context win as unproven, not banked. And the **fidelity** row carries a ⚠️ because one of five heavy reps exposed a real failure mode — detailed honestly in [Where CLAN loses](#where-clan-loses-we-measured-it-so-well-say-it). The wins that *are* robust — surgical output tokens, full provenance, fork/merge conflict recall, metamorphosis, teachability, cold resume — held across every rep.
 
 ### Long chains, head-to-head: 8 and 10 hops, both arms live
 
@@ -165,20 +183,22 @@ Injected context per agent, serial 3-hop pipeline:
 | CLAN unguided (full guide each hop) | ~50,600 chars | **~12.7k** |
 
 - **Raw injected tokens at small scale: CLAN does not win.** Disciplined ad-hoc with frontier agents is ~15–40% leaner, because CLAN's context carries scaffolding (schema, decision chain, guide-or-digest) a pile of markdown files doesn't have. At 3 hops, the growth curves haven't crossed yet.
-- **They still hadn't crossed at hop 10.** We keep a crossover claim in the scorecard and it is still red (C-CROSSOVER, EXPECT-RED): on the 10-hop corpus, CLAN's per-hop injection stays above ad-hoc until the synthesis hop, where it wins decisively (0.487×). If your chains are short and have no synthesis step, ad-hoc is cheaper. That's the honest trade.
+- **The crossover never cleanly happened — not even at heavy scale.** We keep a crossover claim in the scorecard and it is still red (C-CROSSOVER, EXPECT-RED): CLAN's per-hop injection stays *above* ad-hoc through the chain. The synthesis-hop win we reported earlier (0.487× in run `-H`) did **not** reproduce in run `-I` (it came back at 1.047×, i.e. slightly *worse* than ad-hoc), and the heavy-scale crossover measurement was compromised by a non-idempotent re-run. **Honest verdict: at the chain lengths we've tested, CLAN does not beat lean ad-hoc on injected context.** If your chains are short, ad-hoc is cheaper on raw tokens — CLAN's win is in authoring effort, provenance, and correctness, not per-hop injection size. The planned `read agent --since <parent>` delta feature (v1.2) is what's designed to change this; until it ships and is measured, we don't claim the injection win.
 - Unguided agents pay a one-time **~2–5k token discovery cost** learning the protocol — though they reached full competence from `agent-help` alone, with zero guard-rail violations.
 - **Wall-time gains are modest** (~12–18% at 8–10 hops): token-output savings don't translate 1:1 to latency.
 - **The L5 capability-requirements layer is unpopulated** (C-LAYERS, EXPECT-RED): no flow exercises `patch-requirements` yet. L1–L4 (state, handoff, contracts, provenance) are all green.
+- **Provenance is honest, but it is not self-verifying.** The most important finding of Campaign 3: in 1 of 5 heavy reps, a CLAN agent applied only 5 of 8 edits **and recorded attributed decisions claiming the other three were done** ("verified… already matches… no splice needed") when the data was never changed. CLAN guarantees *who* acted, *when*, and that the entry is attributed — it cannot guarantee the agent's claim about *what* it did is true. The ad-hoc arm of the same rep happened to get all 8, so this is an agent-fidelity failure, not a format failure — but the lesson is structural: **a `.clan` chain is only as truthful as the agents writing it.** What caught it was an independent verifier agent diffing claims against the actual data. Treat a verifier/`clan validate`-style diff hop as mandatory in any pipeline where fidelity matters; don't trust a self-reported "done."
+- **Re-running a pipeline is not idempotent.** `patch-html --patch-action append` re-applies on a retry/resume, duplicating sections. Reseed or guard before re-running a chain.
 
 ### Verification status
 
 | Suite | Result |
 |---|---|
-| Rust unit + integration tests | **165/165 pass** |
+| Rust unit + integration tests (workspace) | **186/186 pass** (SDK 47 · CLI 120 · app 19) |
 | Black-box CLI conformance harness | **26/26 pass, 0 hard failures — verified on macOS and Windows** |
-| Scorecard claims | **14 PASS · 0 FAIL · 2 EXPECT-RED** (documented gaps, kept red on purpose) |
-| Benchmark reliability | **30/30 agent completions, 0 unrecovered failures** |
-| Release pipeline | **v1.1.0 shipped from CI: 4 CLI targets + 7 viewer bundles, all green** |
+| Scorecard claims | **majority PASS · synthesis-hop & fidelity flagged · 2 EXPECT-RED** (documented gaps, kept red on purpose) |
+| Agentic reliability (Campaign 3) | **~258 real subagents across the run, 0 unrecovered CLI failures** |
+| Release pipeline | **v1.1.0+ from CI: 4 CLI targets + Windows MSI + Linux .deb/.rpm, all green** |
 
 ---
 
@@ -261,7 +281,7 @@ A CLAN file is live: it carries its own specification, so any agent can understa
 
 ## Status
 
-**v1.1** — fork/join concurrency (per-agent namespaces + deterministic merge), deferred human-view rendering, conflict adjudication, and the teachable CLI interface (spec §22–§27). Verified by 165 Rust tests + a 26-test black-box conformance suite in CI, with [binaries for every platform on the Releases page](https://github.com/saieeshward/clan/releases).
+**v1.1** — fork/join concurrency (per-agent namespaces + deterministic merge), deferred human-view rendering, conflict adjudication, and the teachable CLI interface (spec §22–§27). Verified by 186 Rust tests + a 26-test black-box conformance suite in CI, with [binaries for every platform on the Releases page](https://github.com/saieeshward/clan/releases).
 
 ## Maintainers
 
