@@ -267,6 +267,14 @@ A CLAN file is live: it carries its own specification, so any agent can understa
 
 Maintained by [Sai Eeshwar](https://github.com/saieeshward) and [Shreyansh Soni](https://github.com/batunii).
 
+## Built With
+
+The CLI and SDK are written in [Rust](https://www.rust-lang.org/). Key libraries: [serde](https://github.com/serde-rs/serde), [clap](https://github.com/clap-rs/clap), [jsonschema-rs](https://github.com/Stranger6667/jsonschema-rs), [lol_html](https://github.com/cloudflare/lol-html) (BSD-2-Clause, © Cloudflare, Inc.), [chrono](https://github.com/chronotope/chrono), [zip](https://github.com/zip-rs/zip2), [tokio](https://github.com/tokio-rs/tokio).
+
+The Desktop Viewer is built with [Tauri](https://tauri.app/) (© The Tauri Programme within The Commons Conservancy, MIT/Apache-2.0) and [React](https://react.dev/) (© Meta Platforms, Inc., MIT). Full third-party credits: [NOTICE](NOTICE).
+
+The CLI and SDK use [TOON (Token-Oriented Object Notation)](https://github.com/toon-format/spec) for token-efficient agent context injection (spec §14). TOON is an open specification by [Johann Schopplich](https://github.com/johannschopplich) (MIT License © 2025-present Johann Schopplich).
+
 ## License
 
 [MPL-2.0](LICENSE) — the spec is open; implementations in any language are welcome.

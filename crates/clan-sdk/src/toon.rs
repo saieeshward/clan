@@ -4,6 +4,9 @@
 
 //! TOON — Token-Oriented Object Notation (spec §14).
 //!
+//! TOON is a format specification by Johann Schopplich.
+//! Specification: https://github.com/toon-format/spec (MIT License © 2025-present Johann Schopplich)
+//!
 //! TOON encodes the same data model as JSON/YAML using indentation and
 //! explicit `[n]` length declarations instead of brackets, for roughly 40%
 //! fewer tokens on structured data. It is an **input-side** serialisation:

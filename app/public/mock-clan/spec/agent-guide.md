@@ -14,7 +14,7 @@ CLAN (Context and Live Agent Notation) is a file format for passing structured c
 | `agent/output-schema.json` | JSON Schema | Exactly what you must return |
 | `human/patches.yaml` | YAML | Text edits made by humans (if included) |
 
-`shared/data.yaml` and `agent/decision-chain.yaml` are serialised as **TOON (Token-Oriented Object Notation)** — same data as the source YAML files, ~40% fewer tokens. Read them as structured key-value data.
+`shared/data.yaml` and `agent/decision-chain.yaml` are serialised as **TOON (Token-Oriented Object Notation)** (spec: https://github.com/toon-format/spec, © Johann Schopplich, MIT) — same data as the source YAML files, ~40% fewer tokens. Read them as structured key-value data.
 
 **⚠ Token-saving rule**: `clan read agent` includes all data (TOON-encoded). Do NOT also run `clan read data` — it returns the same content in a different format and wastes tokens.
 

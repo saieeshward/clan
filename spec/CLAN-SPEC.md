@@ -802,7 +802,7 @@ This ensures the SDK's I/O footprint matches the operation being performed, not 
 
 ### TOON Serialisation for Injected Context
 
-The SDK serialises `shared/data.yaml` and `agent/decision-chain.yaml` as **TOON (Token-Oriented Object Notation)** before injection. TOON encodes the same data model as JSON using indentation and explicit length declarations instead of brackets, achieving approximately 40% fewer tokens on structured data. This reduction applies on every agent call across the entire pipeline.
+The SDK serialises `shared/data.yaml` and `agent/decision-chain.yaml` as **TOON (Token-Oriented Object Notation)** before injection. TOON is an open format specification by Johann Schopplich (https://github.com/toon-format/spec, MIT License © 2025-present Johann Schopplich). TOON encodes the same data model as JSON using indentation and explicit length declarations instead of brackets, achieving approximately 40% fewer tokens on structured data. This reduction applies on every agent call across the entire pipeline.
 
 ```
 # shared/data.yaml injected as TOON — not raw YAML

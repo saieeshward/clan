@@ -1,0 +1,165 @@
+NOTICE
+======
+
+CLAN — Context and Live Agent Notation
+Copyright (c) 2026 Sai Eeshwar (https://github.com/saieeshward)
+Copyright (c) 2026 Shreyansh Soni (https://github.com/batunii)
+
+This product is licensed under the Mozilla Public License 2.0 (see LICENSE).
+The CLAN specification documents are licensed under CC BY 4.0 (see LICENSE-SPEC).
+
+This product includes the following third-party open-source components.
+For each component the license family is noted; full license texts are
+available at the URLs or in the dependency source trees.
+
+-------------------------------------------------------------------------------
+Specifications
+-------------------------------------------------------------------------------
+
+TOON — Token-Oriented Object Notation
+  Copyright (c) 2025-present Johann Schopplich
+  License: MIT
+  https://github.com/toon-format/spec
+
+  The CLAN SDK implements the TOON serialisation format (spec §14) as defined
+  by the TOON specification. TOON is an independent open specification created
+  by Johann Schopplich.
+
+-------------------------------------------------------------------------------
+Rust dependencies (CLI, SDK, and Desktop Viewer)
+-------------------------------------------------------------------------------
+
+serde · serde_json · serde_derive
+  Copyright (c) 2014 Erick Tryzelaar
+  Copyright (c) 2014 David Tolnay <dtolnay@gmail.com>
+  License: MIT OR Apache-2.0
+  https://github.com/serde-rs/serde
+
+serde_yaml
+  Copyright (c) 2015 David Tolnay <dtolnay@gmail.com>
+  License: MIT OR Apache-2.0
+  https://github.com/dtolnay/serde-yaml
+
+sha2 (RustCrypto)
+  Copyright (c) 2006-present The RustCrypto Developers
+  License: MIT OR Apache-2.0
+  https://github.com/RustCrypto/hashes
+
+uuid
+  Copyright (c) 2013-2014 The Rust Project Developers
+  Copyright (c) 2018 Contributors to the uuid crate
+  License: Apache-2.0 OR MIT
+  https://github.com/uuid-rs/uuid
+
+chrono
+  Copyright (c) 2014 Kang Seonghoon
+  Copyright (c) 2014 Brandon W Maister
+  License: MIT OR Apache-2.0
+  https://github.com/chronotope/chrono
+
+zip
+  Copyright (c) 2014 Mathijs van de Nes
+  Copyright (c) 2020 Marli Frost
+  Copyright (c) 2022 Ryan Bleecker
+  License: MIT
+  https://github.com/zip-rs/zip2
+
+jsonschema
+  Copyright (c) 2019 Dmitry Dygalo <dadygalo@gmail.com>
+  License: MIT
+  https://github.com/Stranger6667/jsonschema-rs
+
+lol_html
+  Copyright (c) 2019 Cloudflare, Inc.
+  License: BSD-2-Clause
+
+  Redistribution and use in source and binary forms, with or without
+  modification, are permitted provided that the following conditions are met:
+
+  1. Redistributions of source code must retain the above copyright notice,
+     this list of conditions and the following disclaimer.
+
+  2. Redistributions in binary form must reproduce the above copyright notice,
+     this list of conditions and the following disclaimer in the documentation
+     and/or other materials provided with the distribution.
+
+  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+  THE POSSIBILITY OF SUCH DAMAGE.
+
+  https://github.com/cloudflare/lol-html
+
+thiserror · anyhow
+  Copyright (c) 2019 David Tolnay <dtolnay@gmail.com>
+  License: MIT OR Apache-2.0
+  https://github.com/dtolnay/thiserror
+  https://github.com/dtolnay/anyhow
+
+clap
+  Copyright (c) 2015-2022 Kevin K. <kbknapp@gmail.com>
+  Copyright (c) 2022 The clap Developers
+  License: MIT OR Apache-2.0
+  https://github.com/clap-rs/clap
+
+tempfile
+  Copyright (c) 2015 Steven Allen
+  Copyright (c) 2015 The Rust Project Developers
+  License: MIT OR Apache-2.0
+  https://github.com/Stebalien/tempfile
+
+tokio
+  Copyright (c) 2023 Tokio Contributors
+  License: MIT
+  https://github.com/tokio-rs/tokio
+
+Tauri · tauri-build · tauri-plugin-dialog · tauri-plugin-single-instance
+· wry · tao
+  Copyright (c) 2019-present The Tauri Programme within The Commons Conservancy
+  License: MIT OR Apache-2.0
+  https://github.com/tauri-apps/tauri
+
+-------------------------------------------------------------------------------
+JavaScript / frontend dependencies (Desktop Viewer only)
+-------------------------------------------------------------------------------
+
+React · react-dom
+  Copyright (c) Meta Platforms, Inc. and affiliates
+  License: MIT
+  https://github.com/facebook/react
+
+@tauri-apps/api · @tauri-apps/plugin-dialog
+  Copyright (c) 2019-present The Tauri Programme within The Commons Conservancy
+  License: MIT OR Apache-2.0
+  https://github.com/tauri-apps/tauri
+
+esbuild
+  Copyright (c) 2020 Evan Wallace
+  License: MIT
+  https://github.com/evanw/esbuild
+
+Vite
+  Copyright (c) 2019-present Evan You and Vite contributors
+  License: MIT
+  https://github.com/vitejs/vite
+
+-------------------------------------------------------------------------------
+Complete transitive dependency list
+-------------------------------------------------------------------------------
+
+To generate a full machine-readable license report for all transitive Rust
+dependencies, install cargo-about and run:
+
+  cargo install cargo-about
+  cargo about generate about.hbs > LICENSES-RUST.html
+
+For the JavaScript dependency tree (Desktop Viewer):
+
+  cd app && npx license-checker --start . --out LICENSES-JS.csv
