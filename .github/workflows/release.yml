@@ -52,8 +52,8 @@ jobs:
           # retired the macos-13 (last Intel) runner image.
           - os: macos-latest
             target: x86_64-apple-darwin
-          - os: windows-latest
-            target: x86_64-pc-windows-msvc
+          # No Windows entry: Windows ships a single combined MSI (CLI + viewer)
+          # from the `desktop` job below, not a standalone CLI archive.
     steps:
       - uses: actions/checkout@v4
 
@@ -158,6 +158,29 @@ jobs:
       - name: Install frontend dependencies
         working-directory: app
         run: npm ci
+
+      # Windows ships ONE combined MSI: build the `clan` CLI and stage it as a
+      # Tauri sidecar so the viewer installer also installs the CLI. The
+      # Windows-only tauri.windows.conf.json picks it up via externalBin and a
+      # WiX fragment (wix/cli-path.wxs) adds the install dir to the system PATH.
+      - name: Stage CLI into viewer installer (Windows)
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          cargo build -p clan-cli --release
+          New-Item -ItemType Directory -Force -Path app/src-tauri/binaries | Out-Null
+          Copy-Item target/release/clan.exe app/src-tauri/binaries/clan-x86_64-pc-windows-msvc.exe
+
+      # Linux .deb / .rpm install the `clan` CLI to /usr/bin (on PATH) alongside
+      # the viewer. tauri.linux.conf.json maps binaries/clan -> /usr/bin/clan via
+      # deb.files / rpm.files. The AppImage stays viewer-only (it can't place
+      # files on the host PATH), so the standalone CLI tarball is kept above.
+      - name: Stage CLI into Linux packages (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          cargo build -p clan-cli --release
+          mkdir -p app/src-tauri/binaries
+          cp target/release/clan app/src-tauri/binaries/clan
 
       - name: Build & publish desktop bundles
         uses: tauri-apps/tauri-action@v0
