@@ -672,6 +672,7 @@ mod tests {
             current: Mutex::new(None),
             edit_mode: Mutex::new(false),
             preview_html: Mutex::new(String::new()),
+            pending_open: Mutex::new(None),
         }
     }
 
