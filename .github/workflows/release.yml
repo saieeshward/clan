@@ -14,10 +14,31 @@ env:
 
 jobs:
   # ---------------------------------------------------------------------------
+  # Create the GitHub Release up front so the CLI and desktop jobs both upload
+  # into it instead of racing to create it.
+  # ---------------------------------------------------------------------------
+  create-release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create release if missing
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release view "${{ github.ref_name }}" --repo "${{ github.repository }}" \
+            || gh release create "${{ github.ref_name }}" \
+                 --repo "${{ github.repository }}" \
+                 --title "CLAN ${{ github.ref_name }}" \
+                 --generate-notes
+
+  # ---------------------------------------------------------------------------
   # Standalone `clan` CLI binaries for each platform, attached to the release.
   # ---------------------------------------------------------------------------
   cli-binaries:
     name: CLI — ${{ matrix.target }}
+    needs: create-release
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -81,11 +102,22 @@ jobs:
   # ---------------------------------------------------------------------------
   desktop:
     name: Desktop — ${{ matrix.os }}
+    needs: create-release
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: [ macos-latest, ubuntu-latest, windows-latest ]
+        include:
+          # Universal macOS build: one DMG that runs on Apple Silicon and Intel.
+          - os: macos-latest
+            rust-targets: aarch64-apple-darwin,x86_64-apple-darwin
+            tauri-args: --target universal-apple-darwin
+          - os: ubuntu-latest
+            rust-targets: ""
+            tauri-args: ""
+          - os: windows-latest
+            rust-targets: ""
+            tauri-args: ""
     steps:
       - uses: actions/checkout@v4
 
@@ -106,6 +138,8 @@ jobs:
 
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.rust-targets }}
 
       - name: Cache cargo build
         uses: Swatinem/rust-cache@v2
@@ -134,3 +168,4 @@ jobs:
           releaseName: CLAN ${{ github.ref_name }}
           releaseDraft: false
           prerelease: false
+          args: ${{ matrix.tauri-args }}
