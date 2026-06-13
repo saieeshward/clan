@@ -583,6 +583,21 @@ fn save_patch(id: String, content: String, state: State<AppState>) -> Result<(),
 }
 
 fn main() {
+    // On Linux the AppImage bundles an older WebKitGTK whose default DMABUF /
+    // accelerated-compositing path fails on modern Mesa/Wayland systems — the web
+    // content stays blank (and the bundled libwayland mismatch can even abort with
+    // "EGL_BAD_PARAMETER" before the window appears; the AppImage build also strips
+    // its bundled libwayland so the host's is used). Forcing the software path keeps
+    // rendering working everywhere. Only set these if the user hasn't overridden them.
+    #[cfg(target_os = "linux")]
+    {
+        for key in ["WEBKIT_DISABLE_DMABUF_RENDERER", "WEBKIT_DISABLE_COMPOSITING_MODE"] {
+            if std::env::var_os(key).is_none() {
+                std::env::set_var(key, "1");
+            }
+        }
+    }
+
     // The OS launches us with the clicked file as an argument; stash it so the
     // frontend can pull it once it's ready.
     let launch_file = clan_path_from_args(std::env::args());
