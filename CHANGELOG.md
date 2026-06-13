@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.5] - 2026-06-13
+
+### Added
+
+- **Combined Windows installer** — the `.msi` now installs both the CLAN Viewer
+  and the `clan` CLI, with the CLI added to the system `PATH` so it works from
+  any terminal after install.
+- **CLI in Linux packages** — the `.deb` and `.rpm` install the `clan` CLI to
+  `/usr/bin` alongside the viewer. (The `.AppImage` stays viewer-only; standalone
+  CLI tarballs remain for macOS and AppImage users.)
+
+### Changed
+
+- **One Windows artifact** — Windows ships a single combined `.msi` instead of a
+  separate viewer installer plus CLI `.zip`.
+- **Tag-driven versioning** — the release version is taken from the pushed git
+  tag and stamped into the `clan` binary, the CLI archive names, and every
+  desktop bundle, so all artifacts in a release share one version.
+
+### Fixed
+
+- **Reproducible release builds** — `Cargo.lock` is now committed, pinning
+  dependencies so a floating upstream release can no longer break the release
+  pipeline.
+- **Installer version mismatch** — desktop bundles no longer lag the release tag
+  (a `v1.1.4` tag previously produced `1.1.2`-stamped installers).
+
 ## [1.1.2] - 2026-06-12
 
 ### Added
@@ -56,7 +83,8 @@ First public release of CLAN — Context and Live Agent Notation.
 - **`clan-cli`** — the `clan` command-line tool to create, validate, read, pack, and export `.clan` files.
 - **CLAN Viewer** — Tauri desktop app for rendering the human view of a `.clan` file.
 
-[Unreleased]: https://github.com/saieeshward/clan/compare/v1.1.2...HEAD
+[Unreleased]: https://github.com/saieeshward/clan/compare/v1.1.5...HEAD
+[1.1.5]: https://github.com/saieeshward/clan/releases/tag/v1.1.5
 [1.1.2]: https://github.com/saieeshward/clan/releases/tag/v1.1.2
 [1.1.1]: https://github.com/saieeshward/clan/releases/tag/v1.1.1
 [1.1.0]: https://github.com/saieeshward/clan/releases/tag/v1.1.0
