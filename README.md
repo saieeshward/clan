@@ -118,6 +118,30 @@ Plain text. Standard ZIP. No proprietary encoding. Any language can read and wri
 
 **Install:** pre-built binaries for Linux, macOS (Apple Silicon + Intel), and Windows — plus a desktop viewer (`.dmg` / `.msi` / `.AppImage`) — on the [Releases page](https://github.com/saieeshward/clan/releases).
 
+**macOS (Apple Silicon):**
+```bash
+curl -L https://github.com/saieeshward/clan/releases/latest/download/clan-v1.1.5-aarch64-apple-darwin.tar.gz \
+  | tar -xz && sudo install -m 755 clan /usr/local/bin/clan
+xattr -d com.apple.quarantine /usr/local/bin/clan  # if macOS blocks it
+```
+
+**macOS (Intel):**
+```bash
+curl -L https://github.com/saieeshward/clan/releases/latest/download/clan-v1.1.5-x86_64-apple-darwin.tar.gz \
+  | tar -xz && sudo install -m 755 clan /usr/local/bin/clan
+xattr -d com.apple.quarantine /usr/local/bin/clan
+```
+
+**Linux:**
+```bash
+curl -L https://github.com/saieeshward/clan/releases/latest/download/clan-v1.1.5-x86_64-unknown-linux-gnu.tar.gz \
+  | tar -xz && sudo install -m 755 clan /usr/local/bin/clan
+```
+
+**Windows:** download the `.msi` from the [Releases page](https://github.com/saieeshward/clan/releases) and run it.
+
+**Or build from source:**
+
 ```bash
 cargo install --path crates/clan-cli
 
