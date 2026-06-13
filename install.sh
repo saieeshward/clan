@@ -42,6 +42,8 @@ if [ -z "$VERSION" ]; then
   fi
 fi
 
+# ── CLI install ────────────────────────────────────────────────────────────────
+
 TARBALL="clan-v${VERSION}-${TARGET}.tar.gz"
 URL="https://github.com/${REPO}/releases/download/v${VERSION}/${TARBALL}"
 
@@ -53,7 +55,6 @@ trap 'rm -rf "$TMP"' EXIT
 curl -fsSL --progress-bar "$URL" -o "$TMP/$TARBALL"
 tar -xzf "$TMP/$TARBALL" -C "$TMP"
 
-# Install — sudo only if needed
 BIN_SRC="$TMP/clan-v${VERSION}-${TARGET}/clan"
 if [ -w "$BIN_DIR" ]; then
   install -m 755 "$BIN_SRC" "$BIN_DIR/$BIN_NAME"
@@ -61,12 +62,81 @@ else
   sudo install -m 755 "$BIN_SRC" "$BIN_DIR/$BIN_NAME"
 fi
 
-# Clear macOS Gatekeeper quarantine
 if [ "$OS" = "Darwin" ]; then
   xattr -d com.apple.quarantine "$BIN_DIR/$BIN_NAME" 2>/dev/null || true
 fi
 
 echo ""
 echo "✓ clan v${VERSION} installed to $BIN_DIR/$BIN_NAME"
+
+# ── Viewer (interactive) ───────────────────────────────────────────────────────
+
 echo ""
-echo "Try it: clan --help"
+printf "Would you like to install the CLAN Viewer (desktop app)? [y/N] "
+read -r INSTALL_VIEWER </dev/tty
+
+if [[ "$INSTALL_VIEWER" =~ ^[Yy]$ ]]; then
+  DOWNLOADS="${HOME}/Downloads"
+  mkdir -p "$DOWNLOADS"
+
+  case "$OS" in
+    Darwin)
+      VIEWER_FILE="CLAN.Viewer_${VERSION}_universal.dmg"
+      VIEWER_URL="https://github.com/${REPO}/releases/download/v${VERSION}/${VIEWER_FILE}"
+      VIEWER_DEST="$DOWNLOADS/$VIEWER_FILE"
+
+      echo "Downloading CLAN Viewer..."
+      curl -fsSL --progress-bar "$VIEWER_URL" -o "$VIEWER_DEST"
+
+      echo ""
+      echo "✓ CLAN Viewer downloaded to $VIEWER_DEST"
+      echo ""
+      echo "To install:"
+      echo "  1. Open $VIEWER_DEST"
+      echo "  2. Drag CLAN Viewer to your Applications folder"
+      echo "  3. On first launch, clear the Gatekeeper warning:"
+      echo "     xattr -d com.apple.quarantine \"/Applications/CLAN Viewer.app\""
+      echo "     open \"/Applications/CLAN Viewer.app\""
+      echo ""
+      echo "To open any .clan file in the viewer:"
+      echo "  open -a \"CLAN Viewer\" your-file.clan"
+
+      # Offer to open the DMG immediately
+      echo ""
+      printf "Open the DMG now? [y/N] "
+      read -r OPEN_DMG </dev/tty
+      if [[ "$OPEN_DMG" =~ ^[Yy]$ ]]; then
+        open "$VIEWER_DEST"
+      fi
+      ;;
+
+    Linux)
+      VIEWER_FILE="CLAN.Viewer_${VERSION}_amd64.AppImage"
+      VIEWER_URL="https://github.com/${REPO}/releases/download/v${VERSION}/${VIEWER_FILE}"
+      VIEWER_DEST="$DOWNLOADS/$VIEWER_FILE"
+
+      echo "Downloading CLAN Viewer..."
+      curl -fsSL --progress-bar "$VIEWER_URL" -o "$VIEWER_DEST"
+      chmod +x "$VIEWER_DEST"
+
+      echo ""
+      echo "✓ CLAN Viewer downloaded to $VIEWER_DEST"
+      echo ""
+      echo "To launch:"
+      echo "  $VIEWER_DEST"
+      echo ""
+      echo "To make it easier to run, create an alias:"
+      echo "  echo \"alias clan-viewer='$VIEWER_DEST'\" >> ~/.bashrc && source ~/.bashrc"
+      echo ""
+      echo "To open any .clan file:"
+      echo "  $VIEWER_DEST your-file.clan"
+      ;;
+  esac
+else
+  echo ""
+  echo "Skipping viewer. You can install it later from:"
+  echo "  https://github.com/$REPO/releases"
+fi
+
+echo ""
+echo "Get started: clan --help"
