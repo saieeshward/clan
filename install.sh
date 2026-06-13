@@ -56,7 +56,7 @@ tar -xzf "$TMP/$TARBALL" -C "$TMP"
 
 # Install binary
 if [ -w "$BIN_DIR" ]; then
-  install -m 755 "$TMP/clan-v${VERSION}-x86_64-unknown-linux-gnu" "$BIN_DIR/$BIN_NAME"
+  install -m 755 "$TMP/clan-v${VERSION}-x86_64-unknown-linux-gnu/clan" "$BIN_DIR/$BIN_NAME"
 else
   sudo install -m 755 "$TMP/clan-v${VERSION}-x86_64-unknown-linux-gnu/clan" "$BIN_DIR/$BIN_NAME"
 fi
