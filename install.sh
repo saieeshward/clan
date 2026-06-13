@@ -68,6 +68,18 @@ fi
 
 echo ""
 echo "✓ clan v${VERSION} installed to $BIN_DIR/$BIN_NAME"
+echo ""
+cat << 'EOF'
+   ██████╗██╗      █████╗ ███╗   ██╗
+  ██╔════╝██║     ██╔══██╗████╗  ██║
+  ██║     ██║     ███████║██╔██╗ ██║
+  ██║     ██║     ██╔══██║██║╚██╗██║
+  ╚██████╗███████╗██║  ██║██║ ╚████║
+   ╚═════╝╚══════╝╚═╝  ╚═╝╚═╝  ╚═══╝
+
+  Context and Live Agent Notation
+  Any model. Any framework. One file.
+EOF
 
 # ── Viewer (interactive) ───────────────────────────────────────────────────────
 
