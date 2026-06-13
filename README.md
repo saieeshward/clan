@@ -118,10 +118,9 @@ Plain text. Standard ZIP. No proprietary encoding. Any language can read and wri
 
 **Install:**
 
-**macOS / Linux — via Homebrew (recommended):**
+**macOS / Linux — one line:**
 ```bash
-brew tap saieeshward/clan
-brew install clan
+curl -fsSL https://raw.githubusercontent.com/saieeshward/clan/main/install.sh | bash
 ```
 
 **Windows:** download the `.msi` from the [Releases page](https://github.com/saieeshward/clan/releases) and run it.
