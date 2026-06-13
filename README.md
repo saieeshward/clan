@@ -116,33 +116,19 @@ Plain text. Standard ZIP. No proprietary encoding. Any language can read and wri
 
 ## Quickstart
 
-**Install:** pre-built binaries for Linux, macOS (Apple Silicon + Intel), and Windows — plus a desktop viewer (`.dmg` / `.msi` / `.AppImage`) — on the [Releases page](https://github.com/saieeshward/clan/releases).
+**Install:**
 
-**macOS (Apple Silicon):**
+**macOS / Linux — via Homebrew (recommended):**
 ```bash
-curl -L https://github.com/saieeshward/clan/releases/latest/download/clan-v1.1.5-aarch64-apple-darwin.tar.gz \
-  | tar -xz && sudo install -m 755 clan /usr/local/bin/clan && xattr -d com.apple.quarantine /usr/local/bin/clan
-```
-
-**macOS (Intel):**
-```bash
-curl -L https://github.com/saieeshward/clan/releases/latest/download/clan-v1.1.5-x86_64-apple-darwin.tar.gz \
-  | tar -xz && sudo install -m 755 clan /usr/local/bin/clan && xattr -d com.apple.quarantine /usr/local/bin/clan
-```
-
-**Linux:**
-```bash
-curl -L https://github.com/saieeshward/clan/releases/latest/download/clan-v1.1.5-x86_64-unknown-linux-gnu.tar.gz \
-  | tar -xz && sudo install -m 755 clan /usr/local/bin/clan
+brew tap saieeshward/clan
+brew install clan
 ```
 
 **Windows:** download the `.msi` from the [Releases page](https://github.com/saieeshward/clan/releases) and run it.
 
-**Desktop viewer (macOS):**
+**Desktop viewer (macOS):** download the `.dmg` from the [Releases page](https://github.com/saieeshward/clan/releases), open it, drag CLAN Viewer to Applications, then:
 ```bash
-# After installing the .dmg from the Releases page, clear the Gatekeeper warning:
-xattr -d com.apple.quarantine "/Applications/CLAN Viewer.app"
-open "/Applications/CLAN Viewer.app"
+xattr -d com.apple.quarantine "/Applications/CLAN Viewer.app" && open "/Applications/CLAN Viewer.app"
 ```
 
 **Or build from source:**
