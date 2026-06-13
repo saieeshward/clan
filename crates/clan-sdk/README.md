@@ -49,4 +49,4 @@ println!("{}", ctx.prompt);
 
 ## License
 
-Licensed under the Apache License, Version 2.0. See [LICENSE](https://github.com/saieeshward/clan/blob/main/LICENSE).
+Licensed under the Mozilla Public License, Version 2.0. See [LICENSE](https://github.com/saieeshward/clan/blob/main/LICENSE).

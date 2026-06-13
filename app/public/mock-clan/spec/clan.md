@@ -222,4 +222,4 @@ Agent provides a complete HTML document (preferred) or fragment. The `html` fiel
 
 ## Licence
 
-CLAN Specification — Apache License 2.0
+CLAN Specification — MPL-2.0

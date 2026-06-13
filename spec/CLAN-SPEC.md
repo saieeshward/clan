@@ -65,7 +65,7 @@ Agent content (`agent/`) and human content (`human/`) are strictly separated. Ag
 Every CLAN file carries its own specification (`spec/`). An agent that has never encountered CLAN before can understand the format and produce valid output from a single file.
 
 ### Openness
-The format specification and reference SDK are open (Apache 2.0). No CLAN-compatible implementation requires a licence. The format does not depend on any proprietary system.
+The format specification and reference SDK are open (MPL-2.0). No CLAN-compatible implementation requires a licence. The format does not depend on any proprietary system.
 
 ---
 
