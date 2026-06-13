@@ -121,15 +121,13 @@ Plain text. Standard ZIP. No proprietary encoding. Any language can read and wri
 **macOS (Apple Silicon):**
 ```bash
 curl -L https://github.com/saieeshward/clan/releases/latest/download/clan-v1.1.5-aarch64-apple-darwin.tar.gz \
-  | tar -xz && sudo install -m 755 clan /usr/local/bin/clan
-xattr -d com.apple.quarantine /usr/local/bin/clan  # if macOS blocks it
+  | tar -xz && sudo install -m 755 clan /usr/local/bin/clan && xattr -d com.apple.quarantine /usr/local/bin/clan
 ```
 
 **macOS (Intel):**
 ```bash
 curl -L https://github.com/saieeshward/clan/releases/latest/download/clan-v1.1.5-x86_64-apple-darwin.tar.gz \
-  | tar -xz && sudo install -m 755 clan /usr/local/bin/clan
-xattr -d com.apple.quarantine /usr/local/bin/clan
+  | tar -xz && sudo install -m 755 clan /usr/local/bin/clan && xattr -d com.apple.quarantine /usr/local/bin/clan
 ```
 
 **Linux:**
@@ -139,6 +137,13 @@ curl -L https://github.com/saieeshward/clan/releases/latest/download/clan-v1.1.5
 ```
 
 **Windows:** download the `.msi` from the [Releases page](https://github.com/saieeshward/clan/releases) and run it.
+
+**Desktop viewer (macOS):**
+```bash
+# After installing the .dmg from the Releases page, clear the Gatekeeper warning:
+xattr -d com.apple.quarantine "/Applications/CLAN Viewer.app"
+open "/Applications/CLAN Viewer.app"
+```
 
 **Or build from source:**
 
