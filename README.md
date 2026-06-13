@@ -173,7 +173,7 @@ The CLI teaches itself — every command emits a `next:` hint. In our benchmark,
 
 ## What the benchmarks say
 
-258 real agents. No scripted outputs. CLAN and ad-hoc arms running concurrently on identical tasks. Three campaigns. Every artifact is in [`test-sandbox/`](test-sandbox/) so you can check our work.
+258 real agents. No scripted outputs. CLAN and ad-hoc arms running concurrently on identical tasks. Three campaigns.
 
 ### What held up
 
@@ -254,7 +254,6 @@ A Tauri desktop app renders the human view with click-to-edit. Edits go into the
 |---|---|
 | [spec/CLAN-SPEC.md](spec/CLAN-SPEC.md) | Full format specification |
 | [spec/SEQUENCE-DIAGRAMS.md](spec/SEQUENCE-DIAGRAMS.md) | Key interaction flows |
-| [research/](research/) | Benchmarks, comparisons, and the negative results |
 | [CHANGELOG.md](CHANGELOG.md) | Release history |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | How to contribute |
 

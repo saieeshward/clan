@@ -1,10 +1,22 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-VERSION="1.1.5"
 REPO="saieeshward/clan"
 BIN_DIR="/usr/local/bin"
 BIN_NAME="clan"
+
+# Resolve the version to install. Override with CLAN_VERSION=1.2.3 to pin one;
+# otherwise fetch the latest published release tag from GitHub so a one-line
+# install always tracks the newest release instead of a hardcoded one.
+VERSION="${CLAN_VERSION:-}"
+if [ -z "$VERSION" ]; then
+  VERSION="$(curl -fsSL "https://api.github.com/repos/${REPO}/releases/latest" \
+    | sed -nE 's/.*"tag_name"[[:space:]]*:[[:space:]]*"v?([^"]+)".*/\1/p' | head -n1)"
+  if [ -z "$VERSION" ]; then
+    echo "Could not determine the latest release; set CLAN_VERSION to install a specific version." >&2
+    exit 1
+  fi
+fi
 
 # Detect OS and arch
 OS="$(uname -s)"
