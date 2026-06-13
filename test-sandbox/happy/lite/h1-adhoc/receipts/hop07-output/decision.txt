@@ -1,1 +1,0 @@
-2026-06-12 | verdict-flip | flipped verdict HubSpot->Zoho CRM and replaced verdict_rationale with supplied text in data.json (verdict + verdict_rationale) and report.html (span#verdict-value + span#verdict-rationale)

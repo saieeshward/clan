@@ -1,1 +1,0 @@
-hop07 verdict-flip: flipped verdict HubSpot -> Zoho CRM and replaced verdict_rationale in data.json and report.html (#verdict-value, #verdict-rationale) from supplied verdict-rationale.txt.

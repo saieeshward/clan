@@ -1,1 +1,0 @@
---selector "#bar-zoho" --patch-action replace --agent chart-agent --action "shrink Zoho bar to reflect lower cost" --rationale "Price drop from hop 1 reflected in chart"

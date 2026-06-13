@@ -1,1 +1,0 @@
-{"legal_dpa_required":true,"legal_gdpr_transfer_mechanism":"intra-EU","legal_liability_cap_eur":24000,"legal_ip_ownership_clear":true,"legal_indemnification_adequate":true,"legal_risks":[{"risk":"vendor exit","severity":"Low","mitigation":"export clause"},{"risk":"subproc swap","severity":"Med"}]}

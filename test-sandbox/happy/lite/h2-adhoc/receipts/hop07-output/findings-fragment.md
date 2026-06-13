@@ -1,7 +1,0 @@
-## 07-competitive-intel
-
-- comp_hubspot_strength: marketing suite
-- comp_zoho_strength: price + EU residency
-- comp_salesforce_strength: enterprise depth
-- comp_switching_cost_zoho: low
-- comp_zoho_export_clause: true

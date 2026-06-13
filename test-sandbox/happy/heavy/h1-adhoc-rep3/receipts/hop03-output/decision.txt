@@ -1,1 +1,0 @@
-2026-06-12 | date-update | Phase 2 rollout date set to 2026-09-15 (was 2026-08-01) — verified data.json rollout_phase2_date + report.html #phase2 already at target, no edit needed

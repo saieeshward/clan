@@ -1,1 +1,0 @@
-2026-06-12 | residency-section | verified "Data residency" subsection (id="data-residency") present after Data governance in report.html, byte-identical to h1-supplied/residency-section.html; no splice needed (already applied)

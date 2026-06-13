@@ -1,1 +1,0 @@
-2026-06-12 | verdict-flip | verified verdict="Zoho CRM" and verdict_rationale match h1-supplied/verdict-rationale.txt in data.json and report.html (id="verdict-value", id="verdict-rationale"); no splice needed (already applied)

@@ -1,3 +1,0 @@
-
-## 08-finance-modeler
-Zoho saves ~EUR17,280 over 3 years with a 7-month payback. Finance leans Zoho. Next: rollout plan.

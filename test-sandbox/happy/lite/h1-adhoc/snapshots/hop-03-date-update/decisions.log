@@ -1,4 +1,0 @@
-2026-06-10 | analyst | initial CRM recommendation report prepared
-2026-06-12 | pricing-update | Zoho CRM per-seat 45->38, zoho_annual_total 21600->18240 in data.json and report.html cost table
-2026-06-12 | risk-add | added "Vendor lock-in" (Medium) risk to data.json risks[] and report.html risk-table
-2026-06-12 | date-update | rollout_phase2_date 2026-08-01->2026-09-15 in data.json and report.html id="phase2"

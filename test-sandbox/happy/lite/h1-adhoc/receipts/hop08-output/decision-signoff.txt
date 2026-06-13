@@ -1,2 +1,0 @@
-2026-06-11 | steering-committee | approved Zoho CRM recommendation | final sign-off recorded
-2026-06-12 | signoff | appended steering-committee sign-off line (2026-06-11, approved Zoho CRM) to decisions.log

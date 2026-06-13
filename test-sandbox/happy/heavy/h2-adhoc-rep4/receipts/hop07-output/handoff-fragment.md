@@ -1,3 +1,0 @@
-
-## 07-competitive-intel
-Zoho's quarterly export clause keeps switching cost low — a hedge against its maturity risk. Next: finance model.

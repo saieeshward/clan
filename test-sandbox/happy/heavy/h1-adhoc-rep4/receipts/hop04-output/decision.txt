@@ -1,1 +1,0 @@
-2026-06-12 | summary-rewrite | verified exec_summary already matches supplied text byte-for-byte; no splice needed (data.json + report.html #exec-summary)

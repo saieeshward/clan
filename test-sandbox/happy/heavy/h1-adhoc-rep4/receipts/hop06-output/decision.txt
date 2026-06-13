@@ -1,1 +1,0 @@
-2026-06-12 | chart-update | verified #bar-zoho rect already y=78 height=82 (Zoho cheapest), matches supplied fragment byte-for-byte; no splice needed (report.html #bar-zoho)

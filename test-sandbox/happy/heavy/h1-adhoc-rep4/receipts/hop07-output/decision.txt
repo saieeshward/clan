@@ -1,1 +1,0 @@
-2026-06-12 | verdict-flip | verified verdict=Zoho CRM and verdict_rationale already match supplied text byte-for-byte; no splice needed (data.json + report.html #verdict-value #verdict-rationale)

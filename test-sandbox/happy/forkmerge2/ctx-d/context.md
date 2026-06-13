@@ -1,1 +1,0 @@
-You are analyst-d. Your assessment: BUILD. Write recommendation=Build, budget_eur=520000, top_risks=[opportunity cost, market timing, technical debt], assumptions=Build creates competitive moat; 24-month full delivery.

@@ -1,1 +1,0 @@
-2026-06-12 | date-update | verified rollout_phase2_date=2026-09-15 already present in data.json (line 18) and report.html (id="phase2"); no splice needed

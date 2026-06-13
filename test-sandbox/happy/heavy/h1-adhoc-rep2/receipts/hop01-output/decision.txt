@@ -1,1 +1,0 @@
-2026-06-12 | analyst | Zoho CRM per-seat price updated 45->38; annual total 21600->18240 (38x40x12)

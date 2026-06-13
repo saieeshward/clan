@@ -1,8 +1,0 @@
-2026-06-10 | analyst | initial CRM recommendation report prepared
-2026-06-12 | pricing-update | Zoho CRM per-seat 45->38, zoho_annual_total 21600->18240 in data.json and report.html cost table
-2026-06-12 | risk-add | added "Vendor lock-in" (Medium) risk to data.json risks[] and report.html risk-table
-2026-06-12 | date-update | rollout_phase2_date 2026-08-01->2026-09-15 in data.json and report.html id="phase2"
-2026-06-12 | summary-rewrite | replaced exec_summary text in data.json and report.html id="exec-summary" with supplied Zoho-leading executive summary
-2026-06-12 | residency-section | inserted "Data residency" subsection (h2#data-residency + p#residency-detail) into report.html after the Data governance section
-2026-06-12 | chart-update | Zoho now cheapest; shrank bar-zoho rect in report.html SVG to y="78" height="82"
-2026-06-12 | verdict-flip | flipped verdict HubSpot->Zoho CRM and replaced verdict_rationale with supplied text in data.json (verdict + verdict_rationale) and report.html (span#verdict-value + span#verdict-rationale)

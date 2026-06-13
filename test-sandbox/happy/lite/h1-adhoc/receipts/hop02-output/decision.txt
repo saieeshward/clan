@@ -1,1 +1,0 @@
-2026-06-12 | risk-add | added "Vendor lock-in" (Medium) risk to data.json risks[] and report.html risk-table

@@ -1,7 +1,0 @@
-hop-01 pricing-update: zoho_price_per_seat 45→38, zoho_annual_total 21600→18240 in data.json (report.html uses template placeholders, no literal substitution needed)
-hop-02 risk-add: appended {"risk":"Vendor lock-in","severity":"Medium","mitigation":"Quarterly data-export clause in contract"} to data.json risks[] and added matching <tr> to report.html risk table
-hop-03 date-update: rollout_phase2_date 2026-08-01→2026-09-15 in data.json and literal date in report.html id="phase2"
-hop-04 summary-rewrite: replaced exec_summary in data.json and <p id="exec-summary"> in report.html with supplied text from h1-supplied/exec-summary.txt (Zoho CRM now leads over HubSpot)
-hop-05 residency-section: inserted <h2 id="data-residency"> and <p id="residency-detail"> subsection into report.html after Data governance section, sourced from h1-supplied/residency-section.html
-hop-06 chart-update: updated bar-zoho <rect> in report.html SVG from y="52" height="108" to y="78" height="82" (Zoho now cheapest vendor)
-hop-07 verdict-flip: changed verdict HubSpot→Zoho CRM and updated verdict_rationale in data.json; replaced {{verdict}} and {{verdict_rationale}} placeholders in report.html with supplied values

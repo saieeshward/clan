@@ -1,1 +1,0 @@
-You are analyst-a. Your assessment: BUILD. Write recommendation=Build, budget_eur=450000, top_risks=[integration complexity, talent retention, timeline overrun], assumptions=In-house team can deliver in 18 months.

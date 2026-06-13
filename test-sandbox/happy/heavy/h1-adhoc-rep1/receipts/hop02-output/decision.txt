@@ -1,1 +1,0 @@
-2026-06-12 | analyst | added Vendor lock-in risk (Medium) with quarterly data-export mitigation to data.json risks[] and report.html risk table
