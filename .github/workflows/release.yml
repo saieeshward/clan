@@ -223,14 +223,20 @@ jobs:
           APPIMAGE_EXTRACT_AND_RUN: "1"
         run: |
           set -euo pipefail
-          bundle_dir=app/src-tauri/target/release/bundle/appimage
-          appimage=$(find "$bundle_dir" -maxdepth 1 -name '*.AppImage' | head -n1)
+          # clan-app is a member of the ROOT cargo workspace, so cargo/tauri write
+          # bundles to <repo>/target/release/bundle/appimage — NOT
+          # app/src-tauri/target. Find it wherever it lands, and FAIL LOUD if it's
+          # missing: a previous version pointed at the wrong dir and silently
+          # exit-0'd, shipping unpatched AppImages that still bundled libwayland
+          # and crashed with EGL_BAD_PARAMETER on modern Mesa/Wayland.
+          appimage=$(find . -path '*/release/bundle/appimage/*.AppImage' 2>/dev/null | head -n1)
           if [ -z "$appimage" ]; then
-            echo "No AppImage found in $bundle_dir; nothing to patch."
-            exit 0
+            echo "::error::No AppImage found under */release/bundle/appimage — cannot strip libwayland."
+            exit 1
           fi
+          bundle_dir=$(dirname "$appimage")
           name=$(basename "$appimage")
-          echo "Patching $name"
+          echo "Patching $bundle_dir/$name"
           cd "$bundle_dir"
           ./"$name" --appimage-extract >/dev/null
           # Remove the whole bundled libwayland set so client/cursor/egl/server
