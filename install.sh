@@ -52,13 +52,15 @@ TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 
 curl -fsSL "$URL" -o "$TMP/$TARBALL"
+echo "File Downloaded"
 tar -xzf "$TMP/$TARBALL" -C "$TMP"
+echo $(ls $TMP/$TARBALL)
 
 # Install binary
 if [ -w "$BIN_DIR" ]; then
-  install -m 755 "$TMP/clan" "$BIN_DIR/$BIN_NAME"
+  install -m 755 "$TMP/clan-v${VERSION}-x86_64-unknown-linux-gnu" "$BIN_DIR/$BIN_NAME"
 else
-  sudo install -m 755 "$TMP/clan" "$BIN_DIR/$BIN_NAME"
+  sudo install -m 755 "$TMP/clan-v${VERSION}-x86_64-unknown-linux-gnu/clan" "$BIN_DIR/$BIN_NAME"
 fi
 
 # Clear macOS quarantine
