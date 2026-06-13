@@ -19,7 +19,7 @@ interface Props {
 // Makes elements with data-adf-id contenteditable and sends postMessage on blur.
 const EDIT_BRIDGE = `
 (function() {
-  var clanScheme = window.navigator.userAgent.includes('Mac') || window.navigator.userAgent.includes('iP') ? 'clan://localhost' : 'http://clan.localhost';
+  var clanScheme = window.navigator.userAgent.includes('Windows') ? 'http://clan.localhost' : 'clan://localhost';
   if (window.__clan_bridge_listening) return;
   window.__clan_bridge_listening = true;
 
@@ -239,7 +239,11 @@ export default function DocumentView({ htmlContent, hasHumanView, manifest, edit
 </html>`
     }
 
-    const clanScheme = window.navigator.userAgent.includes('Mac') || window.navigator.userAgent.includes('iP') ? 'clan://localhost' : 'http://clan.localhost';
+    // Tauri serves custom protocols as `<scheme>://localhost` on macOS, iOS and
+    // Linux; only Windows (WebView2) uses the `http://<scheme>.localhost` form.
+    // The old check sent Linux down the Windows path, so this iframe pointed at a
+    // non-existent `http://clan.localhost` host and the document rendered blank.
+    const clanScheme = window.navigator.userAgent.includes('Windows') ? 'http://clan.localhost' : 'clan://localhost';
     invoke('update_preview_html', { html: fullHtml }).then(() => {
       setIframeSrc(clanScheme + '/document?t=' + Date.now())
     }).catch(console.error)
