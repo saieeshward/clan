@@ -1,0 +1,23 @@
+{
+  "artifact_id": "work.clan",
+  "sections_read": [
+    "agent/context.md",
+    "shared/data.yaml",
+    "agent/decision-chain.yaml",
+    "agent/output-schema.json"
+  ],
+  "canonical_facts_consumed": [
+    "final_vendor is Salesforce (set by pinned CEO directive 2026-06-14)",
+    "human_override: true — override_source: CEO directive 2026-06-14",
+    "HubSpot GDPR EU data-residency risk deemed unacceptable for EU ops",
+    "Salesforce EU datacenter guarantees GDPR compliance",
+    "CFO approved EUR 2k budget exception (Salesforce EUR 42000/yr slightly over original budget cap)",
+    "gdpr_requirement: mandatory",
+    "support_tier_required: enterprise",
+    "vendors_evaluated: HubSpot, Salesforce, Pipedrive"
+  ],
+  "stale_decisions_rejected": [
+    "vendor-analyst-A selected HubSpot as recommended CRM vendor (2026-06-13T23:02:27.498942700+00:00) — this decision is superseded by the pinned CEO override and must not be reinstated"
+  ],
+  "mutation_planned": "Confirm Salesforce as final_vendor via patch-data with consumed_constraints receipt; record cold-agent-eval1 confirmation decision in the chain"
+}
