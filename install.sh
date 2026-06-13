@@ -52,9 +52,7 @@ TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 
 curl -fsSL "$URL" -o "$TMP/$TARBALL"
-echo "File Downloaded"
 tar -xzf "$TMP/$TARBALL" -C "$TMP"
-echo $(ls $TMP/$TARBALL)
 
 # Install binary
 if [ -w "$BIN_DIR" ]; then
