@@ -57,6 +57,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # The pushed tag is the single source of truth for the version. Write it
+      # into the workspace Cargo version so the built `clan` binary reports it.
+      - name: Set version from tag
+        shell: bash
+        run: bash .github/scripts/set-version.sh "${GITHUB_REF_NAME#v}"
+
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
         with:
@@ -122,6 +128,13 @@ jobs:
             tauri-args: ""
     steps:
       - uses: actions/checkout@v4
+
+      # The pushed tag is the single source of truth for the version. Write it
+      # into the workspace Cargo version; tauri.conf.json has no version field,
+      # so every desktop bundle inherits it (and so does the bundled CLI).
+      - name: Set version from tag
+        shell: bash
+        run: bash .github/scripts/set-version.sh "${GITHUB_REF_NAME#v}"
 
       # Linux WebKitGTK / packaging dependencies for Tauri v2.
       - name: Install Linux dependencies

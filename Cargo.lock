@@ -560,7 +560,7 @@ dependencies = [
 
 [[package]]
 name = "clan-app"
-version = "1.0.0"
+version = "1.1.4"
 dependencies = [
  "clan-sdk",
  "serde",
@@ -575,7 +575,7 @@ dependencies = [
 
 [[package]]
 name = "clan-cli"
-version = "1.1.2"
+version = "1.1.4"
 dependencies = [
  "anyhow",
  "clan-sdk",
@@ -587,7 +587,7 @@ dependencies = [
 
 [[package]]
 name = "clan-sdk"
-version = "1.1.2"
+version = "1.1.4"
 dependencies = [
  "chrono",
  "jsonschema",

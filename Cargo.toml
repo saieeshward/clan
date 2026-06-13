@@ -3,7 +3,10 @@ resolver = "2"
 members = ["crates/clan-sdk", "crates/clan-cli", "app/src-tauri"]
 
 [workspace.package]
-version = "1.1.2"
+# Single source of truth for CLI + Tauri bundle versions. CI overwrites this
+# from the pushed git tag (see .github/workflows/release.yml); this committed
+# value is the fallback for local / non-tag builds.
+version = "1.1.4"
 edition = "2021"
 license = "MPL-2.0"
 repository = "https://github.com/saieeshward/clan"
