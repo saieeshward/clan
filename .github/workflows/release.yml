@@ -207,3 +207,37 @@ jobs:
           releaseDraft: false
           prerelease: false
           args: ${{ matrix.tauri-args }}
+
+      # Tauri's AppImage builder (linuxdeploy-plugin-gtk) bundles a copy of
+      # libwayland-client/egl from the CI host. On end-user machines with a newer
+      # Mesa/Wayland stack, the host's libEGL_mesa driver gets paired with the
+      # stale bundled libwayland, eglGetPlatformDisplay returns EGL_BAD_PARAMETER,
+      # and WebKitGTK aborts before the window opens ("Could not create default
+      # EGL display: EGL_BAD_PARAMETER. Aborting..."). The bundled libwayland is
+      # never needed — the host always provides an ABI-compatible one — so strip
+      # it out and repack, then overwrite the published asset.
+      - name: Patch AppImage — drop bundled libwayland
+        if: matrix.os == 'ubuntu-latest'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          APPIMAGE_EXTRACT_AND_RUN: "1"
+        run: |
+          set -euo pipefail
+          bundle_dir=app/src-tauri/target/release/bundle/appimage
+          appimage=$(find "$bundle_dir" -maxdepth 1 -name '*.AppImage' | head -n1)
+          if [ -z "$appimage" ]; then
+            echo "No AppImage found in $bundle_dir; nothing to patch."
+            exit 0
+          fi
+          name=$(basename "$appimage")
+          echo "Patching $name"
+          cd "$bundle_dir"
+          ./"$name" --appimage-extract >/dev/null
+          # Remove the whole bundled libwayland set so client/cursor/egl/server
+          # all come from the host as a matched pair.
+          rm -fv squashfs-root/usr/lib/libwayland-*.so.*
+          curl -fsSL -o appimagetool \
+            https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage
+          chmod +x appimagetool
+          ARCH=x86_64 ./appimagetool squashfs-root "$name"
+          gh release upload "${GITHUB_REF_NAME}" "$name" --clobber
