@@ -54,10 +54,11 @@ curl -fsSL --progress-bar "$URL" -o "$TMP/$TARBALL"
 tar -xzf "$TMP/$TARBALL" -C "$TMP"
 
 # Install — sudo only if needed
+BIN_SRC="$TMP/clan-v${VERSION}-${TARGET}/clan"
 if [ -w "$BIN_DIR" ]; then
-  install -m 755 "$TMP/clan" "$BIN_DIR/$BIN_NAME"
+  install -m 755 "$BIN_SRC" "$BIN_DIR/$BIN_NAME"
 else
-  sudo install -m 755 "$TMP/clan" "$BIN_DIR/$BIN_NAME"
+  sudo install -m 755 "$BIN_SRC" "$BIN_DIR/$BIN_NAME"
 fi
 
 # Clear macOS Gatekeeper quarantine
