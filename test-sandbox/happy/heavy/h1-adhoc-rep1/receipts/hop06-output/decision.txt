@@ -1,0 +1,1 @@
+2026-06-12 | chart-update | spliced #bar-zoho rect to y="78" height="82" (Zoho now cheapest) from supplied hop06-svg-fragment.html; already at target (idempotent)

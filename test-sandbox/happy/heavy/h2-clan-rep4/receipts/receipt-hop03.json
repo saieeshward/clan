@@ -10,18 +10,20 @@
     "cp doc.clan snapshots/hop-03-03-risk-analyst.clan"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/work/doc.clan", "approx_chars": 1800},
-    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/03-risk-analyst.handoff.txt", "approx_chars": 130},
-    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/03-risk-analyst.json", "approx_chars": 210}
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/work/doc.clan", "approx_chars": 18300},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/03-risk-analyst.handoff.txt", "approx_chars": 137},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/03-risk-analyst.json", "approx_chars": 241}
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/work/doc.clan", "chars": 2200},
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/snapshots/hop-03-03-risk-analyst.clan", "chars": 2200},
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/receipts/hop03-output/patch-data.json", "chars": 193},
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/receipts/receipt-hop03.json", "chars": 1200}
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/work/doc.clan", "chars": 18300},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/snapshots/hop-03-03-risk-analyst.clan", "chars": 18300},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/receipts/hop03-output/patch-data.json", "chars": 241},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/receipts/hop03-output/rationale.txt", "chars": 137}
   ],
-  "output_chars": 193,
-  "errors": [],
-  "problems_and_friction": "Copy-Item (PowerShell) failed in bash context; switched to POSIX cp with absolute paths. No other issues encountered.",
-  "context_understood": "Hop 3 of H2 chain: risk analyst patches 5 risk-namespaced fields into the CRM recommendation doc, building on prior market and pricing findings."
+  "output_chars": 378,
+  "errors": [
+    {"what": "first clan read used a relative path and failed (agent shell resets cwd between calls)", "recovered_by": "re-ran all clan commands with absolute repo paths"}
+  ],
+  "problems_and_friction": "Relative paths fail because the agent shell resets cwd between bash calls; absolute paths resolved it. patch-data merged the four risk_* fields without disturbing prior analysts' keys.",
+  "context_understood": "Hop 3 of the H2 chain: as risk analyst I merge-patched bounded risk_* findings (top risks, migration/adoption/maturity severities) into the shared Brightline CRM doc, leaving GDPR review for the next hop."
 }

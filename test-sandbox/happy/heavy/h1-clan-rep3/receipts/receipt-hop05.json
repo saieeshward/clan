@@ -4,26 +4,20 @@
   "arm": "clan",
   "flow": "H1",
   "commands_run": [
-    "clan read agent test-sandbox/happy/heavy/h1-clan-rep3/work/doc.clan --quiet",
-    "clan read human test-sandbox/happy/heavy/h1-clan-rep3/work/doc.clan",
-    "clan patch-html test-sandbox/happy/heavy/h1-clan-rep3/work/doc.clan test-sandbox/happy/heavy/h1-clan-rep3/work/residency-patch.html --agent residency-agent --action \"add data residency section\" --rationale \"Legal requirement to document residency\"",
-    "clan validate test-sandbox/happy/heavy/h1-clan-rep3/work/doc.clan",
-    "cp test-sandbox/happy/heavy/h1-clan-rep3/work/doc.clan test-sandbox/happy/heavy/h1-clan-rep3/snapshots/hop-05-residency-section.clan"
+    "clan read agent test-sandbox/happy/heavy/h1-clan-rep3/work/doc.clan --skip-guide",
+    "clan patch-html test-sandbox/happy/heavy/h1-clan-rep3/work/doc.clan test-sandbox/happy/lite/_inputs/h1-supplied/residency-section.html --selector \"body\" --patch-action append --agent residency-agent --action \"add data residency section\" --rationale \"Legal requirement to document residency\"",
+    "clan validate test-sandbox/happy/heavy/h1-clan-rep3/work/doc.clan"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/lite/_inputs/h1-supplied/residency-section.html", "approx_chars": 911}
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep3/work/doc.clan", "approx_chars": 4200},
+    {"file": "test-sandbox/happy/lite/_inputs/h1-supplied/residency-section.html", "approx_chars": 910}
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/heavy/h1-clan-rep3/work/doc.clan", "chars": 0},
-    {"file": "test-sandbox/happy/heavy/h1-clan-rep3/snapshots/hop-05-residency-section.clan", "chars": 0},
-    {"file": "test-sandbox/happy/heavy/h1-clan-rep3/receipts/hop05-output/residency-fragment.html", "chars": 911}
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep3/snapshots/hop-05-residency-section.clan", "chars": 16226},
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep3/receipts/hop05-output/residency-section.html", "chars": 910}
   ],
-  "output_chars": 911,
-  "errors": [
-    {"what": "clan read syntax: positional arg order wrong (passed path as subcommand)", "recovered_by": "ran clan read --help, used correct subcommand form"},
-    {"what": "patch-html requires HTML file path not inline --fragment flag", "recovered_by": "wrote patch file with YAML frontmatter then passed as HTML_FILE argument"},
-    {"what": "PowerShell here-string ran through bash tool, causing parse error", "recovered_by": "used Write tool to create fragment file instead"}
-  ],
-  "problems_and_friction": "The clan read and clan patch-html CLI interfaces differ from the protocol description (no --fragment inline flag; read requires a subcommand). Required extra help lookups and an intermediate patch file. PowerShell syntax in bash context caused one error.",
-  "context_understood": "Append the supplied Data residency HTML section to the body of the H1 rep3 doc using clan patch-html with proper YAML frontmatter, validate, then snapshot."
+  "output_chars": 0,
+  "errors": [],
+  "problems_and_friction": "None. The patch-html append against the body selector matched exactly once and applied cleanly; validation returned OK on the first attempt.",
+  "context_understood": "Append the supplied residency-section.html fragment into the document body via clan patch-html without authoring any HTML myself."
 }

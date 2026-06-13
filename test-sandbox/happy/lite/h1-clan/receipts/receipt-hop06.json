@@ -1,24 +1,24 @@
 {
   "role": "chart-update",
-  "hop": "06",
-  "arm": "h1-clan",
-  "flow": "happy/lite",
+  "hop": 6,
+  "arm": "clan",
+  "flow": "guided-patch-first",
   "commands_run": [
-    "clan.exe patch-html --selector \"#bar-zoho\" --patch-action replace --agent chart-update --action \"update zoho bar\" test-sandbox/happy/lite/h1-clan/work/doc.clan test-sandbox/happy/lite/h1-clan/receipts/hop06-patch-fragment.html",
-    "clan.exe validate test-sandbox/happy/lite/h1-clan/work/doc.clan",
+    "clan read agent test-sandbox/happy/lite/h1-clan/work/doc.clan --skip-guide",
+    "clan patch-html test-sandbox/happy/lite/h1-clan/work/doc.clan receipts/hop06-output/patch.html --selector \"#bar-zoho\" --patch-action replace --agent chart-update --action \"...\"",
+    "clan validate test-sandbox/happy/lite/h1-clan/work/doc.clan",
     "cp work/doc.clan snapshots/hop-06-chart-update.clan"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/lite/h1-clan/work/doc.clan", "approx_chars": 0}
+    { "file": "test-sandbox/happy/lite/h1-clan/work/doc.clan", "approx_chars": 1600 }
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/lite/h1-clan/work/doc.clan", "chars": 0},
-    {"file": "test-sandbox/happy/lite/h1-clan/snapshots/hop-06-chart-update.clan", "chars": 0},
-    {"file": "test-sandbox/happy/lite/h1-clan/receipts/hop06-output/patch-payload.html", "chars": 73},
-    {"file": "test-sandbox/happy/lite/h1-clan/receipts/receipt-hop06.json", "chars": 0}
+    { "file": "test-sandbox/happy/lite/h1-clan/work/doc.clan", "chars": 80 },
+    { "file": "test-sandbox/happy/lite/h1-clan/snapshots/hop-06-chart-update.clan", "chars": 80 },
+    { "file": "test-sandbox/happy/lite/h1-clan/receipts/hop06-output/patch.html", "chars": 81 }
   ],
-  "output_chars": 73,
+  "output_chars": 80,
   "errors": [],
-  "problems_and_friction": "doc.clan is binary ZIP so direct read was not useful; used CLI patch-html with --selector and --patch-action replace as intended",
-  "context_understood": "patch-html replace #bar-zoho with y=78 height=82 rect; validate OK; snapshot to hop-06-chart-update.clan; receipt to receipts/receipt-hop06.json"
+  "problems_and_friction": "The .clan container stores HTML packed/encoded, so the raw bar-zoho rect was not greppable in the file; this was a non-issue since patch-html operates on the in-container DOM via selector and confirmed exactly 1 match.",
+  "context_understood": "Zoho became the cheapest CRM option so its price bar shrinks; I replaced the #bar-zoho rect to y=78 height=82 via guided patch-html, then validated and snapshotted."
 }

@@ -1,0 +1,28 @@
+{
+  "role": "resume-agent",
+  "commands_run": [
+    "clan --help",
+    "unzip -l doc.clan",
+    "clan info doc.clan",
+    "clan read --help",
+    "clan read agent doc.clan",
+    "clan read data doc.clan",
+    "clan read chain doc.clan",
+    "clan patch-data doc.clan --agent 03-risk-analyst",
+    "clan patch-decision doc.clan --agent 03-risk-analyst",
+    "clan validate doc.clan"
+  ],
+  "files_read": [
+    { "file": "test-sandbox/happy/lite/h3-clan/work/doc.clan", "approx_chars": 27001 }
+  ],
+  "files_written": [
+    { "file": "test-sandbox/happy/lite/h3-clan/work/doc.clan", "chars": 980 },
+    { "file": "test-sandbox/happy/lite/h3-clan/receipts/receipt-resume-agent.json", "chars": 1500 }
+  ],
+  "output_chars": 980,
+  "errors": [
+    { "what": "clan read <file> --section state failed: 'read' takes a subcommand (agent/data/chain), not --section", "recovered_by": "ran clan read --help, then used clan read agent/data/chain subcommands" }
+  ],
+  "problems_and_friction": "Needed 7 read/probe commands before the first write (clan --help, unzip -l, clan info, clan read --help, and read agent/data/chain). The .clan is a binary ZIP so raw Read of doc.clan was unusable; had to drive everything through the clan CLI. One dead-end on read syntax cost an extra probe.",
+  "context_understood": "Found the doc at stage: two analyst hops complete (01-market-researcher added market_* fields; 02-pricing-analyst added pricing_* fields). agent/state.yaml still said pipeline_stage 0/pending but the decision-chain was authoritative: the last 02-pricing-analyst rationale explicitly handed off to 03-risk-analyst to risk-weight the two finalists (Zoho vs HubSpot, Salesforce eliminated on cost). Correct next step was to act AS 03-risk-analyst: add bounded risk_* findings (11 fields, <=15) building on prior hops without re-transcribing them, via the low-cost data-only path (clan patch-data with inline attribution), then append a <=10-line handoff decision pointing the lead partner (final hop) to assemble the full-html recommendation. Recommended finalist: HubSpot (risk 4 vs Zoho 6) on EU-default Frankfurt residency and fastest time-to-value ahead of the Oct peak, accepting the ~EUR5,760/yr premium over Zoho."
+}

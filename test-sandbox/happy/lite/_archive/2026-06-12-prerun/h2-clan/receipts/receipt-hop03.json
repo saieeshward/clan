@@ -1,0 +1,32 @@
+{
+  "role": "03-risk-analyst",
+  "hop": 3,
+  "arm": "h2",
+  "flow": "happy/lite",
+  "commands_run": [
+    "clan read agent test-sandbox/happy/lite/h2-clan/work/doc.clan --skip-guide",
+    "clan patch-data --agent 03-risk-analyst --action 'added 03-risk-analyst findings' --rationale '...' test-sandbox/happy/lite/h2-clan/work/doc.clan test-sandbox/happy/lite/_inputs/h2-supplied/03-risk-analyst.json",
+    "clan validate test-sandbox/happy/lite/h2-clan/work/doc.clan",
+    "cp test-sandbox/happy/lite/h2-clan/work/doc.clan test-sandbox/happy/lite/h2-clan/snapshots/hop-03-03-risk-analyst.clan"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/lite/h2-clan/work/doc.clan", "approx_chars": 1800},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/03-risk-analyst.json", "approx_chars": 200},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/03-risk-analyst.handoff.txt", "approx_chars": 137}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/lite/h2-clan/snapshots/hop-03-03-risk-analyst.clan", "chars": 12844},
+    {"file": "test-sandbox/happy/lite/h2-clan/receipts/hop03-output/patch-data.json", "chars": 241},
+    {"file": "test-sandbox/happy/lite/h2-clan/receipts/hop03-output/decision.txt", "chars": 137},
+    {"file": "test-sandbox/happy/lite/h2-clan/receipts/receipt-hop03.json", "chars": 0}
+  ],
+  "output_chars": 378,
+  "errors": [
+    {
+      "what": "patch-data without attribution flag rejected",
+      "recovered_by": "re-ran with --agent, --action, --rationale flags embedded in patch-data command"
+    }
+  ],
+  "problems_and_friction": "The patch-data command required attribution flags inline (--agent, --action, --rationale) rather than as a separate patch-decision step; the protocol description implied two separate commands but only the combined form was accepted. No other friction.",
+  "context_understood": "Hop 3 of a CRM recommendation chain; added risk findings (migration high, adoption/Zoho-maturity medium, HubSpot-maturity low) and recorded handoff note pointing next analyst to GDPR review."
+}

@@ -1,22 +1,28 @@
 {
   "role": "date-update",
-  "hop": "03",
-  "arm": "h1-clan",
-  "flow": "happy/lite",
+  "hop": 3,
+  "arm": "clan",
+  "flow": "guided-patch-first",
   "commands_run": [
-    "target/release/clan.exe patch-data test-sandbox/happy/lite/h1-clan/work/doc.clan '{\"rollout_phase2_date\":\"2026-09-15\"}' --agent date-update --action \"update phase2 date\"",
-    "target/release/clan.exe validate test-sandbox/happy/lite/h1-clan/work/doc.clan"
+    "clan read agent test-sandbox/happy/lite/h1-clan/work/doc.clan --skip-guide",
+    "clan read data test-sandbox/happy/lite/h1-clan/work/doc.clan",
+    "clan patch-data test-sandbox/happy/lite/h1-clan/work/doc.clan '{\"rollout_phase2_date\":\"2026-09-15\"}' --agent date-update --action \"rollout_phase2_date 2026-08-01 to 2026-09-15\"",
+    "clan validate test-sandbox/happy/lite/h1-clan/work/doc.clan",
+    "cp test-sandbox/happy/lite/h1-clan/work/doc.clan test-sandbox/happy/lite/h1-clan/snapshots/hop-03-date-update.clan"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/lite/h1-clan/work/doc.clan", "approx_chars": 15525}
+    { "file": "test-sandbox/happy/lite/h1-clan/work/doc.clan", "approx_chars": 2200 }
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/lite/h1-clan/work/doc.clan", "chars": 15525},
-    {"file": "test-sandbox/happy/lite/h1-clan/snapshots/hop-03-date-update.clan", "chars": 15525},
-    {"file": "test-sandbox/happy/lite/h1-clan/receipts/hop03-output/patch-payload.json", "chars": 38}
+    { "file": "test-sandbox/happy/lite/h1-clan/work/doc.clan", "chars": 36 },
+    { "file": "test-sandbox/happy/lite/h1-clan/snapshots/hop-03-date-update.clan", "chars": 0 },
+    { "file": "test-sandbox/happy/lite/h1-clan/receipts/hop03-output/patch-data.json", "chars": 36 },
+    { "file": "test-sandbox/happy/lite/h1-clan/receipts/hop03-output/decision-action.txt", "chars": 47 }
   ],
-  "output_chars": 15525,
-  "errors": [],
-  "problems_and_friction": "Bash copy command not available; used PowerShell Copy-Item instead.",
-  "context_understood": "Hop 03: patch rollout_phase2_date to 2026-09-15 using patch-data only; validate; snapshot; write receipt."
+  "output_chars": 83,
+  "errors": [
+    { "what": "first patch-data rejected: change needs attribution (--agent/--action required)", "recovered_by": "re-ran with --agent date-update --action describing the date change" }
+  ],
+  "problems_and_friction": "patch-data refused without attribution flags, so the first invocation failed and had to be re-run. Otherwise the data-bound edit was a clean one-field patch with no pack-html needed.",
+  "context_understood": "A single data-bound field (rollout_phase2_date) was changed via patch-data alone from 2026-08-01 to 2026-09-15, validated OK, and snapshotted without touching the hand-authored HTML."
 }

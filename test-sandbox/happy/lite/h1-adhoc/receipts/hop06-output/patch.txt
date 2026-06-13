@@ -1,2 +1,0 @@
-bar-zoho rect: y="52" height="108" → y="78" height="82"
-decisions.log entry: 2026-06-12 hop-06 chart-update: bar-zoho SVG rect updated y="52"→y="78" height="108"→height="82" to reflect revised Zoho cost position in cost chart.

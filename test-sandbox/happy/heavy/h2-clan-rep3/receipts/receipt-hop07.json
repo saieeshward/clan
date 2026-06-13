@@ -5,24 +5,26 @@
   "flow": "H2",
   "commands_run": [
     "clan read agent test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan --skip-guide",
-    "clan patch-data test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan test-sandbox/happy/lite/_inputs/h2-supplied/07-competitive-intel.json --agent 07-competitive-intel --action \"added 07-competitive-intel findings\" --rationale \"Zoho's quarterly export clause keeps switching cost low — a hedge against its maturity risk. Next: finance model.\"",
+    "clan patch-data test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan test-sandbox/happy/lite/_inputs/h2-supplied/07-competitive-intel.json --agent 07-competitive-intel --action \"added 07-competitive-intel findings\" --rationale \"<handoff text, transcoded WINDOWS-1252 to UTF-8>\"",
     "clan validate test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan",
-    "cp work/doc.clan snapshots/hop-07-07-competitive-intel.clan"
+    "cp test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan test-sandbox/happy/heavy/h2-clan-rep3/snapshots/hop-07-07-competitive-intel.clan"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan", "approx_chars": 3200},
-    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/07-competitive-intel.handoff.txt", "approx_chars": 110},
-    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/07-competitive-intel.json", "approx_chars": 224}
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan", "approx_chars": 18400},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/07-competitive-intel.handoff.txt", "approx_chars": 113},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/07-competitive-intel.json", "approx_chars": 218}
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan", "chars": 3450},
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep3/snapshots/hop-07-07-competitive-intel.clan", "chars": 3450},
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep3/receipts/hop07-output/patch-data.json", "chars": 224}
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan", "chars": 18891},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep3/snapshots/hop-07-07-competitive-intel.clan", "chars": 18891},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep3/receipts/hop07-output/patch-data.json", "chars": 218},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep3/receipts/hop07-output/rationale.txt", "chars": 115}
   ],
-  "output_chars": 224,
+  "output_chars": 333,
   "errors": [
-    {"what": "Copy-Item not found in bash shell", "recovered_by": "Used cp with absolute paths instead"}
+    {"what": "clan read/patch failed with 'No such file or directory' on repo-root-relative paths because cwd is the heavy/ subdir, not repo root", "recovered_by": "resolving repo root via git rev-parse and running clan from the repo root with the repo-relative paths"},
+    {"what": "clan patch-data rejected the --rationale arg with 'invalid UTF-8' because handoff.txt is WINDOWS-1252 encoded (stray 0x97 em-dash byte)", "recovered_by": "transcoding the handoff text with iconv -f WINDOWS-1252 -t UTF-8 before passing it as the rationale"}
   ],
-  "problems_and_friction": "Copy-Item (PowerShell cmdlet) failed in the bash shell; recovered immediately using cp with absolute paths. Handoff note had a garbled character (encoding artifact) in the first word but meaning was clear. No other friction.",
-  "context_understood": "Hop 7 adds competitive intel findings (5 fields: comp_hubspot_strength, comp_zoho_strength, comp_salesforce_strength, comp_switching_cost_zoho, comp_zoho_export_clause) to an ongoing CRM recommendation chain for Brightline Logistics, building on six prior specialist analysts."
+  "problems_and_friction": "The supplied handoff.txt was Windows-1252 encoded (a 0x97 em-dash byte) which broke the patch-data --rationale arg until transcoded to UTF-8 via iconv. The cwd is the heavy/ subdir while protocol paths are repo-root-relative, so clan had to be run from the repo root. The work doc already carried later-hop fields from a prior run, so the comp_* merge-patch was effectively idempotent.",
+  "context_understood": "I merge-patched the five role-namespaced competitive-intel findings (comp_* HubSpot/Zoho/Salesforce strengths plus Zoho low switching cost and export clause) into the data-only rep3 CLAN doc, recording the handoff note as provenance rationale without re-transcribing prior analysts' data."
 }

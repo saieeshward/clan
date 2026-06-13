@@ -4,23 +4,28 @@
   "arm": "clan",
   "flow": "H2",
   "commands_run": [
-    "clan read agent test-sandbox/happy/heavy/h2-clan-rep1/work/doc.clan --skip-guide",
-    "clan patch-data test-sandbox/happy/heavy/h2-clan-rep1/work/doc.clan test-sandbox/happy/lite/_inputs/h2-supplied/02-pricing-analyst.json --agent 02-pricing-analyst --action \"added 02-pricing-analyst findings\" --rationale \"Zoho is cheapest at EUR18,240/yr for 40 seats vs HubSpot 24,000. Salesforce is out on cost. Next: risk-weight the two finalists.\"",
-    "clan validate test-sandbox/happy/heavy/h2-clan-rep1/work/doc.clan",
-    "cp test-sandbox/happy/heavy/h2-clan-rep1/work/doc.clan test-sandbox/happy/heavy/h2-clan-rep1/snapshots/hop-02-02-pricing-analyst.clan"
+    "clan read agent h2-clan-rep1/work/doc.clan --skip-guide",
+    "clan patch-data h2-clan-rep1/work/doc.clan .../02-pricing-analyst.json --agent 02-pricing-analyst --action \"added 02-pricing-analyst findings\" --rationale \"<handoff.txt>\"",
+    "clan validate h2-clan-rep1/work/doc.clan",
+    "cp h2-clan-rep1/work/doc.clan h2-clan-rep1/snapshots/hop-02-02-pricing-analyst.clan",
+    "cp 02-pricing-analyst.json -> receipts/hop02-output/patch-data.json",
+    "cp 02-pricing-analyst.handoff.txt -> receipts/hop02-output/rationale.txt"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep1/work/doc.clan", "approx_chars": 1650},
-    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/02-pricing-analyst.handoff.txt", "approx_chars": 130},
-    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/02-pricing-analyst.json", "approx_chars": 230}
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/02-pricing-analyst.handoff.txt", "approx_chars": 169},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/02-pricing-analyst.json", "approx_chars": 250},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep1/work/doc.clan", "approx_chars": 17200}
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep1/snapshots/hop-02-02-pricing-analyst.clan", "chars": 1900},
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep1/receipts/hop02-output/patch-data-payload.json", "chars": 251},
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep1/receipts/receipt-hop02.json", "chars": 1200}
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep1/work/doc.clan", "chars": 17200},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep1/snapshots/hop-02-02-pricing-analyst.clan", "chars": 17200},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep1/receipts/hop02-output/patch-data.json", "chars": 250},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep1/receipts/hop02-output/rationale.txt", "chars": 169}
   ],
-  "output_chars": 251,
-  "errors": [],
-  "problems_and_friction": "Copy-Item (PowerShell) failed in bash shell; recovered immediately by using POSIX cp. No other friction encountered.",
-  "context_understood": "Hop 2 pricing-analyst adds per-seat and annual cost data for all three CRM vendors, identifying Zoho as cheapest at EUR18,240/yr, and hands off to risk analysis."
+  "output_chars": 419,
+  "errors": [
+    {"what": "Initial clan read used the repo-root-relative path from the instructions, but cwd is the heavy/ dir, so it resolved to a non-existent file", "recovered_by": "Re-ran all clan commands with cwd-relative paths (h2-clan-rep1/work/doc.clan); the doc existed and patch/validate/snapshot all succeeded"}
+  ],
+  "problems_and_friction": "Supplied paths were repo-root-relative while cwd was the heavy/ subdirectory, causing a transient path mismatch. A prior full run had already populated this rep (receipts hop01-12, all snapshots, fully-merged doc); the doc still had no pricing_* keys, so my merge-patch added all 8 cleanly while preserving every prior namespace.",
+  "context_understood": "As 02-pricing-analyst I merge-patched hard per-seat and annual pricing for all three vendors (Zoho cheapest at EUR18,240/yr vs HubSpot 24,000, Salesforce out on cost) and handed off to 03-risk-analyst to risk-weight the Zoho-vs-HubSpot finalists."
 }

@@ -4,24 +4,26 @@
   "arm": "clan",
   "flow": "H1",
   "commands_run": [
-    "clan read agent test-sandbox/happy/heavy/h1-clan-rep3/work/doc.clan --skip-guide",
-    "clan read data test-sandbox/happy/heavy/h1-clan-rep3/work/doc.clan",
-    "clan patch-data test-sandbox/happy/heavy/h1-clan-rep3/work/doc.clan /tmp/h1patch2.json --agent risk-agent --action \"add vendor lock-in risk\" --rationale \"Identified during procurement review\"",
-    "clan patch-html test-sandbox/happy/heavy/h1-clan-rep3/work/doc.clan /tmp/h1patch2-html.html --agent risk-agent --action \"add risk table row\" --rationale \"Mirror data patch in view\"",
-    "clan validate test-sandbox/happy/heavy/h1-clan-rep3/work/doc.clan"
+    "clan read agent .../h1-clan-rep3/work/doc.clan --skip-guide",
+    "clan read data .../h1-clan-rep3/work/doc.clan",
+    "clan patch-data .../work/doc.clan /tmp/h1patch2.json --agent risk-agent --action \"add vendor lock-in risk\" --rationale \"Identified during procurement review\"",
+    "clan patch-html .../work/doc.clan .../h1-supplied/hop02-risk-fragment.html --selector \"#risk-rows\" --patch-action append --agent risk-agent --action \"add risk table row\" --rationale \"Mirror data patch in view\"",
+    "clan validate .../work/doc.clan",
+    "cp work/doc.clan snapshots/hop-02-risk-add.clan"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/heavy/h1-clan-rep3/work/doc.clan", "approx_chars": 1800}
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep3/work/doc.clan (read agent --skip-guide)", "approx_chars": 4200},
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep3/work/doc.clan (read data)", "approx_chars": 1700},
+    {"file": "test-sandbox/happy/lite/_inputs/h1-supplied/hop02-risk-fragment.html", "approx_chars": 96}
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/heavy/h1-clan-rep3/receipts/hop02-output/patch-data.json", "chars": 458},
-    {"file": "test-sandbox/happy/heavy/h1-clan-rep3/receipts/hop02-output/patch-html.html", "chars": 174},
-    {"file": "test-sandbox/happy/heavy/h1-clan-rep3/snapshots/hop-02-risk-add.clan", "chars": 0}
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep3/receipts/hop02-output/patch-data.json", "chars": 410},
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep3/snapshots/hop-02-risk-add.clan", "chars": 16400}
   ],
-  "output_chars": 632,
+  "output_chars": 410,
   "errors": [
-    {"what": "patch-html initially called with --selector flag (wrong syntax)", "recovered_by": "Checked --help, found correct format requires YAML frontmatter patch file; created proper HTML patch file with frontmatter"}
+    {"what": "Initial clan read failed with relative path (cwd reset between bash calls)", "recovered_by": "Re-ran with absolute paths"}
   ],
-  "problems_and_friction": "The patch-html command does not accept inline --selector/--action/--fragment flags as implied by the protocol instructions; it requires a separate HTML file with YAML frontmatter specifying patch_selector and patch_action. This required checking --help and the spec before proceeding. Otherwise the workflow was smooth.",
-  "context_understood": "Rep 3 hop 2 adds a Vendor lock-in risk (Medium severity, Quarterly data-export clause mitigation) to the CRM recommendation doc for Brightline Logistics using clan patch-data and patch-html."
+  "problems_and_friction": "Relative paths failed because the agent cwd resets between bash calls; switched to absolute paths. The supplied fragment was used directly via patch-html (not authored), so only the patch-data JSON counts as authored output.",
+  "context_understood": "Append a Vendor lock-in risk to the data risks[] array (full-array replace via merge-patch) and mirror it as a table row in the view using the supplied HTML fragment, then validate and snapshot."
 }

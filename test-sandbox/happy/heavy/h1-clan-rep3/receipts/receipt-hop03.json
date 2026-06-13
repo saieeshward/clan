@@ -5,19 +5,22 @@
   "flow": "H1",
   "commands_run": [
     "clan read agent test-sandbox/happy/heavy/h1-clan-rep3/work/doc.clan --skip-guide",
-    "clan patch-data test-sandbox/happy/heavy/h1-clan-rep3/work/doc.clan test-sandbox/happy/heavy/h1-clan-rep3/receipts/hop03-output/patch.json --agent date-agent --action \"update phase-2 date\" --rationale \"Timeline slipped by 6 weeks\"",
+    "clan patch-data test-sandbox/happy/heavy/h1-clan-rep3/work/doc.clan /tmp/h1patch3.json --agent date-agent --action \"update phase-2 date\" --rationale \"Timeline slipped by 6 weeks\"",
     "clan validate test-sandbox/happy/heavy/h1-clan-rep3/work/doc.clan",
     "cp test-sandbox/happy/heavy/h1-clan-rep3/work/doc.clan test-sandbox/happy/heavy/h1-clan-rep3/snapshots/hop-03-date-update.clan"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/heavy/h1-clan-rep3/work/doc.clan", "approx_chars": 3200}
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep3/work/doc.clan", "approx_chars": 4200}
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/heavy/h1-clan-rep3/receipts/hop03-output/patch.json", "chars": 36},
+    {"file": "/tmp/h1patch3.json", "chars": 36},
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep3/work/doc.clan", "chars": 0},
     {"file": "test-sandbox/happy/heavy/h1-clan-rep3/snapshots/hop-03-date-update.clan", "chars": 0}
   ],
   "output_chars": 36,
-  "errors": [],
-  "problems_and_friction": "No friction encountered. The clan patch-data command applied cleanly and validation returned OK immediately. The snapshot directory did not exist and was created without issue.",
-  "context_understood": "Hop 03 updates rollout_phase2_date from 2026-08-01 to 2026-09-15 via clan patch-data, representing a 6-week timeline slip for phase 2 of the CRM rollout."
+  "errors": [
+    {"what": "Relative-path read failed (cwd resets between bash calls)", "recovered_by": "Re-running with absolute repo-root cd prefix"}
+  ],
+  "problems_and_friction": "The target value was already 2026-09-15 in the seeded doc, so the patch was effectively idempotent; I applied it as instructed and validation passed OK. pack-html guidance appeared in CLI output but was correctly skipped per protocol.",
+  "context_understood": "Data-bound single-field date update applied via clan patch-data, validated, and snapshotted without touching the HTML view."
 }

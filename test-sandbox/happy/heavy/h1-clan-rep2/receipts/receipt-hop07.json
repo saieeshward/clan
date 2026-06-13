@@ -4,23 +4,25 @@
   "arm": "clan",
   "flow": "H1",
   "commands_run": [
-    "clan read agent test-sandbox/happy/heavy/h1-clan-rep2/work/doc.clan --skip-guide",
-    "clan patch-data test-sandbox/happy/heavy/h1-clan-rep2/work/doc.clan /tmp/h1patch7.json --agent verdict-agent --action \"flip verdict to Zoho CRM\" --rationale \"Re-scored: Zoho wins on 40-seat cost with EU residency\"",
-    "clan validate test-sandbox/happy/heavy/h1-clan-rep2/work/doc.clan",
-    "cp test-sandbox/happy/heavy/h1-clan-rep2/work/doc.clan test-sandbox/happy/heavy/h1-clan-rep2/snapshots/hop-07-verdict-flip.clan"
+    "clan read agent h1-clan-rep2/work/doc.clan --skip-guide",
+    "clan patch-data h1-clan-rep2/work/doc.clan /tmp/h1patch7.json --agent verdict-agent --action \"flip verdict to Zoho CRM\" --rationale \"Re-scored: Zoho wins on 40-seat cost with EU residency\"",
+    "clan validate h1-clan-rep2/work/doc.clan",
+    "cp h1-clan-rep2/work/doc.clan h1-clan-rep2/snapshots/hop-07-verdict-flip.clan"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/heavy/h1-clan-rep2/work/doc.clan", "approx_chars": 3200},
-    {"file": "test-sandbox/happy/lite/_inputs/h1-supplied/verdict-rationale.txt", "approx_chars": 196}
+    {"file": "test-sandbox/happy/lite/_inputs/h1-supplied/verdict-rationale.txt", "approx_chars": 210},
+    {"file": "/tmp/h1patch7.json", "approx_chars": 260}
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/heavy/h1-clan-rep2/work/doc.clan", "chars": 0},
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep2/receipts/hop07-output/h1patch7.json", "chars": 260},
     {"file": "test-sandbox/happy/heavy/h1-clan-rep2/snapshots/hop-07-verdict-flip.clan", "chars": 0},
-    {"file": "test-sandbox/happy/heavy/h1-clan-rep2/receipts/hop07-output/h1patch7.json", "chars": 261},
     {"file": "test-sandbox/happy/heavy/h1-clan-rep2/receipts/receipt-hop07.json", "chars": 0}
   ],
-  "output_chars": 261,
-  "errors": [],
-  "problems_and_friction": "None encountered. The patch-data command succeeded on first attempt, validate returned OK immediately, and snapshot directory creation was straightforward.",
-  "context_understood": "Flipped verdict from HubSpot to Zoho CRM and set verdict_rationale to the supplied text via clan patch-data, then validated and snapshotted the document."
+  "output_chars": 260,
+  "errors": [
+    {"what": "Write to /tmp/h1patch7.json failed (file already existed from a prior rep, not yet read)", "recovered_by": "Read the file, confirmed its content already matched the intended payload, so no rewrite was needed"},
+    {"what": "Write to receipt-hop07.json failed (pre-existing file from prior rep)", "recovered_by": "Read it first, then overwrote with this rep's receipt"}
+  ],
+  "problems_and_friction": "The /tmp patch payload and the target doc already carried the desired verdict/rationale, so the data patch was effectively idempotent. The CLI repeatedly nudged toward pack-html/render to refresh the stale human view, which the protocol forbids this hop, so it was ignored.",
+  "context_understood": "Flip the verdict to Zoho CRM and set verdict_rationale to the supplied verbatim text via a guided data patch, then validate (OK) and snapshot, without touching the hand-authored HTML view."
 }

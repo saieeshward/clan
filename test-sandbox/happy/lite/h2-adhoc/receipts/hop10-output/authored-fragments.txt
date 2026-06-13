@@ -1,7 +1,0 @@
---- report.html (8849 chars) ---
-Full HTML report written to work/report.html and snapshotted.
-Vendor: Zoho CRM | Year-1 cost: EUR 18,240 | Top risks: migration data quality (High), user adoption (Medium), Zoho workflow maturity (Medium), NetSuite connector (Low), integration latency (Medium).
-Rationale: cost leadership (EUR 5,760 below HubSpot y1), GDPR bundled at no surcharge, acceptable NetSuite gap via supported connector (~EUR 1,200/yr), low switching cost via quarterly export clause, 9-week rollout clears October peak.
-
---- decisions.log (90 chars) ---
-2026-06-11 | lead-partner | final recommendation: Zoho CRM | synthesised 9 analyst inputs

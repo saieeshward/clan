@@ -21,12 +21,12 @@
 <p><small>Prepared by Vantage Advisory · 2026-06-01</small></p>
 
 <div class="verdict" id="verdict-box">
-  <strong>Recommendation:</strong> <span id="verdict-value">HubSpot</span><br>
-  <span id="verdict-rationale">HubSpot's onboarding speed and native marketing suite outweigh its higher per-seat cost for a 40-seat go-live.</span>
+  <strong>Recommendation:</strong> <span id="verdict-value">Zoho CRM</span><br>
+  <span id="verdict-rationale">On re-evaluation, Zoho CRM delivers equivalent time-to-value at a lower 40-seat cost, with EU data residency included rather than billed as an add-on — the per-seat saving compounds across the three-phase rollout.</span>
 </div>
 
 <h2>Executive summary</h2>
-<p id="exec-summary">Brightline Logistics needs a CRM live before peak season. We evaluated three platforms against cost, time-to-value, integration depth, and data-governance fit. HubSpot is our recommendation: it reaches productive use fastest and carries the lowest integration risk for Brightline's existing stack.</p>
+<p id="exec-summary">Brightline Logistics must have a CRM live before the October peak. After re-scoring cost against time-to-value, Zoho CRM now leads: it matches HubSpot on go-live speed for a 40-seat rollout while costing materially less per seat, and its EU data residency satisfies Brightline's governance requirements without paid add-ons.</p>
 
 <h2>Cost comparison (40 seats)</h2>
 <table id="cost-table">
@@ -41,7 +41,7 @@
 <h2>Cost chart</h2>
 <svg id="cost-chart" width="420" height="200" viewBox="0 0 420 200" xmlns="http://www.w3.org/2000/svg">
   <rect id="bar-hubspot" x="40" y="40" width="80" height="120" fill="#0f3460"></rect>
-  <rect id="bar-zoho" x="170" y="52" width="80" height="108" fill="#16a085"></rect>
+  <rect id="bar-zoho" x="170" y="78" width="80" height="82" fill="#16a085"></rect>
   <rect id="bar-salesforce" x="300" y="20" width="80" height="140" fill="#c0392b"></rect>
   <text x="80" y="178" text-anchor="middle" font-size="13">HubSpot</text>
   <text x="210" y="178" text-anchor="middle" font-size="13">Zoho</text>
@@ -53,7 +53,7 @@
 <thead><tr><th>Phase</th><th>Target date</th></tr></thead>
 <tbody>
 <tr><td>Phase 1 — Core CRM</td><td id="phase1">2026-07-01</td></tr>
-<tr><td>Phase 2 — Marketing suite</td><td id="phase2">2026-08-01</td></tr>
+<tr><td>Phase 2 — Marketing suite</td><td id="phase2">2026-09-15</td></tr>
 <tr><td>Phase 3 — Analytics</td><td id="phase3">2026-09-01</td></tr>
 </tbody>
 </table>
@@ -71,6 +71,9 @@
 
 <h2>Data governance</h2>
 <p>Data residency: <span class="pill" id="residency">EU (Frankfurt)</span> · Support tier: Professional · Training hours: 24</p>
+
+<h2 id="data-residency">Data residency</h2>
+<p id="residency-detail">All Brightline customer and pipeline data will be stored in the vendor's EU (Frankfurt) region, with no replication outside the EEA. Zoho CRM provides region pinning on the Professional tier at no additional cost, and its standard Data Processing Agreement covers Brightline's GDPR obligations as data controller. Backups are encrypted at rest (AES-256) and retained for 30 days within the same region. For the NetSuite and Shopify integrations, only non-personal order metadata crosses the boundary, and that flow is documented in the integration register. A quarterly data-export clause guarantees Brightline can retrieve a full copy in a portable format, limiting lock-in. Sub-processors are listed in the vendor's trust centre and change-notified 30 days in advance, satisfying the COO's audit requirement before the October go-live.</p>
 
 <h2>Projected impact</h2>
 <p>Estimated annual savings vs. status quo: <strong>$18500</strong>. Decision owner: COO. Next review: 2026-12-01.</p>

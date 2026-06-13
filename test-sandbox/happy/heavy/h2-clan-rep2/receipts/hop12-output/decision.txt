@@ -1,4 +1,2 @@
-agent: lead-partner
-action: final recommendation: Zoho CRM
-rationale: Synthesised 11 analyst inputs.
-pinned: true
+final recommendation: Zoho CRM
+Synthesised 11 analyst inputs.

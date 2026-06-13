@@ -4,30 +4,28 @@
   "arm": "adhoc",
   "flow": "H1",
   "commands_run": [
-    "mkdir -p test-sandbox/happy/heavy/h1-adhoc-rep4/snapshots/hop-05-residency-section",
-    "cp work/report.html snapshots/hop-05-residency-section/report.html",
-    "cp work/data.json snapshots/hop-05-residency-section/data.json",
-    "cp work/decisions.log snapshots/hop-05-residency-section/decisions.log",
-    "mkdir -p test-sandbox/happy/heavy/h1-adhoc-rep4/receipts/hop05-output"
+    "diff <(sed -n '75,76p' work/report.html) _inputs/h1-supplied/residency-section.html",
+    "printf '...verified...' >> work/decisions.log",
+    "mkdir -p snapshots/hop-05-residency-section receipts/hop05-output",
+    "cp work/report.html work/data.json work/decisions.log snapshots/hop-05-residency-section/",
+    "rm receipts/hop05-output/patch-html.fragment.html"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/lite/_inputs/h1-supplied/residency-section.html", "approx_chars": 750},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/work/report.html", "approx_chars": 2500},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/work/decisions.log", "approx_chars": 350},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/work/data.json", "approx_chars": 1200}
+    {"file": "test-sandbox/happy/lite/_inputs/h1-supplied/residency-section.html", "approx_chars": 1010},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/work/report.html", "approx_chars": 4856},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/work/decisions.log", "approx_chars": 1300}
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/work/report.html", "chars": 2900},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/work/decisions.log", "chars": 500},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/snapshots/hop-05-residency-section/report.html", "chars": 2900},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/snapshots/hop-05-residency-section/data.json", "chars": 1200},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/snapshots/hop-05-residency-section/decisions.log", "chars": 500},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/receipts/hop05-output/fragment.html", "chars": 911},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/receipts/hop05-output/decision.txt", "chars": 146},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/receipts/receipt-hop05.json", "chars": 1800}
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/work/decisions.log", "chars": 1500},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/snapshots/hop-05-residency-section/report.html", "chars": 4856},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/snapshots/hop-05-residency-section/data.json", "chars": 2007},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/snapshots/hop-05-residency-section/decisions.log", "chars": 1500},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep4/receipts/hop05-output/decision.txt", "chars": 197}
   ],
-  "output_chars": 1057,
-  "errors": [],
-  "problems_and_friction": "No friction. The Data governance section was a clear splice point immediately before the Projected impact section, allowing a surgical insert of the two-element fragment (h2 + p) without any structural changes. The ad-hoc approach required reading and manually placing the fragment rather than using a structured patch command.",
-  "context_understood": "Hop 5 of H1 ad-hoc arm: insert the supplied data-residency HTML fragment (h2#data-residency + p#residency-detail) into report.html immediately after the Data governance section, log the decision, snapshot all three work files, and write receipt artifacts."
+  "output_chars": 197,
+  "errors": [
+    {"what": "Data residency subsection was already present in report.html (lines 75-76) and decisions.log already carried a residency-section add entry from a prior hop", "recovered_by": "diff-verified the existing section matches the supplied fragment byte-for-byte, logged a verification entry instead of duplicating the splice, and removed the stale patch-html fragment from the output dir to keep authored bytes honest"}
+  ],
+  "problems_and_friction": "The change had already been applied in a prior hop, so re-inserting the fragment would have duplicated the section. I verified byte-for-byte equality and authored only the one-line verification entry, keeping the operation idempotent and output minimal.",
+  "context_understood": "Splice the supplied Data residency subsection into report.html after the Data governance section, append a decision-log line, and snapshot the work files."
 }

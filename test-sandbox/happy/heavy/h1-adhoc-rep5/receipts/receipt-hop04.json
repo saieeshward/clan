@@ -4,37 +4,27 @@
   "arm": "adhoc",
   "flow": "H1",
   "commands_run": [
-    "Read exec-summary.txt",
-    "Read data.json",
-    "Read report.html",
-    "Read decisions.log",
-    "Edit data.json exec_summary field",
-    "Edit report.html #exec-summary paragraph",
-    "Edit decisions.log append hop-04 entry",
-    "mkdir snapshots/hop-04-summary-rewrite",
-    "cp work/report.html -> snapshots/hop-04-summary-rewrite/report.html",
-    "cp work/data.json -> snapshots/hop-04-summary-rewrite/data.json",
-    "cp work/decisions.log -> snapshots/hop-04-summary-rewrite/decisions.log"
+    "python3 (verify supplied text == data.json exec_summary and report.html p#exec-summary)",
+    "printf >> work/decisions.log",
+    "mkdir -p snapshots/hop-04-summary-rewrite receipts/hop04-output",
+    "cp work/report.html work/data.json work/decisions.log snapshots/hop-04-summary-rewrite/",
+    "wc -c (size measurement)"
   ],
   "files_read": [
     {"file": "test-sandbox/happy/lite/_inputs/h1-supplied/exec-summary.txt", "approx_chars": 324},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/work/data.json", "approx_chars": 1993},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/work/report.html", "approx_chars": 3917},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/work/decisions.log", "approx_chars": 424}
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/work/data.json", "approx_chars": 2113},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/work/report.html", "approx_chars": 4961},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/work/decisions.log", "approx_chars": 1851}
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/work/data.json", "chars": 2007},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/work/report.html", "chars": 3931},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/work/decisions.log", "chars": 575},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/snapshots/hop-04-summary-rewrite/data.json", "chars": 2007},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/snapshots/hop-04-summary-rewrite/report.html", "chars": 3931},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/snapshots/hop-04-summary-rewrite/decisions.log", "chars": 575},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/receipts/hop04-output/patch-data-fragment.txt", "chars": 343},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/receipts/hop04-output/patch-html-fragment.txt", "chars": 349},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/receipts/hop04-output/decision-text.txt", "chars": 150}
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/work/decisions.log", "chars": 2014},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/snapshots/hop-04-summary-rewrite/report.html", "chars": 4961},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/snapshots/hop-04-summary-rewrite/data.json", "chars": 2113},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/snapshots/hop-04-summary-rewrite/decisions.log", "chars": 2014},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/receipts/hop04-output/decision-line.txt", "chars": 163}
   ],
-  "output_chars": 842,
+  "output_chars": 163,
   "errors": [],
-  "problems_and_friction": "Bash tool defaulted to POSIX shell instead of PowerShell on first snapshot attempt, requiring a retry with bash cp/mkdir syntax. No logical or content issues encountered; the exec-summary source text was clean and spliced surgically into both data.json and report.html without full-file rewrites.",
-  "context_understood": "Hop 4 of the H1 ad-hoc arm replaces the exec_summary field/element in data.json and report.html with the exact text from the h1-supplied source file, then snapshots work and writes receipts."
+  "problems_and_friction": "The exec_summary was already byte-for-byte identical to the supplied text in both data.json and report.html (a prior hop applied this rewrite, per decisions.log line 5), so this rep5 pass was a verification no-op, not an edit. Only the one-line audit entry was authored.",
+  "context_understood": "Replace the exec summary in data.json and report.html with the exact supplied text; verified it already matched byte-for-byte, so I logged and snapshotted without re-editing."
 }

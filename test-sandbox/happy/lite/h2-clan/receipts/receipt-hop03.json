@@ -1,28 +1,30 @@
 {
   "role": "03-risk-analyst",
   "hop": 3,
-  "arm": "h2-clan",
-  "flow": "happy/lite",
+  "arm": "h2",
+  "flow": "lite",
   "commands_run": [
-    "clan.exe read agent test-sandbox/happy/lite/h2-clan/work/doc.clan --skip-guide",
-    "clan.exe patch-data test-sandbox/happy/lite/h2-clan/work/doc.clan test-sandbox/happy/lite/_inputs/h2-supplied/03-risk-analyst.json --agent 03-risk-analyst --action \"added 03-risk-analyst findings\"",
-    "clan.exe patch-decision --agent 03-risk-analyst --action \"added 03-risk-analyst findings\" --rationale \"Migration quality is the top risk for either vendor. Zoho carries slightly higher maturity risk on advanced workflows. Next: GDPR review.\" test-sandbox/happy/lite/h2-clan/work/doc.clan",
-    "clan.exe validate test-sandbox/happy/lite/h2-clan/work/doc.clan",
+    "clan read agent test-sandbox/happy/lite/h2-clan/work/doc.clan --skip-guide",
+    "clan patch-data --agent 03-risk-analyst --action \"added 03-risk-analyst findings\" test-sandbox/happy/lite/h2-clan/work/doc.clan test-sandbox/happy/lite/_inputs/h2-supplied/03-risk-analyst.json",
+    "clan patch-decision --agent 03-risk-analyst --action \"added 03-risk-analyst findings\" --rationale \"...\" test-sandbox/happy/lite/h2-clan/work/doc.clan",
+    "clan validate test-sandbox/happy/lite/h2-clan/work/doc.clan",
     "cp test-sandbox/happy/lite/h2-clan/work/doc.clan test-sandbox/happy/lite/h2-clan/snapshots/hop-03-03-risk-analyst.clan"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/lite/h2-clan/work/doc.clan", "approx_chars": 1850},
-    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/03-risk-analyst.json", "approx_chars": 175},
-    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/03-risk-analyst.handoff.txt", "approx_chars": 137}
+    { "file": "test-sandbox/happy/lite/h2-clan/work/doc.clan", "approx_chars": 2600 },
+    { "file": "test-sandbox/happy/lite/_inputs/h2-supplied/03-risk-analyst.json", "approx_chars": 241 },
+    { "file": "test-sandbox/happy/lite/_inputs/h2-supplied/03-risk-analyst.handoff.txt", "approx_chars": 137 }
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/lite/h2-clan/snapshots/hop-03-03-risk-analyst.clan", "chars": 2150},
-    {"file": "test-sandbox/happy/lite/h2-clan/receipts/hop03-output/patch-data.json", "chars": 241},
-    {"file": "test-sandbox/happy/lite/h2-clan/receipts/hop03-output/decision.txt", "chars": 137},
-    {"file": "test-sandbox/happy/lite/h2-clan/receipts/receipt-hop03.json", "chars": 1450}
+    { "file": "test-sandbox/happy/lite/h2-clan/work/doc.clan", "chars": 0 },
+    { "file": "test-sandbox/happy/lite/h2-clan/snapshots/hop-03-03-risk-analyst.clan", "chars": 0 },
+    { "file": "test-sandbox/happy/lite/h2-clan/receipts/hop03-output/patch-data.json", "chars": 241 },
+    { "file": "test-sandbox/happy/lite/h2-clan/receipts/hop03-output/decision.txt", "chars": 137 }
   ],
-  "output_chars": 378,
-  "errors": [],
-  "problems_and_friction": "No friction encountered. All commands executed cleanly on first attempt. The patch-data and patch-decision commands both succeeded and validate returned OK.",
-  "context_understood": "Hop 3 of a multi-agent CRM vendor analysis chain; risk analyst adds severity ratings for migration, adoption, and vendor maturity risks for the Zoho vs HubSpot shortlist, then hands off to the next agent for GDPR review."
+  "output_chars": 201,
+  "errors": [
+    { "what": "first combined patch-data call failed: change needs --agent/--action attribution", "recovered_by": "re-running patch-data with --agent and --action flags" }
+  ],
+  "problems_and_friction": "patch-data required attribution flags (--agent/--action) just like patch-decision; the combined one-liner failed until I added them and split the two commands.",
+  "context_understood": "I risk-weighted the two cost finalists (Zoho vs HubSpot) by merge-patching role-namespaced risk_* findings without re-transcribing prior market/pricing data, then handed off to GDPR review."
 }

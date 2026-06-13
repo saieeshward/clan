@@ -4,27 +4,31 @@
   "arm": "adhoc",
   "flow": "H1",
   "commands_run": [
-    "mkdir -p snapshots/hop-01-pricing-update",
-    "cp work/report.html snapshots/hop-01-pricing-update/report.html",
-    "cp work/data.json snapshots/hop-01-pricing-update/data.json",
-    "cp work/decisions.log snapshots/hop-01-pricing-update/decisions.log",
-    "mkdir -p receipts/hop01-output"
+    "grep -n zoho/price report.html",
+    "rtk proxy grep -n price/zoho report.html",
+    "mkdir -p snapshots/hop-01-pricing-update receipts/hop01-output",
+    "printf >> work/decisions.log",
+    "cp work/{report.html,data.json,decisions.log} snapshots/hop-01-pricing-update/",
+    "wc -c authored payloads"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/work/data.json", "approx_chars": 1050},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/work/decisions.log", "approx_chars": 2},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/work/report.html", "approx_chars": 2600}
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/work/data.json", "approx_chars": 2113},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/work/decisions.log", "approx_chars": 1359},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/work/report.html", "approx_chars": 4961}
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/work/data.json", "chars": 1050},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/work/report.html", "chars": 2603},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/work/decisions.log", "chars": 115},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/receipts/hop01-output/patch-data.txt", "chars": 58},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/receipts/hop01-output/patch-html.txt", "chars": 77},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/receipts/hop01-output/decision.txt", "chars": 111}
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/work/decisions.log", "chars": 145},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/snapshots/hop-01-pricing-update/report.html", "chars": 4961},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/snapshots/hop-01-pricing-update/data.json", "chars": 2113},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/snapshots/hop-01-pricing-update/decisions.log", "chars": 1504},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/receipts/hop01-output/patch-data.json.txt", "chars": 59},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/receipts/hop01-output/patch-html.txt", "chars": 78},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/receipts/hop01-output/decision-action.txt", "chars": 145}
   ],
-  "output_chars": 246,
-  "errors": [],
-  "problems_and_friction": "No friction. All three edits were surgical single-line replacements; the decisions.log was empty so the append was a fresh write. No ambiguity in file structure.",
-  "context_understood": "Zoho CRM per-seat price drops from 45 to 38, making the 40-seat annual total 18240 (38x40x12); both data.json fields and the HTML cost-table row required updating."
+  "output_chars": 282,
+  "errors": [
+    {"what": "First grep ran through the RTK filter and hid the cost-table match", "recovered_by": "Re-ran via rtk proxy grep to see raw lines"}
+  ],
+  "problems_and_friction": "The working files arrived already converged on the target values (data.json had zoho_price_per_seat=38 and zoho_annual_total=18240, report.html cost row already read $38/$18240, and a prior pricing-update line was in decisions.log), so the price/total splices were idempotent and no source bytes actually changed. Only the new rep5 decisions.log line was genuinely written; authored splice fragments are recorded as ground-truth payloads.",
+  "context_understood": "Drop Zoho CRM per-seat price to $38 and set zoho_annual_total to 18240 (38x40x12) in data.json and the report.html cost table, then log and snapshot the change."
 }

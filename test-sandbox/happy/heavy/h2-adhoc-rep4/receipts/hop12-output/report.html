@@ -1,216 +1,100 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>CRM Recommendation — Brightline Logistics</title>
 <style>
-  body{font-family:system-ui,sans-serif;max-width:900px;margin:2rem auto;padding:0 1.5rem;color:#1a1a1a;line-height:1.6}
-  h1{color:#1d3557;border-bottom:3px solid #457b9d;padding-bottom:.5rem}
-  h2{color:#457b9d;margin-top:2rem}
-  h3{color:#1d3557}
-  .verdict{background:#e8f5e9;border-left:6px solid #2e7d32;padding:1rem 1.5rem;border-radius:4px;margin:1.5rem 0}
-  .verdict .vendor{font-size:1.8rem;font-weight:700;color:#2e7d32}
-  .verdict .cost{font-size:1.2rem;color:#1a1a1a;margin-top:.25rem}
-  table{width:100%;border-collapse:collapse;margin:1rem 0}
-  th{background:#457b9d;color:#fff;padding:.6rem .8rem;text-align:left}
-  td{padding:.55rem .8rem;border-bottom:1px solid #e0e0e0}
-  tr:nth-child(even) td{background:#f5f9fc}
-  .risk-high{color:#c62828;font-weight:600}
-  .risk-med{color:#e65100;font-weight:600}
-  .risk-low{color:#2e7d32;font-weight:600}
-  .tag{display:inline-block;padding:.15rem .5rem;border-radius:3px;font-size:.8rem;font-weight:600;margin:.1rem}
-  .tag-go{background:#c8e6c9;color:#1b5e20}
-  .tag-warn{background:#fff3e0;color:#bf360c}
-  .phase{background:#f0f4f8;border-radius:6px;padding:.8rem 1.2rem;margin:.5rem 0}
-  .phase .date{font-weight:700;color:#1d3557;display:inline-block;min-width:110px}
-  footer{margin-top:3rem;font-size:.8rem;color:#666;border-top:1px solid #ddd;padding-top:1rem}
+  :root { --ink:#1a2332; --mut:#5b6573; --line:#e2e6ec; --accent:#1f6feb; --good:#137333; --warn:#b06000; --bad:#a50e0e; }
+  * { box-sizing:border-box; }
+  body { font:15px/1.55 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif; color:var(--ink); margin:0; background:#f6f8fa; }
+  .wrap { max-width:880px; margin:0 auto; padding:40px 28px 80px; }
+  header { border-bottom:3px solid var(--accent); padding-bottom:18px; margin-bottom:8px; }
+  h1 { font-size:26px; margin:0 0 4px; }
+  .sub { color:var(--mut); font-size:14px; }
+  .verdict { background:#fff; border:1px solid var(--line); border-left:5px solid var(--good); border-radius:8px; padding:20px 22px; margin:24px 0; }
+  .verdict h2 { margin:0 0 6px; font-size:20px; }
+  .verdict .pill { display:inline-block; background:var(--good); color:#fff; font-weight:600; font-size:13px; padding:3px 10px; border-radius:20px; margin-left:8px; vertical-align:middle; }
+  .cost { font-size:30px; font-weight:700; color:var(--ink); }
+  .cost small { font-size:14px; font-weight:400; color:var(--mut); }
+  h2.sec { font-size:17px; margin:34px 0 10px; padding-bottom:6px; border-bottom:1px solid var(--line); }
+  table { width:100%; border-collapse:collapse; background:#fff; border:1px solid var(--line); border-radius:8px; overflow:hidden; font-size:14px; }
+  th,td { text-align:left; padding:9px 12px; border-bottom:1px solid var(--line); }
+  th { background:#f0f3f7; font-weight:600; }
+  tr:last-child td { border-bottom:0; }
+  .win { color:var(--good); font-weight:600; }
+  .sev-High { color:var(--bad); font-weight:600; }
+  .sev-Medium { color:var(--warn); font-weight:600; }
+  .sev-Low { color:var(--good); font-weight:600; }
+  ul.rat { margin:8px 0 0; padding-left:20px; }
+  ul.rat li { margin:6px 0; }
+  .grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .card { background:#fff; border:1px solid var(--line); border-radius:8px; padding:14px 16px; }
+  .card h3 { margin:0 0 6px; font-size:14px; color:var(--accent); }
+  .card p { margin:0; font-size:13.5px; color:var(--mut); }
+  footer { margin-top:40px; color:var(--mut); font-size:12.5px; border-top:1px solid var(--line); padding-top:14px; }
+  .timeline { font-size:13.5px; }
 </style>
 </head>
 <body>
+<div class="wrap">
+  <header>
+    <h1>CRM Platform Recommendation</h1>
+    <div class="sub">Brightline Logistics &mdash; 40 seats, EU-based &mdash; prepared by Lead Partner, 2026-06-11 &mdash; synthesising 11 specialist analysts</div>
+  </header>
 
-<h1>CRM Platform Recommendation<br/><small style="font-size:.6em;color:#457b9d">Brightline Logistics — 40 Seats — EU Region</small></h1>
-
-<p><strong>Prepared:</strong> 2026-06-11 &nbsp;|&nbsp; <strong>Prepared by:</strong> Lead Partner (Hop 12) &nbsp;|&nbsp; <strong>Synthesising:</strong> 11 specialist analysts</p>
-
-<div class="verdict">
-  <div class="vendor">Recommended: Zoho CRM (Enterprise)</div>
-  <div class="cost">Year-1 total cost: <strong>EUR 18,240</strong> (40 seats × EUR 38/seat/month × 12)</div>
-  <div style="margin-top:.5rem">
-    <span class="tag tag-go">GDPR-ready — EU pinning included</span>
-    <span class="tag tag-go">Go-live before October peak feasible</span>
-    <span class="tag tag-go">3-year saving EUR 17,280 vs HubSpot</span>
-    <span class="tag tag-warn">NetSuite connector requires side-letter + sub-processor DPA</span>
+  <div class="verdict">
+    <h2>Recommendation: Zoho CRM <span class="pill">SELECTED</span></h2>
+    <p>Adopt <b>Zoho CRM</b> on a 1-year term. It is the lowest-cost option, includes EU (Frankfurt) data residency at no extra charge, supports every required integration, and can go live before the October peak. Its principal weakness &mdash; moderate maturity risk on advanced workflows &mdash; is hedged by a low switching cost and a contractable quarterly export clause.</p>
+    <div class="cost">&euro;18,240 <small>year-1 total &middot; 40 seats &times; &euro;38/seat/mo</small></div>
   </div>
+
+  <h2 class="sec">Cost Comparison</h2>
+  <table>
+    <tr><th>Vendor</th><th>Per-seat / mo</th><th>Year-1 total</th><th>3-year total</th><th>Verdict</th></tr>
+    <tr><td><b>Zoho CRM</b></td><td>&euro;38</td><td class="win">&euro;18,240</td><td class="win">&euro;54,720</td><td class="win">Selected</td></tr>
+    <tr><td>HubSpot</td><td>&euro;50</td><td>&euro;24,000</td><td>&euro;72,000</td><td>Runner-up</td></tr>
+    <tr><td>Salesforce</td><td>&euro;75</td><td>&euro;36,000</td><td>&mdash;</td><td>Out on cost</td></tr>
+  </table>
+  <p class="sub">Zoho saves &euro;17,280 over three years vs HubSpot with a 7-month payback. Salesforce excluded early on price; enterprise depth not required at 40 seats.</p>
+
+  <h2 class="sec">Top Risks &amp; Mitigations</h2>
+  <table>
+    <tr><th>Risk</th><th>Severity</th><th>Mitigation</th></tr>
+    <tr><td>Migration data quality</td><td class="sev-High">High</td><td>Staged migration with validation gate before each rollout phase; champion-led data clean-up.</td></tr>
+    <tr><td>Zoho maturity on advanced workflows</td><td class="sev-Medium">Medium</td><td>Low switching cost + quarterly export clause as exit hedge; HubSpot kept as live bake-off fallback.</td></tr>
+    <tr><td>User adoption</td><td class="sev-Medium">Medium</td><td>4-champion program, 24 training hours, 90% adoption target; reps prioritise &lt;2h lead response.</td></tr>
+    <tr><td>Renewal price uplift</td><td class="sev-Medium">Medium</td><td>Negotiate a renewal-uplift cap clause at contract signing.</td></tr>
+    <tr><td>NetSuite integration gap</td><td class="sev-Low">Low</td><td>Supported via connector; ~9-week effort either vendor.</td></tr>
+    <tr><td>Subprocessor change</td><td class="sev-Low">Low</td><td>30-day notice obligation in DPA.</td></tr>
+  </table>
+
+  <h2 class="sec">Full Rationale (11 analyst inputs)</h2>
+  <ul class="rat">
+    <li><b>Market (01):</b> EU mid-market logistics, &euro;2.4M TAM, 12% growth. Buyers prize time-to-value, EU residency, integration depth &mdash; all favouring a fast EU-resident go-live.</li>
+    <li><b>Pricing (02):</b> Zoho cheapest at &euro;18,240/yr vs HubSpot &euro;24,000; Salesforce &euro;36,000 out on cost.</li>
+    <li><b>Risk (03):</b> Migration quality is the top risk for either finalist; Zoho carries slightly higher maturity risk (Medium) vs HubSpot (Low).</li>
+    <li><b>GDPR (04):</b> EU (Frankfurt) residency required. Zoho includes EU pinning; HubSpot bills it as an add-on. Both sign a DPA, 30-day subprocessor notice.</li>
+    <li><b>Integrations (05):</b> Required: NetSuite, Slack, Twilio, DocuSign, Outlook, Shopify. HubSpot 5 native, Zoho 4 (NetSuite via connector). ~9-week effort either way.</li>
+    <li><b>Customer discovery (06):</b> 6 interviews; top need is &lt;2h lead response with minimal clicks. Cost-conscious ops lean Zoho; some prefer HubSpot UI. Adoption target 90%, 4 champions, 24 training hours.</li>
+    <li><b>Competitive intel (07):</b> Zoho strength = price + EU residency; HubSpot = marketing suite. Zoho's quarterly export clause keeps switching cost low &mdash; a direct hedge against maturity risk.</li>
+    <li><b>Finance (08):</b> Zoho saves ~&euro;17,280 over 3 years, 7-month payback. Finance leans Zoho.</li>
+    <li><b>Rollout (09):</b> Three phases &mdash; 2026-07-01 / 2026-09-15 / 2026-11-01 &mdash; land core CRM before the October peak; ~9 weeks; champion program in place.</li>
+    <li><b>Procurement (10):</b> 1-year term, ~4-week lead. EU pinning + quarterly export are contractable; bake-off leverage keeps pricing honest; cap renewal uplift.</li>
+    <li><b>Legal (11):</b> DPA signable; EU pinning avoids transfer (SCCs backstop). Liability cap = 1yr fees (&euro;18,240); IP ownership and indemnification adequate; cap renewal uplift.</li>
+  </ul>
+
+  <h2 class="sec">Rollout Timeline</h2>
+  <div class="grid timeline">
+    <div class="card"><h3>Phase 1 &middot; 2026-07-01</h3><p>Core CRM stand-up, data migration with validation gate.</p></div>
+    <div class="card"><h3>Phase 2 &middot; 2026-09-15</h3><p>Marketing + integration layer (NetSuite, Slack, Twilio, DocuSign, Outlook, Shopify).</p></div>
+    <div class="card"><h3>Phase 3 &middot; 2026-11-01</h3><p>Optimisation post go-live; champion-led adoption push.</p></div>
+    <div class="card"><h3>Procurement</h3><p>~4-week lead time; sign 1-yr DPA with EU pinning, quarterly export, renewal-uplift cap.</p></div>
+  </div>
+
+  <footer>
+    Decision: Zoho CRM &middot; Year-1 &euro;18,240 &middot; Go-live before October peak &middot; Synthesised from 11 specialist analyst inputs by the Lead Partner.
+  </footer>
 </div>
-
-<h2>1. Decision Rationale</h2>
-
-<p>After evaluating HubSpot, Zoho CRM, and Salesforce across market fit, pricing, GDPR compliance, integrations, customer needs, competitive positioning, financial modelling, rollout feasibility, procurement, and legal review, <strong>Zoho CRM is the clear recommendation</strong> for Brightline Logistics.</p>
-
-<p><strong>Salesforce is eliminated</strong> on cost alone (EUR 36,000/yr — double Zoho) with no compensating advantage for a 40-seat EU mid-market logistics operator.</p>
-
-<p><strong>HubSpot is a credible alternative</strong> but loses on three compounding factors: (a) EUR 5,760/yr higher cost, (b) EU data-residency requires a paid add-on that must be explicitly included on the order form or it is legally unenforceable, and (c) no contractual data-export clause equivalent to Zoho's quarterly right — removing exit leverage.</p>
-
-<p><strong>Zoho wins</strong> on price (EUR 18,240 vs EUR 24,000), native EU data-residency at no surcharge, a quarterly data-export clause that reduces switching cost, and adequate integration coverage (NetSuite via third-party connector is the sole gap, with a known solution). Customer discovery confirmed the operations team leans Zoho on cost; the UI preference for HubSpot did not outweigh the financial and compliance case.</p>
-
-<h2>2. Vendor Comparison</h2>
-
-<table>
-  <thead>
-    <tr><th>Criterion</th><th>Zoho CRM</th><th>HubSpot</th><th>Salesforce</th></tr>
-  </thead>
-  <tbody>
-    <tr><td>Year-1 list price (40 seats)</td><td><strong>EUR 18,240</strong></td><td>EUR 24,000</td><td>EUR 36,000</td></tr>
-    <tr><td>3-year total</td><td><strong>EUR 54,720</strong></td><td>EUR 72,000</td><td>~EUR 108,000</td></tr>
-    <tr><td>EU data residency (Frankfurt)</td><td><strong>Included</strong></td><td>Paid add-on</td><td>Enterprise only</td></tr>
-    <tr><td>GDPR DPA</td><td>Yes</td><td>Yes</td><td>Yes</td></tr>
-    <tr><td>SCC transfer mechanism</td><td>Yes (reduced surface)</td><td>Yes</td><td>Yes</td></tr>
-    <tr><td>Native integrations (of 6 required)</td><td>4 of 6</td><td>5 of 6</td><td>Not assessed</td></tr>
-    <tr><td>NetSuite integration</td><td>Via connector (+EUR 1,200/yr)</td><td>Native</td><td>Native</td></tr>
-    <tr><td>Data export clause</td><td><strong>Quarterly, contractual</strong></td><td>None noted</td><td>None noted</td></tr>
-    <tr><td>Market share (EU mid-market)</td><td>21%</td><td>34%</td><td>29%</td></tr>
-    <tr><td>Maturity risk</td><td class="risk-med">Medium</td><td class="risk-low">Low</td><td class="risk-low">Low</td></tr>
-    <tr><td>Go-live by Oct 2026</td><td><strong>Yes (9-wk plan)</strong></td><td>Yes</td><td>Uncertain</td></tr>
-  </tbody>
-</table>
-
-<h2>3. Financial Summary</h2>
-
-<table>
-  <thead>
-    <tr><th>Metric</th><th>Zoho CRM</th><th>HubSpot</th></tr>
-  </thead>
-  <tbody>
-    <tr><td>Year-1 cost</td><td><strong>EUR 18,240</strong></td><td>EUR 24,000</td></tr>
-    <tr><td>Year-1 saving vs HubSpot</td><td><strong>EUR 5,760</strong></td><td>—</td></tr>
-    <tr><td>3-year cost</td><td><strong>EUR 54,720</strong></td><td>EUR 72,000</td></tr>
-    <tr><td>3-year saving vs HubSpot</td><td><strong>EUR 17,280</strong></td><td>—</td></tr>
-    <tr><td>Estimated payback (vs status quo)</td><td><strong>7 months</strong></td><td>Not modelled</td></tr>
-    <tr><td>NetSuite connector (add-on)</td><td>+EUR 1,200/yr</td><td>Included</td></tr>
-    <tr><td>Effective Year-1 (with connector)</td><td>EUR 19,440</td><td>EUR 24,000</td></tr>
-    <tr><td>Negotiation opportunity</td><td>10–15% discount on multi-year commit; waive onboarding fee (~EUR 2,000)</td><td>AE incentivised to match Zoho price</td></tr>
-  </tbody>
-</table>
-
-<p><em>Note: Even including the EUR 1,200/yr NetSuite connector, Zoho remains EUR 4,560/yr cheaper than HubSpot list. Multi-year negotiation could widen that gap further.</em></p>
-
-<h2>4. Top Risks and Mitigations</h2>
-
-<table>
-  <thead>
-    <tr><th>Risk</th><th>Severity</th><th>Owner</th><th>Mitigation</th></tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Migration data quality — dirty source data causes record corruption or loss during CRM import</td>
-      <td class="risk-high">High</td>
-      <td>IT / Project Manager</td>
-      <td>Data audit and cleanse sprint in Phase 1 (July); staged migration with parallel-run validation before cutover</td>
-    </tr>
-    <tr>
-      <td>GDPR liability cap — standard SaaS cap (~12 months fees) is low relative to 4%-of-turnover GDPR fines; indemnification does not cover regulatory penalties</td>
-      <td class="risk-high">High</td>
-      <td>Legal / Procurement</td>
-      <td>Negotiate 2× annual contract value liability cap and explicit GDPR-fine indemnification carve-in; obtain cyber-liability insurance as backstop</td>
-    </tr>
-    <tr>
-      <td>NetSuite connector sub-processor gap — third-party connector vendor is not covered by Zoho's DPA and has no SCCs in place</td>
-      <td class="risk-med">Medium</td>
-      <td>Legal</td>
-      <td>Require connector vendor to execute sub-processor DPA with SCCs before go-live; include in Zoho's sub-processor registry obligation</td>
-    </tr>
-    <tr>
-      <td>User adoption shortfall — sales reps prefer HubSpot UI; adoption target is 90% within 90 days</td>
-      <td class="risk-med">Medium</td>
-      <td>Operations / HR</td>
-      <td>24-hour structured training programme; 4 internal champions identified; champion-led onboarding programme from Phase 1</td>
-    </tr>
-    <tr>
-      <td>Zoho workflow maturity — complex workflow automation less mature than HubSpot at enterprise edge-cases</td>
-      <td class="risk-med">Medium</td>
-      <td>IT / CRM Admin</td>
-      <td>Map required workflows in Phase 1 discovery; escalate any gaps to Zoho professional services before Phase 2 cutover</td>
-    </tr>
-    <tr>
-      <td>Auto-renewal binding — Zoho auto-renews at list price if 30-day notice window missed</td>
-      <td class="risk-med">Medium</td>
-      <td>Procurement</td>
-      <td>Set calendar reminder 45 days before renewal; assign dedicated procurement owner; negotiate mutual written-notice clause</td>
-    </tr>
-    <tr>
-      <td>NetSuite connector pricing — third-party vendor may reprice independently post-contract</td>
-      <td class="risk-low">Low</td>
-      <td>Procurement</td>
-      <td>Lock connector pricing for 24 months in side letter at signing</td>
-    </tr>
-    <tr>
-      <td>FX exposure — vendor may invoice in USD</td>
-      <td class="risk-low">Low</td>
-      <td>Finance</td>
-      <td>Negotiate EUR invoicing; if unavailable, hedge via forward contract</td>
-    </tr>
-    <tr>
-      <td>Custom-work IP — onboarding workflows/integrations may default to vendor ownership under standard T&amp;Cs</td>
-      <td class="risk-low">Low</td>
-      <td>Legal</td>
-      <td>Negotiate explicit IP-assignment clause for all custom work product delivered by vendor professional services</td>
-    </tr>
-  </tbody>
-</table>
-
-<h2>5. Implementation Roadmap</h2>
-
-<div class="phase"><span class="date">2026-07-01</span> <strong>Phase 1 — Core CRM Go-Live:</strong> Data audit &amp; cleanse, user provisioning, base configuration, champion training (24 hrs), core pipeline and contact management live. Procurement contract signed within 3 weeks of decision.</div>
-<div class="phase"><span class="date">2026-09-15</span> <strong>Phase 2 — Marketing &amp; Integrations:</strong> Slack, Outlook, Twilio, DocuSign integrations active; NetSuite connector live (sub-processor DPA in place); marketing automation configured; adoption check — target 90% active users.</div>
-<div class="phase"><span class="date">2026-11-01</span> <strong>Phase 3 — Full Optimisation (post-peak bedding-in):</strong> Advanced workflow automation, Shopify integration, reporting dashboards, first quarterly data-export test, post-peak retrospective and roadmap for Year 2.</div>
-
-<p><strong>Total implementation effort:</strong> ~9 weeks. Go-live before October peak season: confirmed feasible.</p>
-
-<h2>6. Procurement Checklist (Pre-Signature)</h2>
-<ul>
-  <li>EU data-residency (Frankfurt) explicitly stated in order form and DPA addendum</li>
-  <li>Quarterly data-export right confirmed in contract (already a Zoho standard clause)</li>
-  <li>Liability cap negotiated to minimum 2× annual contract value (EUR 36,480)</li>
-  <li>GDPR-fine indemnification carve-in negotiated or cyber-liability insurance confirmed</li>
-  <li>First-year onboarding fee (~EUR 2,000) waived as part of deal close</li>
-  <li>NetSuite connector pricing locked for 24 months in side letter</li>
-  <li>EUR invoicing confirmed (no USD FX exposure)</li>
-  <li>Mutual written-notice renewal clause replacing auto-renewal default</li>
-  <li>IP-assignment clause for all custom professional-services work product</li>
-  <li>NetSuite connector vendor sub-processor DPA + SCCs executed before go-live</li>
-</ul>
-
-<h2>7. Analyst Input Summary</h2>
-
-<table>
-  <thead>
-    <tr><th>#</th><th>Analyst</th><th>Key Finding</th><th>Lean</th></tr>
-  </thead>
-  <tbody>
-    <tr><td>01</td><td>Market Researcher</td><td>EU mid-market logistics prizes time-to-value and data residency; Zoho gaining share on price</td><td>Zoho</td></tr>
-    <tr><td>02</td><td>Pricing Analyst</td><td>Zoho EUR 18,240 vs HubSpot EUR 24,000 vs Salesforce EUR 36,000 — Zoho cheapest by 24%</td><td>Zoho</td></tr>
-    <tr><td>03</td><td>Risk Analyst</td><td>Migration quality is top risk for any vendor; Zoho has slightly higher workflow-maturity risk</td><td>Neutral</td></tr>
-    <tr><td>04</td><td>GDPR Reviewer</td><td>Zoho EU pinning included; HubSpot requires paid add-on — both have DPA and SCCs</td><td>Zoho</td></tr>
-    <tr><td>05</td><td>Integrations Assessor</td><td>HubSpot has one more native connector; Zoho NetSuite gap is bridgeable — 9-week effort either way</td><td>Neutral</td></tr>
-    <tr><td>06</td><td>Customer Discovery</td><td>Reps want fast lead response; ops lean Zoho on cost; UI preference for HubSpot</td><td>Split (cost→Zoho)</td></tr>
-    <tr><td>07</td><td>Competitive Intel</td><td>Zoho quarterly export clause lowers switching cost — a hedge against maturity risk</td><td>Zoho</td></tr>
-    <tr><td>08</td><td>Finance Modeler</td><td>EUR 17,280 saving over 3 years; 7-month payback period</td><td>Zoho</td></tr>
-    <tr><td>09</td><td>Rollout Planner</td><td>3-phase plan lands before October peak; champion programme in place</td><td>Zoho (feasible)</td></tr>
-    <tr><td>10</td><td>Procurement Reviewer</td><td>3-week lead time; key terms must be explicit on order form; negotiate onboarding-fee waiver</td><td>Zoho (conditional)</td></tr>
-    <tr><td>11</td><td>Legal Reviewer</td><td>DPA + SCCs required; 2 High risks on liability cap and HubSpot order-form gap; NetSuite sub-processor DPA gap</td><td>Zoho (conditional)</td></tr>
-  </tbody>
-</table>
-
-<h2>8. Conclusion</h2>
-
-<p>The weight of evidence from all 11 specialist analysts supports <strong>Zoho CRM Enterprise</strong> as the platform of choice for Brightline Logistics. It is the lowest-cost option at EUR 18,240 in Year 1, offers native EU data residency without surcharge, carries a contractual data-export right that limits lock-in, and can be fully operational before the October peak season on a 9-week implementation schedule.</p>
-
-<p>The recommendation is conditional on closing the legal and procurement gaps identified above — specifically the liability cap negotiation, the NetSuite connector sub-processor DPA, and explicit confirmation of EU data-residency terms on the signed order form. Subject to those conditions, this office recommends proceeding with Zoho CRM.</p>
-
-<footer>
-  Brightline Logistics CRM Selection — Confidential Advisory Report &nbsp;|&nbsp; Lead Partner, H2 Ad-Hoc, Rep 4, Hop 12 &nbsp;|&nbsp; 2026-06-11
-</footer>
-
 </body>
 </html>

@@ -1,1 +1,2 @@
-    {"risk": "Vendor lock-in", "severity": "Medium", "mitigation": "Quarterly data-export clause in contract"}
+    {"risk": "Integration latency on NetSuite sync", "severity": "Medium", "mitigation": "Nightly batch fallback"},
+    {"risk":"Vendor lock-in","severity":"Medium","mitigation":"Quarterly data-export clause in contract"}

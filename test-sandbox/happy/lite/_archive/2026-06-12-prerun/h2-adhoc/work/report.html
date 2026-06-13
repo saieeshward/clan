@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CRM Recommendation — Brightline Logistics</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f6f9; color: #1a2233; line-height: 1.6; }
+    header { background: #1a2233; color: #fff; padding: 2.5rem 3rem; }
+    header h1 { font-size: 1.9rem; font-weight: 700; letter-spacing: -0.5px; }
+    header p { margin-top: 0.4rem; color: #a0b0c8; font-size: 0.95rem; }
+    .badge { display: inline-block; background: #2ecc71; color: #fff; font-size: 0.78rem; font-weight: 700; padding: 0.2rem 0.7rem; border-radius: 999px; margin-left: 0.8rem; vertical-align: middle; text-transform: uppercase; letter-spacing: 0.5px; }
+    main { max-width: 900px; margin: 2.5rem auto; padding: 0 1.5rem; }
+    .verdict { background: #fff; border-left: 6px solid #2ecc71; border-radius: 6px; padding: 1.8rem 2rem; margin-bottom: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
+    .verdict h2 { font-size: 1.3rem; color: #155724; margin-bottom: 0.6rem; }
+    .verdict .big { font-size: 2.1rem; font-weight: 800; color: #1a2233; }
+    .verdict .sub { color: #5a6a7e; margin-top: 0.3rem; font-size: 0.95rem; }
+    section { background: #fff; border-radius: 6px; padding: 1.6rem 2rem; margin-bottom: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
+    section h2 { font-size: 1.1rem; font-weight: 700; color: #1a2233; border-bottom: 2px solid #e8edf3; padding-bottom: 0.5rem; margin-bottom: 1rem; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+    th { background: #f0f4fa; text-align: left; padding: 0.55rem 0.8rem; font-weight: 600; color: #3a4a5e; }
+    td { padding: 0.5rem 0.8rem; border-bottom: 1px solid #edf1f7; }
+    tr:last-child td { border-bottom: none; }
+    .win { color: #27ae60; font-weight: 700; }
+    .neutral { color: #e67e22; font-weight: 600; }
+    .lose { color: #c0392b; }
+    .risk-chip { display: inline-block; padding: 0.2rem 0.65rem; border-radius: 999px; font-size: 0.78rem; font-weight: 700; }
+    .risk-high { background: #fde8e8; color: #c0392b; }
+    .risk-med { background: #fef6e4; color: #b7791f; }
+    .risk-low { background: #e8f8ef; color: #1a7a45; }
+    ul { padding-left: 1.3rem; }
+    li { margin-bottom: 0.4rem; font-size: 0.93rem; }
+    .timeline { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 0.5rem; }
+    .phase { background: #f0f4fa; border-radius: 6px; padding: 1rem 1.1rem; }
+    .phase .label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: #5a6a7e; letter-spacing: 0.5px; }
+    .phase .date { font-size: 1.05rem; font-weight: 700; color: #1a2233; margin-top: 0.2rem; }
+    .phase .desc { font-size: 0.83rem; color: #5a6a7e; margin-top: 0.25rem; }
+    footer { text-align: center; color: #8a9aae; font-size: 0.82rem; padding: 2rem 0 3rem; }
+  </style>
+</head>
+<body>
+<header>
+  <h1>CRM Platform Recommendation<span class="badge">Final</span></h1>
+  <p>Brightline Logistics &mdash; 40 seats &mdash; Issued 2026-06-11 &mdash; Lead Partner synthesis of 9 specialist inputs</p>
+</header>
+
+<main>
+
+  <!-- VERDICT -->
+  <div class="verdict">
+    <h2>Recommended Vendor</h2>
+    <div class="big">Zoho CRM</div>
+    <div class="sub">Year-1 cost: <strong>EUR 18,240</strong> &nbsp;|&nbsp; 40 seats @ EUR 38/seat/month &nbsp;|&nbsp; EU data residency included &nbsp;|&nbsp; Go-live target: 2026-09-15 (before October peak)</div>
+  </div>
+
+  <!-- VENDOR COMPARISON -->
+  <section>
+    <h2>Vendor Comparison</h2>
+    <table>
+      <thead>
+        <tr><th>Criterion</th><th>Zoho CRM</th><th>HubSpot</th><th>Salesforce</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Seat price (EUR/month)</td><td class="win">38</td><td class="neutral">50</td><td class="lose">75</td></tr>
+        <tr><td>Year-1 total (40 seats)</td><td class="win">18,240</td><td class="neutral">24,000</td><td class="lose">36,000</td></tr>
+        <tr><td>3-year total</td><td class="win">54,720</td><td class="neutral">72,000</td><td class="lose">108,000</td></tr>
+        <tr><td>EU data residency</td><td class="win">Included</td><td class="neutral">Add-on</td><td class="neutral">Add-on</td></tr>
+        <tr><td>GDPR DPA</td><td class="win">Yes</td><td class="win">Yes</td><td class="win">Yes</td></tr>
+        <tr><td>Native integrations (of 6 required)</td><td class="neutral">4 (NetSuite via connector)</td><td class="win">5</td><td class="win">5</td></tr>
+        <tr><td>Switching cost / export clause</td><td class="win">Low — quarterly export</td><td class="neutral">Medium</td><td class="lose">High</td></tr>
+        <tr><td>Maturity risk</td><td class="neutral">Medium</td><td class="win">Low</td><td class="win">Low</td></tr>
+        <tr><td>Market segment fit (EU mid-market logistics)</td><td class="win">Strong</td><td class="neutral">Good</td><td class="neutral">Overspec</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- RATIONALE -->
+  <section>
+    <h2>Rationale</h2>
+    <ul>
+      <li><strong>Cost leadership.</strong> Zoho delivers a EUR 17,280 saving over three years versus HubSpot — the next-cheapest finalist — with a 7-month payback. Salesforce was eliminated on cost alone.</li>
+      <li><strong>GDPR compliance included.</strong> EU Frankfurt region pinning is bundled at no extra charge, satisfying Brightline's data-residency requirement without add-on negotiation.</li>
+      <li><strong>Integration coverage is adequate.</strong> Four of six required connectors are native; the NetSuite gap is bridged by a supported third-party connector within the 9-week integration budget — the same effort required for HubSpot.</li>
+      <li><strong>Low lock-in.</strong> Zoho's quarterly-export clause keeps switching cost low, providing a hedge against its medium maturity risk on advanced workflows.</li>
+      <li><strong>Rollout fits the peak-season window.</strong> A three-phase plan lands core CRM by 2026-07-01, marketing automation by 2026-09-15, and full analytics by 2026-11-01 — giving the team a month of live operation before October peak.</li>
+      <li><strong>Customer preference aligned.</strong> Cost-conscious operations stakeholders lean Zoho; UI-preference for HubSpot is addressable through the 24-hour champion training programme and a 4-person internal champion cohort.</li>
+    </ul>
+  </section>
+
+  <!-- TOP RISKS -->
+  <section>
+    <h2>Top Risks &amp; Mitigations</h2>
+    <table>
+      <thead>
+        <tr><th>Risk</th><th>Severity</th><th>Mitigation</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Migration data quality</td>
+          <td><span class="risk-chip risk-high">High</span></td>
+          <td>Dedicate one week of Phase 1 to data audit and cleanse before first import; assign data owner in IT.</td>
+        </tr>
+        <tr>
+          <td>User adoption shortfall</td>
+          <td><span class="risk-chip risk-med">Medium</span></td>
+          <td>4-champion programme + 24 hrs structured training; target 90% adoption within 60 days of go-live.</td>
+        </tr>
+        <tr>
+          <td>Zoho advanced-workflow maturity</td>
+          <td><span class="risk-chip risk-med">Medium</span></td>
+          <td>Scope complex automation conservatively in Phase 1; iterate post-peak. Quarterly export clause limits downside.</td>
+        </tr>
+        <tr>
+          <td>NetSuite integration latency</td>
+          <td><span class="risk-chip risk-med">Medium</span></td>
+          <td>Validate connector SLA during Phase 1 integration sprint; budget for custom middleware if latency exceeds threshold.</td>
+        </tr>
+        <tr>
+          <td>Peak-season go-live pressure</td>
+          <td><span class="risk-chip risk-low">Low</span></td>
+          <td>Phase-2 cut-off is 2026-09-15, giving 2+ weeks buffer before October peak; rollback path is legacy system.</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ROLLOUT TIMELINE -->
+  <section>
+    <h2>Rollout Timeline</h2>
+    <div class="timeline">
+      <div class="phase">
+        <div class="label">Phase 1 — Core CRM</div>
+        <div class="date">2026-07-01</div>
+        <div class="desc">Lead management, contacts, pipeline. Data migration + integrations start.</div>
+      </div>
+      <div class="phase">
+        <div class="label">Phase 2 — Marketing &amp; Integrations</div>
+        <div class="date">2026-09-15</div>
+        <div class="desc">Email automation, NetSuite connector live, Slack &amp; Twilio integrated.</div>
+      </div>
+      <div class="phase">
+        <div class="label">Phase 3 — Analytics &amp; Optimise</div>
+        <div class="date">2026-11-01</div>
+        <div class="desc">Dashboards, reporting, post-peak review and workflow tuning.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FINANCIAL SUMMARY -->
+  <section>
+    <h2>Financial Summary</h2>
+    <table>
+      <thead>
+        <tr><th>Metric</th><th>Value</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Year-1 licence cost</td><td><strong>EUR 18,240</strong></td></tr>
+        <tr><td>3-year licence cost</td><td>EUR 54,720</td></tr>
+        <tr><td>3-year saving vs HubSpot</td><td class="win">EUR 17,280</td></tr>
+        <tr><td>Estimated payback period</td><td>7 months</td></tr>
+        <tr><td>Seats</td><td>40</td></tr>
+        <tr><td>Per-seat monthly rate</td><td>EUR 38</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- DECISION -->
+  <section>
+    <h2>Decision</h2>
+    <p style="font-size:1.02rem;">Based on the synthesis of nine specialist inputs covering market positioning, pricing, risk, GDPR compliance, integrations, customer discovery, competitive intelligence, financial modelling, and rollout planning — the lead partner recommends <strong>Zoho CRM</strong> at a year-1 cost of <strong>EUR 18,240</strong> for 40 seats. The recommendation is conditional on completing a pre-migration data quality audit and validating the NetSuite connector SLA before Phase 2 go-live.</p>
+  </section>
+
+</main>
+<footer>Brightline Logistics CRM Recommendation &mdash; Confidential &mdash; 2026-06-11</footer>
+</body>
+</html>

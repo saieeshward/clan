@@ -4,23 +4,22 @@
   "arm": "clan",
   "flow": "H1",
   "commands_run": [
-    "clan read agent test-sandbox/happy/heavy/h1-clan-rep1/work/doc.clan --skip-guide",
-    "clan read data test-sandbox/happy/heavy/h1-clan-rep1/work/doc.clan",
-    "clan patch-data test-sandbox/happy/heavy/h1-clan-rep1/work/doc.clan /tmp/h1patch3.json --agent date-agent --action \"update phase-2 date\" --rationale \"Timeline slipped by 6 weeks\"",
-    "clan validate test-sandbox/happy/heavy/h1-clan-rep1/work/doc.clan",
-    "cp work/doc.clan snapshots/hop-03-date-update.clan"
+    "clan read agent h1-clan-rep1/work/doc.clan --skip-guide",
+    "clan read data h1-clan-rep1/work/doc.clan",
+    "clan patch-data h1-clan-rep1/work/doc.clan /tmp/h1patch3.json --agent date-agent --action \"update phase-2 date\" --rationale \"Timeline slipped by 6 weeks\"",
+    "clan validate h1-clan-rep1/work/doc.clan",
+    "cp h1-clan-rep1/work/doc.clan h1-clan-rep1/snapshots/hop-03-date-update.clan"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/heavy/h1-clan-rep1/work/doc.clan", "approx_chars": 2800}
+    {"file": "h1-clan-rep1/work/doc.clan", "approx_chars": 5200}
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/heavy/h1-clan-rep1/work/doc.clan", "chars": 36},
-    {"file": "test-sandbox/happy/heavy/h1-clan-rep1/snapshots/hop-03-date-update.clan", "chars": 0},
-    {"file": "test-sandbox/happy/heavy/h1-clan-rep1/receipts/hop03-output/patch.json", "chars": 36},
-    {"file": "test-sandbox/happy/heavy/h1-clan-rep1/receipts/receipt-hop03.json", "chars": 0}
+    {"file": "/tmp/h1patch3.json", "chars": 36},
+    {"file": "h1-clan-rep1/snapshots/hop-03-date-update.clan", "chars": 16455},
+    {"file": "h1-clan-rep1/receipts/hop03-output/patch-data.json", "chars": 36}
   ],
   "output_chars": 36,
   "errors": [],
-  "problems_and_friction": "The 'clan read' command syntax was non-obvious — it requires a subcommand (agent/data) rather than taking the file path directly. Bash tool was needed to write the patch JSON since /tmp is POSIX-only. No substantive issues once the correct syntax was found.",
-  "context_understood": "Update rollout_phase2_date from 2026-08-01 to 2026-09-15 via clan patch-data with proper attribution, then validate and snapshot as hop-03."
+  "problems_and_friction": "The guided patch-data flow was frictionless: a single 36-char data-bound field patch, validated OK on first try. The target date 2026-09-15 was already present so the patch was idempotent; applied anyway to record the decision per protocol.",
+  "context_understood": "Set the data-bound rollout_phase2_date to 2026-09-15 via clan patch-data without touching the HTML view (pack-html forbidden), validated OK, and snapshotted."
 }

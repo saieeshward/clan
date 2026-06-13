@@ -4,29 +4,32 @@
   "arm": "adhoc",
   "flow": "H2",
   "commands_run": [
-    "mkdir -p test-sandbox/happy/heavy/h2-adhoc-rep2/snapshots/hop-08-08-finance-modeler",
-    "cp work/findings.md snapshots/hop-08-08-finance-modeler/findings.md",
-    "cp work/handoff.md snapshots/hop-08-08-finance-modeler/handoff.md",
-    "mkdir -p receipts/hop08-output"
+    "cat >> work/findings.md (append 08-finance-modeler section)",
+    "cat >> work/handoff.md (append 08-finance-modeler note)",
+    "mkdir -p snapshots/hop-08-08-finance-modeler receipts/hop08-output",
+    "cp findings.md handoff.md -> snapshots/hop-08-08-finance-modeler/",
+    "cat > receipts/hop08-output/{findings,handoff}-fragment.md",
+    "wc -c (measure fragment and snapshot sizes)"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/work/brief.md", "approx_chars": 570},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/work/findings.md", "approx_chars": 1150},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/work/handoff.md", "approx_chars": 730},
-    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/08-finance-modeler.json", "approx_chars": 175},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/work/brief.md", "approx_chars": 820},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/work/findings.md", "approx_chars": 4150},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/work/handoff.md", "approx_chars": 3120},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/08-finance-modeler.json", "approx_chars": 220},
     {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/08-finance-modeler.handoff.txt", "approx_chars": 100}
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/work/findings.md", "chars": 193},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/work/handoff.md", "chars": 121},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/snapshots/hop-08-08-finance-modeler/findings.md", "chars": 193},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/snapshots/hop-08-08-finance-modeler/handoff.md", "chars": 121},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/receipts/hop08-output/findings-fragment.txt", "chars": 193},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/receipts/hop08-output/handoff-fragment.txt", "chars": 121},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/receipts/receipt-hop08.json", "chars": 0}
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/work/findings.md", "chars": 194},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/work/handoff.md", "chars": 122},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/snapshots/hop-08-08-finance-modeler/findings.md", "chars": 4350},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/snapshots/hop-08-08-finance-modeler/handoff.md", "chars": 3247},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/receipts/hop08-output/findings-fragment.md", "chars": 194},
+    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/receipts/hop08-output/handoff-fragment.md", "chars": 122}
   ],
-  "output_chars": 314,
-  "errors": [],
-  "problems_and_friction": "None. All required input files were present and well-formed. The PowerShell tool was needed for character counting as the Bash tool does not support PowerShell syntax.",
-  "context_understood": "Finance modeler appends 3-year cost model for Zoho vs HubSpot, confirming Zoho saves EUR17,280 over 3 years with 7-month payback, and hands off to rollout planner."
+  "output_chars": 316,
+  "errors": [
+    {"what": "Write tool refused to overwrite pre-existing receipt-hop08.json without a prior Read", "recovered_by": "Read the stale receipt, then overwrote it with values from this run"}
+  ],
+  "problems_and_friction": "findings.md and handoff.md were pre-seeded with duplicated prior-hop content (two partial copies of hops 01-07/11); I appended my section at the end without re-transcribing, per protocol.",
+  "context_understood": "I am the finance modeler adding year-1 and 3-year cost and payback figures (Zoho saves ~EUR17,280 over 3 years, 7-month payback, leans Zoho) into the Brightline CRM analysis chain ahead of the rollout-planner hop."
 }

@@ -1,1 +1,1 @@
-2026-06-11 hop-03 date-update: rollout_phase2_date updated 2026-08-01->2026-09-15 in data.json and id="phase2" cell in report.html.
+2026-06-12 | date-update | verified rollout_phase2_date=2026-09-15 already present in data.json (line 18) and report.html (id="phase2"); no splice needed

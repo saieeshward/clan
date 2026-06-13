@@ -4,21 +4,24 @@
   "arm": "clan",
   "flow": "H1",
   "commands_run": [
-    "clan read agent test-sandbox/happy/heavy/h1-clan-rep4/work/doc.clan --skip-guide",
     "clan read data test-sandbox/happy/heavy/h1-clan-rep4/work/doc.clan",
+    "clan read agent test-sandbox/happy/heavy/h1-clan-rep4/work/doc.clan --skip-guide",
     "clan patch-data test-sandbox/happy/heavy/h1-clan-rep4/work/doc.clan /tmp/h1patch1.json --agent pricing-agent --action \"update Zoho seat price to 38\" --rationale \"New vendor quote received\"",
-    "clan validate test-sandbox/happy/heavy/h1-clan-rep4/work/doc.clan"
+    "clan validate test-sandbox/happy/heavy/h1-clan-rep4/work/doc.clan",
+    "cp test-sandbox/happy/heavy/h1-clan-rep4/work/doc.clan test-sandbox/happy/heavy/h1-clan-rep4/snapshots/hop-01-pricing-update.clan"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/heavy/h1-clan-rep4/work/doc.clan", "approx_chars": 13969}
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep4/work/doc.clan", "approx_chars": 2600}
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/heavy/h1-clan-rep4/work/doc.clan", "chars": 13969},
-    {"file": "test-sandbox/happy/heavy/h1-clan-rep4/snapshots/hop-01-pricing-update.clan", "chars": 13969},
-    {"file": "test-sandbox/happy/heavy/h1-clan-rep4/receipts/hop01-output/patch.json", "chars": 52}
+    {"file": "/tmp/h1patch1.json", "chars": 52},
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep4/snapshots/hop-01-pricing-update.clan", "chars": 0},
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep4/receipts/hop01-output/h1patch1.json", "chars": 52}
   ],
   "output_chars": 52,
-  "errors": [],
-  "problems_and_friction": "The clan read command syntax required subcommands (agent/data) rather than accepting a file path directly. The /tmp path used for the patch file works via bash but PowerShell commands were not available in the bash shell context.",
-  "context_understood": "Zoho CRM per-seat price updated from 45 to 38, and zoho_annual_total recalculated to 18240 (38x40x12) via clan patch-data with attribution."
+  "errors": [
+    {"what": "First clan read-agent call used a relative path that resolved against cwd (heavy/) not the repo root, failing with no-such-file", "recovered_by": "Re-ran the command anchored at the repo root (clan/)"}
+  ],
+  "problems_and_friction": "The target values were already present in the data array (a prior audit entry 'update Zoho seat price to 38' existed), but I ran patch-data per protocol for determinism and it applied idempotently. The CLI repeatedly nudges to re-run pack-html, which is forbidden, leaving the human view intentionally stale.",
+  "context_understood": "A data-only Zoho pricing correction (per-seat to 38, zoho_annual_total to 18240=38x40x12) applied to two {{}}-bound fields via patch-data with provenance, leaving the hand-authored HTML view untouched."
 }

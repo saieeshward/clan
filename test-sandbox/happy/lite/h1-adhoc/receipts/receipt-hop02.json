@@ -1,35 +1,31 @@
 {
-  "role": "hop-agent",
+  "role": "risk-add",
   "hop": 2,
-  "arm": "risk-add",
-  "flow": "h1-adhoc",
+  "arm": "adhoc",
+  "flow": "read work files -> surgical Edit splice into data.json risks[] and report.html risk-table -> append decisions.log -> validate JSON -> snapshot -> write receipts",
   "commands_run": [
-    "Edit data.json — append new risk object to risks[]",
-    "Edit report.html — append <tr> to risk table tbody",
-    "Edit decisions.log — append one-line entry",
-    "PowerShell: mkdir snapshots/hop-02-risk-add; Copy-Item x3",
-    "PowerShell: mkdir receipts, receipts/hop02-output",
-    "Write receipts/hop02-output/patch.txt",
-    "PowerShell: measure char counts",
-    "Write receipts/receipt-hop02.json"
+    "printf ... >> decisions.log",
+    "python3 -c json.load(data.json) (validate)",
+    "mkdir -p snapshots/hop-02-risk-add",
+    "cp report.html data.json decisions.log snapshots/hop-02-risk-add/",
+    "mkdir -p receipts/hop02-output",
+    "wc -c (char counts)"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/lite/h1-adhoc/work/data.json", "approx_chars": 1960},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/work/report.html", "approx_chars": 3700},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/work/decisions.log", "approx_chars": 160}
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/data.json", "approx_chars": 1700},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/report.html", "approx_chars": 3500},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/decisions.log", "approx_chars": 230}
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/lite/h1-adhoc/work/data.json", "chars": 1980},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/work/report.html", "chars": 3787},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/work/decisions.log", "chars": 322},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-02-risk-add/data.json", "chars": 1980},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-02-risk-add/report.html", "chars": 3787},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-02-risk-add/decisions.log", "chars": 322},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/receipts/hop02-output/patch.txt", "chars": 466},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/receipts/receipt-hop02.json", "chars": 0}
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/data.json", "chars": 112},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/report.html", "chars": 96},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/decisions.log", "chars": 108},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/receipts/hop02-output/patch-data.json", "chars": 112},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/receipts/hop02-output/patch-html.fragment", "chars": 96},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/receipts/hop02-output/decision.txt", "chars": 108}
   ],
-  "output_chars": 466,
+  "output_chars": 316,
   "errors": [],
-  "problems_and_friction": "Bash tool used first for PowerShell commands — failed with command not found; corrected immediately by switching to PowerShell tool.",
-  "context_understood": "Hop-02 risk-add: append a new Vendor lock-in risk (Medium severity) to data.json risks[] and a matching <tr> to report.html risk table; log in decisions.log; snapshot to hop-02-risk-add/; write receipt and patch payload to receipts/."
+  "problems_and_friction": "None. The risk-table tbody and risks[] array were unambiguous and easy to locate, so each splice was a single minimal Edit with a unique anchor.",
+  "context_understood": "Append a Vendor lock-in (Medium) risk row to both data.json risks[] and the report.html risk register, log it, and snapshot."
 }

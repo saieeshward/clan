@@ -1,0 +1,1 @@
+2026-06-12 | residency-section | inserted supplied "Data residency" subsection (h2#data-residency + p#residency-detail) into report.html after Data governance section per h1-supplied/residency-section.html; already present (idempotent)

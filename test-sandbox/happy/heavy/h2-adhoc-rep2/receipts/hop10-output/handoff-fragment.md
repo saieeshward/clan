@@ -1,3 +1,3 @@
-﻿## 10-procurement-reviewer
 
-Zoho is procurement-ready: 3-week lead time, annual term, export clause confirmed, EU residency in base price; negotiate SLA, auto-renewal window, and connector coverage before signature. Next: lead partner assembles the final recommendation.
+## 10-procurement-reviewer
+Zoho procurable in ~4wk on a 1yr term; secure EU pinning, quarterly export and DPA, and push annual prepay for a Y2 price cap plus 60-day auto-renew opt-out. Export clause is contractable. Next: lead partner assembles recommendation.

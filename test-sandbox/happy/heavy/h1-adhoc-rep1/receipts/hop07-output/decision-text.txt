@@ -1,0 +1,1 @@
+2026-06-12 | verdict-flip | flipped verdict -> "Zoho CRM" and set verdict_rationale from h1-supplied/verdict-rationale.txt in data.json and report.html (#verdict-value, #verdict-rationale); both already at target (idempotent).

@@ -4,38 +4,27 @@
   "arm": "adhoc",
   "flow": "H1",
   "commands_run": [
-    "Read verdict-rationale.txt",
-    "Read work/data.json",
-    "Read work/report.html",
-    "Read work/decisions.log",
-    "Edit data.json (verdict + verdict_rationale)",
-    "Edit report.html (verdict-value + verdict-rationale spans)",
-    "Append to decisions.log",
-    "mkdir snapshots/hop-07-verdict-flip",
-    "cp report.html + data.json + decisions.log to snapshots/hop-07-verdict-flip/",
-    "Write receipts/hop07-output/patch-data.json",
-    "Write receipts/hop07-output/patch-html.txt",
-    "Write receipts/hop07-output/decision.txt"
+    "python3 (verify data.json + report.html against verdict-rationale.txt)",
+    "printf >> work/decisions.log",
+    "mkdir -p snapshots/hop-07-verdict-flip receipts/hop07-output",
+    "cp report.html data.json decisions.log -> snapshot dir",
+    "rm stale hop07-output splice files; ls/wc decision.txt"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/lite/_inputs/h1-supplied/verdict-rationale.txt", "approx_chars": 196},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/work/data.json", "approx_chars": 1080},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/work/report.html", "approx_chars": 2990},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/work/decisions.log", "approx_chars": 730}
+    {"file": "test-sandbox/happy/lite/_inputs/h1-supplied/verdict-rationale.txt", "approx_chars": 207},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/work/data.json", "approx_chars": 2113},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/work/report.html", "approx_chars": 4961},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/work/decisions.log", "approx_chars": 2150}
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/work/data.json", "chars": 2113},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/work/report.html", "chars": 5043},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/work/decisions.log", "chars": 1031},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/work/decisions.log", "chars": 228},
     {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/snapshots/hop-07-verdict-flip/data.json", "chars": 2113},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/snapshots/hop-07-verdict-flip/report.html", "chars": 5043},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/snapshots/hop-07-verdict-flip/decisions.log", "chars": 1031},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/receipts/hop07-output/patch-data.json", "chars": 266},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/receipts/hop07-output/patch-html.txt", "chars": 333},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/receipts/hop07-output/decision.txt", "chars": 177}
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/snapshots/hop-07-verdict-flip/report.html", "chars": 4961},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/snapshots/hop-07-verdict-flip/decisions.log", "chars": 2377},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep2/receipts/hop07-output/decision.txt", "chars": 228}
   ],
-  "output_chars": 776,
+  "output_chars": 228,
   "errors": [],
-  "problems_and_friction": "No significant friction. Both data.json and report.html had unique string targets for surgical splice edits. The decisions.log append required a PowerShell-aware approach since the Bash tool was active.",
-  "context_understood": "Flip verdict from HubSpot to Zoho CRM in data.json and report.html using the h1-supplied rationale text, then snapshot and receipt the authored fragments."
+  "problems_and_friction": "A prior pass had already applied the flip byte-identically: data.json verdict=\"Zoho CRM\" and both report.html spans matched the supplied rationale exactly, so no source splice was needed this hop. Only the verification decision-log line was authored; stale splice fragments from the earlier pass were pruned from hop07-output.",
+  "context_understood": "Flip the CRM recommendation verdict to Zoho CRM with the supplied rationale across data.json and report.html, then log and snapshot; found already applied so verified and recorded rather than re-splicing."
 }

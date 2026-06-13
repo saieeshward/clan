@@ -1,0 +1,33 @@
+{
+  "role": "synthesis-lead",
+  "commands_run": [
+    "clan --help",
+    "clan agent-help",
+    "clan info work/doc-fresh.clan",
+    "clan validate work/doc-fresh.clan",
+    "clan read agent work/doc-fresh.clan --quiet",
+    "unzip doc-fresh.clan (inspect output-schema.json + human/index.html design tokens & section/selector layout)",
+    "cp work/doc-fresh.clan /tmp/test-hop3.clan (throwaway copy for dry-runs)",
+    "clan patch-data /tmp/test-hop3.clan hop3-data.json --agent synthesis-lead --action ... (dry-run, validated)",
+    "clan patch-data work/doc-fresh.clan hop3-data.json --agent synthesis-lead --action ... --rationale ... --quiet (live)",
+    "clan patch-html /tmp/test-hop3.clan hop3.patch.html --no-decision (dry-run, validated, verified section order before <footer>)",
+    "clan patch-html work/doc-fresh.clan hop3.patch.html --agent synthesis-lead --action ... --quiet (live)",
+    "clan validate work/doc-fresh.clan (after each write — OK)",
+    "clan read agent work/doc-fresh.clan --quiet (final verification of data + decision chain)"
+  ],
+  "files_read": [
+    { "file": "test-sandbox/happy/unguided/work/doc-fresh.clan (agent view: context + data + decision chain)", "approx_chars": 14000 },
+    { "file": "agent/output-schema.json (inside .clan — open schema, type:object only)", "approx_chars": 78 },
+    { "file": "human/index.html (inside .clan — hop-1+hop-2 dark render, for design tokens & selectors)", "approx_chars": 14700 },
+    { "file": "test-sandbox/happy/unguided/receipts/receipt-market-analyst.json", "approx_chars": 1500 },
+    { "file": "test-sandbox/happy/unguided/receipts/receipt-risk-analyst.json", "approx_chars": 2700 }
+  ],
+  "files_written": [
+    { "file": "test-sandbox/happy/unguided/work/doc-fresh.clan", "chars": 22794 },
+    { "file": "test-sandbox/happy/unguided/receipts/receipt-synthesis-lead.json", "chars": 3050 }
+  ],
+  "output_chars": 8828,
+  "errors": [],
+  "problems_and_friction": "No blocker; document validated OK after every mutation and was never corrupted. Had to discover the tool unaided: clan --help then clan agent-help gave the agent protocol, and I unzipped the .clan to confirm the schema was fully open (type:object only — so no patch-schema needed) and to read the hop-1/hop-2 HTML so my synthesis sections reused the existing design tokens (Fraunces/Inter, #0f1117/#6366f1, .sec/.card/.kpi/.att/.handoff/.score-wrap/.bar/.pipe). The prior risk-analyst receipt warned that the patcher rejects :has() selectors, so I did not attempt content-based targeting — I anchored on the bare 'footer' tag with patch_action 'before' so the five hop-3 sections land in document order ahead of the footer (the agent-help also warns a selector-less patch lands at end of <body>, outside the wrap). I split the write the recommended way: patch-data for the canonical structured findings (lowest cost, records exact fields_changed) and patch-html for the view, instead of the heavier pack-html. I dry-ran both patches on a throwaway copy and grepped the result to confirm section order before touching the live file. Minor cosmetic carry-over I deliberately left alone: the templated <footer> still reads 'Hop 1/3 · Market Analyst' (it is hand-authored static text, not a {{binding}}); editing it would have meant a fragile selector replace for no analytical value, and my 'Chain complete · Hop 3 of 3' section with a fully-lit pipeline makes the true status unambiguous. The analysts block carried a 'competitive_analyst' key from hop 2 (the risk-analyst's lens); I left it untouched and only set synthesis_lead=complete, since all three lenses are in fact complete.",
+  "context_understood": "Hop 3 of 3 (lead-synthesizer) in Brightline Logistics' Germany market-entry analysis. Hop 1 (market-analyst) sized the market (EUR320bn -> 377bn by 2028, 4.2% CAGR), segments, barriers, opportunities, prelim 7.5/10. Hop 2 (risk-analyst) profiled the top-5 incumbents (~45-50% combined share over a ~60k-carrier SME long tail), built the entry model (EUR65m phased capex, ~EUR42m opex, ~yr-4 break-even, ~14% IRR), logged a 5-item risk register and revised the score to 6.8 with financial 6.0 and status 'conditional proceed'. My job was to close the chain with the go/no-go. I weighted the three lenses — market 6.8 (40%), financial 6.0 (35%), risk-adjusted execution 7.0 (25%) — into an overall 6.7/10 and a CONDITIONAL, PHASED GO. I recorded final_recommendation (decision, weighting table, rationale, four gating conditions, kill criteria, next steps) and synthesis_summary in shared/data.yaml, set recommendation_status to 'GO — conditional, phased entry', flipped analysts.synthesis_lead to complete, and rendered five matching hop-3 HTML sections (verdict, weighted-decision table, gating conditions + kill criteria, next steps, chain-complete with a fully-lit pipeline). Data merge-patches forward so I restated only the keys I changed. The chain is closed; no further hops are required, so I left no onward handoff beyond the 'chain complete' marker for any reviewing agent."
+}

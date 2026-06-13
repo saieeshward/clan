@@ -1,2 +1,2 @@
-
-2026-06-11 hop-01 pricing-update: zoho_price_per_seat 45→38, zoho_annual_total 21600→18240 (38×40×12); report.html cost table updated to match.
+2026-06-10 | analyst | initial CRM recommendation report prepared
+2026-06-12 | analyst | Zoho CRM repriced to $38/seat; annual total updated to $18240 in data.json and report.html cost table

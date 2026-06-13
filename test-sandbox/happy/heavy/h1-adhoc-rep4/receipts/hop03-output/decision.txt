@@ -1,1 +1,1 @@
-hop-03 date-update: rollout_phase2_date 2026-08-01->2026-09-15 in data.json and id=phase2 in report.html
+2026-06-12 | date-update | rollout_phase2_date 2026-08-01->2026-09-15 (data.json + report.html #phase2)

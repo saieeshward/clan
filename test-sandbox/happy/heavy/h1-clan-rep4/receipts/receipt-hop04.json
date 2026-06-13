@@ -5,22 +5,27 @@
   "flow": "H1",
   "commands_run": [
     "clan read agent test-sandbox/happy/heavy/h1-clan-rep4/work/doc.clan --skip-guide",
-    "clan patch-data test-sandbox/happy/heavy/h1-clan-rep4/work/doc.clan /tmp/h1patch4.json --agent summary-agent --action \"rewrite exec summary\" --rationale \"Board requested clearer opening\"",
-    "clan validate test-sandbox/happy/heavy/h1-clan-rep4/work/doc.clan"
+    "clan read data test-sandbox/happy/lite/_inputs/seed.clan",
+    "cp test-sandbox/happy/lite/_inputs/seed.clan h1-clan-rep4/work/doc.clan",
+    "clan validate h1-clan-rep4/work/doc.clan",
+    "clan patch-data h1-clan-rep4/work/doc.clan /tmp/h1patch4.json --agent summary-agent --action \"rewrite exec summary\" --rationale \"Board requested clearer opening\"",
+    "clan validate h1-clan-rep4/work/doc.clan",
+    "cp h1-clan-rep4/work/doc.clan h1-clan-rep4/snapshots/hop-04-summary-rewrite.clan"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/heavy/h1-clan-rep4/work/doc.clan", "approx_chars": 3200},
-    {"file": "test-sandbox/happy/lite/_inputs/h1-supplied/exec-summary.txt", "approx_chars": 280}
+    {"file": "/Users/saieeshwar/Projects/Work/work/napkin/ADF/clan/test-sandbox/happy/lite/_inputs/h1-supplied/exec-summary.txt", "approx_chars": 320},
+    {"file": "/Users/saieeshwar/Projects/Work/work/napkin/ADF/clan/test-sandbox/happy/lite/_inputs/seed.clan", "approx_chars": 700}
   ],
   "files_written": [
-    {"file": "/tmp/h1patch4.json", "chars": 343},
-    {"file": "test-sandbox/happy/heavy/h1-clan-rep4/work/doc.clan", "chars": 0},
-    {"file": "test-sandbox/happy/heavy/h1-clan-rep4/snapshots/hop-04-summary-rewrite.clan", "chars": 0},
-    {"file": "test-sandbox/happy/heavy/h1-clan-rep4/receipts/hop04-output/patch-data.json", "chars": 343},
-    {"file": "test-sandbox/happy/heavy/h1-clan-rep4/receipts/receipt-hop04.json", "chars": 0}
+    {"file": "/Users/saieeshwar/Projects/Work/work/napkin/ADF/clan/test-sandbox/happy/heavy/h1-clan-rep4/work/doc.clan", "chars": 15393},
+    {"file": "/tmp/h1patch4.json", "chars": 344},
+    {"file": "/Users/saieeshwar/Projects/Work/work/napkin/ADF/clan/test-sandbox/happy/heavy/h1-clan-rep4/snapshots/hop-04-summary-rewrite.clan", "chars": 15393},
+    {"file": "/Users/saieeshwar/Projects/Work/work/napkin/ADF/clan/test-sandbox/happy/heavy/h1-clan-rep4/receipts/hop04-output/h1patch4.json", "chars": 344}
   ],
-  "output_chars": 343,
-  "errors": [],
-  "problems_and_friction": "The /tmp path required bash shell rather than PowerShell due to Windows environment; used bash tool directly to create the patch file. No other friction encountered — patch-data and validate both succeeded on first attempt.",
-  "context_understood": "Replace exec_summary in the heavy H1 rep4 doc with the board-requested clearer opening from the supplied txt file, using clan patch-data with attribution metadata."
+  "output_chars": 344,
+  "errors": [
+    {"what": "work/doc.clan did not exist (rep4 working copy uninitialized; prior hops 01-03 were never run for this rep)", "recovered_by": "seeded work/doc.clan from canonical test-sandbox/happy/lite/_inputs/seed.clan, validated OK, then applied the patch"}
+  ],
+  "problems_and_friction": "The target work/doc.clan was missing because earlier hops never created rep4's working copy, so I recovered by seeding from the canonical seed.clan before patching. A stale receipt and pre-existing hop-01/02/03/05-08 snapshots from a prior partial run were present; my hop-04 snapshot reflects the verbatim exec_summary rewrite applied on the fresh seed.",
+  "context_understood": "Replace the exec_summary value with the verbatim supplied text via clan patch-data (patch-first, no pack-html), validate to OK, and snapshot for the H1 clan arm."
 }

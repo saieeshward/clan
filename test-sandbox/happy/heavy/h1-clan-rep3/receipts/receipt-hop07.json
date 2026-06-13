@@ -1,45 +1,25 @@
-﻿{
-    "flow":  "H1",
-    "files_read":  [
-                       {
-                           "approx_chars":  3200,
-                           "file":  "test-sandbox/happy/heavy/h1-clan-rep3/work/doc.clan"
-                       },
-                       {
-                           "approx_chars":  200,
-                           "file":  "test-sandbox/happy/lite/_inputs/h1-supplied/verdict-rationale.txt"
-                       }
-                   ],
-    "errors":  [
-
-               ],
-    "arm":  "clan",
-    "files_written":  [
-                          {
-                              "file":  "test-sandbox/happy/heavy/h1-clan-rep3/work/doc.clan",
-                              "chars":  3300
-                          },
-                          {
-                              "file":  "test-sandbox/happy/heavy/h1-clan-rep3/snapshots/hop-07-verdict-flip.clan",
-                              "chars":  3300
-                          },
-                          {
-                              "file":  "test-sandbox/happy/heavy/h1-clan-rep3/receipts/hop07-output/h1patch7.json",
-                              "chars":  258
-                          },
-                          {
-                              "file":  "test-sandbox/happy/heavy/h1-clan-rep3/receipts/receipt-hop07.json",
-                              "chars":  800
-                          }
-                      ],
-    "hop":  7,
-    "output_chars":  258,
-    "role":  "verdict-flip",
-    "commands_run":  [
-                         "clan read agent test-sandbox/happy/heavy/h1-clan-rep3/work/doc.clan --skip-guide",
-                         "clan patch-data test-sandbox/happy/heavy/h1-clan-rep3/work/doc.clan /tmp/h1patch7.json --agent verdict-agent --action \"flip verdict to Zoho CRM\" --rationale \"Re-scored: Zoho wins on 40-seat cost with EU residency\"",
-                         "clan validate test-sandbox/happy/heavy/h1-clan-rep3/work/doc.clan"
-                     ],
-    "context_understood":  "Flip the verdict field from HubSpot to Zoho CRM and set verdict_rationale verbatim from the supplied text file, using clan patch-data with proper attribution.",
-    "problems_and_friction":  "The /tmp path used in the protocol is not directly writable on Windows via Bash; had to write the patch JSON using PowerShell to C:\\tmp instead. The clan patch-data command accepted C:\\tmp\\h1patch7.json path without issue once the file was created correctly."
+{
+  "role": "verdict-flip",
+  "hop": 7,
+  "arm": "clan",
+  "flow": "H1",
+  "commands_run": [
+    "clan read agent h1-clan-rep3/work/doc.clan --skip-guide",
+    "clan patch-data h1-clan-rep3/work/doc.clan /tmp/h1patch7.json --agent verdict-agent --action \"flip verdict to Zoho CRM\" --rationale \"Re-scored: Zoho wins on 40-seat cost with EU residency\"",
+    "clan validate h1-clan-rep3/work/doc.clan",
+    "cp h1-clan-rep3/work/doc.clan h1-clan-rep3/snapshots/hop-07-verdict-flip.clan"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/lite/_inputs/h1-supplied/verdict-rationale.txt", "approx_chars": 208},
+    {"file": "/tmp/h1patch7.json", "approx_chars": 260}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep3/work/doc.clan", "chars": 16200},
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep3/snapshots/hop-07-verdict-flip.clan", "chars": 16200},
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep3/receipts/hop07-output/patch-data.json", "chars": 260}
+  ],
+  "output_chars": 260,
+  "errors": [],
+  "problems_and_friction": "The verdict and rationale were already at the target values from a prior run, so patch-data was idempotent; /tmp/h1patch7.json already held the exact correct payload. clan repeatedly suggested pack-html/render, which is forbidden and was ignored.",
+  "context_understood": "Flip the H1 doc verdict to Zoho CRM and set verdict_rationale to the supplied text via a minimal patch-data JSON, then validate and snapshot without re-packing the HTML view."
 }

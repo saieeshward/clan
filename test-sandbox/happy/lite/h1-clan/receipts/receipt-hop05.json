@@ -1,23 +1,27 @@
 {
-  "role": "revision-agent",
+  "role": "residency-section",
   "hop": 5,
-  "arm": "residency-section",
-  "flow": "h1-clan",
+  "arm": "clan",
+  "flow": "guided-patch-first",
   "commands_run": [
-    "clan.exe patch-html test-sandbox/happy/lite/h1-clan/work/doc.clan test-sandbox/happy/lite/_inputs/h1-supplied/residency-section.html --selector body --agent residency-section --action \"add residency section\"",
-    "clan.exe validate test-sandbox/happy/lite/h1-clan/work/doc.clan",
-    "cp doc.clan snapshots/hop-05-residency-section.clan"
+    "clan read agent test-sandbox/happy/lite/h1-clan/work/doc.clan --skip-guide",
+    "clan patch-html --help",
+    "clan patch-html test-sandbox/happy/lite/h1-clan/work/doc.clan test-sandbox/happy/lite/_inputs/h1-supplied/residency-section.html --selector body --patch-action append --agent residency-section --action \"Add Data residency subsection\"",
+    "clan validate test-sandbox/happy/lite/h1-clan/work/doc.clan",
+    "cp test-sandbox/happy/lite/h1-clan/work/doc.clan test-sandbox/happy/lite/h1-clan/snapshots/hop-05-residency-section.clan"
   ],
   "files_read": [
-    { "file": "test-sandbox/happy/lite/_inputs/h1-supplied/residency-section.html", "approx_chars": 910 }
+    { "file": "test-sandbox/happy/lite/_inputs/h1-supplied/residency-section.html", "approx_chars": 980 }
   ],
   "files_written": [
-    { "file": "test-sandbox/happy/lite/h1-clan/work/doc.clan", "chars": 15768 },
-    { "file": "test-sandbox/happy/lite/h1-clan/snapshots/hop-05-residency-section.clan", "chars": 15768 },
-    { "file": "test-sandbox/happy/lite/h1-clan/receipts/hop05-output/residency-section-patch.html", "chars": 910 }
+    { "file": "test-sandbox/happy/lite/h1-clan/work/doc.clan", "chars": 980 },
+    { "file": "test-sandbox/happy/lite/h1-clan/snapshots/hop-05-residency-section.clan", "chars": 980 },
+    { "file": "test-sandbox/happy/lite/h1-clan/receipts/hop05-output/decision-action.txt", "chars": 29 }
   ],
-  "output_chars": 910,
-  "errors": [],
-  "problems_and_friction": "Initial patch-html call used --fragment flag which does not exist; corrected to positional HTML_FILE argument per --help output.",
-  "context_understood": "Append residency-section.html fragment to body of doc.clan via patch-html, validate OK, snapshot as hop-05, write receipt."
+  "output_chars": 29,
+  "errors": [
+    { "what": "First patch-html attempt used --mode flag which does not exist", "recovered_by": "Checked clan patch-html --help and re-ran with --patch-action append" }
+  ],
+  "problems_and_friction": "The patch-html flag is --patch-action, not --mode; one help lookup resolved it. The supplied fragment had no YAML frontmatter, so --selector/--patch-action/--agent/--action were supplied on the CLI instead.",
+  "context_understood": "This hop appends a supplied 'Data residency' subsection as new view content to <body> via patch-html append (pack-html forbidden), validates, and snapshots."
 }

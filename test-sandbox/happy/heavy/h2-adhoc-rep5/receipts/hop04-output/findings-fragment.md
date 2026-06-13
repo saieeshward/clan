@@ -1,0 +1,7 @@
+
+## 04-gdpr-reviewer
+- gdpr_residency_required: EU (Frankfurt)
+- gdpr_hubspot_eu_pinning: add-on
+- gdpr_zoho_eu_pinning: included
+- gdpr_dpa_both: true
+- gdpr_subprocessor_notice_days: 30

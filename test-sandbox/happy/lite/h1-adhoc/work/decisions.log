@@ -1,8 +1,10 @@
-2026-06-12 hop-01 pricing-update: zoho_price_per_seat 45→38, zoho_annual_total 21600→18240 (38*40*12); source: vendor price drop notification.
-2026-06-12 hop-02 risk-add: added risk "Vendor lock-in" severity Medium mitigation "Quarterly data-export clause in contract" to data.json risks[] and report.html risk table.
-2026-06-12 hop-03 date-update: rollout_phase2_date changed 2026-08-01→2026-09-15 in data.json and report.html id="phase2".
-2026-06-12 hop-04 summary-rewrite: exec_summary replaced with supplied text from h1-supplied/exec-summary.txt; verdict shifted to Zoho CRM; data.json and report.html id="exec-summary" updated.
-2026-06-12 hop-05 residency-section: inserted supplied Data residency subsection (id="data-residency", id="residency-detail") into report.html after Data governance section; source: h1-supplied/residency-section.html.
-2026-06-12 hop-06 chart-update: bar-zoho SVG rect updated y="52"→y="78" height="108"→height="82" to reflect revised Zoho cost position in cost chart.
-2026-06-12 hop-07 verdict-flip: verdict changed HubSpot→Zoho CRM; verdict_rationale replaced with supplied text from h1-supplied/verdict-rationale.txt; data.json and report.html id=verdict-value + id=verdict-rationale updated.
-2026-06-11 | steering-committee | approved Zoho CRM recommendation | Re-scored cost vs time-to-value; Zoho wins on 40-seat cost with EU residency included.
+2026-06-10 | analyst | initial CRM recommendation report prepared
+2026-06-12 | pricing-update | Zoho CRM per-seat 45->38, zoho_annual_total 21600->18240 in data.json and report.html cost table
+2026-06-12 | risk-add | added "Vendor lock-in" (Medium) risk to data.json risks[] and report.html risk-table
+2026-06-12 | date-update | rollout_phase2_date 2026-08-01->2026-09-15 in data.json and report.html id="phase2"
+2026-06-12 | summary-rewrite | replaced exec_summary text in data.json and report.html id="exec-summary" with supplied Zoho-leading executive summary
+2026-06-12 | residency-section | inserted "Data residency" subsection (h2#data-residency + p#residency-detail) into report.html after the Data governance section
+2026-06-12 | chart-update | Zoho now cheapest; shrank bar-zoho rect in report.html SVG to y="78" height="82"
+2026-06-12 | verdict-flip | flipped verdict HubSpot->Zoho CRM and replaced verdict_rationale with supplied text in data.json (verdict + verdict_rationale) and report.html (span#verdict-value + span#verdict-rationale)
+2026-06-11 | steering-committee | approved Zoho CRM recommendation | final sign-off recorded
+2026-06-12 | signoff | appended steering-committee sign-off line (2026-06-11, approved Zoho CRM) to decisions.log

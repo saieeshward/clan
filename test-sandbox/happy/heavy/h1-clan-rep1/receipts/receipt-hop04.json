@@ -7,20 +7,21 @@
     "clan read agent test-sandbox/happy/heavy/h1-clan-rep1/work/doc.clan --skip-guide",
     "clan patch-data test-sandbox/happy/heavy/h1-clan-rep1/work/doc.clan /tmp/h1patch4.json --agent summary-agent --action \"rewrite exec summary\" --rationale \"Board requested clearer opening\"",
     "clan validate test-sandbox/happy/heavy/h1-clan-rep1/work/doc.clan",
-    "cp test-sandbox/happy/heavy/h1-clan-rep1/work/doc.clan test-sandbox/happy/heavy/h1-clan-rep1/snapshots/hop-04-summary-rewrite.clan"
+    "cp work/doc.clan snapshots/hop-04-summary-rewrite.clan"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/heavy/h1-clan-rep1/work/doc.clan", "approx_chars": 3200},
-    {"file": "test-sandbox/happy/lite/_inputs/h1-supplied/exec-summary.txt", "approx_chars": 275}
+    {"file": "/Users/saieeshwar/Projects/Work/work/napkin/ADF/clan/test-sandbox/happy/lite/_inputs/h1-supplied/exec-summary.txt", "approx_chars": 324},
+    {"file": "/Users/saieeshwar/Projects/Work/work/napkin/ADF/clan/test-sandbox/happy/heavy/h1-clan-rep1/work/doc.clan", "approx_chars": 16100}
   ],
   "files_written": [
-    {"file": "/tmp/h1patch4.json", "chars": 343},
-    {"file": "test-sandbox/happy/heavy/h1-clan-rep1/snapshots/hop-04-summary-rewrite.clan", "chars": 0},
-    {"file": "test-sandbox/happy/heavy/h1-clan-rep1/receipts/hop04-output/patch-data.json", "chars": 343},
-    {"file": "test-sandbox/happy/heavy/h1-clan-rep1/receipts/receipt-hop04.json", "chars": 0}
+    {"file": "/tmp/h1patch4.json", "chars": 344},
+    {"file": "/Users/saieeshwar/Projects/Work/work/napkin/ADF/clan/test-sandbox/happy/heavy/h1-clan-rep1/snapshots/hop-04-summary-rewrite.clan", "chars": 15300},
+    {"file": "/Users/saieeshwar/Projects/Work/work/napkin/ADF/clan/test-sandbox/happy/heavy/h1-clan-rep1/receipts/hop04-output/h1patch4.json", "chars": 349}
   ],
-  "output_chars": 343,
-  "errors": [],
-  "problems_and_friction": "The Write tool required a prior Read for /tmp/h1patch4.json; the file already existed from a previous run so it was confirmed via shell before proceeding. No substantive issues encountered — patch-data and validate both succeeded cleanly.",
-  "context_understood": "Replace the exec_summary field in the heavy-rep1 clan document with the board-supplied text from exec-summary.txt, then snapshot and receipt the result."
+  "output_chars": 344,
+  "errors": [
+    {"what": "Initial clan read failed: task paths were relative to repo root but cwd was the heavy subdir", "recovered_by": "Resolving all target paths to absolute paths under the repo root before each command"}
+  ],
+  "problems_and_friction": "Task paths were relative to repo root while cwd was the heavy subdirectory, so the first read missed the file; resolved with absolute paths. patch-data emits a stale-human-view nudge to run pack-html, which the protocol forbids, so it was ignored.",
+  "context_understood": "Replace exec_summary in the CLAN doc with the verbatim supplied text via patch-data only (no pack-html), then validate and snapshot."
 }

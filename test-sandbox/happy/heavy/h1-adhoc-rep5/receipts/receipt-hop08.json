@@ -4,23 +4,27 @@
   "arm": "adhoc",
   "flow": "H1",
   "commands_run": [
-    "ls C:/Users/syson/Documents/Code/clan/test-sandbox/happy/heavy/h1-adhoc-rep5/work/",
-    "mkdir -p .../snapshots/hop-08-signoff && cp work/report.html work/data.json work/decisions.log .../snapshots/hop-08-signoff/",
-    "mkdir -p .../receipts/hop08-output"
+    "wc -c work/report.html work/data.json work/decisions.log",
+    "tail -c 200 work/decisions.log | od -c",
+    "cat >> work/decisions.log <<EOF (append sign-off line + rep5 audit line)",
+    "mkdir -p snapshots/hop-08-signoff receipts/hop08-output",
+    "cp work/report.html work/data.json work/decisions.log snapshots/hop-08-signoff/"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/work/decisions.log", "approx_chars": 720}
+    { "file": "test-sandbox/happy/heavy/h1-adhoc-rep5/work/decisions.log", "approx_chars": 2392 },
+    { "file": "test-sandbox/happy/heavy/h1-adhoc-rep5/receipts/receipt-hop08.json", "approx_chars": 1352 }
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/work/decisions.log", "chars": 867},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/snapshots/hop-08-signoff/decisions.log", "chars": 867},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/snapshots/hop-08-signoff/report.html", "chars": -1},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/snapshots/hop-08-signoff/data.json", "chars": -1},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/receipts/hop08-output/decision-append.txt", "chars": 147},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep5/receipts/receipt-hop08.json", "chars": 1024}
+    { "file": "test-sandbox/happy/heavy/h1-adhoc-rep5/work/decisions.log", "chars": 2672 },
+    { "file": "test-sandbox/happy/heavy/h1-adhoc-rep5/snapshots/hop-08-signoff/report.html", "chars": 4961 },
+    { "file": "test-sandbox/happy/heavy/h1-adhoc-rep5/snapshots/hop-08-signoff/data.json", "chars": 2113 },
+    { "file": "test-sandbox/happy/heavy/h1-adhoc-rep5/snapshots/hop-08-signoff/decisions.log", "chars": 2672 },
+    { "file": "test-sandbox/happy/heavy/h1-adhoc-rep5/receipts/hop08-output/decision-line.txt", "chars": 151 }
   ],
-  "output_chars": 147,
-  "errors": [],
-  "problems_and_friction": "Initial ls command failed due to shell quoting with double-quotes on Windows Bash; resolved by switching to unquoted path. No logical friction: the append was a single surgical line to decisions.log with no structural ambiguity.",
-  "context_understood": "Hop 8 (signoff) appends the steering-committee approval of Zoho CRM to decisions.log, snapshots all three work files, and records the authored fragment plus receipt for the ad-hoc arm of flow H1."
+  "output_chars": 248,
+  "errors": [
+    { "what": "Write to receipt-hop08.json failed (file existed from a prior run, not yet read)", "recovered_by": "Reading the existing receipt first, then overwriting with the rep5 receipt" }
+  ],
+  "problems_and_friction": "decisions.log already carried the exact sign-off text at line 9 from a prior run, but the rep5 signoff role records the final approval, so I appended the canonical sign-off line plus a one-line rep5 audit entry as a pure append (no splice into report.html/data.json needed).",
+  "context_understood": "Record the steering committee's 2026-06-11 approval of Zoho CRM as the final sign-off by appending the canonical decision line to decisions.log, then snapshot the three work files."
 }

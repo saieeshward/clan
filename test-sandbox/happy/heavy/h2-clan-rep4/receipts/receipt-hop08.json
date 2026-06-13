@@ -10,18 +10,22 @@
     "cp test-sandbox/happy/heavy/h2-clan-rep4/work/doc.clan test-sandbox/happy/heavy/h2-clan-rep4/snapshots/hop-08-08-finance-modeler.clan"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/work/doc.clan", "approx_chars": 3800},
-    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/08-finance-modeler.handoff.txt", "approx_chars": 100},
-    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/08-finance-modeler.json", "approx_chars": 210}
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/08-finance-modeler.handoff.txt", "approx_chars": 98},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/08-finance-modeler.json", "approx_chars": 210},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/work/doc.clan", "approx_chars": 18400},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/snapshots/hop-07-07-competitive-intel.clan", "approx_chars": 13242}
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/work/doc.clan", "chars": 4200},
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/snapshots/hop-08-08-finance-modeler.clan", "chars": 4200},
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/receipts/hop08-output/patch-data.json", "chars": 175},
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/receipts/receipt-hop08.json", "chars": 1200}
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/work/doc.clan", "chars": 13493},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/snapshots/hop-08-08-finance-modeler.clan", "chars": 13493},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/receipts/hop08-output/patch-data.json", "chars": 210},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/receipts/hop08-output/rationale.txt", "chars": 98}
   ],
-  "output_chars": 175,
-  "errors": [],
-  "problems_and_friction": "No issues encountered. The patch-data command applied cleanly and validation passed immediately. The protocol was straightforward with all supplied files present.",
-  "context_understood": "Finance modeler adds 7 cost/savings fields comparing Zoho vs HubSpot 3-year TCO, confirming Zoho as the finance-preferred vendor with a 7-month payback on savings."
+  "output_chars": 308,
+  "errors": [
+    {"what": "work/doc.clan on disk was the full 12-hop final state (18.4K, all fin_/legal_/procurement_/rollout_/final_ keys already present), not the correct post-hop-7 base, so patching onto it would not faithfully model hop 8", "recovered_by": "seeded work/doc.clan from the clean committed (HEAD) hop-07-07-competitive-intel.clan snapshot (verified 0 fin_ keys; only comp/cust/gdpr/integ/market/pricing/risk prefixes), then ran patch/validate/snapshot from that correct base"},
+    {"what": "the on-disk hop-07 snapshot was also contaminated with downstream final-state keys (working-tree modified)", "recovered_by": "used git show HEAD:<hop-07 snapshot> which is the genuine clean pre-finance base, rather than the modified working-tree copy"}
+  ],
+  "problems_and_friction": "All on-disk snapshots and work/doc.clan held the full 12-hop final state, so no clean pre-hop-8 base existed on disk; the genuine base was recovered from the committed (HEAD) hop-07 snapshot via git show. Once seeded, patch/validate/snapshot ran cleanly with all 7 fin_* fields merged and all prior analysts' keys preserved.",
+  "context_understood": "Hop 8 merge-patches the finance modeler's 7 fin_* fields (Zoho/HubSpot Y1 and 3yr TCO, EUR17,280 3yr savings, 7-month payback, Zoho lean) onto the post-hop-7 H2 doc, preserving all prior analysts' keys and adding none downstream."
 }

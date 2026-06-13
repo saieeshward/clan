@@ -2,25 +2,29 @@
   "role": "05-integrations-assessor",
   "hop": 5,
   "arm": "h2",
-  "flow": "happy/lite",
+  "flow": "guided patch-first --skip-guide",
   "commands_run": [
-    "./target/release/clan.exe read agent test-sandbox/happy/lite/h2-clan/work/doc.clan --skip-guide",
-    "./target/release/clan.exe patch-data test-sandbox/happy/lite/h2-clan/work/doc.clan test-sandbox/happy/lite/_inputs/h2-supplied/05-integrations-assessor.json --agent 05-integrations-assessor --action \"added 05-integrations-assessor findings\"",
-    "./target/release/clan.exe patch-decision --agent 05-integrations-assessor --action \"added 05-integrations-assessor findings\" --rationale \"HubSpot has one more native connector; Zoho needs a NetSuite connector but it is supported. ~9 wk effort either way. Next: customer discovery.\" test-sandbox/happy/lite/h2-clan/work/doc.clan",
-    "./target/release/clan.exe validate test-sandbox/happy/lite/h2-clan/work/doc.clan",
+    "clan read agent test-sandbox/happy/lite/h2-clan/work/doc.clan --skip-guide",
+    "clan patch-data --agent 05-integrations-assessor --action \"added 05-integrations-assessor findings\" test-sandbox/happy/lite/h2-clan/work/doc.clan test-sandbox/happy/lite/_inputs/h2-supplied/05-integrations-assessor.json",
+    "clan patch-decision --agent 05-integrations-assessor --action \"added 05-integrations-assessor findings\" --rationale \"...\" test-sandbox/happy/lite/h2-clan/work/doc.clan",
+    "clan validate test-sandbox/happy/lite/h2-clan/work/doc.clan",
     "cp test-sandbox/happy/lite/h2-clan/work/doc.clan test-sandbox/happy/lite/h2-clan/snapshots/hop-05-05-integrations-assessor.clan"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/05-integrations-assessor.json", "approx_chars": 220},
-    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/05-integrations-assessor.handoff.txt", "approx_chars": 145}
+    { "file": "test-sandbox/happy/lite/h2-clan/work/doc.clan", "approx_chars": 4200 },
+    { "file": "test-sandbox/happy/lite/_inputs/h2-supplied/05-integrations-assessor.json", "approx_chars": 257 },
+    { "file": "test-sandbox/happy/lite/_inputs/h2-supplied/05-integrations-assessor.handoff.txt", "approx_chars": 142 }
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/lite/h2-clan/receipts/hop05-output/patch-data.json", "chars": 218},
-    {"file": "test-sandbox/happy/lite/h2-clan/receipts/hop05-output/decision.txt", "chars": 143},
-    {"file": "test-sandbox/happy/lite/h2-clan/receipts/receipt-hop05.json", "chars": 1496}
+    { "file": "test-sandbox/happy/lite/h2-clan/work/doc.clan", "chars": 13600 },
+    { "file": "test-sandbox/happy/lite/h2-clan/snapshots/hop-05-05-integrations-assessor.clan", "chars": 13600 },
+    { "file": "test-sandbox/happy/lite/h2-clan/receipts/hop05-output/patch-data.json", "chars": 257 },
+    { "file": "test-sandbox/happy/lite/h2-clan/receipts/hop05-output/decision.txt", "chars": 142 }
   ],
-  "output_chars": 361,
-  "errors": [],
-  "problems_and_friction": "The Bash tool required using relative paths (./target/release/clan.exe) instead of Windows-absolute paths since the tool runs in a POSIX shell context. No protocol or data issues encountered; all steps completed cleanly.",
-  "context_understood": "Hop 5 integrations assessor adds connector coverage and effort data for HubSpot vs Zoho to support the final synthesis hop."
+  "output_chars": 218,
+  "errors": [
+    { "what": "combined patch-data+patch-decision command failed: patch-data also requires --agent/--action attribution", "recovered_by": "ran patch-data and patch-decision as separate commands each with full attribution flags" }
+  ],
+  "problems_and_friction": "patch-data unexpectedly requires the same attribution flags as patch-decision; the combined one-liner aborted before any change was applied, so a quick split into two attributed calls resolved it.",
+  "context_understood": "Brightline CRM chain: I added integration-coverage findings (integ_*) building on prior pricing/risk/GDPR analysts via merge-patch, recorded my handoff decision, and snapshotted for the next customer-discovery hop."
 }

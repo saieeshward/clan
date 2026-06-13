@@ -5,20 +5,22 @@
   "flow": "H1",
   "commands_run": [
     "clan read agent test-sandbox/happy/heavy/h1-clan-rep5/work/doc.clan --skip-guide",
-    "clan read chain test-sandbox/happy/heavy/h1-clan-rep5/work/doc.clan",
     "clan patch-decision test-sandbox/happy/heavy/h1-clan-rep5/work/doc.clan --agent steering-committee --action \"approved Zoho CRM recommendation\" --rationale \"Re-scored cost vs time-to-value; Zoho wins on 40-seat cost with EU residency included.\" --pinned",
-    "clan validate test-sandbox/happy/heavy/h1-clan-rep5/work/doc.clan"
+    "clan validate test-sandbox/happy/heavy/h1-clan-rep5/work/doc.clan",
+    "cp test-sandbox/happy/heavy/h1-clan-rep5/work/doc.clan test-sandbox/happy/heavy/h1-clan-rep5/snapshots/hop-08-signoff.clan"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/heavy/h1-clan-rep5/work/doc.clan", "approx_chars": 4200}
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep5/work/doc.clan", "approx_chars": 6200}
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/heavy/h1-clan-rep5/snapshots/hop-08-signoff.clan", "chars": 4200},
-    {"file": "test-sandbox/happy/heavy/h1-clan-rep5/receipts/hop08-output/decision.yaml", "chars": 178},
-    {"file": "test-sandbox/happy/heavy/h1-clan-rep5/receipts/receipt-hop08.json", "chars": 0}
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep5/snapshots/hop-08-signoff.clan", "chars": 16285},
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep5/receipts/hop08-output/decision.txt", "chars": 139},
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep5/receipts/receipt-hop08.json", "chars": 1500}
   ],
-  "output_chars": 178,
-  "errors": [],
-  "problems_and_friction": "Initial clan read syntax was wrong (subcommand required); corrected to 'clan read agent'. PowerShell copy command failed in bash context; used POSIX cp instead.",
-  "context_understood": "Hop 8 signoff role: record steering committee approval of Zoho CRM recommendation via patch-decision with --pinned flag on a 40-seat CRM platform recommendation document."
+  "output_chars": 118,
+  "errors": [
+    {"what": "First clan read used a bare relative path and failed: cwd is .../happy/heavy, not the repo root", "recovered_by": "Re-running clan from the repo root with the full test-sandbox/... path"}
+  ],
+  "problems_and_friction": "The cwd-vs-repo-root mismatch broke the first relative-path read, so all clan calls had to run from the repo root. patch-decision then appended cleanly and validate printed OK on the first try; the only authored payload was the action and rationale text.",
+  "context_understood": "Recorded the steering committee's final sign-off approving Zoho CRM as a pinned decision-history entry, leaving the document's data and custom view unchanged."
 }

@@ -5,22 +5,25 @@
   "flow": "H2",
   "commands_run": [
     "clan read agent test-sandbox/happy/heavy/h2-clan-rep4/work/doc.clan --skip-guide",
-    "clan patch-data test-sandbox/happy/heavy/h2-clan-rep4/work/doc.clan test-sandbox/happy/lite/_inputs/h2-supplied/02-pricing-analyst.json --agent 02-pricing-analyst --action \"added 02-pricing-analyst findings\" --rationale \"Zoho is cheapest at EUR18,240/yr for 40 seats vs HubSpot 24,000. Salesforce is out on cost. Next: risk-weight the two finalists.\"",
+    "clan patch-data test-sandbox/happy/heavy/h2-clan-rep4/work/doc.clan test-sandbox/happy/lite/_inputs/h2-supplied/02-pricing-analyst.json --agent 02-pricing-analyst --action \"added 02-pricing-analyst findings\" --rationale \"<handoff.txt contents>\"",
     "clan validate test-sandbox/happy/heavy/h2-clan-rep4/work/doc.clan",
     "cp test-sandbox/happy/heavy/h2-clan-rep4/work/doc.clan test-sandbox/happy/heavy/h2-clan-rep4/snapshots/hop-02-02-pricing-analyst.clan"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/work/doc.clan", "approx_chars": 2100},
-    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/02-pricing-analyst.handoff.txt", "approx_chars": 128},
-    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/02-pricing-analyst.json", "approx_chars": 259}
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/work/doc.clan", "approx_chars": 18710},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/02-pricing-analyst.handoff.txt", "approx_chars": 169},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/02-pricing-analyst.json", "approx_chars": 250}
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/work/doc.clan", "chars": 11867},
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/snapshots/hop-02-02-pricing-analyst.clan", "chars": 11867},
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/receipts/hop02-output/patch-data.json", "chars": 259}
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/work/doc.clan", "chars": 18710},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/snapshots/hop-02-02-pricing-analyst.clan", "chars": 18710},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/receipts/hop02-output/patch-data.json", "chars": 250},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep4/receipts/hop02-output/rationale.txt", "chars": 169}
   ],
-  "output_chars": 259,
-  "errors": [],
-  "problems_and_friction": "No friction encountered. All commands executed cleanly on first attempt. The patch-data and validate commands both succeeded without error.",
-  "context_understood": "Hop 2 adds per-seat and annual pricing for all three CRM vendors (HubSpot, Zoho, Salesforce) for 40 seats, identifying Zoho as the cheapest finalist at EUR18,240/yr, and hands off to the risk analyst."
+  "output_chars": 419,
+  "errors": [
+    {"what": "First clan read failed (doc.clan not found): the supplied paths are repo-root-relative but the agent cwd was the heavy/ subdirectory, so the path double-nested", "recovered_by": "running every clan and cp command after cd-ing to the repo root so the repo-root-relative paths resolved"}
+  ],
+  "problems_and_friction": "cwd was the heavy/ subdir rather than the repo root the task paths assume, needing an explicit cd to repo root each command. The working doc already held all 12 hops' data including my pricing_* fields, so this hop executed as an idempotent merge-patch over identical values.",
+  "context_understood": "As pricing analyst I merge-patched bounded pricing_* findings (Zoho cheapest at EUR18,240/yr for 40 seats vs HubSpot 24,000; Salesforce out on cost) into the shared CRM doc without re-transcribing prior analysts, then validated and snapshotted, handing off to the risk analyst."
 }

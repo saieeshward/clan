@@ -2,26 +2,30 @@
   "role": "09-rollout-planner",
   "hop": 9,
   "arm": "h2",
-  "flow": "happy/lite",
+  "flow": "guided patch-first --skip-guide",
   "commands_run": [
-    "target/release/clan.exe read agent test-sandbox/happy/lite/h2-clan/work/doc.clan --skip-guide",
-    "target/release/clan.exe patch-data test-sandbox/happy/lite/h2-clan/work/doc.clan test-sandbox/happy/lite/_inputs/h2-supplied/09-rollout-planner.json --agent 09-rollout-planner --action \"added 09-rollout-planner findings\"",
-    "target/release/clan.exe patch-decision --agent 09-rollout-planner --action \"added 09-rollout-planner findings\" --rationale \"Three phases land core CRM before the October peak with phase-2 marketing on 2026-09-15. Next: lead partner assembles the recommendation.\" test-sandbox/happy/lite/h2-clan/work/doc.clan",
-    "target/release/clan.exe validate test-sandbox/happy/lite/h2-clan/work/doc.clan",
-    "cp test-sandbox/happy/lite/h2-clan/work/doc.clan test-sandbox/happy/lite/h2-clan/snapshots/hop-09-09-rollout-planner.clan"
+    "clan read agent test-sandbox/happy/lite/h2-clan/work/doc.clan --skip-guide",
+    "clan patch-data --no-decision test-sandbox/happy/lite/h2-clan/work/doc.clan test-sandbox/happy/lite/_inputs/h2-supplied/09-rollout-planner.json",
+    "clan patch-decision --agent 09-rollout-planner --action \"added 09-rollout-planner findings\" --rationale \"...\" test-sandbox/happy/lite/h2-clan/work/doc.clan",
+    "clan validate test-sandbox/happy/lite/h2-clan/work/doc.clan",
+    "cp doc.clan snapshots/hop-09-09-rollout-planner.clan"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/09-rollout-planner.json", "approx_chars": 192},
-    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/09-rollout-planner.handoff.txt", "approx_chars": 137}
+    { "file": "test-sandbox/happy/lite/h2-clan/work/doc.clan", "approx_chars": 6800 },
+    { "file": "test-sandbox/happy/lite/_inputs/h2-supplied/09-rollout-planner.json", "approx_chars": 216 },
+    { "file": "test-sandbox/happy/lite/_inputs/h2-supplied/09-rollout-planner.handoff.txt", "approx_chars": 137 }
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/lite/h2-clan/snapshots/hop-09-09-rollout-planner.clan", "chars": 0},
-    {"file": "test-sandbox/happy/lite/h2-clan/receipts/hop09-output/patch-data.json", "chars": 192},
-    {"file": "test-sandbox/happy/lite/h2-clan/receipts/hop09-output/decision.txt", "chars": 137},
-    {"file": "test-sandbox/happy/lite/h2-clan/receipts/receipt-hop09.json", "chars": 1289}
+    { "file": "test-sandbox/happy/lite/h2-clan/work/doc.clan", "chars": 14746 },
+    { "file": "test-sandbox/happy/lite/h2-clan/snapshots/hop-09-09-rollout-planner.clan", "chars": 14746 },
+    { "file": "test-sandbox/happy/lite/h2-clan/receipts/hop09-output/decision.txt", "chars": 171 },
+    { "file": "test-sandbox/happy/lite/h2-clan/receipts/receipt-hop09.json", "chars": 0 }
   ],
-  "output_chars": 329,
-  "errors": [],
-  "problems_and_friction": "No friction encountered. All three protocol steps (patch-data, patch-decision, validate) completed cleanly. Snapshot copied without issue.",
-  "context_understood": "Hop 09 adds rollout phasing findings (3 phases, 9 weeks, champion program) to the h2-clan CRM vendor analysis doc, concluding before the October logistics peak."
+  "output_chars": 171,
+  "errors": [
+    { "what": "initial commands failed: cwd is lite dir, prompt paths are repo-root relative", "recovered_by": "running all clan commands from repo root /Users/.../ADF/clan" },
+    { "what": "patch-data refused: 'this change needs attribution'", "recovered_by": "passing --no-decision to patch-data and recording the handoff via a single patch-decision" }
+  ],
+  "problems_and_friction": "patch-data now mandates attribution flags by default, so the protocol's bare patch-data step required --no-decision to defer the recorded decision to the explicit patch-decision step. Working dir was the lite subfolder while supplied paths were repo-root relative.",
+  "context_understood": "I am the rollout-planner adding bounded rollout_* timeline/champion-program fields to the Brightline CRM evaluation and handing off to the lead partner for the final recommendation view."
 }

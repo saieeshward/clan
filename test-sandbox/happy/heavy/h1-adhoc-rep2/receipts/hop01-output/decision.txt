@@ -1,1 +1,1 @@
-2026-06-11 hop-01 pricing-update: Zoho CRM per-seat price updated 45->38, annual_total updated 21600->18240 (38x40x12).
+2026-06-12 | analyst | Zoho CRM per-seat price updated 45->38; annual total 21600->18240 (38x40x12)

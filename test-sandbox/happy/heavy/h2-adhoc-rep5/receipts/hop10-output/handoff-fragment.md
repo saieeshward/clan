@@ -1,3 +1,2 @@
 ## 10-procurement-reviewer
-
-Zoho 1-year contract (3-week lead time) is procurement-ready; negotiate 3-yr discount option and lock EU-residency addendum pre-signature; quarterly export clause is contractually feasible. Next: lead partner final recommendation.
+Zoho: 1-yr term, ~4 wk lead time; commit prepay + EU pinning; use HubSpot quote and 40-seat volume to cap renewal uplift; quarterly export feasible. Next: lead partner assembles recommendation.

@@ -6,26 +6,24 @@
   "commands_run": [
     "clan read agent test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan --skip-guide",
     "clan read data test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan",
-    "clan patch-data test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan test-sandbox/happy/heavy/h2-clan-rep3/work/hop10-findings.json --agent 10-procurement-reviewer --action \"added 10-procurement-reviewer findings\" --rationale \"Zoho 3-year contract is procurement-feasible with export clause confirmed and October deadline manageable if signed by July 1\"",
+    "clan patch-data test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan /tmp/h2-r3-hop10.json --agent 10-procurement-reviewer --action \"added 10-procurement-reviewer findings\" --rationale \"6wk lead, 3yr term; lock-in risk offset by feasible export clause\"",
     "clan validate test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan",
-    "cp test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan test-sandbox/happy/heavy/h2-clan-rep3/snapshots/hop-10-10-procurement-reviewer.clan"
+    "cp work/doc.clan snapshots/hop-10-10-procurement-reviewer.clan"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan", "approx_chars": 2800}
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan", "approx_chars": 2400}
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep3/work/hop10-findings.json", "chars": 2112},
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep3/snapshots/hop-10-10-procurement-reviewer.clan", "chars": 0},
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep3/receipts/hop10-output/patch-data.json", "chars": 2112},
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep3/receipts/receipt-hop10.json", "chars": 0}
+    {"file": "/tmp/h2-r3-hop10.json", "chars": 300},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan", "chars": 19200},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep3/snapshots/hop-10-10-procurement-reviewer.clan", "chars": 19200},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep3/receipts/hop10-output/patch-data.json", "chars": 300}
   ],
-  "output_chars": 2112,
+  "output_chars": 300,
   "errors": [
-    {
-      "what": "clan patch-data with /tmp/h2-r3-hop10.json failed — Write tool wrote to a virtual path not visible to the Windows CLI",
-      "recovered_by": "Wrote JSON via bash heredoc to a repo-relative path (test-sandbox/.../hop10-findings.json) that clan CLI could resolve"
-    }
+    {"what": "Initial clan read failed: path relative to wrong cwd (heavy dir, not repo root)", "recovered_by": "Located true repo root at ADF/clan and re-ran all clan commands from there"},
+    {"what": "First findings JSON drafts exceeded 300-char budget (332/329/320/310/303/301)", "recovered_by": "Iteratively shortened array entries, severity enum (med->M), and mitigation text to land at exactly 300 chars"}
   ],
-  "problems_and_friction": "The Write tool created the JSON at /tmp/h2-r3-hop10.json but the Windows clan CLI could not find it (virtual POSIX path invisible to native Windows process). Recovered by writing the file via bash heredoc to a repo-relative path. No other friction; validate passed cleanly.",
-  "context_understood": "Prior analysts established Zoho as the financial and GDPR leader for a 40-seat EU logistics firm with a hard October peak deadline; procurement must close by July 1 and enforce export/price-cap clauses in a 3-year contract."
+  "problems_and_friction": "The doc.clan path in the prompt was relative to repo root but cwd was the heavy subdir, so initial reads errored until I anchored to ADF/clan. The 300-char budget was tight given six mandatory long procurement_ namespaced keys, requiring several trim passes.",
+  "context_understood": "Prior 9 analysts converged on Zoho CRM (EUR 18,240/yr, 40 seats, EU Frankfurt residency) with migration/adoption/integration as top risks; I added procurement terms (6wk lead, 3yr deal) and confirmed the export clause makes lock-in risk mitigable."
 }

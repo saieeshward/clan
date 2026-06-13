@@ -5,20 +5,21 @@
   "flow": "H1",
   "commands_run": [
     "clan read agent test-sandbox/happy/heavy/h1-clan-rep3/work/doc.clan --skip-guide",
-    "clan patch-data test-sandbox/happy/heavy/h1-clan-rep3/work/doc.clan C:/tmp/h1patch1.json --agent pricing-agent --action \"update Zoho seat price to 38\" --rationale \"New vendor quote received\"",
-    "clan validate test-sandbox/happy/heavy/h1-clan-rep3/work/doc.clan"
+    "clan read data test-sandbox/happy/heavy/h1-clan-rep3/work/doc.clan",
+    "clan patch-data test-sandbox/happy/heavy/h1-clan-rep3/work/doc.clan /tmp/h1patch1.json --agent pricing-agent --action \"update Zoho seat price to 38\" --rationale \"New vendor quote received\"",
+    "clan validate test-sandbox/happy/heavy/h1-clan-rep3/work/doc.clan",
+    "cp test-sandbox/happy/heavy/h1-clan-rep3/work/doc.clan test-sandbox/happy/heavy/h1-clan-rep3/snapshots/hop-01-pricing-update.clan"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/heavy/h1-clan-rep3/work/doc.clan", "approx_chars": 2800}
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep3/work/doc.clan", "approx_chars": 16455}
   ],
   "files_written": [
-    {"file": "C:/tmp/h1patch1.json", "chars": 49},
-    {"file": "test-sandbox/happy/heavy/h1-clan-rep3/snapshots/hop-01-pricing-update.clan", "chars": 2800},
-    {"file": "test-sandbox/happy/heavy/h1-clan-rep3/receipts/hop01-output/patch.json", "chars": 49},
-    {"file": "test-sandbox/happy/heavy/h1-clan-rep3/receipts/receipt-hop01.json", "chars": 820}
+    {"file": "/tmp/h1patch1.json", "chars": 52},
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep3/snapshots/hop-01-pricing-update.clan", "chars": 16455},
+    {"file": "test-sandbox/happy/heavy/h1-clan-rep3/receipts/hop01-output/h1patch1.json", "chars": 52}
   ],
-  "output_chars": 49,
+  "output_chars": 52,
   "errors": [],
-  "problems_and_friction": "No errors encountered. The clan tool warned that the HTML view is stale after patching data, but pack-html is forbidden per protocol so this is expected. Validation passed cleanly on first attempt.",
-  "context_understood": "Zoho CRM per-seat price drops from 45 to 38 and annual total recalculated to 18240 (38x40x12) via guided patch-data arm on a CRM platform recommendation document for Brightline Logistics."
+  "problems_and_friction": "Patch-data applied and validated (OK) without friction. Only nuisance was the persistent 'human view is stale, re-run pack-html' next-step nudge after both patch and validate, which is forbidden for this arm and was ignored; the data-bound {{}} fields meant no HTML edits were needed.",
+  "context_understood": "Drop Zoho CRM per-seat price to 38 and recompute zoho_annual_total to 18240 via a single data-only patch, leaving the hand-authored human view untouched."
 }

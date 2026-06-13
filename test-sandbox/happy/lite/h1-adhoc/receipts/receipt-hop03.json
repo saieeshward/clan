@@ -1,32 +1,32 @@
 {
-  "role": "date-update agent",
+  "role": "date-update",
   "hop": 3,
-  "arm": "h1-adhoc",
-  "flow": "happy/lite",
+  "arm": "ad-hoc",
+  "flow": "guided best-case: read work files, surgically edited data.json and report.html in place, appended decisions.log, snapshotted to snapshots/hop-03-date-update/",
   "commands_run": [
-    "mkdir snapshots/hop-03-date-update",
-    "mkdir receipts/hop03-output",
-    "cp work/report.html snapshots/hop-03-date-update/",
-    "cp work/data.json snapshots/hop-03-date-update/",
-    "cp work/decisions.log snapshots/hop-03-date-update/"
+    "printf ... >> work/decisions.log",
+    "mkdir -p snapshots/hop-03-date-update receipts/hop03-output",
+    "cp work/report.html work/data.json work/decisions.log snapshots/hop-03-date-update/",
+    "ls -la snapshots/hop-03-date-update/"
   ],
   "files_read": [
     {"file": "test-sandbox/happy/lite/h1-adhoc/work/data.json", "approx_chars": 1980},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/work/report.html", "approx_chars": 3774},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/work/decisions.log", "approx_chars": 350}
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/report.html", "approx_chars": 3917},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/decisions.log", "approx_chars": 314}
   ],
   "files_written": [
     {"file": "test-sandbox/happy/lite/h1-adhoc/work/data.json", "chars": 1980},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/work/report.html", "chars": 3774},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/work/decisions.log", "chars": 447},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/report.html", "chars": 3917},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/work/decisions.log", "chars": 413},
     {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-03-date-update/data.json", "chars": 1980},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-03-date-update/report.html", "chars": 3774},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-03-date-update/decisions.log", "chars": 447},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/receipts/hop03-output/patch.diff", "chars": 450},
-    {"file": "test-sandbox/happy/lite/h1-adhoc/receipts/receipt-hop03.json", "chars": 1200}
+    {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-03-date-update/report.html", "chars": 3917},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/snapshots/hop-03-date-update/decisions.log", "chars": 413},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/receipts/hop03-output/patch-data.json.txt", "chars": 37},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/receipts/hop03-output/patch-html.fragment.txt", "chars": 31},
+    {"file": "test-sandbox/happy/lite/h1-adhoc/receipts/hop03-output/decision.txt", "chars": 99}
   ],
-  "output_chars": 450,
+  "output_chars": 167,
   "errors": [],
-  "problems_and_friction": "None. The report.html already had the template token {{rollout_phase2_date}} in id=\"phase2\"; the inline replacement to a literal date was straightforward.",
-  "context_understood": "Hop 3 of a multi-hop revision workflow: change rollout_phase2_date from 2026-08-01 to 2026-09-15 in both data.json and report.html id=phase2, log to decisions.log, snapshot all three work files, write patch payload and receipt."
+  "problems_and_friction": "None. The change was a clean two-site date edit; both old strings were unique so surgical Edits applied without ambiguity.",
+  "context_understood": "Update rollout_phase2_date from 2026-08-01 to 2026-09-15 in data.json and the id=\"phase2\" cell in report.html, log it, and snapshot the work files."
 }

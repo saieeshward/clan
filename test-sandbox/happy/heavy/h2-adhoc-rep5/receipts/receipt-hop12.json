@@ -1,33 +1,32 @@
 {
-  "role": "AD-HOC H2 LEAD PARTNER",
+  "role": "lead-partner",
   "hop": 12,
   "arm": "adhoc",
   "flow": "H2",
   "commands_run": [
-    "mkdir -p snapshots/hop-12-lead-partner",
-    "mkdir -p receipts/hop12-output",
-    "cp work/findings.md snapshots/hop-12-lead-partner/",
-    "cp work/handoff.md snapshots/hop-12-lead-partner/",
-    "cp work/report.html snapshots/hop-12-lead-partner/",
-    "cp work/decisions.log snapshots/hop-12-lead-partner/",
-    "wc -c work/report.html work/decisions.log"
+    "mkdir -p snapshots/hop-12-lead-partner receipts/hop12-output",
+    "echo decision line >> work/decisions.log",
+    "cp findings.md handoff.md report.html decisions.log -> snapshots/hop-12-lead-partner/",
+    "cp report.html + write decision.txt -> receipts/hop12-output/",
+    "wc -c"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/work/brief.md", "approx_chars": 680},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/work/findings.md", "approx_chars": 3480},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/work/handoff.md", "approx_chars": 1780}
+    { "file": "work/brief.md", "approx_chars": 746 },
+    { "file": "work/findings.md", "approx_chars": 5071 },
+    { "file": "work/handoff.md", "approx_chars": 3627 }
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/work/report.html", "chars": 18586},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/work/decisions.log", "chars": 91},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/receipts/hop12-output/decision.txt", "chars": 91},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/snapshots/hop-12-lead-partner/findings.md", "chars": 3480},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/snapshots/hop-12-lead-partner/handoff.md", "chars": 1780},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/snapshots/hop-12-lead-partner/report.html", "chars": 18586},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep5/snapshots/hop-12-lead-partner/decisions.log", "chars": 91}
+    { "file": "work/report.html", "chars": 7111 },
+    { "file": "work/decisions.log", "chars": 91 },
+    { "file": "snapshots/hop-12-lead-partner/findings.md", "chars": 2827 },
+    { "file": "snapshots/hop-12-lead-partner/handoff.md", "chars": 1950 },
+    { "file": "snapshots/hop-12-lead-partner/report.html", "chars": 7111 },
+    { "file": "snapshots/hop-12-lead-partner/decisions.log", "chars": 91 },
+    { "file": "receipts/hop12-output/report.html", "chars": 7111 },
+    { "file": "receipts/hop12-output/decision.txt", "chars": 91 }
   ],
-  "output_chars": 18677,
+  "output_chars": 7202,
   "errors": [],
-  "problems_and_friction": "Minor shell escaping issue with double-quoted paths in bash on Windows prevented one-liner directory creation; resolved by switching to forward-slash paths. No data or logic gaps in analyst chain — all 11 inputs were consistent and pointed to Zoho.",
-  "context_understood": "Brightline Logistics (40 seats, EU, pre-October peak) needs a CRM recommendation synthesised from 11 specialist analysts; Zoho CRM at EUR 18,240 year-1 is the unanimous leading option across price, GDPR, rollout and legal dimensions, subject to contract conditions precedent."
+  "problems_and_friction": "No friction; all 11 analyst inputs were clean and non-overlapping, so synthesis was straightforward. Numbers were internally consistent (pricing, finance, and brief all agree on Zoho EUR 18,240).",
+  "context_understood": "As lead partner I synthesised 11 specialist findings into a final Zoho CRM recommendation at EUR 18,240 year-1, with top risks and full rationale, then snapshotted and logged the decision."
 }

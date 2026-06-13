@@ -1,0 +1,1 @@
+hop-04 summary-rewrite: replaced exec_summary in data.json and <p id="exec-summary"> in report.html with supplied text from h1-supplied/exec-summary.txt (Zoho CRM now leads over HubSpot)

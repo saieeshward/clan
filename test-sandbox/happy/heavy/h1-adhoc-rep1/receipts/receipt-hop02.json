@@ -4,37 +4,35 @@
   "arm": "adhoc",
   "flow": "H1",
   "commands_run": [
-    "Edit data.json — splice new risk object after last existing risk entry",
-    "Edit report.html — splice new <tr> after last existing risk row",
-    "echo >> decisions.log",
-    "mkdir -p snapshots/hop-02-risk-add",
-    "cp work/report.html snapshots/hop-02-risk-add/report.html",
-    "cp work/data.json snapshots/hop-02-risk-add/data.json",
-    "cp work/decisions.log snapshots/hop-02-risk-add/decisions.log",
-    "mkdir -p receipts/hop02-output",
-    "Write receipts/hop02-output/patch-data.json",
-    "Write receipts/hop02-output/patch-html.fragment",
-    "Write receipts/hop02-output/decision.txt"
+    "grep -n 'risk-rows' report.html",
+    "printf ... >> work/decisions.log",
+    "mkdir -p snapshots/hop-02-risk-add receipts/hop02-output",
+    "cp work/{report.html,data.json,decisions.log} snapshots/hop-02-risk-add/",
+    "ls -la snapshots/hop-02-risk-add/ receipts/",
+    "wc -c patch-data-risk.json patch-html-risk-row.html decision-rep1.txt"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/work/data.json", "approx_chars": 1490},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/work/report.html", "approx_chars": 2850},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/work/decisions.log", "approx_chars": 152}
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/work/data.json", "approx_chars": 2100},
+    {"file": "test-sandbox/happy/lite/_inputs/h1-supplied/hop02-risk-fragment.html", "approx_chars": 96},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/work/decisions.log", "approx_chars": 1390},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/work/report.html", "approx_chars": 4960},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/receipts/hop02-output/decision.txt", "approx_chars": 160},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/receipts/receipt-hop02.json", "approx_chars": 1840}
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/work/data.json", "chars": 1980},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/work/report.html", "chars": 3996},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/work/decisions.log", "chars": 358},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/snapshots/hop-02-risk-add/data.json", "chars": 1980},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/snapshots/hop-02-risk-add/report.html", "chars": 3996},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/snapshots/hop-02-risk-add/decisions.log", "chars": 358},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/receipts/hop02-output/patch-data.json", "chars": 110},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/receipts/hop02-output/patch-html.fragment", "chars": 96},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/receipts/hop02-output/decision.txt", "chars": 206},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/receipts/receipt-hop02.json", "chars": 0}
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/work/decisions.log", "chars": 152},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/snapshots/hop-02-risk-add/data.json", "chars": 2108},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/snapshots/hop-02-risk-add/report.html", "chars": 4961},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/snapshots/hop-02-risk-add/decisions.log", "chars": 1547},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/receipts/hop02-output/patch-data-risk.json", "chars": 94},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/receipts/hop02-output/patch-html-risk-row.html", "chars": 88},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep1/receipts/hop02-output/decision-rep1.txt", "chars": 147}
   ],
-  "output_chars": 412,
-  "errors": [],
-  "problems_and_friction": "No friction encountered. The surgical splice approach worked cleanly for both the JSON array append and the HTML table row insertion, with clear anchor strings to target in each file.",
-  "context_understood": "Ad-hoc arm hop 02 adds a Vendor lock-in risk entry (Medium severity, quarterly data-export mitigation) to both data.json risks[] and the report.html risk table, then snapshots and receipts the authored fragments."
+  "output_chars": 241,
+  "errors": [
+    {"what": "Risk object, HTML row, and a hop02 decisions.log entry were already present in the work files from a prior run", "recovered_by": "Treated the edit as idempotent (no duplicate rows/objects created); appended a fresh rep1 decision line and re-snapshotted current state"},
+    {"what": "decisions.log Write failed (file not read yet)", "recovered_by": "Used printf append for the log and wrote my decision text to a distinct decision-rep1.txt instead of clobbering the prior decision.txt"}
+  ],
+  "problems_and_friction": "The supplied HTML fragment matched the tbody row shape exactly so the splice was a clean one-liner, but the change was already applied in the working files, making this hop idempotent rather than a fresh edit. I only authored the risk JSON object and the decision line; the HTML row was a supplied splice, not authored.",
+  "context_understood": "Append the Vendor lock-in risk object to data.json risks[] and splice the supplied row into report.html #risk-rows tbody, then log and snapshot."
 }

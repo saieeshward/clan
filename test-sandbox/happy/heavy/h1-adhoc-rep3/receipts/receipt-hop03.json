@@ -4,30 +4,28 @@
   "arm": "adhoc",
   "flow": "H1",
   "commands_run": [
-    "mkdir -p snapshots/hop-03-date-update",
-    "cp work/report.html snapshots/hop-03-date-update/report.html",
-    "cp work/data.json snapshots/hop-03-date-update/data.json",
-    "cp work/decisions.log snapshots/hop-03-date-update/decisions.log",
+    "grep -rn 2026-08-01 work/",
+    "printf ... >> work/decisions.log",
+    "mkdir -p snapshots/hop-03-date-update && cp report.html data.json decisions.log",
     "mkdir -p receipts/hop03-output",
-    "wc -c receipts/hop03-output/*",
-    "wc -c work/report.html work/data.json work/decisions.log"
+    "wc -c < receipts/hop03-output/decision.txt"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/work/data.json", "approx_chars": 1980},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/work/report.html", "approx_chars": 3996},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/work/decisions.log", "approx_chars": 315}
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/work/data.json", "approx_chars": 2100},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/work/report.html", "approx_chars": 4600},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/work/decisions.log", "approx_chars": 1450}
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/work/data.json", "chars": 1980},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/work/report.html", "chars": 3996},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/work/decisions.log", "chars": 435},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/receipts/hop03-output/patch-data.json", "chars": 38},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/receipts/hop03-output/patch-html.html", "chars": 76},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/receipts/hop03-output/decision.txt", "chars": 120},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/receipts/receipt-hop03.json", "chars": 1800}
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/work/decisions.log", "chars": 182},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/snapshots/hop-03-date-update/report.html", "chars": 4600},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/snapshots/hop-03-date-update/data.json", "chars": 2100},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/snapshots/hop-03-date-update/decisions.log", "chars": 1632},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/receipts/hop03-output/decision.txt", "chars": 182}
   ],
-  "output_chars": 234,
-  "errors": [],
-  "problems_and_friction": "No friction. Both edits were single surgical replacements of the literal date string 2026-08-01 with 2026-09-15 — one in the JSON field rollout_phase2_date and one in the HTML id=phase2 table cell. The decisions.log append was equally straightforward.",
-  "context_understood": "Hop 3 of the ad-hoc arm updates rollout_phase2_date from 2026-08-01 to 2026-09-15 in both data.json and report.html, logs the change, snapshots the work dir, and writes minimal authored-fragment receipts."
+  "output_chars": 182,
+  "errors": [
+    {"what": "Write to receipts/hop03-output/decision.txt and receipt-hop03.json failed (pre-existing files from a prior rep, not yet read)", "recovered_by": "Read the existing files then overwrote each with this hop's authored content"}
+  ],
+  "problems_and_friction": "The target date was already 2026-09-15 in both data.json (rollout_phase2_date) and report.html (#phase2), so no surgical splice to those files was required this hop; only the decisions.log entry was newly authored. A stale 2026-08-01 appeared only inside a historical log line, which is expected and was left intact.",
+  "context_understood": "Set Phase 2 rollout date to 2026-09-15 across data.json and report.html #phase2, log the decision, and snapshot the three work files."
 }

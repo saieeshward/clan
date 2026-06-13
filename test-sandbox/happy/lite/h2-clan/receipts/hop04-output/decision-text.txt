@@ -1,0 +1,2 @@
+action: added 04-gdpr-reviewer findings
+rationale: Zoho includes EU region pinning at no extra cost; HubSpot bills it as an add-on. Both sign a DPA. Next: assess integrations.

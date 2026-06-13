@@ -2,27 +2,29 @@
   "role": "02-pricing-analyst",
   "hop": 2,
   "arm": "h2",
-  "flow": "happy/lite",
+  "flow": "guided patch-first --skip-guide",
   "commands_run": [
-    "target/release/clan.exe read agent test-sandbox/happy/lite/h2-clan/work/doc.clan --skip-guide",
-    "target/release/clan.exe patch-data test-sandbox/happy/lite/h2-clan/work/doc.clan test-sandbox/happy/lite/_inputs/h2-supplied/02-pricing-analyst.json --agent 02-pricing-analyst --action \"added 02-pricing-analyst findings\"",
-    "target/release/clan.exe patch-decision --agent 02-pricing-analyst --action \"added 02-pricing-analyst findings\" --rationale \"Zoho is cheapest at EUR18,240/yr for 40 seats vs HubSpot 24,000. Salesforce is out on cost. Next: risk-weight the two finalists.\" test-sandbox/happy/lite/h2-clan/work/doc.clan",
-    "target/release/clan.exe validate test-sandbox/happy/lite/h2-clan/work/doc.clan",
-    "cp test-sandbox/happy/lite/h2-clan/work/doc.clan test-sandbox/happy/lite/h2-clan/snapshots/hop-02-02-pricing-analyst.clan"
+    "clan read agent h2-clan/work/doc.clan --skip-guide",
+    "clan patch-data --agent 02-pricing-analyst --action \"added 02-pricing-analyst findings\" h2-clan/work/doc.clan _inputs/h2-supplied/02-pricing-analyst.json",
+    "clan patch-decision --agent 02-pricing-analyst --action \"added 02-pricing-analyst findings\" --rationale \"...\" h2-clan/work/doc.clan",
+    "clan validate h2-clan/work/doc.clan",
+    "cp h2-clan/work/doc.clan h2-clan/snapshots/hop-02-02-pricing-analyst.clan"
   ],
   "files_read": [
-    { "file": "test-sandbox/happy/lite/h2-clan/work/doc.clan", "approx_chars": 1450 },
-    { "file": "test-sandbox/happy/lite/_inputs/h2-supplied/02-pricing-analyst.json", "approx_chars": 210 },
-    { "file": "test-sandbox/happy/lite/_inputs/h2-supplied/02-pricing-analyst.handoff.txt", "approx_chars": 130 }
+    { "file": "test-sandbox/happy/lite/h2-clan/work/doc.clan", "approx_chars": 1900 },
+    { "file": "test-sandbox/happy/lite/_inputs/h2-supplied/02-pricing-analyst.json", "approx_chars": 250 },
+    { "file": "test-sandbox/happy/lite/_inputs/h2-supplied/02-pricing-analyst.handoff.txt", "approx_chars": 170 }
   ],
   "files_written": [
-    { "file": "test-sandbox/happy/lite/h2-clan/snapshots/hop-02-02-pricing-analyst.clan", "chars": 1850 },
-    { "file": "test-sandbox/happy/lite/h2-clan/receipts/hop02-output/patch-data.json", "chars": 210 },
-    { "file": "test-sandbox/happy/lite/h2-clan/receipts/hop02-output/decision.txt", "chars": 130 },
-    { "file": "test-sandbox/happy/lite/h2-clan/receipts/receipt-hop02.json", "chars": 1200 }
+    { "file": "test-sandbox/happy/lite/h2-clan/work/doc.clan", "chars": 250 },
+    { "file": "test-sandbox/happy/lite/h2-clan/snapshots/hop-02-02-pricing-analyst.clan", "chars": 2400 },
+    { "file": "test-sandbox/happy/lite/h2-clan/receipts/hop02-output/decision-rationale.txt", "chars": 168 },
+    { "file": "test-sandbox/happy/lite/h2-clan/receipts/hop02-output/action-strings.txt", "chars": 67 }
   ],
-  "output_chars": 340,
-  "errors": [],
-  "problems_and_friction": "No friction encountered. Protocol executed cleanly: orient, patch-data, patch-decision, validate, snapshot all succeeded on first attempt. Receipt directories already existed from hop 01.",
-  "context_understood": "Hop 02 adds per-seat and annual pricing for HubSpot, Zoho, and Salesforce (40-seat deal), naming Zoho cheapest at EUR18,240/yr and eliminating Salesforce on cost."
+  "output_chars": 235,
+  "errors": [
+    { "what": "first patch-data failed: change needs attribution (--agent/--action required)", "recovered_by": "re-ran patch-data with --agent and --action flags" }
+  ],
+  "problems_and_friction": "patch-data requires attribution flags (--agent/--action) just like patch-decision; the combined chained command failed on the first patch-data so I ran the steps separately. Otherwise the --skip-guide agent read was compact and the merge-patch kept prior analyst data without re-transcription.",
+  "context_understood": "I added bounded per-seat and annual pricing for HubSpot/Zoho/Salesforce (Zoho cheapest at EUR18,240/yr) and handed off to 03-risk-analyst to risk-weight the Zoho-vs-HubSpot finalists."
 }

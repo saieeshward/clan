@@ -1,3 +1,2 @@
 ## 10-procurement-reviewer
-
-Zoho is procurable in ~3 weeks on a 1-year term; key risk is ensuring EU data-residency and export-clause terms are written into the signed order form. Next: lead partner assembles the final recommendation.
+1-yr term, ~4wk procurement lead. Zoho's bundled EU pinning + quarterly export are contractable; negotiate a renewal-uplift cap. Bake-off keeps pricing honest. Next: lead partner assembles recommendation.

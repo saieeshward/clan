@@ -4,8 +4,8 @@
   "prepared_by": "Vantage Advisory",
   "prepared_date": "2026-06-01",
   "vendor_shortlist": ["HubSpot", "Zoho CRM", "Salesforce"],
-  "verdict": "HubSpot",
-  "verdict_rationale": "HubSpot's onboarding speed and native marketing suite outweigh its higher per-seat cost for a 40-seat go-live.",
+  "verdict": "Zoho CRM",
+  "verdict_rationale": "On re-evaluation, Zoho CRM delivers equivalent time-to-value at a lower 40-seat cost, with EU data residency included rather than billed as an add-on — the per-seat saving compounds across the three-phase rollout.",
   "seat_count": 40,
   "hubspot_price_per_seat": 50,
   "zoho_price_per_seat": 38,
@@ -17,7 +17,7 @@
   "rollout_phase1_date": "2026-07-01",
   "rollout_phase2_date": "2026-09-15",
   "rollout_phase3_date": "2026-09-01",
-  "exec_summary": "Brightline Logistics needs a CRM live before peak season. We evaluated three platforms against cost, time-to-value, integration depth, and data-governance fit. HubSpot is our recommendation: it reaches productive use fastest and carries the lowest integration risk for Brightline's existing stack.",
+  "exec_summary": "Brightline Logistics must have a CRM live before the October peak. After re-scoring cost against time-to-value, Zoho CRM now leads: it matches HubSpot on go-live speed for a 40-seat rollout while costing materially less per seat, and its EU data residency satisfies Brightline's governance requirements without paid add-ons.",
   "integration_count": 6,
   "key_integrations": ["NetSuite", "Slack", "Twilio", "DocuSign", "Outlook", "Shopify"],
   "data_residency_region": "EU (Frankfurt)",
@@ -28,7 +28,7 @@
     {"risk": "Migration data quality", "severity": "High", "mitigation": "Two-pass dedupe before cutover"},
     {"risk": "User adoption", "severity": "Medium", "mitigation": "Champion program + 24h training"},
     {"risk": "Integration latency on NetSuite sync", "severity": "Medium", "mitigation": "Nightly batch fallback"},
-    {"risk":"Vendor lock-in","severity":"Medium","mitigation":"Quarterly data-export clause in contract"}
+    {"risk": "Vendor lock-in", "severity": "Medium", "mitigation": "Quarterly data-export clause in contract"}
   ],
   "success_metrics": ["Lead response < 2h", "90% adoption by week 6", "Pipeline visibility for all reps"],
   "annual_savings_vs_status_quo": 18500,

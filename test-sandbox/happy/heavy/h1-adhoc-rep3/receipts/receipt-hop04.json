@@ -4,41 +4,25 @@
   "arm": "adhoc",
   "flow": "H1",
   "commands_run": [
-    "Read exec-summary.txt",
-    "Read data.json",
-    "Read report.html",
-    "Read decisions.log",
-    "Edit data.json exec_summary field",
-    "Edit report.html <p id=\"exec-summary\">",
-    "Edit decisions.log append hop-04 entry",
-    "mkdir snapshots/hop-04-summary-rewrite",
-    "cp work/report.html -> snapshots/hop-04-summary-rewrite/report.html",
-    "cp work/data.json -> snapshots/hop-04-summary-rewrite/data.json",
-    "cp work/decisions.log -> snapshots/hop-04-summary-rewrite/decisions.log",
-    "mkdir receipts/hop04-output",
-    "Write receipts/hop04-output/patch-data-exec-summary.txt",
-    "Write receipts/hop04-output/patch-html-exec-summary.txt",
-    "Write receipts/hop04-output/decision-text.txt"
+    "printf ... >> work/decisions.log",
+    "mkdir -p snapshots/hop-04-summary-rewrite && cp work/report.html work/data.json work/decisions.log snapshots/hop-04-summary-rewrite/",
+    "mkdir -p receipts/hop04-output"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/lite/_inputs/h1-supplied/exec-summary.txt", "approx_chars": 324},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/work/data.json", "approx_chars": 1987},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/work/report.html", "approx_chars": 3906},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/work/decisions.log", "approx_chars": 434}
+    {"file": "test-sandbox/happy/lite/_inputs/h1-supplied/exec-summary.txt", "approx_chars": 320},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/work/data.json", "approx_chars": 1850},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/work/report.html", "approx_chars": 3650},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/work/decisions.log", "approx_chars": 1400}
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/work/data.json", "chars": 2007},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/work/report.html", "chars": 3931},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/work/decisions.log", "chars": 599},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/snapshots/hop-04-summary-rewrite/data.json", "chars": 2007},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/snapshots/hop-04-summary-rewrite/report.html", "chars": 3931},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/snapshots/hop-04-summary-rewrite/decisions.log", "chars": 599},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/receipts/hop04-output/patch-data-exec-summary.txt", "chars": 345},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/receipts/hop04-output/patch-html-exec-summary.txt", "chars": 349},
-    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/receipts/hop04-output/decision-text.txt", "chars": 164}
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/work/decisions.log", "chars": 132},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/snapshots/hop-04-summary-rewrite/report.html", "chars": 3650},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/snapshots/hop-04-summary-rewrite/data.json", "chars": 1850},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/snapshots/hop-04-summary-rewrite/decisions.log", "chars": 1532},
+    {"file": "test-sandbox/happy/heavy/h1-adhoc-rep3/receipts/hop04-output/decision.txt", "chars": 132}
   ],
-  "output_chars": 858,
+  "output_chars": 132,
   "errors": [],
-  "problems_and_friction": "No friction. The exec_summary field in data.json and the <p id=\"exec-summary\"> element in report.html were both uniquely identifiable, making surgical splice straightforward. The supplied text was verbatim-copied with no adaptation needed.",
-  "context_understood": "Replace the executive summary in both data.json and report.html with the exact text from h1-supplied/exec-summary.txt, which shifts the recommendation from HubSpot to Zoho CRM."
+  "problems_and_friction": "The supplied exec_summary text was already present verbatim in both data.json exec_summary and report.html #exec-summary (a prior summary-rewrite hop in this rep applied it, per decisions.log line 5), so no content splice was required — only verification and a one-line decision-log entry.",
+  "context_understood": "Replace exec_summary with the supplied exact text in data.json and report.html #exec-summary; both already matched the supplied text, so I verified equality and logged rather than re-editing."
 }

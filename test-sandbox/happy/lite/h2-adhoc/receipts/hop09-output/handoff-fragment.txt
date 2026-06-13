@@ -1,3 +1,0 @@
-## 09-rollout-planner
-
-9-week phased rollout: phase-1 config/migration 2026-07-01, phase-2 marketing+onboarding 2026-09-15, phase-3 post-peak optimisation 2026-11-01. Core CRM goes live before the October peak. Champion program (4 leads, 24h training budget) targets 90% adoption. Next: lead partner to assemble the final recommendation.

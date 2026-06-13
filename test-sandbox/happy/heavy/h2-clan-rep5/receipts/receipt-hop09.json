@@ -5,22 +5,25 @@
   "flow": "H2",
   "commands_run": [
     "clan read agent test-sandbox/happy/heavy/h2-clan-rep5/work/doc.clan --skip-guide",
-    "clan patch-data test-sandbox/happy/heavy/h2-clan-rep5/work/doc.clan test-sandbox/happy/lite/_inputs/h2-supplied/09-rollout-planner.json --agent 09-rollout-planner --action \"added 09-rollout-planner findings\" --rationale \"Three phases land core CRM before the October peak with phase-2 marketing on 2026-09-15. Next: lead partner assembles the recommendation.\"",
+    "clan patch-data test-sandbox/happy/heavy/h2-clan-rep5/work/doc.clan test-sandbox/happy/lite/_inputs/h2-supplied/09-rollout-planner.json --agent 09-rollout-planner --action \"added 09-rollout-planner findings\" --rationale \"<handoff text>\"",
     "clan validate test-sandbox/happy/heavy/h2-clan-rep5/work/doc.clan",
-    "Copy-Item ...work/doc.clan ...snapshots/hop-09-09-rollout-planner.clan"
+    "cp test-sandbox/happy/heavy/h2-clan-rep5/work/doc.clan test-sandbox/happy/heavy/h2-clan-rep5/snapshots/hop-09-09-rollout-planner.clan"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep5/work/doc.clan", "approx_chars": 3200},
-    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/09-rollout-planner.handoff.txt", "approx_chars": 130},
-    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/09-rollout-planner.json", "approx_chars": 223}
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep5/work/doc.clan", "approx_chars": 20800},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/09-rollout-planner.handoff.txt", "approx_chars": 137},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/09-rollout-planner.json", "approx_chars": 216}
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep5/snapshots/hop-09-09-rollout-planner.clan", "chars": 3400},
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep5/receipts/hop09-output/patch-data.json", "chars": 223},
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep5/receipts/receipt-hop09.json", "chars": 1100}
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep5/work/doc.clan", "chars": 21316},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep5/snapshots/hop-09-09-rollout-planner.clan", "chars": 21316},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep5/receipts/hop09-output/rationale.txt", "chars": 171},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep5/receipts/receipt-hop09.json", "chars": 1700}
   ],
-  "output_chars": 223,
-  "errors": [],
-  "problems_and_friction": "Bash tool cannot run PowerShell commands (Copy-Item, Test-Path), so snapshot and directory creation required a switch to the PowerShell tool. No data or logic errors encountered.",
-  "context_understood": "Rollout planner adds 6 phase/schedule fields (phase dates, go-live-before-peak flag, total weeks, champion program) to a CRM recommendation chain document for Brightline Logistics, following 8 prior analyst hops."
+  "output_chars": 171,
+  "errors": [
+    {"what": "First clan read returned no-such-file (cwd reset between bash calls, relative path resolved off-root)", "recovered_by": "re-ran the command with cd to the repo root so the relative path resolved"}
+  ],
+  "problems_and_friction": "Snapshot and receipt files for hop09 already existed from a prior run and were overwritten; a stale cli-args.txt left in hop09-output was removed so only the genuinely authored rationale text counts as output.",
+  "context_understood": "Patch-merged the six rollout_* fields into the existing data-only doc.clan (prior analysts' keys preserved) using the handoff note as rationale, then validated and snapshotted for the lead partner to assemble the final recommendation."
 }

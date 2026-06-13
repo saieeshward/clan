@@ -5,23 +5,26 @@
   "flow": "H2",
   "commands_run": [
     "clan read agent test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan --skip-guide",
-    "clan patch-data test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan test-sandbox/happy/lite/_inputs/h2-supplied/08-finance-modeler.json --agent 08-finance-modeler --action \"added 08-finance-modeler findings\" --rationale \"Zoho saves ~EUR17,280 over 3 years with a 7-month payback. Finance leans Zoho. Next: rollout plan.\"",
+    "clan patch-data test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan test-sandbox/happy/lite/_inputs/h2-supplied/08-finance-modeler.json --agent 08-finance-modeler --action \"added 08-finance-modeler findings\" --rationale \"<handoff text>\"",
     "clan validate test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan",
     "cp test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan test-sandbox/happy/heavy/h2-clan-rep3/snapshots/hop-08-08-finance-modeler.clan"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan", "approx_chars": 3400},
-    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/08-finance-modeler.handoff.txt", "approx_chars": 92},
-    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/08-finance-modeler.json", "approx_chars": 190}
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan", "approx_chars": 18500},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/08-finance-modeler.handoff.txt", "approx_chars": 98},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/08-finance-modeler.json", "approx_chars": 210}
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan", "chars": 3580},
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep3/snapshots/hop-08-08-finance-modeler.clan", "chars": 3580},
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep3/receipts/hop08-output/patch-data.json", "chars": 190},
-    {"file": "test-sandbox/happy/heavy/h2-clan-rep3/receipts/receipt-hop08.json", "chars": 1024}
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep3/work/doc.clan", "chars": 18500},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep3/snapshots/hop-08-08-finance-modeler.clan", "chars": 18500},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep3/receipts/hop08-output/patch-data.json", "chars": 210},
+    {"file": "test-sandbox/happy/heavy/h2-clan-rep3/receipts/hop08-output/rationale.txt", "chars": 98}
   ],
-  "output_chars": 190,
-  "errors": [],
-  "problems_and_friction": "No issues encountered. Protocol was straightforward: orient, read handoff, patch, validate, snapshot. All commands succeeded on first attempt.",
-  "context_understood": "Finance modeler hop adding 7 fields for 3-year cost comparison between Zoho and HubSpot, confirming Zoho as the financially preferred vendor with EUR17,280 savings over 3 years and a 7-month payback."
+  "output_chars": 308,
+  "errors": [
+    {"what": "Initial clan read / ls reported no-such-file because cwd resets between Bash calls and relative paths were used", "recovered_by": "Prefixing every Bash command with an absolute cd into the repo root before invoking clan/ls/cp"},
+    {"what": "cp into the output dir preserved the source filename, creating a duplicate of patch-data.json", "recovered_by": "Removed the duplicate; kept patch-data.json and rationale.txt"}
+  ],
+  "problems_and_friction": "cwd resets between bash calls caused a transient false 'file not found'; resolved by always cd-ing to repo root first. The patch-first merge-patch protocol was otherwise smooth and validate returned OK.",
+  "context_understood": "I merge-patched role-namespaced finance findings (Zoho ~EUR17,280 3yr savings, 7-month payback, finance leans Zoho) into the data-only rep3 doc.clan, using the handoff note as rationale, then validated and snapshotted without touching prior analysts' data."
 }

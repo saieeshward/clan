@@ -1,0 +1,31 @@
+{
+  "role": "08-finance-modeler",
+  "hop": 8,
+  "arm": "h2-adhoc",
+  "flow": "happy/lite",
+  "commands_run": [
+    "mkdir -p test-sandbox/happy/lite/h2-adhoc/snapshots/hop-08-08-finance-modeler",
+    "cp work/findings.md snapshots/hop-08-08-finance-modeler/findings.md",
+    "cp work/handoff.md snapshots/hop-08-08-finance-modeler/handoff.md",
+    "mkdir -p test-sandbox/happy/lite/h2-adhoc/receipts/hop08-output"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/lite/h2-adhoc/work/brief.md", "approx_chars": 620},
+    {"file": "test-sandbox/happy/lite/h2-adhoc/work/findings.md", "approx_chars": 1380},
+    {"file": "test-sandbox/happy/lite/h2-adhoc/work/handoff.md", "approx_chars": 700},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/08-finance-modeler.json", "approx_chars": 195},
+    {"file": "test-sandbox/happy/lite/_inputs/h2-supplied/08-finance-modeler.handoff.txt", "approx_chars": 100}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/lite/h2-adhoc/work/findings.md", "chars": 193},
+    {"file": "test-sandbox/happy/lite/h2-adhoc/work/handoff.md", "chars": 121},
+    {"file": "test-sandbox/happy/lite/h2-adhoc/snapshots/hop-08-08-finance-modeler/findings.md", "chars": 193},
+    {"file": "test-sandbox/happy/lite/h2-adhoc/snapshots/hop-08-08-finance-modeler/handoff.md", "chars": 121},
+    {"file": "test-sandbox/happy/lite/h2-adhoc/receipts/hop08-output/findings-fragment.txt", "chars": 193},
+    {"file": "test-sandbox/happy/lite/h2-adhoc/receipts/hop08-output/handoff-fragment.txt", "chars": 121}
+  ],
+  "output_chars": 314,
+  "errors": [],
+  "problems_and_friction": "No friction encountered. Supplied JSON mapped directly to findings format. Chain state was clear and well-structured from prior hops.",
+  "context_understood": "Finance modeler role: translate prior pricing/risk/integration findings into a 3-year TCO comparison and payback calculation, leaning Zoho as the cost-optimal choice."
+}

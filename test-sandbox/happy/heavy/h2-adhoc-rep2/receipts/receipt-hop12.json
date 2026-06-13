@@ -4,28 +4,28 @@
   "arm": "adhoc",
   "flow": "H2",
   "commands_run": [
-    "mkdir -p snapshots/hop-12-lead-partner",
-    "mkdir -p receipts/hop12-output",
-    "PowerShell: Set-Content decisions.log",
-    "PowerShell: Copy-Item findings.md handoff.md report.html decisions.log to snapshots/hop-12-lead-partner"
+    "ls -la work/ receipts/ + cat decisions.log (existence/state check)",
+    "ls -la receipts/hop12-output/ snapshots/ + cat receipt-hop12.json (prior-run state)",
+    "ls + cat decision.txt + wc -c (verify snapshot/output char counts)",
+    "cp work/{findings.md,handoff.md,report.html,decisions.log} snapshots/hop-12-lead-partner/ (refresh snapshot)"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/work/brief.md", "approx_chars": 620},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/work/findings.md", "approx_chars": 5757},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/work/handoff.md", "approx_chars": 2087}
+    { "file": "work/brief.md", "approx_chars": 746 },
+    { "file": "work/findings.md", "approx_chars": 5182 },
+    { "file": "work/handoff.md", "approx_chars": 3908 },
+    { "file": "work/report.html", "approx_chars": 8805 }
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/work/report.html", "chars": 20163},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/work/decisions.log", "chars": 95},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/snapshots/hop-12-lead-partner/findings.md", "chars": 5757},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/snapshots/hop-12-lead-partner/handoff.md", "chars": 2087},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/snapshots/hop-12-lead-partner/report.html", "chars": 20163},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/snapshots/hop-12-lead-partner/decisions.log", "chars": 95},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/receipts/hop12-output/report.html", "chars": 20163},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep2/receipts/hop12-output/decisions-entry.txt", "chars": 90}
+    { "file": "snapshots/hop-12-lead-partner/findings.md", "chars": 5182 },
+    { "file": "snapshots/hop-12-lead-partner/handoff.md", "chars": 3908 },
+    { "file": "snapshots/hop-12-lead-partner/report.html", "chars": 8805 },
+    { "file": "snapshots/hop-12-lead-partner/decisions.log", "chars": 91 },
+    { "file": "receipts/receipt-hop12.json", "chars": 1772 }
   ],
-  "output_chars": 20253,
-  "errors": [],
-  "problems_and_friction": "Initial mkdir used Bash tool which failed on PowerShell syntax; switched to PowerShell tool immediately and all subsequent commands succeeded. No data gaps or ambiguities in analyst chain — all 11 inputs were self-consistent and pointed to the same conclusion.",
-  "context_understood": "Lead partner role at hop 12 of a 12-hop analyst chain: synthesise all prior findings into a final HTML recommendation report for Brightline Logistics choosing Zoho CRM at EUR 18,240/year-1, document the decision, and snapshot all artefacts."
+  "output_chars": 1772,
+  "errors": [
+    { "what": "Write report.html and receipt failed (file not read yet)", "recovered_by": "Read each existing file first; report.html was already complete and correct so it was kept, not rewritten" }
+  ],
+  "problems_and_friction": "report.html, decisions.log, the hop-12 snapshot, and hop12-output all already existed from a prior run and were correct, so no fresh authoring was needed beyond this receipt. The work findings.md/handoff.md carry each analyst block twice (duplicated set); I treated the content as canonical and re-snapshotted the current full work files so the snapshot matches them exactly.",
+  "context_understood": "Final lead-partner hop: synthesise 11 analysts into a Zoho CRM recommendation (year-1 EUR 18,240; migration/adoption/maturity/legal/procurement risks), log the decision, and snapshot the artefacts; existing artefacts already satisfied this, so I verified and refreshed rather than re-authored."
 }

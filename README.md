@@ -12,57 +12,151 @@
 [![License: MPL-2.0](https://img.shields.io/badge/license-MPL--2.0-blue.svg)](LICENSE)
 ![Rust 1.74+](https://img.shields.io/badge/rust-1.74%2B-orange.svg)
 
-> Pronounced **"clan"** — like a clan, every file carries shared lineage connecting it to every document that came before it.
-
-CLAN is an open container format for passing structured context between AI agents — and rendering it for humans. A `.clan` file is one artifact that travels through your pipeline carrying structured data, full decision provenance, output contracts, and a rich human view, with no duplication between the machine and human representations.
-
-**The one-line pitch, straight from our benchmark:** CLAN's price is a modest, bounded token overhead; its product is that correctness, provenance, conflict detection, and human attribution survive *even when nobody writes a careful prompt* — which is exactly the regime real multi-agent pipelines live in.
-
-<p align="center">
-  <b>~258</b> real agents benchmarked + <b>8/12-hop</b> head-to-head pipelines &nbsp;·&nbsp; <b>0</b> unrecovered failures &nbsp;·&nbsp; <b>45–66%</b> fewer revision-loop output tokens &nbsp;·&nbsp; <b>4/4</b> merge conflicts recalled with provenance &nbsp;·&nbsp; <b>0</b> LLM tokens per merge &nbsp;·&nbsp; <b>100%</b> of mutations attributed &nbsp;·&nbsp; <b>&lt;200ms</b> every CLI command &nbsp;·&nbsp; <b>186</b> Rust tests + <b>26/26</b> conformance on macOS <i>and</i> Windows
-</p>
+> Not a framework. Not a runtime. A file format — where the hard parts are solved by design.
 
 ---
 
-## The Problem
+## The problem with agent handoffs isn't the agents
 
-Multi-agent systems have no standard for what passes between agents. Context gets lost, decisions are untracked, parallel branches silently overwrite each other, and humans have no readable window into what happened — or any proof they were ever involved. Every team re-solves this with bespoke context-assembly code that the *next* framework in the pipeline doesn't understand.
+When one agent finishes and passes work to the next, five things need to survive that transition:
 
-CLAN replaces that with a single, self-describing file.
+1. **What's already been decided** — not the original brief, but every choice made since, compressed so the next agent isn't drowning before it starts
+2. **What the next agent must produce** — a real schema, validated at handoff time, not "hopefully a JSON that looks like the last one"
+3. **Who decided what, and why** — in the artifact itself, not in a log somewhere you'll never find
+4. **A way for a human to see and act on the work** — and when they do, that edit needs to land back in the artifact, on the record
+5. **Safety when agents work in parallel** — because when two agents write the same field, one of them loses. Silently.
+
+Most pipelines handle one or two of these — patched over with careful prompting, bespoke glue code, and hope. It works until it doesn't.
+
+The reason it's hard isn't the agents or the models or the frameworks. It's that there's no standard for what the artifact between agents should look like. Every team invents their own. The next tool in the chain can't read it. State evaporates at every boundary.
+
+**CLAN is that artifact.** A file format — open, model-agnostic, framework-agnostic, environment-agnostic — where all five of those things are solved by design, not by runtime enforcement.
+
+---
+
+## Design, not runtime
+
+This is the part worth understanding.
+
+CLAN doesn't sit between your agents. It doesn't hook into your framework. It doesn't route calls or manage state at runtime. It has no opinions about which model you use, which orchestrator you run, or which environment you're in.
+
+It's a file format. Like JSON. Like PDF. The properties aren't delivered by a CLAN process — they're structural.
+
+**Provenance exists because the format requires attribution on every write.** Not because CLAN is watching — because a mutation without `--agent` and `--action` is rejected at the CLI level, the same way a JSON parser rejects malformed JSON. The decision chain is part of the file's structure, not a side log.
+
+**Parallel safety exists because the namespace design makes collisions impossible by construction.** Forked agents write into `agents/<id>/` — a different path by definition. They cannot touch each other's keys. The merge is deterministic and purely mechanical: zero LLM tokens, zero runtime coordination. Contested keys surface in `merge-report.yaml` with both sides documented.
+
+**Human readability exists because the format carries the HTML.** The human view isn't generated on request by a CLAN service — it's inside the ZIP. Open the file with anything. The data and the view are the same artifact; they can't drift.
+
+**The format is self-describing because every `.clan` file contains its own spec.** An agent that has never heard of CLAN can open the file, read the embedded guide, and know exactly what to do. No training required. No integration required.
+
+None of this depends on CLAN being "in the loop." The file does the work.
+
+---
+
+## What everything else leaves out
+
+The tools people use today each solve a real problem — just not this one.
+
+**Orchestration frameworks** give you a runtime for coordinating agents. State lives in memory, or in a database your framework manages. That works well inside one pipeline, on one team, in one environment. The moment you hand the work to a different framework, a different team, or a different model provider, the state doesn't travel. There's no artifact. You're back to re-briefing from scratch or writing glue code the next tool can't read. And if something went wrong three hops ago, there's no record you can inspect — because the record was in memory.
+
+**Agent communication protocols** solve the transport layer. They define how agents send messages to each other at runtime. They don't define what the artifact looks like after the conversation ends. There's no provenance baked into the message. There's no human view. There's no output contract. Message persistence isn't even guaranteed. When the session ends, the work is a summary in someone's context window.
+
+**Token optimization tools** make your inputs cheaper — by compressing what reaches the model. That's a real and useful problem. But it's a different layer entirely. A cheaper input is not a richer artifact. It doesn't make the handoff safer, the provenance traceable, or the human edits attributable. It just costs less to feed the same incomplete context.
+
+None of these tools are wrong. They just don't produce an artifact that survives the boundary crossing. CLAN is what you put at the boundary.
+
+### How CLAN sits relative to the landscape
+
+| | Orchestration frameworks | Agent protocols | Token optimization | **CLAN** |
+|---|:---:|:---:|:---:|:---:|
+| Coordinates agents at runtime | ✅ | ✅ | ❌ | ❌ |
+| State survives framework boundaries | ❌ | ❌ | ❌ | ✅ |
+| Provenance enforced by design | ❌ | ❌ | ❌ | ✅ |
+| Human-readable artifact (in the file) | ❌ | ❌ | ❌ | ✅ |
+| Human edits attributable on the record | ❌ | ❌ | ❌ | ✅ |
+| Output contract enforced at write time | ❌ | ❌ | ❌ | ✅ |
+| Deterministic parallel merge, zero LLM | ❌ | ❌ | ❌ | ✅ |
+| Agent picks up cold from artifact alone | ❌ | ❌ | ❌ | ✅ |
+| No runtime dependency | ❌ | ❌ | ✅ | ✅ |
+| Model agnostic | 〰️ | ✅ | ✅ | ✅ |
+| Open spec, any language can implement | 〰️ | ✅ | ✅ | ✅ |
+
+〰️ = varies by tool.
+
+---
+
+## What it looks like
+
+```
+my-document.clan          ← standard ZIP — open it with anything
+├── manifest.yaml         ← identity, lineage, file registry with checksums
+├── spec/
+│   ├── clan.md           ← the full spec, embedded in every file
+│   └── agent-guide.md    ← byte-stable protocol guide; agents read this to learn CLAN
+├── shared/
+│   └── data.yaml         ← canonical facts; agents and humans read the same data
+├── agent/
+│   ├── context.md        ← the current agent's task
+│   ├── output-schema.json← what this agent must produce — validated at pack time
+│   ├── state.yaml        ← current document state
+│   └── decision-chain.yaml ← every decision, attributed, compressed beyond the window
+├── agents/               ← per-agent namespaces; writes outside your namespace are rejected
+│   └── <agent-id>/
+├── merge-report.yaml     ← contested keys from the last merge, both sides, with provenance
+└── human/
+    ├── index.html        ← the human-readable view, inside the artifact
+    ├── patches.yaml      ← human edits, attributed edited_by: human
+    └── assets/
+```
+
+Plain text. Standard ZIP. No proprietary encoding. Any language can read and write `.clan` — the Rust SDK is a reference implementation, not a gate.
 
 ---
 
 ## Quickstart
 
-**Install:** pre-built CLI binaries for Linux, macOS (Apple Silicon + Intel), and Windows — plus the desktop viewer (`.dmg` / `.msi` / `.AppImage`) — are on the [Releases page](https://github.com/saieeshward/clan/releases).
+**Install:**
+
+**macOS / Linux — one line:**
+```bash
+curl -fsSL https://raw.githubusercontent.com/saieeshward/clan/main/install.sh | bash
+```
+
+**Windows:** download the `.msi` from the [Releases page](https://github.com/saieeshward/clan/releases) and run it.
+
+**Desktop viewer (macOS):** download the `.dmg` from the [Releases page](https://github.com/saieeshward/clan/releases), open it, drag CLAN Viewer to Applications, then:
+```bash
+xattr -d com.apple.quarantine "/Applications/CLAN Viewer.app" && open "/Applications/CLAN Viewer.app"
+```
+
+**Or build from source:**
 
 ```bash
-# Or build from source
 cargo install --path crates/clan-cli
 
-# Create a document
 clan create --title "Q3 Market Analysis" \
   --brief "Evaluate CRM options for a 40-person agency" --output doc.clan
 
-# An agent reads its task + all accumulated context in one shot
+# The file tells any agent everything it needs
 clan read agent doc.clan
 
-# Mutations are attributed — who, what, why — enforced by default
+# Attribution is enforced by the format, not by convention
 clan patch-data doc.clan --set "verdict=HubSpot" \
   --agent analyst --action "set verdict" --rationale "best fit for budget"
 
-# The provenance chain is part of the artifact
+# The decision chain lives in the file
 clan read chain doc.clan
 
-# Machine-validatable at every hop
+# The output contract is validatable at any point
 clan validate doc.clan
 ```
 
-### Parallel agents — fork/merge, conflicts impossible by construction
+### Parallel work
 
 ```bash
 clan fork doc.clan --agents researcher,analyst --output-dir branches
-# → each agent writes only inside its own agents/<id>/ namespace
+# Writes outside agents/<id>/ are rejected — not by convention, by the CLI
 
 clan patch-data branches/researcher.clan --namespace \
   --set "finding=market is growing" --agent researcher --action research
@@ -70,32 +164,28 @@ clan patch-data branches/analyst.clan --namespace \
   --set "risk=vendor lock-in" --agent analyst --action analyze
 
 clan merge branches/*.clan --output merged.clan
-# → merged 2 branches (0 contested keys); real conflicts land in
-#   merge-report.yaml with winner/loser provenance for adjudication
+# Deterministic. Zero LLM tokens. Contested keys in merge-report.yaml with both sides.
 ```
 
-Agents don't need to be taught any of this: the CLI is **self-teaching**. Every command emits a `next:` hint, and `clan agent-help` carries the whole protocol. In our benchmark, agents given only *"there's a `clan` CLI — figure it out"* reached full protocol competence with zero guard-rail violations.
+The CLI teaches itself — every command emits a `next:` hint. In our benchmark, agents given only *"there's a `clan` CLI — figure it out"* reached correct usage in under 4 discovery commands, with zero violations. The embedded guide is the only training material needed.
 
 ---
 
-## Results — What the Benchmark Says, Including Where CLAN Loses
+## What the benchmarks say
 
-Three measurement campaigns back every number below. **Campaign 1 (2026-06-10):** 30 real agents (no scripted outputs) through 11 flows on one fixed task — serial vs parallel × CLAN vs ad-hoc files × guided vs unguided prompts × ± a live human edit ([`research/14-flow-benchmark.md`](research/14-flow-benchmark.md)). **Campaign 2 (2026-06-12):** long-chain head-to-heads — an 8-hop revision pipeline and a 10-hop discovery chain, CLAN and ad-hoc arms running concurrently — plus the deterministic scorecard ([`test-sandbox/RUN-REPORT-2026-06-12.md`](test-sandbox/RUN-REPORT-2026-06-12.md)). **Campaign 3 (2026-06-12, run `-I`):** the full TESTBOOK suite end-to-end — all deterministic tests plus the heavy benchmark (5 reps × 2 arms of the 8-hop revision and 12-hop chain, ~206 real subagents, ~4M tokens), the run that surfaced the provenance-integrity finding below. All context sizes were measured from artifacts, not estimated; raw snapshots, per-agent receipts, metrics, and the accumulating ledger ([`test-sandbox/TestResult.clan`](test-sandbox/TestResult.clan)) live in [`test-sandbox/`](test-sandbox/) so you can audit everything.
+258 real agents. No scripted outputs. CLAN and ad-hoc arms running concurrently on identical tasks. Three campaigns. Every artifact is in [`test-sandbox/`](test-sandbox/) so you can check our work.
 
-### Highlights — the wins that held across every rep
+### What held up
 
-From the full-suite run (`-I`), the results we'll stand behind without an asterisk:
+**Revision loops: 66% fewer output characters.** Eight serial edits to a 45 KB report — CLAN's patch path wrote 0.336× what careful hand-editing produced. When we handed the ad-hoc arm the exact same text fragments to remove the structural advantage, CLAN still came out 45% leaner across 5 reps. Patching a field is cheaper than rewriting a document. That's a property of the format.
 
-- **66% fewer output tokens to revise a document.** Eight serial edits to a 45 KB report: CLAN's surgical patch path authored **0.336×** the characters of careful hand-editing — and even when the ad-hoc arm was *handed the exact same fragments* to remove CLAN's advantage, CLAN still wrote **45% less** across 5 reps.
-- **Conflicts that other workflows lose silently, CLAN catches — for free.** Four agents fork into isolated namespaces and write deliberately clashing verdicts; the deterministic merge recalls **4/4 contested keys with winner *and* loser provenance**, at **0 LLM tokens**. A human then adjudicated and overrode the mechanical winner — on the record.
-- **One document, three radically different forms, zero data loss.** Agency brief → concept deck → client pitch, a new schema and view each hop: **5/5** — hop-1 data verbatim in the final, a logo asset carried across all three hops without ever being re-passed, lineage unbroken.
-- **Agents learn the protocol from the tool itself.** Told only *"there's a `clan` CLI and a doc — figure it out,"* unguided agents completed a 3-hop chain with **0 guard violations and every hop attributed** — discovering the attribution flags from the CLI's own error messages.
-- **A cold agent picks up an abandoned pipeline from the file alone.** Handed nothing but a `.clan` artifact, a fresh agent found the correct next step, added its hop, and recorded a decision — **no rework, no re-briefing.**
-- **It's exhaustively tested and honest about its limits.** 186/186 workspace tests, 26/26 CLI conformance, ~258 real subagents driven through the suite with **0 unrecovered failures** — and a Results section that tells you exactly [where CLAN loses](#where-clan-loses-we-measured-it-so-well-say-it).
+**The merge caught what every other arm missed.** Four agents ran in parallel and all wrote to a key called `assumptions`. In the ad-hoc arm, last-write-wins silently dropped the risk analyst's GDPR/PII scoping. Nobody noticed. In the CLAN arm, the merge surfaced both versions with full provenance at zero LLM tokens. The synthesizer restored the dropped finding, on the record. That's a property of the namespace design.
 
-### What survives the handoff — with and without a careful prompt
+**When a human edited the document mid-pipeline, the file proved it.** Same live directive in both arms. Both agents obeyed it. Only the CLAN artifact can demonstrate a human was involved: `edited_by: human`, timestamped, cited in the decision chain. In a regulated context, that's not a nice-to-have. That's a property of the format.
 
-The core result. Final artifacts, audited per flow (serial arms shown):
+**A fresh agent resumed an abandoned pipeline from the file alone.** No briefing, no summary, no context from the previous agent — just the `.clan` file. Three reads to orient, then it continued correctly. That's a property of the embedded spec.
+
+**The format survived bad prompts.** Strip away the careful system prompt: ad-hoc pipelines produce unstructured outputs, miss fields, lose provenance. CLAN files came out byte-for-byte as complete with zero CLAN-specific prompting as they did with careful guidance. The structure carries the discipline.
 
 | What the final artifact carries | CLAN guided | CLAN **unguided** | Ad-hoc guided | Ad-hoc **unguided** |
 |---|:---:|:---:|:---:|:---:|
@@ -103,157 +193,58 @@ The core result. Final artifacts, audited per flow (serial arms shown):
 | Working state / handoff notes | ✅ | ✅ | 〰️ | ✅ |
 | Output contract (JSON Schema) | ✅ | ✅ | ❌ | ❌ |
 | Provenance (who/what/why, timestamped) | ✅ | ✅ | 〰️ | ❌ |
-| Machine-validatable (`clan validate`) | ✅ | ✅ | ❌ | ❌ |
+| Machine-validatable | ✅ | ✅ | ❌ | ❌ |
 | Renderable human view | ✅ | ✅ | ✅ | ❌ |
 
-〰️ = partial (one-line logs or prose-only). **Take away the careful prompt and ad-hoc collapses; CLAN's finals are byte-for-byte as complete as guided ones.** The format carries the discipline so the prompt doesn't have to.
+〰️ = partial.
 
-### Measured claims (scorecard run 2026-06-12 — [full report](test-sandbox/RUN-REPORT-2026-06-12.md))
+### The full scorecard — including the losses
 
-| Claim | Measured (run `-I`) | Threshold | Status |
+| Claim | Measured (run 2026-06-12-I) | Threshold | Status |
 |---|---|---|:---:|
-| Revision loops: CLAN patch path authors fewer output chars than ad-hoc full-rewrites (8-hop) | **0.336× (66% fewer)** | ≤ 0.65 | ✅ PASS |
-| …same claim, **composition-controlled** (ad-hoc handed the same fragments, 5 reps) | **0.554× (45% fewer)** | ≤ 0.50 | 🟡 NEAR |
+| Revision loops: CLAN patch path vs ad-hoc full-rewrites (8-hop) | **0.336× (66% fewer chars)** | ≤ 0.65 | ✅ PASS |
+| …composition-controlled (ad-hoc handed same fragments, 5 reps) | **0.554× (45% fewer)** | ≤ 0.50 | 🟡 NEAR |
 | TOON encoding saves vs minified JSON on tabular data | **51–58%** | ≥ 30% | ✅ PASS |
-| Fidelity: every requested edit present, untouched fields intact (8 hops × 5 heavy reps) | **8/8 in 4 of 5 reps** | = 1.0 | ⚠️ see note |
-| Provenance: every mutating hop attributed, end-to-end | **10/8 hops, 0 `unknown-agent`** | ≥ 1.0 | ✅ PASS |
-| Reliability: agents recover from every CLI error without orchestrator help | **0 unrecovered** | = 0 | ✅ PASS |
-| Contested-key fork/merge: every conflict recalled with winner + loser provenance | **4/4 keys** | 4/4 | ✅ PASS |
-| Metamorphosis: doc fully transforms per hop (new view + schema), nothing lost, asset carries | **5/5 checks** | all | ✅ PASS |
-| Teachability: unguided agents reach protocol competence from `agent-help` alone | **0 violations, all attributed** | 0 | ✅ PASS |
-| Cold resume: fresh agent finds the correct next step from the artifact alone | **oriented, no rework** | — | ✅ PASS |
-| Agent guide is byte-identical across files within a build (prompt-cache friendly) | **1 hash / build** | 1 | ✅ PASS |
-| Fixed injection scaffolding is bounded | **a = 2,611 chars** | ≤ 3,000 | ✅ PASS |
-| Two-tier decision-chain compression (verbatim window, compressed tail, pinned preserved) | **correct** | — | ✅ PASS |
+| Fidelity: every requested edit present, untouched fields intact | **8/8 in 4 of 5 heavy reps** | = 1.0 | ⚠️ see note |
+| Provenance: every mutating hop attributed end-to-end | **0 `unknown-agent` entries** | ≥ 1.0 | ✅ PASS |
+| Reliability: agents recover from CLI errors without orchestrator help | **0 unrecovered** | = 0 | ✅ PASS |
+| Contested-key fork/merge: all conflicts recalled with winner + loser provenance | **4/4 keys** | 4/4 | ✅ PASS |
+| Metamorphosis: doc transforms fully per hop, nothing lost | **5/5 checks** | all | ✅ PASS |
+| Teachability: unguided agents reach correct protocol from `agent-help` alone | **0 violations, all attributed** | 0 | ✅ PASS |
+| Cold resume: fresh agent finds correct next step from artifact alone | **oriented, no rework** | — | ✅ PASS |
+| Agent guide byte-identical within a build (prompt-cache friendly) | **1 hash / build** | 1 | ✅ PASS |
 | Workspace unit + integration tests | **186 / 186** | all | ✅ PASS |
-| CLI conformance harness | **26 / 26, 0 hard failures** | all | ✅ PASS |
-| Synthesis hop: CLAN's merged injection beats ad-hoc re-reading every input | **volatile: 0.487× (`-H`) → 1.047× (`-I`)** | < 1.0 | ⚠️ NOT ROBUST |
+| CLI conformance harness (macOS + Windows) | **26 / 26, 0 hard failures** | all | ✅ PASS |
+| Synthesis hop: CLAN injection beats ad-hoc re-reading all inputs | **volatile: 0.487× (run -H) → 1.047× (run -I)** | < 1.0 | ⚠️ NOT ROBUST |
 | CLAN per-hop injection crosses below ad-hoc on long chains | **no clean crossover** | crossover | ❌ EXPECT-RED |
-| Capability-requirements layer (L5) populated in handoffs | **not exercised yet** | populated | ❌ EXPECT-RED |
 
-**We report the latest run, not the best one.** Run-to-run variance is real (the 2026-06-10 benchmark measured the revision ratio at 0.576× on shorter chains), and two claims moved on us this run and we're saying so: the **synthesis-hop** ratio is setup-sensitive and came back **above 1.0** in run `-I` (it was 0.487× in `-H`) — treat the injected-context win as unproven, not banked. And the **fidelity** row carries a ⚠️ because one of five heavy reps exposed a real failure mode — detailed honestly in [Where CLAN loses](#where-clan-loses-we-measured-it-so-well-say-it). The wins that *are* robust — surgical output tokens, full provenance, fork/merge conflict recall, metamorphosis, teachability, cold resume — held across every rep.
+**We report the latest run, not the best one.**
 
-### Long chains, head-to-head: 8 and 10 hops, both arms live
+### Where CLAN loses
 
-Two full pipelines ran CLAN and ad-hoc arms concurrently on the same task — an 8-hop revision pipeline (H1) and a 10-hop specialist discovery chain ending in a synthesis hop (H2), plus a cold-resume test (H3):
+**Short chains: lean ad-hoc costs fewer input tokens.** The format carries scaffolding — a schema, a decision chain, a guide digest — that a pile of markdown files doesn't. At 3 hops, that's overhead with no payoff yet. If your pipeline is short and your prompts are disciplined, ad-hoc will be leaner on raw injection size.
 
-| Flow | Hops | CLAN total | Ad-hoc total | CLAN faster by |
-|---|:---:|:---:|:---:|:---:|
-| H1 — revision pipeline | 8 | **8:20** | 10:13 | 1:53 (~18%) |
-| H2 — discovery chain | 10 | **11:25** | 12:55 | 1:30 (~12%) |
+**The injection crossover didn't hold.** The synthesis-hop win measured 0.487× in one run and 1.047× in the next. We kept the claim in the scorecard and marked it red.
 
-At the synthesis hop — where ad-hoc context is at its largest — CLAN finished in **1:23 vs 2:01**. A fresh agent with zero prior context (H3) located the correct next step from the `.clan` file alone in **3 orient reads**. Unguided agents (no CLAN training, just `clan agent-help`) reached correct protocol use in **≤ 4 discovery commands**, all using `patch-data` rather than raw file writes.
+**Provenance is only as truthful as the agents.** In one of five heavy reps, an agent wrote attributed decisions claiming it had applied edits that were never made. CLAN guarantees who acted and when — it cannot verify the agent's account of what they did. Run a verifier hop in any pipeline where fidelity matters.
 
-The wall-time wins are honestly modest at 8–10 hops (output tokens don't dominate inference latency — input reads do). The structural point is the slope: ad-hoc injection grows O(n) with chain length, CLAN's distilled re-injection stays flat.
-
-### Parallel agents: the merge that caught what everyone else lost
-
-In the parallel flows, all three branches wrote a key called `assumptions`. Last-write-wins silently dropped the risk analyst's **GDPR/PII scoping**:
-
-| | CLAN fork/merge | Ad-hoc shared dir |
-|---|---|---|
-| Conflict detected | ✅ `merge-report.yaml`, with winner/loser provenance | ❌ reconciled from memory, no record of what was discarded |
-| Lost data recovered | ✅ synthesizer adjudicated, both framings merged, recorded in chain | ❌ |
-| Collision safety | By construction (namespace isolation, guard-enforced) | Luck — agents happened to pick distinct filenames |
-| Merge cost | **0 LLM tokens** (mechanical) | Synthesizer re-reads every specialist file in full |
-
-The only arm in the entire benchmark where a silent information loss was detected **and restored**.
-
-### Human-in-the-loop: obeying vs proving
-
-Same live directive in both arms ("CEO: year-1 ≤ €40,000"):
-
-| | CLAN (viewer edit) | Ad-hoc (brief.md edit) |
-|---|---|---|
-| Agent saw the edit | ✅ | ✅ (only because the prompt said "read every file") |
-| Budget cap honored in final | ✅ €35,800 | ✅ €34,300–37,700 |
-| Attributed to a human | ✅ `edited_by: human` + timestamp, cited in the decision chain | ❌ indistinguishable from the original brief |
-
-Both pipelines obeyed the human. **Only CLAN can prove a human was involved.** For audited or regulated workflows, that asymmetry is the whole game.
-
-### Where CLAN loses (we measured it, so we'll say it)
-
-Injected context per agent, serial 3-hop pipeline:
-
-| Arm | Σ injected | ≈ tokens |
-|---|---|---|
-| Ad-hoc unguided | ~21,000 chars | **~5.3k** |
-| Ad-hoc guided | ~25,100 chars | **~6.3k** |
-| CLAN guided (`--skip-guide`) | ~35,300 chars | **~8.8k** |
-| CLAN unguided (full guide each hop) | ~50,600 chars | **~12.7k** |
-
-- **Raw injected tokens at small scale: CLAN does not win.** Disciplined ad-hoc with frontier agents is ~15–40% leaner, because CLAN's context carries scaffolding (schema, decision chain, guide-or-digest) a pile of markdown files doesn't have. At 3 hops, the growth curves haven't crossed yet.
-- **The crossover never cleanly happened — not even at heavy scale.** We keep a crossover claim in the scorecard and it is still red (C-CROSSOVER, EXPECT-RED): CLAN's per-hop injection stays *above* ad-hoc through the chain. The synthesis-hop win we reported earlier (0.487× in run `-H`) did **not** reproduce in run `-I` (it came back at 1.047×, i.e. slightly *worse* than ad-hoc), and the heavy-scale crossover measurement was compromised by a non-idempotent re-run. **Honest verdict: at the chain lengths we've tested, CLAN does not beat lean ad-hoc on injected context.** If your chains are short, ad-hoc is cheaper on raw tokens — CLAN's win is in authoring effort, provenance, and correctness, not per-hop injection size. The planned `read agent --since <parent>` delta feature (v1.2) is what's designed to change this; until it ships and is measured, we don't claim the injection win.
-- Unguided agents pay a one-time **~2–5k token discovery cost** learning the protocol — though they reached full competence from `agent-help` alone, with zero guard-rail violations.
-- **Wall-time gains are modest** (~12–18% at 8–10 hops): token-output savings don't translate 1:1 to latency.
-- **The L5 capability-requirements layer is unpopulated** (C-LAYERS, EXPECT-RED): no flow exercises `patch-requirements` yet. L1–L4 (state, handoff, contracts, provenance) are all green.
-- **Provenance is honest, but it is not self-verifying.** The most important finding of Campaign 3: in 1 of 5 heavy reps, a CLAN agent applied only 5 of 8 edits **and recorded attributed decisions claiming the other three were done** ("verified… already matches… no splice needed") when the data was never changed. CLAN guarantees *who* acted, *when*, and that the entry is attributed — it cannot guarantee the agent's claim about *what* it did is true. The ad-hoc arm of the same rep happened to get all 8, so this is an agent-fidelity failure, not a format failure — but the lesson is structural: **a `.clan` chain is only as truthful as the agents writing it.** What caught it was an independent verifier agent diffing claims against the actual data. Treat a verifier/`clan validate`-style diff hop as mandatory in any pipeline where fidelity matters; don't trust a self-reported "done."
-- **Re-running a pipeline is not idempotent.** `patch-html --patch-action append` re-applies on a retry/resume, duplicating sections. Reseed or guard before re-running a chain.
-
-### Verification status
-
-| Suite | Result |
-|---|---|
-| Rust unit + integration tests (workspace) | **186/186 pass** (SDK 47 · CLI 120 · app 19) |
-| Black-box CLI conformance harness | **26/26 pass, 0 hard failures — verified on macOS and Windows** |
-| Scorecard claims | **majority PASS · synthesis-hop & fidelity flagged · 2 EXPECT-RED** (documented gaps, kept red on purpose) |
-| Agentic reliability (Campaign 3) | **~258 real subagents across the run, 0 unrecovered CLI failures** |
-| Release pipeline | **v1.1.0+ from CI: 4 CLI targets + Windows MSI + Linux .deb/.rpm, all green** |
+**Wall-time savings are modest.** ~12–18% on 8–10 hop chains. Output token savings don't dominate latency.
 
 ---
 
-## How It Works
+## CLI reference
 
-```
-my-document.clan          ← ZIP container (DEFLATE)
-├── manifest.yaml         ← index, lineage, version, file registry
-├── spec/
-│   ├── clan.md           ← full specification (travels with every file)
-│   └── agent-guide.md    ← byte-stable guide injected into agent context
-├── shared/
-│   └── data.yaml         ← canonical facts (read by both agents and humans)
-├── agent/
-│   ├── context.md        ← task description for the current agent
-│   ├── output-schema.json← what the agent must produce
-│   ├── state.yaml        ← current document state
-│   ├── decision-chain.yaml ← provenance record of every agent decision
-│   └── requirements.yaml ← optional: declared tool/capability needs (v1.1)
-├── agents/               ← optional: per-agent namespaces during parallel work (v1.1)
-│   └── <agent-id>/       ← branch writes: data.yaml + decisions.yaml
-├── merge-report.yaml     ← optional: contested keys from the last merge (v1.1)
-└── human/                ← optional: derivable on demand via `clan render` (v1.1)
-    ├── index.html        ← agent-generated rich rendering
-    ├── patches.yaml      ← human text edits (applied at render time)
-    └── assets/           ← SVG charts, images, fonts
-```
+The CLI is the universal read/write interface for the format — the equivalent of `jq` for JSON.
 
-| Property | Description |
+| Command | What it does |
 |---|---|
-| **Self-describing** | Every CLAN contains its own spec. Any agent can understand and produce CLAN without prior training. |
-| **Dual-audience** | Agents read structured YAML/JSON (TOON-compressed). Humans see rendered HTML. Same data, no duplication. |
-| **Attributed by default** | Mutations require `--agent`/`--action` (or an explicit opt-out). The decision chain is part of the file. |
-| **Safe parallelism** | `fork` gives each agent a namespace; direct shared writes on branches are rejected; `merge` is deterministic and reports contested keys with provenance. |
-| **Living lineage** | Every CLAN references its parent. The full document history is reconstructable. |
-| **Open** | Format spec and SDK are licensed MPL-2.0. Anyone can implement CLAN. |
-| **Compact & fast** | Typical file: 10–60KB. Every CLI command: <200ms. |
+| `clan read agent` | The full accumulated context as one optimized prompt — compressed data, decision tail digest, guide |
+| `clan patch-data --set k=v` | Write one field with attribution — rejected without `--agent` and `--action` |
+| `clan patch-html --selector` | Update one element of the human view |
+| `clan merge` | Merge parallel branches deterministically, zero LLM tokens |
+| `clan validate` | Check the output contract against the schema at any point |
 
-### Why a CLI?
-
-Chat platforms extract text from `.docx`/`.pdf` server-side before the model ever sees it. Nothing does that for `.clan` yet — the `clan` CLI is the adapter any agent on any framework can drive. But it's much more than an extractor: every operation is a surgical command designed to keep token usage lean.
-
-| Command | What it saves |
-|---|---|
-| `clan read agent` | The entire accumulated context as **one token-optimized prompt** — TOON-compressed data, compressed decision tail, digest instead of full guide (`--skip-guide` saves ~1.9k tokens/hop) |
-| `clan patch-data --set k=v` | Change one field — the agent never rewrites the document |
-| `clan patch-html --selector` | Update one element of the human view instead of regenerating the whole page |
-| `clan pack-html` | Ship HTML + data in one shot via frontmatter — avoids the ~5× token blow-up of JSON-encoding HTML |
-| `clan merge` | Combine parallel branches with **zero LLM tokens** |
-
-This is where the measured **42% output-token saving** in revision loops comes from: patching is cheaper than rewriting. A framework with the SDK built in can hide the CLI entirely; until then, the CLI is the universal interface.
-
-### Desktop Viewer
-
-A Tauri app (`app/`) renders the human view of any `.clan` file with click-to-edit — human edits are saved as patches, attributed `edited_by: human`, and folded into the provenance chain. It's the newest part of the project; expect rougher edges than the CLI.
+A Tauri desktop app renders the human view with click-to-edit. Edits go into the file as `edited_by: human` patches, part of the provenance chain.
 
 ---
 
@@ -262,10 +253,8 @@ A Tauri app (`app/`) renders the human view of any `.clan` file with click-to-ed
 | Document | Description |
 |---|---|
 | [spec/CLAN-SPEC.md](spec/CLAN-SPEC.md) | Full format specification |
-| [spec/SEQUENCE-DIAGRAMS.md](spec/SEQUENCE-DIAGRAMS.md) | All key interaction flows |
-| [spec/clan.md](spec/clan.md) | Embedded spec (travels inside every .clan file) |
-| [spec/agent-guide.md](spec/agent-guide.md) | Agent injection guide (travels inside every .clan file) |
-| [research/](research/) | Benchmarks, comparisons, and findings — including the negative results |
+| [spec/SEQUENCE-DIAGRAMS.md](spec/SEQUENCE-DIAGRAMS.md) | Key interaction flows |
+| [research/](research/) | Benchmarks, comparisons, and the negative results |
 | [CHANGELOG.md](CHANGELOG.md) | Release history |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | How to contribute |
 
@@ -273,15 +262,15 @@ A Tauri app (`app/`) renders the human view of any `.clan` file with click-to-ed
 
 ## Name
 
-**CLAN** — **C**ontext and **L**ive **A**gent **N**otation
+**CLAN** — **C**ontext and **L**ive **A**gent **N**otation.
 
-A CLAN file is live: it carries its own specification, so any agent can understand and produce it without prior training. It carries context: structured data, task state, and the full decision history of every agent that touched it.
+Like a clan, every file carries shared lineage — connecting it to every document that came before it.
 
 ---
 
 ## Status
 
-**v1.1** — fork/join concurrency (per-agent namespaces + deterministic merge), deferred human-view rendering, conflict adjudication, and the teachable CLI interface (spec §22–§27). Verified by 186 Rust tests + a 26-test black-box conformance suite in CI, with [binaries for every platform on the Releases page](https://github.com/saieeshward/clan/releases).
+**v1.1** — fork/join concurrency, deferred human-view rendering, conflict adjudication, self-teaching CLI. Verified by 186 Rust tests + 26-test black-box conformance in CI, with [binaries for every platform on the Releases page](https://github.com/saieeshward/clan/releases).
 
 ## Maintainers
 

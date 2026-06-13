@@ -1,0 +1,29 @@
+{
+  "role": "risk-add",
+  "hop": 2,
+  "arm": "guided",
+  "flow": "patch-data → patch-html",
+  "commands_run": [
+    "clan read agent test-sandbox/happy/lite/h1-clan/work/doc.clan --skip-guide",
+    "clan read data test-sandbox/happy/lite/h1-clan/work/doc.clan",
+    "clan patch-data test-sandbox/happy/lite/h1-clan/work/doc.clan '{...full risks array...}' --agent hop-02-risk-add --action 'Add vendor lock-in risk'",
+    "clan patch-html test-sandbox/happy/lite/h1-clan/work/doc.clan - --selector '#risk-rows' --patch-action append --agent hop-02-risk-add --action 'Add vendor lock-in risk row'",
+    "clan validate test-sandbox/happy/lite/h1-clan/work/doc.clan",
+    "cp test-sandbox/happy/lite/h1-clan/work/doc.clan test-sandbox/happy/lite/h1-clan/snapshots/hop-02-risk-add.clan"
+  ],
+  "files_read": [
+    {"file": "test-sandbox/happy/lite/h1-clan/work/doc.clan", "approx_chars": 1200}
+  ],
+  "files_written": [
+    {"file": "test-sandbox/happy/lite/h1-clan/work/doc.clan", "chars": 14050},
+    {"file": "test-sandbox/happy/lite/h1-clan/snapshots/hop-02-risk-add.clan", "chars": 14050},
+    {"file": "test-sandbox/happy/lite/h1-clan/receipts/hop02-output/patch-data.json", "chars": 409},
+    {"file": "test-sandbox/happy/lite/h1-clan/receipts/hop02-output/patch-html-fragment.html", "chars": 97}
+  ],
+  "output_chars": 506,
+  "errors": [
+    {"what": "--attribution flag not valid for patch-data", "recovered_by": "Used --agent and --action flags per clan patch-data --help"}
+  ],
+  "problems_and_friction": "patch-data does not accept --attribution; the correct flags are --agent and --action, discovered via --help. Otherwise the guided arm worked cleanly: read current array, appended entry, patched data then HTML, validated OK.",
+  "context_understood": "Risks is an array so patch-data must receive the full replacement array; the HTML table row is appended literally to #risk-rows via patch-html."
+}

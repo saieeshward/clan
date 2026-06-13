@@ -1,0 +1,1 @@
+2026-06-12 | chart-update (rep5) | verified supplied #bar-zoho rect (y="78" height="82") present byte-for-byte in report.html cost-chart; Zoho cheapest, no edit needed

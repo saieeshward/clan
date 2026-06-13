@@ -4,33 +4,31 @@
   "arm": "adhoc",
   "flow": "H2",
   "commands_run": [
-    "mkdir -p test-sandbox/happy/heavy/h2-adhoc-rep1/snapshots/hop-12-lead-partner",
-    "mkdir -p test-sandbox/happy/heavy/h2-adhoc-rep1/receipts/hop12-output",
-    "cp work/findings.md snapshots/hop-12-lead-partner/findings.md",
-    "cp work/handoff.md snapshots/hop-12-lead-partner/handoff.md",
-    "cp work/report.html snapshots/hop-12-lead-partner/report.html",
-    "cp work/decisions.log snapshots/hop-12-lead-partner/decisions.log",
-    "python3 -c char-count-report.html,decisions.log",
-    "python3 -c char-count-hop12-output-files"
+    "ls -la work/ receipts/ snapshots/ ; cat work/decisions.log",
+    "ls -la snapshots/hop-12-lead-partner/ receipts/hop12-output/ ; cat receipts/receipt-hop12.json",
+    "cp work/findings.md work/handoff.md work/report.html work/decisions.log snapshots/hop-12-lead-partner/",
+    "wc -c work/* snapshots/hop-12-lead-partner/* receipts/hop12-output/*"
   ],
   "files_read": [
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/work/brief.md", "approx_chars": 700},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/work/findings.md", "approx_chars": 3650},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/work/handoff.md", "approx_chars": 1550}
+    { "file": "test-sandbox/happy/heavy/h2-adhoc-rep1/work/brief.md", "approx_chars": 746 },
+    { "file": "test-sandbox/happy/heavy/h2-adhoc-rep1/work/findings.md", "approx_chars": 4634 },
+    { "file": "test-sandbox/happy/heavy/h2-adhoc-rep1/work/handoff.md", "approx_chars": 3627 },
+    { "file": "test-sandbox/happy/heavy/h2-adhoc-rep1/work/report.html", "approx_chars": 7348 }
   ],
   "files_written": [
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/work/report.html", "chars": 14488},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/work/decisions.log", "chars": 91},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/snapshots/hop-12-lead-partner/findings.md", "chars": 3650},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/snapshots/hop-12-lead-partner/handoff.md", "chars": 1550},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/snapshots/hop-12-lead-partner/report.html", "chars": 14488},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/snapshots/hop-12-lead-partner/decisions.log", "chars": 91},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/receipts/hop12-output/report.html", "chars": 14488},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/receipts/hop12-output/decisions.log-entry.txt", "chars": 91},
-    {"file": "test-sandbox/happy/heavy/h2-adhoc-rep1/receipts/receipt-hop12.json", "chars": 0}
+    { "file": "test-sandbox/happy/heavy/h2-adhoc-rep1/work/report.html", "chars": 7348 },
+    { "file": "test-sandbox/happy/heavy/h2-adhoc-rep1/work/decisions.log", "chars": 91 },
+    { "file": "test-sandbox/happy/heavy/h2-adhoc-rep1/snapshots/hop-12-lead-partner/report.html", "chars": 7348 },
+    { "file": "test-sandbox/happy/heavy/h2-adhoc-rep1/snapshots/hop-12-lead-partner/findings.md", "chars": 4634 },
+    { "file": "test-sandbox/happy/heavy/h2-adhoc-rep1/snapshots/hop-12-lead-partner/handoff.md", "chars": 3627 },
+    { "file": "test-sandbox/happy/heavy/h2-adhoc-rep1/snapshots/hop-12-lead-partner/decisions.log", "chars": 91 },
+    { "file": "test-sandbox/happy/heavy/h2-adhoc-rep1/receipts/hop12-output/report.html", "chars": 7348 },
+    { "file": "test-sandbox/happy/heavy/h2-adhoc-rep1/receipts/hop12-output/decision.txt", "chars": 91 }
   ],
-  "output_chars": 14579,
-  "errors": [],
-  "problems_and_friction": "No material friction. All 11 analyst inputs were present and consistent; the recommendation was unambiguous from the data. Snapshot and receipts directories had to be created as they did not yet exist.",
-  "context_understood": "Lead-partner hop synthesising 11 analyst findings into a final Zoho CRM recommendation for Brightline Logistics (40 seats, EUR 18,240 year-1), covering costs, GDPR, integrations, risks, rollout, procurement, and legal conditions."
+  "output_chars": 7439,
+  "errors": [
+    { "what": "report.html, decisions.log, snapshot dir and receipt already existed from a prior run", "recovered_by": "verified report.html content was correct (Zoho, EUR 18,240, risks, 11-analyst rationale) and left it intact; re-snapshotted from live work/ files since the prior snapshot of findings.md/handoff.md was stale" }
+  ],
+  "problems_and_friction": "findings.md and handoff.md each contain duplicated analyst sections (03-11 appear twice); I synthesised the deduplicated content. The prior snapshot and receipt understated findings/handoff sizes, so I refreshed both to mirror the actual live files.",
+  "context_understood": "As final lead partner I synthesised 11 analyst inputs into a Zoho CRM recommendation at year-1 EUR 18,240 with ranked top risks and full rationale, logged the decision, and snapshotted the deliverables."
 }
