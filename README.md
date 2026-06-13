@@ -54,6 +54,38 @@ None of this depends on CLAN being "in the loop." The file does the work.
 
 ---
 
+## What everything else leaves out
+
+The tools people use today each solve a real problem — just not this one.
+
+**Orchestration frameworks** give you a runtime for coordinating agents. State lives in memory, or in a database your framework manages. That works well inside one pipeline, on one team, in one environment. The moment you hand the work to a different framework, a different team, or a different model provider, the state doesn't travel. There's no artifact. You're back to re-briefing from scratch or writing glue code the next tool can't read. And if something went wrong three hops ago, there's no record you can inspect — because the record was in memory.
+
+**Agent communication protocols** solve the transport layer. They define how agents send messages to each other at runtime. They don't define what the artifact looks like after the conversation ends. There's no provenance baked into the message. There's no human view. There's no output contract. Message persistence isn't even guaranteed. When the session ends, the work is a summary in someone's context window.
+
+**Token optimization tools** make your inputs cheaper — by compressing what reaches the model. That's a real and useful problem. But it's a different layer entirely. A cheaper input is not a richer artifact. It doesn't make the handoff safer, the provenance traceable, or the human edits attributable. It just costs less to feed the same incomplete context.
+
+None of these tools are wrong. They just don't produce an artifact that survives the boundary crossing. CLAN is what you put at the boundary.
+
+### How CLAN sits relative to the landscape
+
+| | Orchestration frameworks | Agent protocols | Token optimization | **CLAN** |
+|---|:---:|:---:|:---:|:---:|
+| Coordinates agents at runtime | ✅ | ✅ | ❌ | ❌ |
+| State survives framework boundaries | ❌ | ❌ | ❌ | ✅ |
+| Provenance enforced by design | ❌ | ❌ | ❌ | ✅ |
+| Human-readable artifact (in the file) | ❌ | ❌ | ❌ | ✅ |
+| Human edits attributable on the record | ❌ | ❌ | ❌ | ✅ |
+| Output contract enforced at write time | ❌ | ❌ | ❌ | ✅ |
+| Deterministic parallel merge, zero LLM | ❌ | ❌ | ❌ | ✅ |
+| Agent picks up cold from artifact alone | ❌ | ❌ | ❌ | ✅ |
+| No runtime dependency | ❌ | ❌ | ✅ | ✅ |
+| Model agnostic | 〰️ | ✅ | ✅ | ✅ |
+| Open spec, any language can implement | 〰️ | ✅ | ✅ | ✅ |
+
+〰️ = varies by tool.
+
+---
+
 ## What it looks like
 
 ```
