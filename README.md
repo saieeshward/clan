@@ -118,19 +118,16 @@ Plain text. Standard ZIP. No proprietary encoding. Any language can read and wri
 
 **Install:**
 
-**macOS / Linux — one line:**
+**macOS / Linux:**
 ```bash
 curl -fsSL https://raw.githubusercontent.com/saieeshward/clan/main/install.sh | bash
 ```
 
+Installs the CLI and prompts whether you want the desktop viewer too. The viewer install is handled for you — no Gatekeeper warnings, no manual steps.
+
 **Windows:** download the `.msi` from the [Releases page](https://github.com/saieeshward/clan/releases) and run it.
 
-**Desktop viewer (macOS):** download the `.dmg` from the [Releases page](https://github.com/saieeshward/clan/releases), open it, drag CLAN Viewer to Applications, then:
-```bash
-xattr -d com.apple.quarantine "/Applications/CLAN Viewer.app" && open "/Applications/CLAN Viewer.app"
-```
-
-**Or build from source:**
+**Build from source:**
 
 ```bash
 cargo install --path crates/clan-cli
