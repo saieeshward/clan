@@ -1,1 +1,0 @@
-2026-06-11 hop-06 chart-update: SVG #bar-zoho rect updated to y="78" height="82" (Zoho is now cheapest); report.html only.

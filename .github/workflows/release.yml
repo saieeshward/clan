@@ -207,3 +207,43 @@ jobs:
           releaseDraft: false
           prerelease: false
           args: ${{ matrix.tauri-args }}
+
+      # Tauri's AppImage builder (linuxdeploy-plugin-gtk) bundles a copy of
+      # libwayland-client/egl from the CI host. On end-user machines with a newer
+      # Mesa/Wayland stack, the host's libEGL_mesa driver gets paired with the
+      # stale bundled libwayland, eglGetPlatformDisplay returns EGL_BAD_PARAMETER,
+      # and WebKitGTK aborts before the window opens ("Could not create default
+      # EGL display: EGL_BAD_PARAMETER. Aborting..."). The bundled libwayland is
+      # never needed — the host always provides an ABI-compatible one — so strip
+      # it out and repack, then overwrite the published asset.
+      - name: Patch AppImage — drop bundled libwayland
+        if: matrix.os == 'ubuntu-latest'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          APPIMAGE_EXTRACT_AND_RUN: "1"
+        run: |
+          set -euo pipefail
+          # clan-app is a member of the ROOT cargo workspace, so cargo/tauri write
+          # bundles to <repo>/target/release/bundle/appimage — NOT
+          # app/src-tauri/target. Find it wherever it lands, and FAIL LOUD if it's
+          # missing: a previous version pointed at the wrong dir and silently
+          # exit-0'd, shipping unpatched AppImages that still bundled libwayland
+          # and crashed with EGL_BAD_PARAMETER on modern Mesa/Wayland.
+          appimage=$(find . -path '*/release/bundle/appimage/*.AppImage' 2>/dev/null | head -n1)
+          if [ -z "$appimage" ]; then
+            echo "::error::No AppImage found under */release/bundle/appimage — cannot strip libwayland."
+            exit 1
+          fi
+          bundle_dir=$(dirname "$appimage")
+          name=$(basename "$appimage")
+          echo "Patching $bundle_dir/$name"
+          cd "$bundle_dir"
+          ./"$name" --appimage-extract >/dev/null
+          # Remove the whole bundled libwayland set so client/cursor/egl/server
+          # all come from the host as a matched pair.
+          rm -fv squashfs-root/usr/lib/libwayland-*.so.*
+          curl -fsSL -o appimagetool \
+            https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage
+          chmod +x appimagetool
+          ARCH=x86_64 ./appimagetool squashfs-root "$name"
+          gh release upload "${GITHUB_REF_NAME}" "$name" --clobber

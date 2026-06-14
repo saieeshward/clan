@@ -1,5 +1,0 @@
-{
-  "agent": "test-suite-runner",
-  "action": "added v2 test suite — 20 new edge-case tests for multi-agent concurrency",
-  "rationale": "Extended from 142 → 162 tests covering: all 5 merge policies, 3/5-agent fork/merge, empty-branch, all-agree, partial-merge, mixed-policy, adjudication lifecycle (incremental unresolved decrement), schema/view-stale preservation through fork-merge cycle, unicode values, --skip-guide on forked files, pack-html branch rejection, fork-after-merge. 0 failures. Gaps noted: real concurrent subprocess writes, MCP round-trip, 50-key performance."
-}

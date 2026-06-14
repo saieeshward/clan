@@ -1,2 +1,0 @@
-final recommendation: Zoho CRM
-rationale: Synthesised 11 analyst inputs.
