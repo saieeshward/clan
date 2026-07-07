@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CLAN — Context and Live Agent Notation</title>
+<meta name="description" content="CLAN is an open file format for multi-agent AI pipelines. A .clan file is a standard ZIP carrying the task spec, an attributed decision history, an output contract, and a self-rendering human view — so work survives the handoff between agents, models, and tools.">
+<meta property="og:title" content="CLAN — Context and Live Agent Notation">
+<meta property="og:description" content="Not a framework. Not a runtime. A file format — where the hard parts are solved by design.">
+<meta property="og:type" content="website">
+<link rel="icon" type="image/svg+xml" href="./favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0f1117; --bg-2:#0b0d13; --panel:#161a26; --panel-2:#1a1f2e;
+    --border:#1f2330; --border-2:#282e40;
+    --text:#e2e4ee; --muted:#9ca3af; --dim:#6b7280; --white:#fff;
+    --accent:#6366f1; --accent-2:#2dd4cf; --link:#a5b4fc;
+    --n1:#6366f1; --n2:#5682e9; --n3:#489de0; --n4:#3bb9d8; --n5:#2dd4cf;
+    --ok:#34d399; --near:#fbbf24; --bad:#f87171;
+    --maxw:1080px;
+    --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    --sans:"Inter",ui-sans-serif,system-ui,-apple-system,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);
+    line-height:1.65;-webkit-font-smoothing:antialiased;font-size:16.5px;overflow-x:hidden;
+  }
+  a{color:var(--link);text-decoration:none}
+  a:hover{text-decoration:underline}
+  h1,h2,h3{color:var(--white);line-height:1.2;letter-spacing:-0.02em}
+  h2{font-size:clamp(1.5rem,3.6vw,2.2rem);margin:0 0 .4rem}
+  h3{font-size:1.12rem;margin:0 0 .4rem}
+  p{margin:.6rem 0}
+  code{font-family:var(--mono);font-size:.86em;background:#0e1420;border:1px solid var(--border);
+    border-radius:5px;padding:.1em .38em;color:#cdd3e6}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 1.5rem}
+  section{padding:5.5rem 0;border-top:1px solid var(--border)}
+  .eyebrow{font-family:var(--mono);font-size:.74rem;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--accent-2);margin:0 0 1rem;font-weight:600}
+  .lede{color:var(--muted);font-size:1.06rem;max-width:60ch}
+
+  /* ---------- NAV ---------- */
+  nav{position:sticky;top:0;z-index:50;background:rgba(15,17,23,.82);backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--border)}
+  .nav-in{max-width:var(--maxw);margin:0 auto;padding:.7rem 1.5rem;display:flex;align-items:center;gap:.7rem}
+  .brand{display:flex;align-items:center;gap:.6rem;font-weight:700;color:var(--white)}
+  .brand svg{width:26px;height:26px;flex:none}
+  .brand:hover{text-decoration:none}
+  .nav-links{margin-left:auto;display:flex;gap:1.4rem;align-items:center}
+  .nav-links a{color:var(--muted);font-size:.9rem;font-weight:500}
+  .nav-links a:hover{color:var(--white);text-decoration:none}
+  .nav-cta{border:1px solid var(--border-2);border-radius:7px;padding:.36rem .8rem !important;color:var(--text) !important}
+  .nav-cta:hover{border-color:var(--accent);background:#171b2b}
+  @media(max-width:720px){.nav-links a:not(.nav-cta){display:none}}
+
+  /* ---------- HERO ---------- */
+  .hero{position:relative;padding:6rem 0 5rem;border-top:none;overflow:hidden}
+  .hero::before{content:"";position:absolute;inset:0;background:
+    radial-gradient(60% 55% at 78% 12%,rgba(99,102,241,.16),transparent 70%),
+    radial-gradient(45% 45% at 12% 90%,rgba(45,212,207,.10),transparent 70%);pointer-events:none}
+  .hero-grid{position:relative;display:grid;grid-template-columns:1.15fr .85fr;gap:3rem;align-items:center}
+  @media(max-width:860px){.hero-grid{grid-template-columns:1fr;gap:2.2rem}}
+  .hero h1{font-size:clamp(2.5rem,6.5vw,4rem);margin:0 0 .2rem;font-weight:800}
+  .hero .full{font-family:var(--mono);color:var(--accent-2);font-size:.86rem;letter-spacing:.12em;
+    text-transform:uppercase;margin:0 0 1.3rem}
+  .tagline{font-size:clamp(1.15rem,2.6vw,1.5rem);color:var(--white);font-weight:600;
+    max-width:22ch;line-height:1.3;margin:0 0 1.1rem}
+  .hero-sub{color:var(--muted);max-width:52ch;font-size:1.02rem}
+  .cta-row{display:flex;flex-wrap:wrap;gap:.8rem;margin:2rem 0 1.4rem}
+  .btn{display:inline-flex;align-items:center;gap:.5rem;padding:.7rem 1.2rem;border-radius:9px;
+    font-weight:600;font-size:.95rem;border:1px solid transparent;cursor:pointer}
+  .btn:hover{text-decoration:none}
+  .btn-primary{background:linear-gradient(120deg,var(--n1),var(--n4));color:#fff}
+  .btn-primary:hover{filter:brightness(1.08)}
+  .btn-ghost{border-color:var(--border-2);color:var(--text);background:#12141d}
+  .btn-ghost:hover{border-color:var(--accent)}
+  .install{display:flex;align-items:center;gap:.6rem;background:#0b0f18;border:1px solid var(--border);
+    border-radius:9px;padding:.6rem .8rem;font-family:var(--mono);font-size:.82rem;max-width:520px;color:#cdd3e6}
+  .install .dollar{color:var(--accent-2);user-select:none}
+  .install code{background:none;border:none;padding:0;color:#cdd3e6;overflow-x:auto;white-space:nowrap}
+  .install button{margin-left:auto;background:#1a1f2e;border:1px solid var(--border-2);color:var(--muted);
+    border-radius:6px;padding:.25rem .55rem;font-size:.72rem;cursor:pointer;font-family:var(--sans);flex:none}
+  .install button:hover{color:var(--white);border-color:var(--accent)}
+  .badges{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1.2rem}
+  .badge{font-family:var(--mono);font-size:.72rem;color:var(--muted);border:1px solid var(--border);
+    border-radius:20px;padding:.2rem .7rem;background:#12141d}
+  .badge b{color:var(--accent-2);font-weight:600}
+
+  /* constellation hero art */
+  .constellation{width:100%;max-width:360px;margin:0 auto;filter:drop-shadow(0 8px 40px rgba(99,102,241,.28))}
+  .constellation .edge{stroke:rgba(120,160,230,.42);stroke-width:2.8;stroke-linecap:round;
+    stroke-dasharray:1;stroke-dashoffset:1;animation:draw .8s ease forwards}
+  .constellation .node{opacity:0;transform-origin:center;animation:pop .5s cubic-bezier(.2,1.4,.4,1) forwards}
+  .constellation .ring{fill:none;stroke:#7dd6e8;stroke-width:1.6;opacity:0;transform-origin:center;
+    animation:ring 3.2s ease-in-out infinite;animation-delay:1.4s}
+  @keyframes draw{to{stroke-dashoffset:0}}
+  @keyframes pop{to{opacity:1}}
+  @keyframes ring{0%,100%{opacity:0;transform:scale(1)}50%{opacity:.7;transform:scale(1.5)}}
+  @media(prefers-reduced-motion:reduce){
+    .constellation .edge{stroke-dashoffset:0;animation:none}
+    .constellation .node{opacity:1;animation:none}
+    .constellation .ring{animation:none}
+  }
+
+  /* ---------- generic layout helpers ---------- */
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem}
+  .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:1.2rem}
+  @media(max-width:820px){.grid-2,.grid-3{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:13px;padding:1.5rem}
+  .card .ic{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;
+    font-family:var(--mono);font-weight:700;font-size:.95rem;margin-bottom:.9rem;
+    background:linear-gradient(135deg,rgba(99,102,241,.22),rgba(45,212,207,.14));
+    border:1px solid rgba(99,102,241,.35);color:#c7cbff}
+  .card p{color:var(--muted);font-size:.94rem;margin:.35rem 0 0}
+  .card .k{color:var(--accent-2)}
+
+  /* ---------- problem: before/after ---------- */
+  .cmp{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;margin-top:2rem}
+  @media(max-width:820px){.cmp{grid-template-columns:1fr}}
+  .cmp .col{border-radius:13px;padding:1.4rem;border:1px solid var(--border)}
+  .cmp .lose{background:#17131a;border-color:#3a2530}
+  .cmp .win{background:#101a1e;border-color:#1f4a4a}
+  .cmp h3{font-size:.95rem;text-transform:uppercase;letter-spacing:.06em;font-family:var(--mono)}
+  .cmp .lose h3{color:#f2a3b3}.cmp .win h3{color:#7ee3d8}
+  .cmp ul{margin:.6rem 0 0;padding-left:1.1rem;color:var(--muted);font-size:.94rem}
+  .cmp li{margin:.35rem 0}
+
+  /* ---------- anatomy tree ---------- */
+  .anatomy{display:grid;grid-template-columns:1.1fr .9fr;gap:2rem;align-items:start;margin-top:1.5rem}
+  @media(max-width:860px){.anatomy{grid-template-columns:1fr}}
+  .tree{background:#0b0f18;border:1px solid var(--border);border-radius:13px;padding:1.4rem 1.5rem;
+    font-family:var(--mono);font-size:.8rem;line-height:1.8;overflow-x:auto;white-space:pre;tab-size:2}
+  @media(max-width:520px){.tree{font-size:.68rem}}
+  .tree .f{color:#c7ccdd}.tree .d{color:var(--accent-2)}.tree .c{color:var(--dim)}
+  .tree .root{color:var(--white);font-weight:600}
+  .anote p{color:var(--muted);font-size:.95rem}
+  .anote .row{display:flex;gap:.7rem;padding:.55rem 0;border-bottom:1px solid var(--border)}
+  .anote .row:last-child{border-bottom:none}
+  .anote .row b{color:var(--white);font-family:var(--mono);font-size:.82rem;flex:none;width:130px}
+  .anote .row span{color:var(--muted);font-size:.9rem}
+
+  /* ---------- code blocks ---------- */
+  pre{background:#0b0f18;border:1px solid var(--border);border-radius:12px;padding:1.2rem 1.3rem;
+    overflow-x:auto;font-family:var(--mono);font-size:.82rem;line-height:1.7;margin:0}
+  pre .cm{color:#5b657c}
+  pre .cmd{color:#8ab4ff}
+  pre .fl{color:#c7cbff}
+  pre .str{color:#7ee3d8}
+  pre .hint{color:#f0b866}
+  .steps{display:grid;gap:1rem;margin-top:1.5rem}
+  .step{display:grid;grid-template-columns:auto 1fr;gap:1.1rem;align-items:start}
+  .step .num{width:30px;height:30px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;
+    font-family:var(--mono);font-weight:700;font-size:.85rem;background:#151a28;border:1px solid var(--border-2);color:var(--accent-2)}
+  .step .body{min-width:0}
+  .step .body h3{margin-bottom:.5rem}
+  .step .body p{color:var(--muted);font-size:.93rem;margin:0 0 .7rem}
+
+  /* ---------- scorecard ---------- */
+  .table-scroll{overflow-x:auto;border:1px solid var(--border);border-radius:13px;margin-top:1.5rem}
+  table{border-collapse:collapse;width:100%;font-size:.9rem;min-width:560px}
+  th,td{text-align:left;padding:.7rem 1rem;border-bottom:1px solid var(--border)}
+  th{color:var(--muted);font-weight:600;font-size:.78rem;text-transform:uppercase;letter-spacing:.05em;background:#12141d}
+  td:last-child,th:last-child{text-align:center}
+  tr:last-child td{border-bottom:none}
+  .pill{font-family:var(--mono);font-size:.72rem;font-weight:600;padding:.15rem .55rem;border-radius:20px;white-space:nowrap}
+  .p-ok{color:var(--ok);background:rgba(52,211,153,.12)}
+  .p-near{color:var(--near);background:rgba(251,191,36,.12)}
+  .p-bad{color:var(--bad);background:rgba(248,113,113,.12)}
+  .honest{margin-top:1.5rem;background:#141019;border:1px solid #3a2b3f;border-radius:13px;padding:1.3rem 1.5rem}
+  .honest h3{color:#e4a3f2;font-size:.95rem;font-family:var(--mono);text-transform:uppercase;letter-spacing:.05em}
+  .honest ul{color:var(--muted);font-size:.93rem;margin:.6rem 0 0;padding-left:1.1rem}
+  .honest li{margin:.4rem 0}
+
+  /* ---------- use cases ---------- */
+  .uses{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:1.5rem}
+  @media(max-width:820px){.uses{grid-template-columns:1fr}}
+  .use{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:1.2rem}
+  .use h3{font-size:1rem}
+  .use .flow{font-family:var(--mono);font-size:.73rem;color:var(--accent-2);margin:.3rem 0 .6rem;
+    word-spacing:-2px}
+  .use p{color:var(--muted);font-size:.88rem;margin:0}
+
+  /* ---------- trust ---------- */
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-top:1.5rem}
+  @media(max-width:820px){.stats{grid-template-columns:1fr 1fr}}
+  .stat{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:1.3rem;text-align:center}
+  .stat .big{font-size:2rem;font-weight:800;color:var(--white);font-family:var(--mono);
+    background:linear-gradient(120deg,var(--n1),var(--n5));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .stat .lbl{color:var(--muted);font-size:.82rem;margin-top:.3rem}
+
+  /* ---------- docs links ---------- */
+  .doclinks{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1.5rem}
+  @media(max-width:820px){.doclinks{grid-template-columns:1fr}}
+  .doc{display:flex;gap:.9rem;align-items:center;background:var(--panel);border:1px solid var(--border);
+    border-radius:11px;padding:1rem 1.2rem}
+  .doc:hover{border-color:var(--accent);text-decoration:none}
+  .doc .arw{margin-left:auto;color:var(--dim)}
+  .doc b{color:var(--white);display:block}
+  .doc span{color:var(--muted);font-size:.85rem}
+
+  /* ---------- footer ---------- */
+  footer{border-top:1px solid var(--border);padding:3rem 0 4rem;color:var(--muted);font-size:.9rem}
+  .foot-grid{display:flex;flex-wrap:wrap;gap:2rem;justify-content:space-between;align-items:flex-start}
+  footer .brand{margin-bottom:.6rem}
+  .foot-links{display:flex;gap:1.5rem;flex-wrap:wrap}
+  .foot-note{margin-top:2rem;padding-top:1.5rem;border-top:1px solid var(--border);font-size:.82rem;color:var(--dim)}
+  .quote{font-size:1.15rem;color:var(--text);border-left:3px solid var(--accent);padding-left:1rem;
+    margin:0 0 2rem;font-weight:500;max-width:60ch}
+</style>
+</head>
+<body>
+
+<!-- ================= NAV ================= -->
+<nav>
+  <div class="nav-in">
+    <a class="brand" href="#top">
+      <svg viewBox="0 0 100 100" aria-hidden="true">
+        <line x1="70" y1="24" x2="37" y2="21" stroke="rgba(120,160,230,.5)" stroke-width="3" stroke-linecap="round"/>
+        <line x1="37" y1="21" x2="18" y2="50" stroke="rgba(120,160,230,.5)" stroke-width="3" stroke-linecap="round"/>
+        <line x1="18" y1="50" x2="37" y2="79" stroke="rgba(120,160,230,.5)" stroke-width="3" stroke-linecap="round"/>
+        <line x1="37" y1="79" x2="70" y2="76" stroke="rgba(120,160,230,.5)" stroke-width="3" stroke-linecap="round"/>
+        <circle cx="70" cy="24" r="6" fill="#6366f1"/><circle cx="37" cy="21" r="6" fill="#5682e9"/>
+        <circle cx="18" cy="50" r="7.4" fill="#489de0"/><circle cx="37" cy="79" r="6" fill="#3bb9d8"/>
+        <circle cx="70" cy="76" r="6" fill="#2dd4cf"/>
+      </svg>
+      CLAN
+    </a>
+    <div class="nav-links">
+      <a href="#problem">Why</a>
+      <a href="#anatomy">Format</a>
+      <a href="#features">Guarantees</a>
+      <a href="#cli">CLI</a>
+      <a href="#benchmarks">Benchmarks</a>
+      <a href="#docs">Docs</a>
+      <a class="nav-cta" href="https://github.com/saieeshward/clan">GitHub ↗</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ================= HERO ================= -->
+<header id="top" class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <h1>CLAN</h1>
+      <p class="full">Context &amp; Live Agent Notation</p>
+      <p class="tagline">Not a framework. Not a runtime. A file format.</p>
+      <p class="hero-sub">Multi-agent pipelines break at the handoff. State lives in whichever runtime is running, so when work passes to a different model, team, or tool, the reasoning stays behind. CLAN fixes the <em>artifact</em>, not the runtime — a <code>.clan</code> file is a plain ZIP that carries the task, the attributed decision history, the output contract, and a self-rendering human view. Everything a fresh agent needs to continue without a briefing.</p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="#cli">Get started →</a>
+        <a class="btn btn-ghost" href="#anatomy">See the format</a>
+      </div>
+      <div class="install">
+        <span class="dollar">$</span>
+        <code id="installcmd">curl -fsSL https://raw.githubusercontent.com/saieeshward/clan/main/install.sh | bash</code>
+        <button onclick="copyInstall(this)">Copy</button>
+      </div>
+      <div class="badges">
+        <span class="badge">Spec <b>v1.1</b></span>
+        <span class="badge">Reference impl in <b>Rust</b></span>
+        <span class="badge"><b>MPL-2.0</b> · spec CC&nbsp;BY&nbsp;4.0</span>
+        <span class="badge"><b>186</b> tests · <b>26</b> conformance</span>
+      </div>
+    </div>
+    <div>
+      <!-- animated constellation -->
+      <svg class="constellation" viewBox="0 0 100 100" aria-label="CLAN constellation mark">
+        <line class="edge" style="animation-delay:.10s" x1="70" y1="24" x2="37" y2="21"/>
+        <line class="edge" style="animation-delay:.30s" x1="37" y1="21" x2="18" y2="50"/>
+        <line class="edge" style="animation-delay:.50s" x1="18" y1="50" x2="37" y2="79"/>
+        <line class="edge" style="animation-delay:.70s" x1="37" y1="79" x2="70" y2="76"/>
+        <circle class="ring" cx="18" cy="50" r="7"/>
+        <circle class="node" style="animation-delay:0s"   cx="70" cy="24" r="5.6" fill="#6366f1"/>
+        <circle class="node" style="animation-delay:.15s" cx="37" cy="21" r="5.6" fill="#5682e9"/>
+        <circle class="node" style="animation-delay:.30s" cx="18" cy="50" r="7"   fill="#489de0"/>
+        <circle class="node" style="animation-delay:.45s" cx="37" cy="79" r="5.6" fill="#3bb9d8"/>
+        <circle class="node" style="animation-delay:.60s" cx="70" cy="76" r="5.6" fill="#2dd4cf"/>
+      </svg>
+    </div>
+  </div>
+</header>
+
+<!-- ================= PROBLEM ================= -->
+<section id="problem">
+  <div class="wrap">
+    <p class="eyebrow">The problem</p>
+    <h2>Intelligence gets stranded at the boundary</h2>
+    <p class="lede">An AI pipeline produces briefs, reports, contracts, clinical notes. When the artifact crosses a handoff, the intelligence that shaped it — the rationale, the field-level attribution, the human overrides, the output contract — stays behind in a platform database or an evicted context window. The document moves; the reasoning doesn't. <em>Why does this field say X?</em> can't be answered from the artifact itself.</p>
+    <div class="cmp">
+      <div class="col lose">
+        <h3>Ad-hoc handoff</h3>
+        <ul>
+          <li>Provenance lives in the framework's memory — lost on export</li>
+          <li>No output contract travels; the next agent guesses the shape</li>
+          <li>Parallel agents collide on shared state; merges cost LLM tokens</li>
+          <li>Human edits are indistinguishable from model output</li>
+          <li>A fresh agent needs a human to re-brief it</li>
+        </ul>
+      </div>
+      <div class="col win">
+        <h3>A .clan file</h3>
+        <ul>
+          <li>Every mutation is attributed at write time — <span class="k">rejected</span> if not</li>
+          <li>The JSON-Schema output contract lives <em>inside</em> the file, validated on write</li>
+          <li>Parallel agents write to isolated namespaces; merge is deterministic, <span class="k">zero LLM tokens</span></li>
+          <li>Human edits land back as <code>edited_by: human</code> patches</li>
+          <li>The file carries its own spec — any agent can resume cold</li>
+        </ul>
+      </div>
+    </div>
+    <p style="margin-top:1.8rem;color:var(--muted);font-size:.95rem">CLAN makes provenance a <strong style="color:var(--white)">structural property of the artifact</strong> rather than a feature of the platform. The core inversion: <em style="color:var(--white)">intelligence belongs to the artifact, not the runtime.</em></p>
+  </div>
+</section>
+
+<!-- ================= ANATOMY ================= -->
+<section id="anatomy">
+  <div class="wrap">
+    <p class="eyebrow">What it looks like</p>
+    <h2>A standard ZIP — open it with anything</h2>
+    <p class="lede">A <code>.clan</code> file is an ISO&nbsp;21320-1 ZIP archive (MIME <code>application/vnd.clan</code>) of plain UTF-8 text. A typical file is 30–80&nbsp;KB on disk; the decision chain is capped at ~10–15&nbsp;KB regardless of pipeline length.</p>
+    <div class="anatomy">
+      <div class="tree">
+<span class="root">my-document.clan</span>          <span class="c">← a standard ZIP</span>
+├── <span class="f">manifest.yaml</span>          <span class="c">identity · lineage · file registry + SHA-256</span>
+├── <span class="d">spec/</span>
+│   ├── <span class="f">clan.md</span>            <span class="c">the full spec, embedded in every file</span>
+│   └── <span class="f">agent-guide.md</span>     <span class="c">byte-stable protocol guide (~800 tok)</span>
+├── <span class="d">shared/</span>
+│   └── <span class="f">data.yaml</span>          <span class="c">canonical facts — one source of truth</span>
+├── <span class="d">agent/</span>
+│   ├── <span class="f">context.md</span>         <span class="c">the current agent's task</span>
+│   ├── <span class="f">output-schema.json</span> <span class="c">JSON Schema — validated at pack time</span>
+│   ├── <span class="f">state.yaml</span>         <span class="c">pipeline state</span>
+│   └── <span class="f">decision-chain.yaml</span><span class="c">every decision, attributed + compressed</span>
+├── <span class="d">agents/</span><span class="c">          per-agent namespaces (parallel work)</span>
+│   └── <span class="d">&lt;agent-id&gt;/</span>        <span class="c">writes outside your namespace = rejected</span>
+├── <span class="f">merge-report.yaml</span>      <span class="c">contested keys, both sides, with provenance</span>
+└── <span class="d">human/</span>
+    ├── <span class="f">index.html</span>         <span class="c">the human view, inside the artifact</span>
+    ├── <span class="f">patches.yaml</span>       <span class="c">human edits, edited_by: human</span>
+    └── <span class="d">assets/</span>
+      </div>
+      <div class="anote">
+        <p style="margin-top:0">Four reserved layers, four audiences — kept strictly apart so agents skip human markup and the viewer collapses agent internals:</p>
+        <div class="row"><b>spec/</b><span>The format itself. Every file is self-describing, so an agent that has never seen CLAN can still produce valid output.</span></div>
+        <div class="row"><b>shared/</b><span>Canonical typed data, read by agents and bound into the human view via <code>{{key}}</code>. No duplication anywhere else.</span></div>
+        <div class="row"><b>agent/</b><span>Machine content: task, contract, state, and the append-only decision chain.</span></div>
+        <div class="row"><b>human/</b><span>The rendered, editable document — derivable from <code>shared/</code>, never the source of truth.</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FEATURES / GUARANTEES ================= -->
+<section id="features">
+  <div class="wrap">
+    <p class="eyebrow">Core guarantees</p>
+    <h2>The hard parts, solved by design</h2>
+    <p class="lede">Not conventions an application politely follows — invariants the reference CLI enforces the way a JSON parser rejects malformed syntax.</p>
+    <div class="grid-3" style="margin-top:2rem">
+      <div class="card">
+        <div class="ic">✎</div>
+        <h3>Attribution or rejection</h3>
+        <p>A mutation without <code>--agent</code> and <code>--action</code> is refused. Every write records <span class="k">who</span>, <span class="k">what</span>, <span class="k">why</span>, <span class="k">when</span>, and the exact <code>fields_changed</code>. Provenance is enforced at write time, not bolted on.</p>
+      </div>
+      <div class="card">
+        <div class="ic">⇉</div>
+        <h3>Fork · isolate · fold</h3>
+        <p>Fork a file into one branch per agent. Each writes only inside its <code>agents/&lt;id&gt;/</code> namespace — collisions are impossible by construction. <code>clan merge</code> is a deterministic per-key fold. <span class="k">Zero LLM tokens.</span></p>
+      </div>
+      <div class="card">
+        <div class="ic">⚖</div>
+        <h3>Conflicts are data</h3>
+        <p>Contested keys don't fail the merge — they land in <code>merge-report.yaml</code> with the winner, every loser, and both sides' provenance. Policies: <code>last-write</code>, <code>append</code>, <code>max</code>, <code>min</code>, <code>agent-priority</code>.</p>
+      </div>
+      <div class="card">
+        <div class="ic">{ }</div>
+        <h3>Living output contract</h3>
+        <p>A real JSON Schema ships inside the file and is validated against the merged data on every write. Change a field's shape without migrating the schema and the CLI hard-rejects the patch, before it can break the view.</p>
+      </div>
+      <div class="card">
+        <div class="ic">⊟</div>
+        <h3>TOON-encoded context</h3>
+        <p>On the way into an agent's prompt, data and history are serialised as <a href="https://github.com/toon-format/spec">TOON</a> — ~40% fewer tokens than JSON, <b>51–58%</b> on tabular data. Provably lossless, or it falls back to raw JSON.</p>
+      </div>
+      <div class="card">
+        <div class="ic">↻</div>
+        <h3>Bounded memory</h3>
+        <p>The 5 newest decisions stay verbatim; older rationales are compressed by a deterministic, model-free keyword pipeline (pinned entries never). The chain stays ~10–15&nbsp;KB whether the pipeline is 3 hops or 30.</p>
+      </div>
+      <div class="card">
+        <div class="ic">◱</div>
+        <h3>Self-rendering view</h3>
+        <p>The human-readable document lives in the artifact. A Tauri desktop viewer renders it with click-to-edit; edits return as attributed <code>human</code> patches, part of the same provenance chain.</p>
+      </div>
+      <div class="card">
+        <div class="ic">?</div>
+        <h3>Self-teaching CLI</h3>
+        <p>Every command prints a gated <code>next:</code> hint; every rejection names the fix in the same breath. In tests, agents told only "there's a <code>clan</code> CLI — figure it out" reached correct usage in under 4 commands, zero violations.</p>
+      </div>
+      <div class="card">
+        <div class="ic">⛓</div>
+        <h3>Verifiable lineage</h3>
+        <p>Each file records its parent's UUID and SHA-256; every member carries a checksum of its uncompressed bytes. The chain back to origin is cryptographically walkable — and merges record every parent.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CLI WALKTHROUGH ================= -->
+<section id="cli">
+  <div class="wrap">
+    <p class="eyebrow">How it works</p>
+    <h2>Any language can read and write it</h2>
+    <p class="lede">There's no CLAN runtime and no CLAN cloud — the format is just ZIP + YAML + JSON. The Rust CLI and SDK are the reference implementation. Here's a full pipeline.</p>
+    <div class="steps">
+      <div class="step">
+        <div class="num">1</div>
+        <div class="body">
+          <h3>Create a document from a brief</h3>
+          <p>Bootstraps the ZIP with the embedded spec, an output-schema stub, and an empty decision chain.</p>
+<pre><span class="cmd">clan create</span> <span class="fl">--title</span> <span class="str">"Q3 Market Analysis"</span> \
+  <span class="fl">--brief</span> <span class="str">"Evaluate CRM options for a 40-person agency"</span> <span class="fl">--output</span> doc.clan
+<span class="hint">next: clan read agent doc.clan</span></pre>
+        </div>
+      </div>
+      <div class="step">
+        <div class="num">2</div>
+        <div class="body">
+          <h3>Hand the whole context to an agent</h3>
+          <p>One optimized prompt: the guide, task, contract, TOON-encoded data and a distilled decision tail — assembled lazily, human markup never read.</p>
+<pre><span class="cmd">clan read agent</span> doc.clan     <span class="cm"># full accumulated context, TOON-encoded</span></pre>
+        </div>
+      </div>
+      <div class="step">
+        <div class="num">3</div>
+        <div class="body">
+          <h3>Write one field — with attribution</h3>
+          <p>A surgical RFC&nbsp;7396 merge patch. Omit <code>--agent</code>/<code>--action</code> and it's refused.</p>
+<pre><span class="cmd">clan patch-data</span> doc.clan \
+  <span class="fl">--set</span> <span class="str">"verdict=HubSpot"</span> \
+  <span class="fl">--agent</span> analyst <span class="fl">--action</span> <span class="str">"set verdict"</span> <span class="fl">--rationale</span> <span class="str">"best fit for budget"</span>
+
+<span class="cmd">clan read chain</span> doc.clan       <span class="cm"># full attributed decision history</span>
+<span class="cmd">clan validate</span> doc.clan         <span class="cm"># check the output contract, any time</span></pre>
+        </div>
+      </div>
+      <div class="step">
+        <div class="num">4</div>
+        <div class="body">
+          <h3>Run agents in parallel, then merge</h3>
+          <p>Each branch writes only its own namespace; the merge is deterministic and reports every contested key with both sides' provenance.</p>
+<pre><span class="cmd">clan fork</span> doc.clan <span class="fl">--agents</span> researcher,analyst <span class="fl">--output-dir</span> branches
+
+<span class="cmd">clan patch-data</span> branches/researcher.clan <span class="fl">--namespace</span> \
+  <span class="fl">--set</span> <span class="str">"finding=market is growing"</span> <span class="fl">--agent</span> researcher <span class="fl">--action</span> research
+<span class="cmd">clan patch-data</span> branches/analyst.clan <span class="fl">--namespace</span> \
+  <span class="fl">--set</span> <span class="str">"risk=vendor lock-in"</span> <span class="fl">--agent</span> analyst <span class="fl">--action</span> analyze
+
+<span class="cmd">clan merge</span> branches/*.clan <span class="fl">--output</span> merged.clan
+<span class="cm"># Deterministic. Zero LLM tokens. Contested keys → merge-report.yaml</span></pre>
+        </div>
+      </div>
+    </div>
+    <p style="margin-top:2rem;color:var(--muted);font-size:.93rem">Twenty-plus subcommands cover the full lifecycle — <code>render</code>, <code>pack-html</code>, <code>patch-html</code> (selector-targeted DOM edits), <code>patch-schema</code>, <code>patch-asset</code>, <code>export-static</code> (a single JSON blob for SDK-less agents), and <code>agent-help</code> (a &lt;200-token protocol card for AI operators).</p>
+  </div>
+</section>
+
+<!-- ================= BENCHMARKS ================= -->
+<section id="benchmarks">
+  <div class="wrap">
+    <p class="eyebrow">Benchmarks · run 2026-06-12-I</p>
+    <h2>We report the latest run, not the best one</h2>
+    <p class="lede">CLAN's own scorecard is distributed as a <code>.clan</code> file. It publishes what passes <em>and</em> what doesn't — thresholds, near-misses, and the places CLAN loses are all in the record.</p>
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>Claim</th><th>Measured</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>Revision loops vs ad-hoc full-rewrites (8-hop)</td><td>0.336× — 66% fewer chars</td><td><span class="pill p-ok">PASS</span></td></tr>
+          <tr><td>…composition-controlled (same fragments, 5 reps)</td><td>0.554× — 45% fewer</td><td><span class="pill p-near">NEAR</span></td></tr>
+          <tr><td>TOON vs minified JSON on tabular data</td><td>51–58% saved</td><td><span class="pill p-ok">PASS</span></td></tr>
+          <tr><td>Provenance: every mutating hop attributed</td><td>0 unknown-agent entries</td><td><span class="pill p-ok">PASS</span></td></tr>
+          <tr><td>Reliability: agents recover from CLI errors alone</td><td>0 unrecovered</td><td><span class="pill p-ok">PASS</span></td></tr>
+          <tr><td>Fork/merge: conflicts recalled with winner + loser</td><td>4/4 keys</td><td><span class="pill p-ok">PASS</span></td></tr>
+          <tr><td>Teachability: unguided agents reach protocol</td><td>0 violations</td><td><span class="pill p-ok">PASS</span></td></tr>
+          <tr><td>Workspace unit + integration tests</td><td>186 / 186</td><td><span class="pill p-ok">PASS</span></td></tr>
+          <tr><td>Black-box CLI conformance harness</td><td>26 / 26</td><td><span class="pill p-ok">PASS</span></td></tr>
+          <tr><td>Synthesis hop beats ad-hoc re-reading</td><td>0.487× → 1.047× (volatile)</td><td><span class="pill p-bad">NOT ROBUST</span></td></tr>
+          <tr><td>Per-hop injection crosses below ad-hoc on long chains</td><td>no clean crossover</td><td><span class="pill p-bad">EXPECT-RED</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="honest">
+      <h3>Where CLAN loses</h3>
+      <ul>
+        <li><strong>Short chains.</strong> The scaffolding — schema, chain, guide — is overhead with no payoff under ~4 hops. If your pipeline is short and your prompts are disciplined, ad-hoc is leaner on raw input size.</li>
+        <li><strong>The synthesis-hop result isn't robust.</strong> 0.487× one run, 1.047× the next. It's in the scorecard, marked red.</li>
+        <li><strong>Provenance is only as truthful as the agents.</strong> CLAN records who acted and when — it can't verify an agent's account of what it did. Run a verifier hop where fidelity matters.</li>
+        <li><strong>Wall-time savings are modest</strong> — ~12–18% on 8–10 hop chains. Token savings don't dominate latency.</li>
+      </ul>
+      <p style="margin:1rem 0 0;color:var(--text);font-size:.95rem">The bottom line, in the project's own words: <em>CLAN's price is a modest, bounded token overhead; its product is that correctness, provenance, conflict detection and human attribution survive even when nobody writes a careful prompt — the regime real multi-framework pipelines live in.</em> The format, not the prompt, carries the protocol.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= USE CASES ================= -->
+<section id="uses">
+  <div class="wrap">
+    <p class="eyebrow">Where it fits</p>
+    <h2>Multi-stakeholder, regulated, resumable work</h2>
+    <p class="lede">The mechanics are identical across domains — gather, analyze, decide — only the template and data schema differ. Provenance matters most exactly where an artifact crosses organizational boundaries and someone may later ask <em>why</em>.</p>
+    <div class="uses">
+      <div class="use"><h3>Legal</h3><p class="flow">intake → draft → negotiated → executed</p><p>Records why a clause changed and who approved it — the answer you need if a contract is ever disputed.</p></div>
+      <div class="use"><h3>Medical</h3><p class="flow">intake → diagnosis → treatment → follow-up</p><p>Continuity of care and liability need the <em>why</em>, not just the <em>what</em>. On-prem inference for HIPAA via a key-proxy pattern.</p></div>
+      <div class="use"><h3>Finance</h3><p class="flow">research → analysis → recommendation → approved</p><p>Under MiFID&nbsp;II, Reg BI and FINRA, examination becomes a read operation on the artifact's intelligence layer.</p></div>
+      <div class="use"><h3>Engineering</h3><p class="flow">requirements → spec → design-review</p><p>A traceability matrix that records why a requirement moved — merged, de-scoped, or a stakeholder changed their mind.</p></div>
+      <div class="use"><h3>Creative / Ad-tech</h3><p class="flow">brief → concept → deck</p><p>One file metamorphoses across schema migrations while every prior hop survives verbatim in the lineage.</p></div>
+      <div class="use"><h3>Any agent handoff</h3><p class="flow">gather → analyze → decide</p><p>Regulator-readable, cold-resumable, framework-agnostic — a common artifact across LangChain, CrewAI, AutoGen or your own stack.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= TRUST ================= -->
+<section id="trust">
+  <div class="wrap">
+    <p class="eyebrow">Verified, not asserted</p>
+    <h2>Dogfooded and tested in the open</h2>
+    <p class="lede">The intro explainer and the benchmark report are themselves <code>.clan</code> files — the strongest proof point is that CLAN ships its own docs as provenance-native artifacts.</p>
+    <div class="stats">
+      <div class="stat"><div class="big">186</div><div class="lbl">Rust unit + integration tests<br>(120 SDK · 47 CLI · 19 viewer)</div></div>
+      <div class="stat"><div class="big">26/26</div><div class="lbl">black-box CLI conformance checks in CI</div></div>
+      <div class="stat"><div class="big">0</div><div class="lbl">LLM tokens to merge parallel branches</div></div>
+      <div class="stat"><div class="big">~40%</div><div class="lbl">token saving from TOON context encoding</div></div>
+    </div>
+    <p style="margin-top:1.5rem;color:var(--muted);font-size:.93rem">Continuous integration runs formatting, Clippy, the full test suite, a type-checked frontend build, and the Node-based conformance harness against a freshly built binary — publishing <code>conformance.json</code> on every run. Release tags cross-compile signed binaries for Linux, macOS (Apple Silicon + Intel) and Windows, plus desktop viewer bundles.</p>
+  </div>
+</section>
+
+<!-- ================= DOCS ================= -->
+<section id="docs">
+  <div class="wrap">
+    <p class="eyebrow">Read the spec</p>
+    <h2>Open format, open implementation</h2>
+    <p class="lede">The 27-section specification is licensed CC&nbsp;BY&nbsp;4.0; the SDK, CLI and viewer are MPL-2.0. Implementing CLAN in another language, sharpening the CLI, or catching a spec edge case are all welcome.</p>
+    <div class="doclinks">
+      <a class="doc" href="https://github.com/saieeshward/clan/blob/main/spec/CLAN-SPEC.md"><div><b>CLAN-SPEC.md</b><span>The full 27-section format specification</span></div><span class="arw">→</span></a>
+      <a class="doc" href="https://github.com/saieeshward/clan/blob/main/spec/SEQUENCE-DIAGRAMS.md"><div><b>Sequence diagrams</b><span>Key interaction flows, end to end</span></div><span class="arw">→</span></a>
+      <a class="doc" href="https://github.com/saieeshward/clan/blob/main/spec/agent-guide.md"><div><b>Agent guide</b><span>The byte-stable protocol agents read to learn CLAN</span></div><span class="arw">→</span></a>
+      <a class="doc" href="https://github.com/saieeshward/clan/releases"><div><b>Releases</b><span>Prebuilt CLI + viewer for every platform</span></div><span class="arw">→</span></a>
+      <a class="doc" href="https://github.com/saieeshward/clan/blob/main/CONTRIBUTING.md"><div><b>Contributing</b><span>How to help — code, docs, spec feedback</span></div><span class="arw">→</span></a>
+      <a class="doc" href="https://github.com/saieeshward/clan"><div><b>Source</b><span>The full repository on GitHub</span></div><span class="arw">→</span></a>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FOOTER ================= -->
+<footer>
+  <div class="wrap">
+    <p class="quote">"Intelligence belongs to the artifact, not the platform."</p>
+    <div class="foot-grid">
+      <div>
+        <a class="brand" href="#top">
+          <svg viewBox="0 0 100 100" aria-hidden="true">
+            <line x1="70" y1="24" x2="37" y2="21" stroke="rgba(120,160,230,.5)" stroke-width="3" stroke-linecap="round"/>
+            <line x1="37" y1="21" x2="18" y2="50" stroke="rgba(120,160,230,.5)" stroke-width="3" stroke-linecap="round"/>
+            <line x1="18" y1="50" x2="37" y2="79" stroke="rgba(120,160,230,.5)" stroke-width="3" stroke-linecap="round"/>
+            <line x1="37" y1="79" x2="70" y2="76" stroke="rgba(120,160,230,.5)" stroke-width="3" stroke-linecap="round"/>
+            <circle cx="70" cy="24" r="6" fill="#6366f1"/><circle cx="37" cy="21" r="6" fill="#5682e9"/>
+            <circle cx="18" cy="50" r="7.4" fill="#489de0"/><circle cx="37" cy="79" r="6" fill="#3bb9d8"/>
+            <circle cx="70" cy="76" r="6" fill="#2dd4cf"/>
+          </svg>
+          CLAN
+        </a>
+        <p style="max-width:34ch;font-size:.85rem">Context and Live Agent Notation — an open, provenance-native container format for multi-agent AI work.</p>
+      </div>
+      <div class="foot-links">
+        <a href="#anatomy">Format</a>
+        <a href="#cli">CLI</a>
+        <a href="#benchmarks">Benchmarks</a>
+        <a href="https://github.com/saieeshward/clan">GitHub</a>
+        <a href="https://github.com/saieeshward/clan/releases">Download</a>
+      </div>
+    </div>
+    <p class="foot-note">Created and maintained by <a href="https://github.com/saieeshward">Sai Eeshwar</a> and <a href="https://github.com/batunii">Shreyansh Soni</a>. Code licensed MPL-2.0; the CLAN specification licensed CC&nbsp;BY&nbsp;4.0. Built with Rust, serde, clap, jsonschema-rs, lol_html and TOON. Not affiliated with any AI-framework vendor.</p>
+  </div>
+</footer>
+
+<script>
+  function copyInstall(btn){
+    const t = document.getElementById('installcmd').textContent;
+    navigator.clipboard.writeText(t).then(function(){
+      const o = btn.textContent; btn.textContent = 'Copied ✓';
+      setTimeout(function(){ btn.textContent = o; }, 1600);
+    }).catch(function(){ btn.textContent = 'Ctrl+C'; });
+  }
+</script>
+</body>
+</html>
