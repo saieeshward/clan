@@ -91,9 +91,10 @@ export default function App() {
   }, [])
 
   function handlePatch(_id: string, _content: string) {
-    // The protocol handler already saved the patch. The user's edit is already
-    // visible in the DOM — don't reload the iframe or it will revert to the
-    // unpatched template (especially for JS-rendered content).
+    // DocumentView's message handler already invoked save_patch before calling
+    // this. The user's edit is already visible in the DOM — don't reload the
+    // iframe or it will revert to the unpatched template (especially for
+    // JS-rendered content).
   }
 
   return (
@@ -125,6 +126,7 @@ export default function App() {
               manifest={openResult.manifest}
               editMode={editMode}
               onPatch={handlePatch}
+              onSaveError={setError}
             />
           )}
         </main>
