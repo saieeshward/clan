@@ -223,6 +223,7 @@ A Tauri desktop app renders the human view with click-to-edit. Edits land in the
 | [AGENTS.md](AGENTS.md) | Instructions for AI agents creating and mutating `.clan` files |
 | [spec/CLAN-SPEC.md](spec/CLAN-SPEC.md) | Full format specification |
 | [spec/SEQUENCE-DIAGRAMS.md](spec/SEQUENCE-DIAGRAMS.md) | Key interaction flows |
+| [design/interpretability-research.clan](design/interpretability-research.clan) | Interpretability study of the format itself (a `.clan` deliverable) - field-by-field audit, drift experiment, and ranked v1.2 fixes |
 | [CHANGELOG.md](CHANGELOG.md) | Release history |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | How to contribute |
 
