@@ -5,7 +5,11 @@
 import { useEffect, useState } from 'react'
 import { invoke } from '@tauri-apps/api/core'
 
-interface Props { onClose: () => void }
+interface Props {
+  onClose: () => void
+  /** Changes whenever the open file was rewritten (e.g. a human edit); triggers a reload. */
+  refreshKey?: number
+}
 
 type Tab = 'chain' | 'state' | 'context'
 
@@ -27,7 +31,7 @@ const s: Record<string, React.CSSProperties> = {
   close: { background: 'transparent', border: 'none', color: 'var(--muted)', cursor: 'pointer', fontSize: 16, padding: 4 },
 }
 
-export default function AgentPanel({ onClose }: Props) {
+export default function AgentPanel({ onClose, refreshKey = 0 }: Props) {
   const [tab, setTab] = useState<Tab>('chain')
   const [content, setContent] = useState('')
   const [loading, setLoading] = useState(false)
@@ -48,7 +52,7 @@ export default function AgentPanel({ onClose }: Props) {
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     load(tab)
-  }, [tab])
+  }, [tab, refreshKey])
 
   const tabs: { id: Tab; label: string }[] = [
     { id: 'chain', label: 'Decisions' },

@@ -41,6 +41,8 @@ export default function App() {
   const [openResult, setOpenResult] = useState<OpenResult | null>(null)
   const [htmlContent, setHtmlContent] = useState<string>('')
   const [agentPanelOpen, setAgentPanelOpen] = useState(false)
+  // Bumped after every saved human edit so the agent panel re-reads the chain.
+  const [chainVersion, setChainVersion] = useState(0)
   const [editMode, setEditMode] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -94,6 +96,9 @@ export default function App() {
     // The protocol handler already saved the patch. The user's edit is already
     // visible in the DOM — don't reload the iframe or it will revert to the
     // unpatched template (especially for JS-rendered content).
+    // The save also appended a "human" entry to the decision chain; let the
+    // agent panel pick it up.
+    setChainVersion(v => v + 1)
   }
 
   return (
@@ -129,7 +134,7 @@ export default function App() {
           )}
         </main>
         {agentPanelOpen && openResult && (
-          <AgentPanel onClose={() => setAgentPanelOpen(false)} />
+          <AgentPanel onClose={() => setAgentPanelOpen(false)} refreshKey={chainVersion} />
         )}
       </div>
     </div>
