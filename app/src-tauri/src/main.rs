@@ -535,7 +535,7 @@ fn do_snapshot(rendered_html: String, state: &AppState) -> Result<(), String> {
 static SAVE_COUNT: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize::new(0);
 
 fn do_save_patch(id: String, content: String, state: &AppState) -> Result<(), String> {
-    log(&format!("save_patch: id={id:?} content={:?}…", &content[..content.len().min(80)]));
+    log(&format!("save_patch: id={id:?} content={:?}…", content.chars().take(80).collect::<String>()));
 
     let mut guard = state.current.lock().unwrap();
     let loaded = guard.as_mut().ok_or("no file open")?;
@@ -565,21 +565,14 @@ fn do_save_patch(id: String, content: String, state: &AppState) -> Result<(), St
     Ok(())
 }
 
-/// Handle a `clan://patch` request body. Saves the patch exactly once and
-/// returns the payload for the informational `clan-patch-saved` event.
-/// The frontend listener must treat that event as a notification only and
-/// never call `save_patch` in response — doing so writes the file twice (#9).
-fn handle_patch_request(body: &str, state: &AppState) -> Option<serde_json::Value> {
-    let json = serde_json::from_str::<serde_json::Value>(body).ok()?;
-    let id = json["id"].as_str()?;
-    let content = json["content"].as_str()?;
-    do_save_patch(id.to_string(), content.to_string(), state).ok()?;
-    Some(serde_json::json!({ "id": id, "content": content }))
-}
-
 #[tauri::command]
 fn save_patch(id: String, content: String, state: State<AppState>) -> Result<(), String> {
     do_save_patch(id, content, &*state)
+}
+
+#[tauri::command]
+fn save_snapshot(html: String, state: State<AppState>) -> Result<(), String> {
+    do_snapshot(html, &*state)
 }
 
 fn main() {
@@ -635,26 +628,6 @@ fn main() {
                     .status(200)
                     .body(html.into_bytes())
                     .unwrap()
-            } else if uri.contains("snapshot") {
-                if let Ok(html) = String::from_utf8(request.body().clone()) {
-                    let _ = do_snapshot(html, &*state);
-                }
-                tauri::http::Response::builder()
-                    .header("Access-Control-Allow-Origin", "*")
-                    .status(200)
-                    .body(Vec::new())
-                    .unwrap()
-            } else if uri.contains("patch") {
-                if let Ok(body_str) = String::from_utf8(request.body().clone()) {
-                    if let Some(payload) = handle_patch_request(&body_str, &state) {
-                        let _ = app.app_handle().emit("clan-patch-saved", payload);
-                    }
-                }
-                tauri::http::Response::builder()
-                    .header("Access-Control-Allow-Origin", "*")
-                    .status(200)
-                    .body(Vec::new())
-                    .unwrap()
             } else {
                 tauri::http::Response::builder().status(404).body(Vec::new()).unwrap()
             }
@@ -668,7 +641,7 @@ fn main() {
         })
         .invoke_handler(tauri::generate_handler![
             open_clan, get_human_html, get_data, get_chain, get_agent_state, get_context,
-            save_patch, set_edit_mode, update_preview_html, take_launch_file
+            save_patch, save_snapshot, set_edit_mode, update_preview_html, take_launch_file
         ])
         .run(tauri::generate_context!())
         .expect("error while running CLAN Viewer");
@@ -728,26 +701,22 @@ mod tests {
         );
     }
 
-    // Regression for #9: one clan://patch request must produce exactly one
-    // save (one repack + one disk write), with the emitted payload echoing
-    // the edit. The frontend listener must never save again.
+    // Regression for #9 and #57: one saved edit must produce exactly one
+    // save (one repack + one disk write). This exercises the same path as
+    // the `save_patch` command the shell now invokes on `clan-edit`
+    // postMessages from the edit bridge.
     #[test]
-    fn patch_request_saves_exactly_once() {
+    fn save_patch_saves_exactly_once() {
         let _guard = SAVE_TEST_LOCK.lock().unwrap();
         let (dir, state) = open_temp_clan();
         let path = dir.path().join("test.clan");
 
         let before = SAVE_COUNT.load(std::sync::atomic::Ordering::SeqCst);
-        let payload = handle_patch_request(
-            r#"{"id":"heading-0","content":"Edited Title"}"#,
-            &state,
-        )
-        .expect("valid patch body must save and return a payload");
+        do_save_patch("heading-0".into(), "Edited Title".into(), &state)
+            .expect("a valid edit must save");
         let after = SAVE_COUNT.load(std::sync::atomic::Ordering::SeqCst);
 
         assert_eq!(after - before, 1, "a single edit must save exactly once");
-        assert_eq!(payload["id"], "heading-0");
-        assert_eq!(payload["content"], "Edited Title");
 
         // The patch landed on disk exactly once.
         let on_disk = ClanFile::open(&path).unwrap();
@@ -756,15 +725,36 @@ mod tests {
         assert!(patches.contains("Edited Title"));
     }
 
+    // #57: multibyte content must not panic the save-path logging.
     #[test]
-    fn patch_request_rejects_malformed_bodies() {
+    fn save_patch_handles_multibyte_content() {
         let _guard = SAVE_TEST_LOCK.lock().unwrap();
-        let (_dir, state) = open_temp_clan();
-        let before = SAVE_COUNT.load(std::sync::atomic::Ordering::SeqCst);
-        assert!(handle_patch_request("not json", &state).is_none());
-        assert!(handle_patch_request(r#"{"id":"x"}"#, &state).is_none());
-        let after = SAVE_COUNT.load(std::sync::atomic::Ordering::SeqCst);
-        assert_eq!(after, before, "malformed bodies must not trigger saves");
+        let (dir, state) = open_temp_clan();
+        let path = dir.path().join("test.clan");
+
+        let content = "é".repeat(100);
+        do_save_patch("heading-0".into(), content.clone(), &state)
+            .expect("multibyte content must save without panicking");
+
+        let on_disk = ClanFile::open(&path).unwrap();
+        let patches = on_disk.read_entry_string("human/patches.yaml").unwrap();
+        assert!(patches.contains(&content));
+    }
+
+    // The snapshot path (now reached via the `save_snapshot` command) must
+    // replace human/index.html and strip scripts from the rendered DOM.
+    #[test]
+    fn snapshot_replaces_index_html_and_strips_scripts() {
+        let (dir, state) = open_temp_clan();
+        let path = dir.path().join("test.clan");
+
+        let html = "<html><body><p data-adf-id=\"auto-p-0\">x</p><script>evil()</script></body></html>";
+        do_snapshot(html.into(), &state).expect("snapshot must save");
+
+        let on_disk = ClanFile::open(&path).unwrap();
+        let index = on_disk.read_entry_string("human/index.html").unwrap();
+        assert!(index.contains("data-adf-id=\"auto-p-0\""), "snapshot must persist injected ids");
+        assert!(!index.contains("<script"), "snapshot must strip scripts");
     }
 
     // F4: re-saving identical content for the same id is a no-op — the blur

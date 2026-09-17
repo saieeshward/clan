@@ -4,7 +4,6 @@
 
 import { useEffect, useRef, useCallback, useState } from 'react'
 import { invoke } from '@tauri-apps/api/core'
-import { listen } from '@tauri-apps/api/event'
 import type { ManifestInfo } from '../App'
 
 interface Props {
@@ -13,6 +12,7 @@ interface Props {
   manifest: ManifestInfo
   editMode: boolean
   onPatch: (id: string, content: string) => void
+  onSaveError: (message: string) => void
 }
 
 // Edit bridge script injected by the viewer (trusted — not from the agent).
@@ -92,10 +92,12 @@ const EDIT_BRIDGE = `
           // bakes into patches.yaml; skip if nothing actually changed (F4).
           var content = cleanEditableHtml(el);
           if (content === el.__clanOrig) return;
-          fetch(clanScheme + '/patch', {
-            method: 'POST',
-            body: JSON.stringify({ id: id, content: content })
-          }).catch(function(err) { console.error('Patch failed:', err); });
+          // POST bodies to the clan:// scheme are dropped by WKWebView on
+          // macOS (#57), so edits go to the shell via postMessage instead —
+          // the shell invokes save_patch over Tauri IPC. Target '*': the
+          // sandboxed iframe has an opaque origin and cannot name the
+          // parent's origin, which differs between dev and packaged builds.
+          window.parent.postMessage({ type: 'clan-edit', id: id, content: content }, '*');
         });
 
         el.addEventListener('keydown', function(e) {
@@ -142,7 +144,7 @@ const EDIT_BRIDGE = `
           el.style.cursor = 'text';
         });
       }
-      fetch(clanScheme + '/snapshot', { method: 'POST', body: snap }).catch(function() {});
+      window.parent.postMessage({ type: 'clan-snapshot', html: snap }, '*');
     }
 
     fetch(clanScheme + '/edit-mode')
@@ -163,9 +165,10 @@ const EDIT_BRIDGE = `
 })();
 `
 
-export default function DocumentView({ htmlContent, hasHumanView, manifest, editMode, onPatch }: Props) {
+export default function DocumentView({ htmlContent, hasHumanView, manifest, editMode, onPatch, onSaveError }: Props) {
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const editModeRef = useRef(editMode)
+  const snapshotSavedRef = useRef(false)
   
   useEffect(() => {
     editModeRef.current = editMode
@@ -181,23 +184,44 @@ export default function DocumentView({ htmlContent, hasHumanView, manifest, edit
     sendEditMode(editMode)
   }, [editMode, sendEditMode])
 
-  // Listen for patch messages from the Rust backend.
+  // Receive edits and snapshots from the edit bridge inside the sandboxed
+  // iframe and persist them over Tauri IPC. The bridge cannot invoke Tauri
+  // commands itself (no allow-same-origin) and custom-scheme POST bodies are
+  // dropped by WKWebView on macOS (#57), so postMessage is the only reliable
+  // channel out of the iframe.
   useEffect(() => {
-    const unlistenPromise = listen('clan-patch-saved', (event) => {
-      const payload = event.payload as { id?: unknown; content?: unknown } | null
-      if (payload && typeof payload.id === 'string' && typeof payload.content === 'string') {
-        onPatch(payload.id, payload.content)
+    function onMessage(event: MessageEvent) {
+      // Only trust messages from our own iframe. event.origin is the string
+      // "null" for the sandboxed iframe, so source identity is the only
+      // meaningful check; it also rejects messages from allow-popups windows.
+      if (event.source !== iframeRef.current?.contentWindow) return
+      const data = event.data as { type?: unknown; id?: unknown; content?: unknown; html?: unknown } | null
+      if (!data || typeof data !== 'object') return
+
+      if (data.type === 'clan-edit' && typeof data.id === 'string' && typeof data.content === 'string') {
+        const { id, content } = data
+        invoke('save_patch', { id, content })
+          .then(() => onPatch(id, content))
+          .catch(err => onSaveError(`Failed to save edit: ${err}`))
+      } else if (data.type === 'clan-snapshot' && typeof data.html === 'string') {
+        // Once per document load: the iframe runs agent-generated HTML that
+        // could spam forged snapshot messages and churn human/index.html.
+        if (snapshotSavedRef.current) return
+        snapshotSavedRef.current = true
+        invoke('save_snapshot', { html: data.html }).catch(console.error)
       }
-    })
-    return () => {
-      unlistenPromise.then(unlisten => unlisten())
     }
-  }, [onPatch])
+    window.addEventListener('message', onMessage)
+    return () => window.removeEventListener('message', onMessage)
+  }, [onPatch, onSaveError])
 
   const [iframeSrc, setIframeSrc] = useState<string>('')
 
   useEffect(() => {
     if (!hasHumanView) return;
+
+    // A newly loaded document gets one fresh snapshot.
+    snapshotSavedRef.current = false
 
     // Detect whether the agent produced a full HTML document or a fragment.
     const isFullDoc = /^\s*<!doctype\s+html/i.test(htmlContent) || /^\s*<html/i.test(htmlContent)
