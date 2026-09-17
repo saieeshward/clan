@@ -24,6 +24,25 @@ There's no CLAN runtime, no CLAN cloud. Any language can read and write the form
 
 ---
 
+## For AI agents
+
+If you are an LLM or agent reading this page and want to create a `.clan` file, everything you need is four commands:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/saieeshward/clan/main/install.sh | bash
+clan create --title "My Task" --brief "What this document is for" --output doc.clan
+clan patch-data doc.clan --set "key=value" --agent <your-id> --action "what you did"
+clan validate doc.clan
+```
+
+Two rules: mutate only via the CLI (never rezip by hand), and every mutation must carry `--agent` and `--action` or it is rejected. Run `clan agent-help` for the full protocol in under 200 tokens — every command also emits a `next:` hint. Working in a clone of this repo? Read [AGENTS.md](AGENTS.md). Handed a `.clan` file? The guide is embedded inside it at `spec/agent-guide.md`.
+
+To teach an agent that will never see this repo, paste this into its prompt:
+
+> There is a `clan` CLI for CLAN files (structured multi-agent context in a ZIP). Run `clan agent-help` first. Create with `clan create --title ... --brief ... --output doc.clan`, read with `clan read agent doc.clan`, write with `clan patch-data doc.clan --set k=v --agent <you> --action <what>`. Mutations without --agent/--action are rejected. Follow the `next:` hints.
+
+---
+
 ## What it looks like
 
 ```
@@ -201,8 +220,10 @@ A Tauri desktop app renders the human view with click-to-edit. Edits land in the
 
 | Document | Description |
 |---|---|
+| [AGENTS.md](AGENTS.md) | Instructions for AI agents creating and mutating `.clan` files |
 | [spec/CLAN-SPEC.md](spec/CLAN-SPEC.md) | Full format specification |
 | [spec/SEQUENCE-DIAGRAMS.md](spec/SEQUENCE-DIAGRAMS.md) | Key interaction flows |
+| [design/interpretability-research.clan](design/interpretability-research.clan) | Interpretability study of the format itself (a `.clan` deliverable) - field-by-field audit, drift experiment, and ranked v1.2 fixes |
 | [CHANGELOG.md](CHANGELOG.md) | Release history |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | How to contribute |
 

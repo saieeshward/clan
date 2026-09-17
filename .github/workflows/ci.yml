@@ -15,7 +15,6 @@ env:
 
 jobs:
   rust:
-    name: Rust — fmt · clippy · test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -43,7 +42,6 @@ jobs:
         run: cargo test -p clan-sdk -p clan-cli --all-targets
 
   frontend:
-    name: Frontend — lint · tsc · build
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -70,7 +68,6 @@ jobs:
         run: npm run build
 
   conformance:
-    name: CLI conformance harness
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
