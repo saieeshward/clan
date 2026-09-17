@@ -723,6 +723,11 @@ mod tests {
         let patches = on_disk.read_entry_string("human/patches.yaml").unwrap();
         assert_eq!(patches.matches("heading-0").count(), 1);
         assert!(patches.contains("Edited Title"));
+
+        // The edit is also logged for agents and the Decisions tab.
+        let chain = on_disk.read_entry_string("agent/decision-chain.yaml").unwrap();
+        assert!(chain.contains("agent: human"), "human edit must appear in the decision chain");
+        assert!(chain.contains("Edited Title"));
     }
 
     // #57: multibyte content must not panic the save-path logging.
