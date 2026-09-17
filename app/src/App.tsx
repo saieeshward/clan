@@ -130,6 +130,7 @@ export default function App() {
               manifest={openResult.manifest}
               editMode={editMode}
               onPatch={handlePatch}
+              onSaveError={setError}
             />
           )}
         </main>
